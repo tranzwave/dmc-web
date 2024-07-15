@@ -1,7 +1,13 @@
 import "~/styles/globals.css";
 
-import { GeistSans } from "geist/font/sans";
+import { Roboto as FontSans } from "next/font/google";
 import { type Metadata } from "next";
+
+const fontSans = FontSans({
+  weight:['100','300','400','500','700','900'],
+  subsets: ["latin"],
+  variable: "--font-sans",
+})
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -13,12 +19,12 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${GeistSans.variable}`}>
+    <html lang="en" className={`${fontSans.variable}`}>
       <body className="flex flex-col h-screen">
         <div className="w-screen h-11 bg-white fixed top-0">Top Bar</div>
         <div className="flex flex-row mt-11 flex-grow">
           <div className="w-64 h-full bg-white fixed top-11 left-0">Side Nav</div>
-          <div className="flex-grow ml-64 bg-gray-100">{children}</div>
+          <div className="flex-grow ml-64 bg-gray-100 font-bold">{children}</div>
         </div>
       </body>
     </html>
