@@ -2,6 +2,7 @@
   @tailwind components;
   @tailwind utilities;
 
+
   @layer base {
     :root {
       --background: 0 0% 100%;
@@ -59,11 +60,66 @@
     }
   }
 
+  .side-nav {
+    @apply  w-[245px] 2xl:w-[300px] h-full bg-primary-green p-4;
+  }
+
+  .top-bar {
+    @apply flex w-full items-center h-[73px] px-4 py-2;
+  }
+
+  .dashboard-content {
+    @apply border w-full px-4 py-3;
+  }
+
   @layer base {
     * {
       @apply border-border;
     }
     body {
-      @apply bg-background text-foreground;
+      @apply bg-background text-foreground base-text flex h-dvh overflow-x-hidden;
     }
   }
+
+  .card {
+    @apply flex flex-col rounded-lg border border-primary-borderGray p-3 shadow-md;
+  }
+
+  .card-title {
+    @apply font-semibold text-xl text-primary-black;
+  }
+
+/* Webkit browsers */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary-green w-1;
+  border-radius: 6px;
+}
+
+/* ::-webkit-scrollbar-thumb:hover {
+  background: #555;
+} */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+
+
+
+.base-text{
+  @apply text-sm 2xl:text-base;
+}
+
+.icon-size{
+  @apply w-[20px] 2xl:w-[24px];
+}

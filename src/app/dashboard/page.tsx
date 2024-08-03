@@ -1,9 +1,7 @@
+import Overview from "./overview/page"
 
 
-import { useRouter } from "next/router";
-import { useLayoutEffect } from "react";
-
-const RootPage = ()=>{
+const DashboardRootPage = ()=>{
     // const router = useRouter();
     // useLayoutEffect(() => {
     //     router.replace(
@@ -12,9 +10,11 @@ const RootPage = ()=>{
     //   }, []);
 
     return (
-        <div>Helloo</div>
+        <div>
+            Dashboard Home
+        </div>
     )
 
 }
 
-export default RootPage
+export default DashboardRootPage;
