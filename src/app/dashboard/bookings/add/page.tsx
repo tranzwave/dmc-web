@@ -1,30 +1,47 @@
-"use client";
-
-import { useEffect } from 'react';
-import TitleBar from "~/components/common/titleBar";
-import { Button } from "~/components/ui/button";
+'use client'
 import { usePathname } from 'next/navigation';
+import { useAddBooking, AddBookingProvider } from './context';
+import { useEffect } from 'react';
+import { Button } from '~/components/ui/button';
+import TitleBar from '~/components/common/titleBar';
 import Link from 'next/link';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import HotelsForm from '~/components/bookings/addBooking/forms/hotelsForm';
-import GeneralForm from '~/components/bookings/addBooking/forms/generalForm';
-import { DataTable } from '~/components/bookings/home/dataTable';
-import { columns } from '~/components/bookings/addBooking/forms/hotelsForm/columns';
-import AddBookingHotel from '~/components/bookings/addBooking/forms/hotelsForm/index';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
+import GeneralTab from '~/components/bookings/addBooking/forms/generalForm';
+import HotelsTab from '~/components/bookings/addBooking/forms/hotelsForm';
+import RestaurantsTab from '~/components/bookings/addBooking/forms/restaurantsForm';
+import ActivitiesTab from '~/components/bookings/addBooking/forms/activitiesForm';
+import TransportTab from '~/components/bookings/addBooking/forms/transportForm';
+import ShopsTab from '~/components/bookings/addBooking/forms/shopsForm';
 
+const SubmitForm = () => {
+  const { bookingDetails } = useAddBooking();
 
-const SubmitForm = () => (
-  <div>
-    <p>Review all the details and submit your booking.</p>
-    <Button variant="primaryGreen">Submit</Button>
-  </div>
-);
+  const handleSubmit = () => {
+    // Handle the submission of bookingDetails
+    console.log('Submitting booking details:', bookingDetails);
+  };
 
-export default function AddBooking() {
+  return (
+    <div className='flex flex-col gap-3'>
+      <div className='card w-full h-10'>
+        <p>Review all the details and submit your booking.</p>
+      </div>
+      <div className='flex w-full justify-center'>
+        <Button variant="primaryGreen" onClick={handleSubmit}>
+          Submit
+        </Button>
+      </div>
+
+    </div>
+  );
+};
+
+const AddBooking = () => {
   const pathname = usePathname();
+  const { setGeneralDetails, addHotel, addRestaurant, addActivity, addTransport, addShop } = useAddBooking();
 
   useEffect(() => {
-    console.log("Add Booking Component");
+    console.log('Add Booking Component');
   }, []);
 
   return (
@@ -50,29 +67,45 @@ export default function AddBooking() {
                 <TabsTrigger value="shops">Shops</TabsTrigger>
                 <TabsTrigger value="submit">Submit</TabsTrigger>
               </TabsList>
-              <TabsContent value="general" className='flex flex-row gap-2 justify-center mx-9'>
-                <div className='w-[25%]'>
-                    <div className='card'>
-                        Calendar
-                    </div>
-                </div>
-                <div className='card w-[70%] space-y-6'>
-                    <div className='card-title'>General Information</div>
-                    <GeneralForm />
-                </div>
+              <TabsContent value="general">
+                {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
+                <GeneralTab/>
               </TabsContent>
-              <TabsContent value="hotels" className='flex flex-col gap-2'>
-                <AddBookingHotel/>
+              <TabsContent value="hotels">
+                {/* <HotelsTab onAddHotel={addHotel} /> */}
+                <HotelsTab/>
               </TabsContent>
-              <TabsContent value="restaurants">RestaurantsForm</TabsContent>
-              <TabsContent value="activities">ActivitiesForm</TabsContent>
-              <TabsContent value="transport">TransportForm</TabsContent>
-              <TabsContent value="shops">ShopsForm</TabsContent>
-              <TabsContent value="submit"><SubmitForm /></TabsContent>
+              <TabsContent value="restaurants">
+                {/* <RestaurantsTab onAddRestaurant={addRestaurant} /> */}
+                <RestaurantsTab/>
+              </TabsContent>
+              <TabsContent value="activities">
+                {/* <ActivitiesTab onAddActivity={addActivity} /> */}
+                <ActivitiesTab/>
+              </TabsContent>
+              <TabsContent value="transport">
+                {/* <TransportTab onAddTransport={addTransport} /> */}
+                <TransportTab/>
+              </TabsContent>
+              <TabsContent value="shops">
+                {/* <ShopsTab onAddShop={addShop} /> */}
+                <ShopsTab/>
+              </TabsContent>
+              <TabsContent value="submit">
+                <SubmitForm />
+              </TabsContent>
             </Tabs>
           </div>
         </div>
       </div>
     </div>
+  );
+};
+
+export default function WrappedAddBooking() {
+  return (
+    <AddBookingProvider>
+      <AddBooking />
+    </AddBookingProvider>
   );
 }

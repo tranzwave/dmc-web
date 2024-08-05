@@ -1,5 +1,11 @@
 // lib/api.ts
+import { Hotel } from "~/components/bookings/addBooking/forms/hotelsForm/columns";
+import { Transport } from "~/components/bookings/addBooking/forms/transportForm/columns";
 import { Booking } from "~/components/bookings/home/columns";
+import { Driver, VehicleType } from "./types/driver/type";
+import { driversMockData, hotelsMockData, shopsMockData } from "./mockData";
+import { Activity } from "./types/activity/type";
+import { Shop } from "~/components/bookings/addBooking/forms/shopsForm/columns";
 
 export async function getData(): Promise<Booking[]> {
     // Fetch data from your API here.
@@ -376,3 +382,117 @@ export async function getData(): Promise<Booking[]> {
       }
     ];
 }
+
+
+export async function getDrivers():Promise<Hotel[]>{
+  return [];
+}
+
+
+export async function getTransportData(): Promise<Driver[]> {
+  // Mock data
+  const mockData: Driver[] = driversMockData
+
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(mockData), 1000); // Simulate network delay
+  });
+}
+
+export async function getHotelData(): Promise<Hotel[]> {
+  // Mock data
+  const mockData: Hotel[] = hotelsMockData
+
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(mockData), 1000); // Simulate network delay
+  });
+}
+
+
+export type DriverSearchParams = {
+  vehicleType:VehicleType;
+  languages:string[];
+  type:string
+}
+
+export async function searchDriverData(searchParams: DriverSearchParams): Promise<Driver[]> {
+  // Simulate a delay for the async function
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // Filter drivers based on search parameters
+  return driversMockData.filter(driver => {
+    const matchesVehicleType = driver.vehicles.some(vehicle => vehicle.vehicleType === searchParams.vehicleType);
+
+    // Check if at least one language matches
+    const matchesLanguages = searchParams.languages.some(language => driver.general.languages.includes(language));
+
+    const matchesGuideType = (
+      searchParams.type === 'Both' ||
+      (searchParams.type === 'Guide' && driver.general.guide) ||
+      (searchParams.type === 'Driver' && !driver.general.guide)
+    );
+
+    return matchesVehicleType && matchesLanguages && matchesGuideType;
+  });
+};
+
+export type ShopsSearchParams = {
+  shopType:string;
+  city:string;
+  productType:string;
+}
+
+export async function searchShopsData(searchParams:ShopsSearchParams): Promise<Shop[]>{
+    // Simulate a delay for the async function
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Filter drivers based on search parameters
+    return shopsMockData.filter(shop => {
+      const matchesShopType = shop.shopType === searchParams.shopType;
+  
+      // Check if at least one language matches
+      const matchesShopCity = searchParams.city === shop.city;
+  
+      const matchesProductType = shop.productType === searchParams.productType;
+  
+      return matchesShopType && matchesShopCity && matchesProductType;
+    });
+}
+
+export const getActivityData = async (): Promise<Activity[]> => {
+    // Implement the actual fetch logic here
+    // For demonstration purposes, we return a static list
+    return [
+        {
+            general: {
+                vendorName: "Vendor 1",
+                activity: "Activity 1",
+                primaryEmail: "email1@example.com",
+                primaryContactNumber: "123-456-7890",
+                address: {
+                    streetName: "Street 1",
+                    city: "City 1",
+                    province: "Province 1"
+                },
+                capacity: 50
+            }
+        },
+        {
+            general: {
+                vendorName: "Vendor 2",
+                activity: "Activity 2",
+                primaryEmail: "email2@example.com",
+                primaryContactNumber: "098-765-4321",
+                address: {
+                    streetName: "Street 2",
+                    city: "City 2",
+                    province: "Province 2"
+                },
+                capacity: 30
+            }
+        }
+    ];
+};
+
+
+
+

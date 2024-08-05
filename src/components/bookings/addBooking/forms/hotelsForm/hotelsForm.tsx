@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
-import { Hotel } from "./hotelsForm/columns";
+import { Hotel } from "./columns";
 
 interface HotelsFormProps {
   onAddHotel: (hotel: Hotel) => void;

@@ -1,18 +1,22 @@
 'use client'
 import { useState } from "react"
-import HotelsForm from "../hotelsForm"
-import { columns, Hotel } from "./columns"
 import { DataTable } from "~/components/bookings/home/dataTable"
+import { columns, Hotel } from "./columns"
+import HotelsForm from "./hotelsForm"
+import { useAddBooking } from "~/app/dashboard/bookings/add/context"
+import { Button } from "~/components/ui/button"
 
-const AddBookingHotel = () => {
+const HotelsTab = () => {
     const [addedHotels, setAddedHotels] =useState<Hotel[]>([])
+    const { addHotel,bookingDetails } = useAddBooking();
 
     const updateHotels = (hotel:Hotel)=>{
-        setAddedHotels((prev)=>[...prev,hotel]);
+        console.log(hotel);
+        addHotel(hotel);
     }
     return (
-        <div className="flex flex-col gap-3">
-            <div className='flex flex-row gap-2 justify-center mx-9'>
+        <div className="flex flex-col gap-3 justify-center items-center ">
+            <div className='w-full flex flex-row gap-2 justify-center'>
                 <div className='w-[25%]'>
                     <div className='card'>
                         Calendar
@@ -23,14 +27,18 @@ const AddBookingHotel = () => {
                     <HotelsForm onAddHotel={updateHotels} />
                 </div>
             </div>
-            <div className='flex flex-row gap-2 justify-center mx-9'>
-                <div className='w-full border'>
-                    <DataTable columns={columns} data={addedHotels}/>
+            <div className='flex flex-col gap-2 items-center justify-center w-[95%]'>
+                <div className='w-full'>
+                    <DataTable columns={columns} data={bookingDetails.hotels}/>
                 </div>
+                <div className="w-full flex justify-end">
+                <Button variant={"primaryGreen"}>Next</Button>
             </div>
+            </div>
+            
         </div>
     );
 }
 
 
-export default AddBookingHotel;
+export default HotelsTab;
