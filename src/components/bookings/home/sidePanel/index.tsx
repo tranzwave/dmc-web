@@ -1,6 +1,6 @@
 "use client"
 
-import { Booking } from "~/components/bookings/home/columns";
+import { Booking, CategoryDetails } from "~/components/bookings/home/columns";
 import { Button } from '~/components/ui/button';
 import { Progress } from '~/components/ui/progress';
 import { Lock } from "lucide-react"; // Import the lock icon
@@ -17,7 +17,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
     </div>
   );
 
-  const renderCard = (category: any) => (
+  const renderCard = (category: CategoryDetails) => (
     <div className='relative card gap-3'>
       <div className='text-base font-semibold text-primary-black'>{category.title}</div>
       <div className='flex flex-row gap-3'>

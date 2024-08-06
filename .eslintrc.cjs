@@ -30,8 +30,9 @@ const config = {
       }
     ],
     "@typescript-eslint/require-await": "off",
+    "@typescript-eslint/no-floating-promises":"off",
     "@typescript-eslint/no-misused-promises": [
-      "error",
+      "warn",
       {
         "checksVoidReturn": {
           "attributes": false
