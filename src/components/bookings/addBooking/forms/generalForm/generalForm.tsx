@@ -1,8 +1,9 @@
 "use client";
 
-import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
+import { useAddBooking } from "~/app/dashboard/bookings/add/context";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import {
@@ -15,7 +16,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { useAddBooking } from "~/app/dashboard/bookings/add/context";
 
 // Define the schema for form validation
 export const generalSchema = z.object({
