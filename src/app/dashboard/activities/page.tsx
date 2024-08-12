@@ -64,11 +64,10 @@ const ActivityHome = () => {
                     </div>
                     <div className='flex flex-row gap-3 justify-center'>
                         <div className='w-[90%]'>
-                            <DataTable columns={activityColumns} data={data} onRowClick={handleRowClick} />
+                            <Link href={`${pathname}/profile`}>
+                            <DataTable columns={activityColumns} data={data} onRowClick={handleRowClick}/>
+                            </Link>
                         </div>
-                        {/* <div className='w-[40%]'>
-                            <SidePanel booking={selectedBooking} onClose={handleCloseSidePanel} />
-                        </div> */}
                     </div>
                 </div>
             </div>
