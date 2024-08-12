@@ -6,6 +6,59 @@ import { Driver, VehicleType } from "./types/driver/type";
 import { driversMockData, hotelsMockData, shopsMockData } from "./mockData";
 import { Activity } from "./types/activity/type";
 import { Shop } from "~/components/bookings/addBooking/forms/shopsForm/columns";
+import { BookingDetails } from "~/app/dashboard/bookings/add/context";
+
+export interface BookingSchema extends BookingDetails {
+  createdAt:number,
+  id:string
+}
+// Mock data for storing bookings
+let bookings: BookingSchema[] = JSON.parse(localStorage.getItem('bookings') || '[]');
+
+export async function addBooking(bookingDetails: BookingDetails): Promise<{ success: boolean; message: string; id: string }> {
+
+  const time = Date.now()
+  const id = 'B' + time;
+
+  const booking = {
+      ...bookingDetails,
+      createdAt: time,
+      id: id
+  };
+
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  // Add the booking to the mock data
+  bookings.push(booking);
+
+  // Save the updated bookings to local storage
+  localStorage.setItem('bookings', JSON.stringify(bookings));
+
+  return { success: true, message: "Booking added successfully", id: booking.id };
+}
+
+// Mock API function to get a booking by ID
+export async function getBookingById(id: string): Promise<BookingSchema | null> {
+  // Simulate a delay
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  // Retrieve bookings from local storage
+  const bookingsJson = localStorage.getItem('bookings');
+  if (!bookingsJson) {
+      return null; // No bookings found
+  }
+
+  const bookings: BookingSchema[] = JSON.parse(bookingsJson);
+
+  // Find the booking by ID
+  const booking = bookings.find(b => b.id === id);
+
+  // Return the booking or null if not found
+  return booking || null;
+}
+
+
+
 
 export async function getData(): Promise<Booking[]> {
     // Fetch data from your API here.

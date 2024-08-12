@@ -12,7 +12,7 @@ export interface TransportWithDriver {
   driver: Driver;
 }
 
-interface BookingDetails {
+export interface BookingDetails {
   general: General; 
   hotels: Hotel[];
   restaurants: Restaurant[];
