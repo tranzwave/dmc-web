@@ -6,6 +6,18 @@ import { driversMockData, hotelsMockData, shopsMockData } from "./mockData";
 import { Activity } from "./types/activity/type";
 import { Driver, VehicleType } from "./types/driver/type";
 
+// lib/api.ts
+
+
+export async function getActivityById(id: string): Promise<Activity> {
+  const response = await fetch(`/api/activities/${id}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch activity');
+  }
+  return response.json();
+}
+
+
 export async function getData(): Promise<Booking[]> {
   // Fetch data from your API here.
   return [
@@ -462,6 +474,7 @@ export const getActivityData = async (): Promise<Activity[]> => {
   // For demonstration purposes, we return a static list
   return [
     {
+      id: 1,
       general: {
         vendorName: "Vendor 1",
         activity: "Activity 1",
@@ -476,6 +489,7 @@ export const getActivityData = async (): Promise<Activity[]> => {
       }
     },
     {
+      id: 2,
       general: {
         vendorName: "Vendor 2",
         activity: "Activity 2",
@@ -494,4 +508,7 @@ export const getActivityData = async (): Promise<Activity[]> => {
 
 
 
+
+
+export type { Activity };
 

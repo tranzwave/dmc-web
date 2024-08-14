@@ -8,6 +8,7 @@ type Address = {
 
 // Define the Activity type
 type Activity = {
+  id: number
   general: {
     vendorName: string;
     activity: string;
