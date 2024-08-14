@@ -12,29 +12,7 @@ import TitleBar from '~/components/common/titleBar';
 import { Button } from '~/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { AddBookingProvider, useAddBooking } from './context';
-
-const SubmitForm = () => {
-  const { bookingDetails } = useAddBooking();
-
-  const handleSubmit = () => {
-    // Handle the submission of bookingDetails
-    console.log('Submitting booking details:', bookingDetails);
-  };
-
-  return (
-    <div className='flex flex-col gap-3'>
-      <div className='card w-full h-10'>
-        <p>Review all the details and submit your booking.</p>
-      </div>
-      <div className='flex w-full justify-center'>
-        <Button variant="primaryGreen" onClick={handleSubmit}>
-          Submit
-        </Button>
-      </div>
-
-    </div>
-  );
-};
+import AddBookingSubmitTab from '~/components/bookings/addBooking/forms/submitForm';
 
 const AddBooking = () => {
   const pathname = usePathname();
@@ -92,7 +70,7 @@ const AddBooking = () => {
                 <ShopsTab/>
               </TabsContent>
               <TabsContent value="submit">
-                <SubmitForm />
+                <AddBookingSubmitTab />
               </TabsContent>
             </Tabs>
           </div>
