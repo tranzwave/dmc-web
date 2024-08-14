@@ -1,10 +1,10 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
+import { Activity } from '~/components/bookings/addBooking/forms/activitiesForm/columns';
+import { General } from '~/components/bookings/addBooking/forms/generalForm/columns';
 import { Hotel } from '~/components/bookings/addBooking/forms/hotelsForm/columns';
 import { Restaurant } from '~/components/bookings/addBooking/forms/restaurantsForm/columns';
-import { Activity } from '~/components/bookings/addBooking/forms/activitiesForm/columns';
-import { Transport } from '~/components/bookings/addBooking/forms/transportForm/columns';
 import { Shop } from '~/components/bookings/addBooking/forms/shopsForm/columns';
-import { General } from '~/components/bookings/addBooking/forms/generalForm/columns';
+import { Transport } from '~/components/bookings/addBooking/forms/transportForm/columns';
 import { Driver } from '~/lib/types/driver/type';
 
 export interface TransportWithDriver {
@@ -12,7 +12,7 @@ export interface TransportWithDriver {
   driver: Driver;
 }
 
-interface BookingDetails {
+export interface BookingDetails {
   general: General; 
   hotels: Hotel[];
   restaurants: Restaurant[];

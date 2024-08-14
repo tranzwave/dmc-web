@@ -1,8 +1,10 @@
 "use client";
 
-import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
+import { useEffect } from "react";
+import { useAddBooking } from "~/app/dashboard/bookings/add/context";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import {
@@ -15,7 +17,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { useAddBooking } from "~/app/dashboard/bookings/add/context";
 
 // Define the schema for form validation
 export const generalSchema = z.object({
@@ -32,6 +33,9 @@ export const generalSchema = z.object({
     transport: z.boolean(),
     activities: z.boolean(),
   }),
+}).refine((data) => new Date(data.endDate) >= new Date(data.startDate), {
+  message: "End date cannot be earlier than start date",
+  path: ["endDate"],
 });
 
 // Define the type of the form values
@@ -45,15 +49,26 @@ const includesOptions = [
 ];
 
 const GeneralForm = () => {
-  const { setGeneralDetails,bookingDetails } = useAddBooking();
+  const { setGeneralDetails, bookingDetails } = useAddBooking();
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
     defaultValues: bookingDetails.general,
   });
 
+  const startDate = form.watch("startDate");
+  const numberOfDays = form.watch("numberOfDays");
+
+  useEffect(() => {
+    if (startDate && numberOfDays) {
+      const endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + numberOfDays);
+      form.setValue("endDate", endDate.toISOString().split("T")[0] ?? '');
+    }
+  }, [startDate, numberOfDays, form]);
+
   const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
-    console.log(data)
-    setGeneralDetails(data)
+    console.log(data);
+    setGeneralDetails(data);
   };
 
   return (
@@ -95,9 +110,9 @@ const GeneralForm = () => {
               <FormLabel>Number of Days</FormLabel>
               <FormControl>
                 <Input
-                      type="number"
-                      value={field.value || ""}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                  type="number"
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
                 />
               </FormControl>
               <FormMessage />
@@ -107,7 +122,7 @@ const GeneralForm = () => {
             <FormItem>
               <FormLabel>End Date</FormLabel>
               <FormControl>
-                <Input type="date" {...field} />
+                <Input type="date" {...field} min={form.watch("startDate") || ""}/>
               </FormControl>
               <FormMessage />
             </FormItem>

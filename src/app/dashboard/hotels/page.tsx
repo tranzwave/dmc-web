@@ -6,36 +6,72 @@ import { columns, Hotel } from "~/components/bookings/addBooking/forms/hotelsFor
 import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
-import { getHotelData, getTransportData } from "~/lib/api";
+import { getHotelData } from "~/lib/api";// Assuming this type is defined
 
 const HotelsHome = () => {
     const [data, setData] = useState<Hotel[]>([]);
     const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);  // Added loading state
-    const [error, setError] = useState<string | null>(null); // Added error state
+    const [loading, setLoading] = useState<boolean>(true);  
+    const [error, setError] = useState<string | null>(null);
 
     const pathname = usePathname();
 
-    // Fetch data on mount
     useEffect(() => {
         async function fetchData() {
+            setLoading(true);
             try {
-                setLoading(true); // Set loading to true before starting fetch
-                const result = await getHotelData(); // Fetch transport data
+                const result = await getHotelData();
                 setData(result);
             } catch (error) {
-                console.error("Failed to fetch transport data:", error);
-                setError("Failed to load data."); // Set error message
+                console.error("Failed to fetch hotel data:", error);
+                setError("Failed to load data.");
             } finally {
-                setLoading(false); // Set loading to false after fetch is complete
+                setLoading(false);
             }
         }
 
         fetchData();
     }, []);
 
-    const handleRowClick = (driver: Hotel) => {
-        setSelectedHotel(driver);
+    const handleRowClick = (hotel: Hotel) => {
+        setSelectedHotel(hotel);
+    };
+
+    const handleAddHotel = async () => {
+        try {
+            const response = await fetch('/api/hotels', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    hotelName: 'Test Hotel',
+                    stars: 5,
+                    primaryEmail: 'info@hotel.com',
+                    primaryContactNumber: '123456789',
+                    streetName: 'Main St',
+                    city: 'City Name',
+                    province: 'Province',
+                    hasRestaurant: true,
+                    restaurants: [{ restaurantName: 'Restaurant 1', mealType: 'Breakfast', startTime: '07:00', endTime: '10:00' }],
+                }),
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                console.error('Server Error:', text);
+                setError('Failed to add hotel.');
+                return;
+            }
+
+            const data = await response.json();
+            console.log('Hotel added successfully:', data.hotel);
+            // Optionally refresh data
+            // await fetchData();
+        } catch (error) {
+            console.error('Error adding hotel:', error);
+            setError('An unexpected error occurred.');
+        }
     };
 
     const handleCloseSidePanel = () => {
@@ -43,11 +79,11 @@ const HotelsHome = () => {
     };
 
     if (loading) {
-        return <div>Loading...</div>;  // Render loading state
+        return <div>Loading...</div>;
     }
 
     if (error) {
-        return <div>Error: {error}</div>;  // Render error message if there's an error
+        return <div>Error: {error}</div>;
     }
 
     return (
@@ -57,18 +93,13 @@ const HotelsHome = () => {
                     <div className="flex flex-row gap-1 w-full justify-between">
                         <TitleBar title="Hotels" link="toAddBooking" />
                         <div>
-                            <Link href={`${pathname}/add`}>
-                                <Button variant="primaryGreen">Add Hotel</Button>
-                            </Link>             
+                            <Button variant="primaryGreen" onClick={handleAddHotel}>Add Hotel</Button>
                         </div>
                     </div>
                     <div className='flex flex-row gap-3 justify-center'>
                         <div className='w-[90%]'>
                             <DataTable columns={columns} data={data} onRowClick={handleRowClick} />
                         </div>
-                        {/* <div className='w-[40%]'>
-                            <SidePanel booking={selectedBooking} onClose={handleCloseSidePanel} />
-                        </div> */}
                     </div>
                 </div>
             </div>

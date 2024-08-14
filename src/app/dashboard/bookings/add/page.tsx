@@ -1,40 +1,18 @@
 'use client'
-import { usePathname } from 'next/navigation';
-import { useAddBooking, AddBookingProvider } from './context';
-import { useEffect } from 'react';
-import { Button } from '~/components/ui/button';
-import TitleBar from '~/components/common/titleBar';
 import Link from 'next/link';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
+import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
+import ActivitiesTab from '~/components/bookings/addBooking/forms/activitiesForm';
 import GeneralTab from '~/components/bookings/addBooking/forms/generalForm';
 import HotelsTab from '~/components/bookings/addBooking/forms/hotelsForm';
 import RestaurantsTab from '~/components/bookings/addBooking/forms/restaurantsForm';
-import ActivitiesTab from '~/components/bookings/addBooking/forms/activitiesForm';
-import TransportTab from '~/components/bookings/addBooking/forms/transportForm';
 import ShopsTab from '~/components/bookings/addBooking/forms/shopsForm';
-
-const SubmitForm = () => {
-  const { bookingDetails } = useAddBooking();
-
-  const handleSubmit = () => {
-    // Handle the submission of bookingDetails
-    console.log('Submitting booking details:', bookingDetails);
-  };
-
-  return (
-    <div className='flex flex-col gap-3'>
-      <div className='card w-full h-10'>
-        <p>Review all the details and submit your booking.</p>
-      </div>
-      <div className='flex w-full justify-center'>
-        <Button variant="primaryGreen" onClick={handleSubmit}>
-          Submit
-        </Button>
-      </div>
-
-    </div>
-  );
-};
+import TransportTab from '~/components/bookings/addBooking/forms/transportForm';
+import TitleBar from '~/components/common/titleBar';
+import { Button } from '~/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
+import { AddBookingProvider, useAddBooking } from './context';
+import AddBookingSubmitTab from '~/components/bookings/addBooking/forms/submitForm';
 
 const AddBooking = () => {
   const pathname = usePathname();
@@ -92,7 +70,7 @@ const AddBooking = () => {
                 <ShopsTab/>
               </TabsContent>
               <TabsContent value="submit">
-                <SubmitForm />
+                <AddBookingSubmitTab />
               </TabsContent>
             </Tabs>
           </div>

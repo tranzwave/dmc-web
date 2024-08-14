@@ -112,7 +112,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({ onAddHotel }) => {
             <FormItem>
               <FormLabel>Check-out Date</FormLabel>
               <FormControl>
-                <Input type="date" {...field} />
+                <Input type="date" {...field} min={form.watch("checkInDate") || ""}/>
               </FormControl>
               <FormMessage />
             </FormItem>

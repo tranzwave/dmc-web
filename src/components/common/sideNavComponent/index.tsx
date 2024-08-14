@@ -1,8 +1,8 @@
 'use client'
+import { Activity, BarChart2, Building, Calendar, Car, Home, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Calendar, Building, Car, Activity, BarChart2, User } from 'lucide-react';
 
 const SideNavBar = () => {
     const pathname = usePathname();
