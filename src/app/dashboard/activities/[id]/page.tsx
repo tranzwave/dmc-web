@@ -21,7 +21,7 @@ const Page = ({ params }: { params: { id: string } }) => {
         const selectedActivity = activities.find(
           (activity) => activity.id.toString() === params.id,
         );
-        setActivity(selectedActivity || null);
+        setActivity(selectedActivity ?? null);
       } catch (error) {
         console.error("Failed to fetch activity details:", error);
         setError("Failed to load activity details.");
