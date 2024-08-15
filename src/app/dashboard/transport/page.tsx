@@ -55,7 +55,7 @@ const TransportHome = () => {
             <div className="flex-1">
                 <div className="flex flex-col gap-3">
                     <div className="flex flex-row gap-1 w-full justify-between">
-                        <TitleBar title="Transport" link="toAddBooking" />
+                        <TitleBar title="Transport" link="toAddTransport" />
                         <div>
                             <Link href={`${pathname}/add`}>
                                 <Button variant="primaryGreen">Add Transport</Button>

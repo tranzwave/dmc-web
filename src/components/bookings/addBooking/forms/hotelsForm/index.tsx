@@ -1,10 +1,10 @@
 'use client'
 import { useState } from "react"
+import { useAddBooking } from "~/app/dashboard/bookings/add/context"
 import { DataTable } from "~/components/bookings/home/dataTable"
+import { Button } from "~/components/ui/button"
 import { columns, Hotel } from "./columns"
 import HotelsForm from "./hotelsForm"
-import { useAddBooking } from "~/app/dashboard/bookings/add/context"
-import { Button } from "~/components/ui/button"
 
 const HotelsTab = () => {
     const [addedHotels, setAddedHotels] =useState<Hotel[]>([])
