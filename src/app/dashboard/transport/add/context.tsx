@@ -8,7 +8,7 @@ interface TransportDetails {
   general: General; 
   vehicles: Vehicles[];
   charges: Charges;
-  documents: Documents[];
+  documents: Documents;
 }
 
 // Define context properties
@@ -18,7 +18,7 @@ interface AddTransportContextProps {
   addVehicles: (vehicles: Vehicles) => void;
   setChargesDetails: (charges: Charges) => void;
   // addCharges: (charges: Charges) => void;
-  addDocumets: (documents: Documents) => void;
+  setDocumetsDetails: (documents: Documents) => void;
 }
 
 // Provide default values
@@ -39,18 +39,27 @@ const defaultGeneral: General = {
 };
 
 const defaultCharges: Charges = {
-  feePerKm: 1,
-  fuelAllowance: 1,
-  accommodationAllowance: 1,
-  mealAllowance: 1,
+  feePerKm: 0,
+  fuelAllowance: 0,
+  accommodationAllowance: 0,
+  mealAllowance: 0,
+}
+
+const defaultDocuments: Documents = {
+  driverLicense: "",
+  guideLicense: "",
+  vehicleEmissionTest: "",
+  insurance: ""
 }
 
 const defaultTransportDetails: TransportDetails = {
   general: defaultGeneral,
   vehicles: [],
   charges: defaultCharges,
-  documents: [],
+  documents: defaultDocuments,
 };
+
+
 
 const AddTransportContext = createContext<AddTransportContextProps | undefined>(undefined);
 
@@ -70,8 +79,8 @@ export const AddTransportProvider: React.FC<{ children: ReactNode }> = ({ childr
   };
 
 
-  const addDocumets = (documents: Documents) => {
-    setTransportDetails(prev => ({ ...prev, documents: [...prev.documents, documents] }));
+  const setDocumetsDetails = (documents: Documents) => {
+    setTransportDetails(prev => ({ ...prev, documents: documents }));
   };
 
   return (
@@ -81,7 +90,7 @@ export const AddTransportProvider: React.FC<{ children: ReactNode }> = ({ childr
         setGeneralDetails,
         addVehicles,
         setChargesDetails,
-        addDocumets,
+        setDocumetsDetails,
       
       }}
     >

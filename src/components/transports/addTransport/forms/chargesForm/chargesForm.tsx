@@ -52,7 +52,7 @@ const ChargesForm = () => {
                 <FormItem>
                   <FormLabel>Fee Per km</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="Enter name" {...field} />
+                    <Input type="number" placeholder="Enter fee per km" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -68,7 +68,7 @@ const ChargesForm = () => {
                 <FormControl>
                   <Input
                     type="number"
-                    placeholder="Enter primary email"
+                    placeholder="Enter fuel allowance"
                     {...field}
                   />
                 </FormControl>
@@ -87,7 +87,7 @@ const ChargesForm = () => {
                 <FormControl>
                   <Input
                     type="number"
-                    placeholder="Enter contact number"
+                    placeholder="Enter accommodation allowance"
                     {...field}
                   />
                 </FormControl>
@@ -102,7 +102,7 @@ const ChargesForm = () => {
                 <FormItem>
                   <FormLabel>Meal ALlowance</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="Enter Street Name" {...field} />
+                    <Input type="number" placeholder="Enter meal allowance" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

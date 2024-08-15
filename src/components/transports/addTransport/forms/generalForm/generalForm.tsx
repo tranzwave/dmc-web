@@ -188,7 +188,7 @@ const GeneralForm = () => {
 
         <div className="flex w-full flex-row justify-end">
           <Button type="submit" variant={"primaryGreen"}>
-            Submit
+            Next
           </Button>
         </div>
       </form>

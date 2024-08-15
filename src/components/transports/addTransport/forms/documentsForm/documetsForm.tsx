@@ -15,87 +15,59 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 
+
 // Define the schema for form validation
-export const generalSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  language: z.string().min(1, "Activity is required"),
-  primaryEmail: z.string().email("Invalid email address"),
-  primaryContactNumber: z.string().min(1, "Contact number is required"),
-  streetName: z.string().min(1, "Street name is required"),
-  city: z.string().min(1, "City is required"),
-  province: z.string().min(1, "Province is required"),
-  guid: z.string().min(1, "Capacity is required"),
-  includes: z.object({
-    vehicles: z.boolean(),
-    charges: z.boolean(),
-    documents: z.boolean(),
-  }),
+export const DocumentsSchema = z.object({
+  driverLicense: z.string().min(1, "Driver's license is required"),
+  guideLicense: z.string().min(1, "Guid license is required"),
+  vehicleEmissionTest: z.string().min(1, "Vehicle emission test is required"),
+  insurance: z.string().min(1, "Insurance is required"),
 });
 
 // Define the type of the form values
-type GeneralFormValues = z.infer<typeof generalSchema>;
+type ChargesFormValues = z.infer<typeof DocumentsSchema>;
 
-// Define checkbox options
-const includesOptions = [
-  { id: "vehicles", label: "Vehicles" },
-  { id: "changes", label: "Charges" },
-  { id: "documents", label: "Documents" },
-];
-
-const GeneralForm = () => {
-  const { setGeneralDetails, transportDetails } = useAddTransport();
-  const form = useForm<GeneralFormValues>({
-    resolver: zodResolver(generalSchema),
-    defaultValues: transportDetails.general,
+const DocumentsForm = () => {
+  const { setDocumetsDetails, transportDetails } = useAddTransport();
+  const form = useForm<ChargesFormValues>({
+    resolver: zodResolver(DocumentsSchema),
+    defaultValues: transportDetails.documents,
   });
 
-  const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
+
+
+  const onSubmit: SubmitHandler<ChargesFormValues> = (data) => {
     console.log(data);
-    setGeneralDetails(data);
+    setDocumetsDetails(data);
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-4 gap-4">
-          <FormField
-            name="name"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              name="driverLicense"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Driver's License</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter driver's license" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
           <FormField
-            name="language"
+            name="guideLicense"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Language</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter language" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            name="primaryEmail"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Primary Email</FormLabel>
+                <FormLabel>Guide License</FormLabel>
                 <FormControl>
                   <Input
-                    type="email"
-                    placeholder="Enter primary email"
+                    placeholder="Enter guid license"
                     {...field}
                   />
                 </FormControl>
@@ -103,16 +75,16 @@ const GeneralForm = () => {
               </FormItem>
             )}
           />
+          
 
           <FormField
-            name="primaryContactNumber"
+            name="vehicleEmissionTest"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Contact Number</FormLabel>
+                <FormLabel>Vehicle Emission Test</FormLabel>
                 <FormControl>
                   <Input
-                    type="number"
                     placeholder="Enter contact number"
                     {...field}
                   />
@@ -121,18 +93,14 @@ const GeneralForm = () => {
               </FormItem>
             )}
           />
-        </div>
-
-        <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-1">
             <FormField
-              name="streetName"
+              name="insurance"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Street Name</FormLabel>
+                  <FormLabel>Insurance</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter Street Name" {...field} />
+                    <Input placeholder="Enter Insurance" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -140,53 +108,7 @@ const GeneralForm = () => {
             />
           </div>
 
-          <div className="col-span-2">
-            <div className="grid grid-cols-3 gap-4">
-              <FormField
-                name="city"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter city" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="province"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Province</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter province" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                name="guid"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Guid</FormLabel>
-                    <FormControl>
-                      <Input placeholder="" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="flex w-full flex-row justify-end">
+        <div className="flex w-full flex-row justify-end gap-2">
           <Button type="submit" variant={"primaryGreen"}>
             Submit
           </Button>
@@ -196,4 +118,4 @@ const GeneralForm = () => {
   );
 };
 
-export default GeneralForm;
+export default DocumentsForm;
