@@ -7,7 +7,7 @@ import { Vehicles } from '~/components/transports/addTransport/forms/vehiclesFor
 interface TransportDetails {
   general: General; 
   vehicles: Vehicles[];
-  charges: Charges[];
+  charges: Charges;
   documents: Documents[];
 }
 
@@ -16,7 +16,8 @@ interface AddTransportContextProps {
   transportDetails: TransportDetails;
   setGeneralDetails: (details: General) => void;
   addVehicles: (vehicles: Vehicles) => void;
-  addCharges: (charges: Charges) => void;
+  setChargesDetails: (charges: Charges) => void;
+  // addCharges: (charges: Charges) => void;
   addDocumets: (documents: Documents) => void;
 }
 
@@ -37,10 +38,17 @@ const defaultGeneral: General = {
   },
 };
 
+const defaultCharges: Charges = {
+  feePerKm: 1,
+  fuelAllowance: 1,
+  accommodationAllowance: 1,
+  mealAllowance: 1,
+}
+
 const defaultTransportDetails: TransportDetails = {
   general: defaultGeneral,
   vehicles: [],
-  charges: [],
+  charges: defaultCharges,
   documents: [],
 };
 
@@ -57,8 +65,8 @@ export const AddTransportProvider: React.FC<{ children: ReactNode }> = ({ childr
     setTransportDetails(prev => ({ ...prev, vehicles: [...prev.vehicles, vehicles] }));
   };
 
-  const addCharges = (charges: Charges) => {
-    setTransportDetails(prev => ({ ...prev, charges: [...prev.charges, charges] }));
+  const setChargesDetails = (charges: Charges) => {
+    setTransportDetails(prev => ({ ...prev, charges:  charges }));
   };
 
 
@@ -72,7 +80,7 @@ export const AddTransportProvider: React.FC<{ children: ReactNode }> = ({ childr
         transportDetails,
         setGeneralDetails,
         addVehicles,
-        addCharges,
+        setChargesDetails,
         addDocumets,
       
       }}

@@ -1,18 +1,29 @@
 "use client";
 
+import { ColumnDef } from "@tanstack/react-table";
 
 export type Charges = {
-  name: string;
-  language: string;
-  primaryEmail: string;
-  primaryContactNumber: string;
-  streetName: string;
-  city: string;
-  province: string;
-  guid: string;
-  includes: {
-    vehicles: boolean,
-    charges: boolean,
-    documents: boolean,
-  }
+  feePerKm: number;
+  fuelAllowance: number;
+  accommodationAllowance: number;
+  mealAllowance: number;
 };
+
+export const columns: ColumnDef<Charges>[] = [
+  {
+    accessorKey: "feePerKm",
+    header: "Fee per km",
+  },
+  {
+    accessorKey: "fuelAllowance",
+    header: "Fuel Allowance",
+  },
+  {
+    accessorKey: "accommodationAllowance",
+    header: "Accomodation Allowance",
+  },
+  {
+    accessorKey: "mealAllowance",
+    header: "Meal Allowance",
+  },
+];
