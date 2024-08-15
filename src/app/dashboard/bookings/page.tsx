@@ -1,14 +1,14 @@
 "use client"
 
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import TitleBar from "~/components/common/titleBar";
-import { Button } from "~/components/ui/button";
 import { Booking, columns } from "~/components/bookings/home/columns";
-import { getData } from "~/lib/api";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import SidePanel from "~/components/bookings/home/sidePanel";
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
+import TitleBar from "~/components/common/titleBar";
+import { Button } from "~/components/ui/button";
+import { getData } from "~/lib/api";
 
 export default function Bookings() {
   const [data, setData] = useState<Booking[]>([]);

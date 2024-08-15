@@ -5,13 +5,21 @@ import { Shop } from "~/components/bookings/addBooking/forms/shopsForm/columns";
 import { Booking } from "~/components/bookings/home/columns";
 import { driversMockData, hotelsMockData, shopsMockData } from "./mockData";
 import { Activity } from "./types/activity/type";
+import { Driver, VehicleType } from "./types/driver/type";
 
 export interface BookingSchema extends BookingDetails {
   createdAt: number,
   id: string
 }
+
+let bookings: BookingSchema[] = [];
+
+if (typeof window !== "undefined") {  //use this for checck browser environment
+  bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+}
+
 // Mock data for storing bookings
-let bookings: BookingSchema[] = JSON.parse(localStorage.getItem('bookings') || '[]');
+// let bookings: BookingSchema[] = JSON.parse(localStorage.getItem('bookings') || '[]');
 
 export async function addBooking(bookingDetails: BookingDetails): Promise<{ success: boolean; message: string; id: string }> {
 

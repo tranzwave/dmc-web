@@ -1,15 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
+import { Booking, columns } from "~/components/bookings/home/columns";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
 import { StatsCard } from "~/components/ui/stats-card";
-import { Activity, getActivityData } from "~/lib/api";
-import { activityColumns } from "~/lib/types/activity/type";
+import { Activity, getActivityData, getData } from "~/lib/api";
 
 const Page = ({ params }: { params: { id: string } }) => {
   const [activity, setActivity] = useState<Activity | null>(null);
-  const [data, setData] = useState<Activity[]>([]);
+  const [data, setData] = useState<Booking[]>([]);
+
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,7 +38,7 @@ const Page = ({ params }: { params: { id: string } }) => {
     async function fetchData() {
       try {
         setLoading(true);
-        const result = await getActivityData();
+        const result = await getData();
         setData(result);
       } catch (error) {
         console.error("Failed to fetch activity data:", error);
@@ -85,7 +86,7 @@ const Page = ({ params }: { params: { id: string } }) => {
         </div>
         <div className="card w-[70%] space-y-6">
           <div>Current Booking</div>
-          <DataTable columns={activityColumns} data={data} />
+          <DataTable columns={columns} data={data} />
 
           <div>Booking History</div>
           <div className="col-span-3 flex justify-between gap-6">
@@ -95,7 +96,7 @@ const Page = ({ params }: { params: { id: string } }) => {
           </div>
 
           <div>Trip History</div>
-          <DataTable columns={activityColumns} data={data} />
+          <DataTable columns={columns} data={data} />
         </div>
       </div>
     </div>
