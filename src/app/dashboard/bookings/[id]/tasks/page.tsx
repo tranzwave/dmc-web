@@ -72,7 +72,7 @@ const Page = ({ params }: { params: { id: string } }) => {
                             </TabsList>
                             <TabsContent value="general">
                                 {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
-                                General Tasks
+                                General Task View
                             </TabsContent>
                             <TabsContent value="hotels">
                                 {/* <HotelsTab onAddHotel={addHotel} /> */}
