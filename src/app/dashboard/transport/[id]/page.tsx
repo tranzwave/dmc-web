@@ -5,33 +5,33 @@ import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
 import { StatsCard } from "~/components/ui/stats-card";
-import { Activity, getActivityData, getData } from "~/lib/api";
+import { Driver, getData, getTransportData } from "~/lib/api";
 
 const Page = ({ params }: { params: { id: string } }) => {
-  const [activity, setActivity] = useState<Activity | null>(null);
+  const [driver, setDriver] = useState<Driver | null>(null);
   const [data, setData] = useState<Booking[]>([]);
 
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchActivityDetails() {
+    async function fetchDriverDetails() {
       try {
         setLoading(true);
-        const activities = await getActivityData();
-        const selectedActivity = activities.find(
-          (activity) => activity.id.toString() === params.id,
+        const drivers = await getTransportData();
+        const selectedDriver = drivers.find(
+          (driver) => driver.id.toString() === params.id,
         );
-        setActivity(selectedActivity ?? null);
+        setDriver(selectedDriver ?? null);
       } catch (error) {
-        console.error("Failed to fetch activity details:", error);
-        setError("Failed to load activity details.");
+        console.error("Failed to fetch driver details:", error);
+        setError("Failed to load driver details.");
       } finally {
         setLoading(false);
       }
     }
 
-    fetchActivityDetails();
+    fetchDriverDetails();
   }, [params.id]);
 
   useEffect(() => {
@@ -59,28 +59,28 @@ const Page = ({ params }: { params: { id: string } }) => {
     return <div>Error: {error}</div>;
   }
 
-  if (!activity) {
-    return <div>No activity found with the given ID.</div>;
+  if (!driver) {
+    return <div>No driver found with the given ID.</div>;
   }
 
   return (
     <div className="flex flex-col gap-3 w-full justify-between">
 
-      <TitleBar title={`Activity  ${params.id}`} link="toAddActivity" />
+      <TitleBar title={`Driver  ${params.id}`} link="toAddActivity" />
       <div className="mx-9 flex flex-row justify-between">
         <div className="w-[30%]">
           <div className="w-full">
             <ContactBox
-              title={activity.general.activity}
+              title={driver.general.name}
               description="Egestas elit dui scelerisque ut eu purus aliquam vitae habitasse."
-              location={activity.general.address.city}
+              location={driver.general.address.city}
               address={
-                activity.general.address.streetName +
+                driver.general.address.streetName +
                 ", " +
-                activity.general.address.city
+                driver.general.address.city
               }
-              phone={activity.general.primaryContactNumber}
-              email={activity.general.primaryEmail}
+              phone={driver.general.primaryContactNumber}
+              email={driver.general.primaryEmail}
             />{" "}
           </div>
         </div>

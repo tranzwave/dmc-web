@@ -560,3 +560,6 @@ export const getActivityData = async (): Promise<Activity[]> => {
 
 export type { Activity };
 
+
+export type { Driver };
+

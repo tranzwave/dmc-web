@@ -8,11 +8,11 @@ type Address = {
 };
 
 export enum VehicleType {
-    CAR = "CAR",
-    BUS = "BUS",
-    VAN = "VAN",
-    TUK = "TUK",
-  }
+  CAR = "CAR",
+  BUS = "BUS",
+  VAN = "VAN",
+  TUK = "TUK",
+}
 
 // Define the Vehicle type
 type Vehicle = {
@@ -44,6 +44,7 @@ type Documents = {
 
 // Define the Driver type
 type Driver = {
+  id: number
   general: {
     name: string;
     languages: string[];
@@ -78,7 +79,7 @@ export const driverColumns: ColumnDef<Driver>[] = [
     accessorKey: "general.address.city",
     header: "City",
   },
-  
+
   {
     accessorKey: "charges.feePerKm",
     header: "Fee per KM",
@@ -86,3 +87,4 @@ export const driverColumns: ColumnDef<Driver>[] = [
 ];
 
 export type { Driver };
+

@@ -64,7 +64,10 @@ const TransportHome = () => {
                     </div>
                     <div className='flex flex-row gap-3 justify-center'>
                         <div className='w-[90%]'>
-                            <DataTable columns={driverColumns} data={data} onRowClick={handleRowClick} />
+                            <DataTable columns={driverColumns} data={data}
+                            onRowClick={(driver: Driver) => {
+                                window.location.href = `/dashboard/transport/${driver.id}`;
+                            }} />
                         </div>
                         {/* <div className='w-[40%]'>
                             <SidePanel booking={selectedBooking} onClose={handleCloseSidePanel} />
