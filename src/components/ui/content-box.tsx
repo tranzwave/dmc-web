@@ -1,3 +1,4 @@
+import { ArrowLeft } from "lucide-react";
 
 interface ContactBoxProps {
     title: string;
@@ -24,6 +25,7 @@ const ContactBox: React.FC<ContactBoxProps> = ({ title, description, location, a
                 <div className="flex items-center mb-3">
                     <div className="bg-gray-300 rounded-full p-2 mr-3">
                         <img className="w-6 h-6 text-gray-600"/>
+                        <ArrowLeft></ArrowLeft>
                     </div>
                     <div className="my-4">
                         <div className="text-sm text-gray-600 font-semibold">{location}</div>
