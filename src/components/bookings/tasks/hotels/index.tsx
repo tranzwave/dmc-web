@@ -1,16 +1,23 @@
 'use client'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { Button } from "~/components/ui/button";
-import { columns, Hotel } from "../../addBooking/forms/hotelsForm/columns";
+import { columns, Hotel, voucherColumns } from "../../addBooking/forms/hotelsForm/columns";
 import { Calendar } from "~/components/ui/calendar";
+import { HotelVoucher } from "~/app/dashboard/bookings/add/context";
 
 // Define props type for the HotelsTasksTab component
 interface HotelsTasksTabProps {
-    hotels: Hotel[];
+    vouchers: HotelVoucher[];
 }
 
-const HotelsTasksTab: React.FC<HotelsTasksTabProps> = ({ hotels }) => {
+const HotelsTasksTab: React.FC<HotelsTasksTabProps> = ({ vouchers }) => {
+
+    useEffect(()=>{
+        if(vouchers){
+            alert(vouchers[0]?.hotel.id)
+        }
+    })
 
     return (
         <div className="flex flex-col gap-3 justify-center items-center">
@@ -22,10 +29,10 @@ const HotelsTasksTab: React.FC<HotelsTasksTabProps> = ({ hotels }) => {
                 </div>
                 <div className='card w-[70%] space-y-6'>
                     <div className='card-title'>Hotel Information</div>
-                    <DataTable columns={columns} data={hotels}/>
+                    <DataTable columns={voucherColumns} data={vouchers}/>
                     {/* <HotelsForm onAddHotel={updateHotels} /> */}
-                    <DataTable columns={columns} data={hotels}/>
-                    <DataTable columns={columns} data={hotels}/>
+                    <DataTable columns={voucherColumns} data={vouchers}/>
+                    <DataTable columns={voucherColumns} data={vouchers}/>
                 </div>
             </div>
             <div className='flex flex-col gap-2 items-center justify-center w-[95%]'>

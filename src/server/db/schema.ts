@@ -117,12 +117,12 @@ export const hotels = createTable("hotels", {
     city: varchar("city", { length: 255 }).notNull(),
     province: varchar("province", { length: 255 }).notNull(),
     hasRestaurant: boolean("has_restaurant").notNull().default(false),
-    restaurants: jsonb("restaurants").$type<Array<{
-      restaurantName: string;
-      mealType: string;
-      startTime: string;
-      endTime: string;
-    }>>(),
+    // restaurants: jsonb("restaurants").$type<Array<{
+    //   restaurantName: string;
+    //   mealType: string;
+    //   startTime: string;
+    //   endTime: string;
+    // }>>(),
     createdAt: timestamp("created_at", { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).$onUpdate(() => new Date()),
   });
@@ -206,8 +206,11 @@ export const restaurants = createTable("restaurant", {
     .notNull()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
+  hotelId: varchar('hotel_id',{length:255}).references(()=> hotels.id),
   name: varchar("name", { length: 255 }).notNull(),
-  address: varchar("address", { length: 255 }).notNull(),
+  streetName: varchar("street_name", { length: 255 }).notNull(),
+  city: varchar("city", { length: 255 }).notNull(),
+  province: varchar("province", { length: 255 }).notNull(),
   contactNumber: varchar("contact_number", { length: 50 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
@@ -216,6 +219,17 @@ export const restaurants = createTable("restaurant", {
     () => new Date()
   ),
 });
+
+export const restaurantMeals = createTable("restaurant_meal",{
+  id: varchar("id", { length: 255 })
+  .notNull()
+  .primaryKey()
+  .$defaultFn(() => crypto.randomUUID()),
+  restaurantId: varchar('restaurant_id',{length:255}).references(()=> restaurants.id),
+  mealType: varchar("meal_type", { length: 50 }).notNull(),
+  startTime: varchar("startTime", { length: 10 }).notNull(),
+  endTime:varchar("endTime", { length: 10 }).notNull(),
+})
 
 // Restaurant Vouchers table
 export const restaurantVouchers = createTable("restaurant_voucher", {
@@ -401,6 +415,20 @@ export const hotelVouchersRelations = relations(hotelVouchers, ({ one }) => ({
     references: [hotels.id],
   }),
 }));
+
+export const restaurantRelations = relations(restaurants,({one}) => ({
+  hotel: one(hotels,{
+    fields: [restaurants.hotelId],
+    references:[hotels.id]
+  })
+}))
+
+export const restaurantMealsRelations = relations(restaurantMeals,({one}) => ({
+  restaurant: one(restaurants,{
+    fields: [restaurantMeals.restaurantId],
+    references:[restaurants.id]
+  })
+}))
 
 export const restaurantVouchersRelations = relations(restaurantVouchers, ({ one }) => ({
   booking: one(bookings, {
