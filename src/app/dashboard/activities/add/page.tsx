@@ -13,7 +13,7 @@ const SubmitForm = () => {
 
   const handleSubmit = () => {
     // Handle the submission of activityDetails
-    console.log('Submitting booking details:', activityDetails);
+    console.log('Submitting activity details:', activityDetails);
   };
 
   return (

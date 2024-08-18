@@ -106,8 +106,9 @@ const VehiclesForm: React.FC<VehiclesFormProps> = ({ onAddVehicles }) => {
                 <FormControl>
                   <Input
                     type="number"
-                    placeholder="Enter contact number"
-                    {...field}
+                    placeholder="Enter number of seats"
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>
                 <FormMessage />
