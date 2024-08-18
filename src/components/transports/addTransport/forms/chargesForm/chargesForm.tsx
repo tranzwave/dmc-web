@@ -29,16 +29,16 @@ type ChargesFormValues = z.infer<typeof ChargesSchema>;
 
 const ChargesForm = () => {
   const { setChargesDetails, transportDetails } = useAddTransport();
+
   const form = useForm<ChargesFormValues>({
     resolver: zodResolver(ChargesSchema),
     defaultValues: transportDetails.charges,
   });
 
-
-
   const onSubmit: SubmitHandler<ChargesFormValues> = (data) => {
-    console.log(data);
     setChargesDetails(data);
+    console.log(data);
+    form.reset();
   };
 
   return (
@@ -52,7 +52,9 @@ const ChargesForm = () => {
                 <FormItem>
                   <FormLabel>Fee Per km</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="Enter fee per km" {...field} />
+                    <Input type="number" placeholder="Enter fee per km" 
+                    value={field.value || ""}
+                    onChange={(e) => field.onChange(e.target.valueAsNumber)} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -69,7 +71,8 @@ const ChargesForm = () => {
                   <Input
                     type="number"
                     placeholder="Enter fuel allowance"
-                    {...field}
+                    value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -88,7 +91,8 @@ const ChargesForm = () => {
                   <Input
                     type="number"
                     placeholder="Enter accommodation allowance"
-                    {...field}
+                    value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -102,7 +106,9 @@ const ChargesForm = () => {
                 <FormItem>
                   <FormLabel>Meal ALlowance</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="Enter meal allowance" {...field} />
+                    <Input type="number" placeholder="Enter meal allowance"
+                    value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber)}/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

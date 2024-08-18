@@ -17,7 +17,6 @@ interface AddTransportContextProps {
   setGeneralDetails: (details: General) => void;
   addVehicles: (vehicles: Vehicles) => void;
   setChargesDetails: (charges: Charges) => void;
-  // addCharges: (charges: Charges) => void;
   setDocumetsDetails: (documents: Documents) => void;
 }
 

@@ -25,20 +25,22 @@ export const DocumentsSchema = z.object({
 });
 
 // Define the type of the form values
-type ChargesFormValues = z.infer<typeof DocumentsSchema>;
+type DocumentsFormValues = z.infer<typeof DocumentsSchema>;
 
 const DocumentsForm = () => {
   const { setDocumetsDetails, transportDetails } = useAddTransport();
-  const form = useForm<ChargesFormValues>({
+  
+  const form = useForm<DocumentsFormValues>({
     resolver: zodResolver(DocumentsSchema),
     defaultValues: transportDetails.documents,
   });
 
 
 
-  const onSubmit: SubmitHandler<ChargesFormValues> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<DocumentsFormValues> = (data) => {
     setDocumetsDetails(data);
+    console.log(data);
+    form.reset();
   };
 
   return (

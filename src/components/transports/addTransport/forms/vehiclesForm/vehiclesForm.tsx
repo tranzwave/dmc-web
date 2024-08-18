@@ -22,7 +22,7 @@ interface VehiclesFormProps {
 // Define the schema for form validation
 export const vehiclesSchema = z.object({
   vehicle: z.string().min(1, "Vehicle is required"),
-  numberPlate: z.string().email("Number Plate is required"),
+  numberPlate: z.string().min(1, "Number Plate is required"),
   seats: z.number().min(1, "Number of seats is required"),
   make: z.string().min(1, "Make is required"),
   model: z.string().min(1, "Model is required"),
@@ -76,45 +76,40 @@ const VehiclesForm: React.FC<VehiclesFormProps> = ({ onAddVehicles }) => {
           </div>
 
           <div className="col-span-2">
-          <FormField
-            name="numberPlate"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Number Plate</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="Enter primary email"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              name="numberPlate"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Number Plate</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter number plate" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
-          
-          <div className="col-span-1">
 
-          <FormField
-            name="seats"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Seats</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="Enter number of seats"
-                  value={field.value || ""}
-                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="col-span-1">
+            <FormField
+              name="seats"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Seats</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="Enter number of seats"
+                      value={field.value || ""}
+                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         </div>
 
@@ -144,7 +139,7 @@ const VehiclesForm: React.FC<VehiclesFormProps> = ({ onAddVehicles }) => {
                   <FormItem>
                     <FormLabel>Model</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter city" {...field} />
+                      <Input placeholder="Enter model" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -157,7 +152,7 @@ const VehiclesForm: React.FC<VehiclesFormProps> = ({ onAddVehicles }) => {
                   <FormItem>
                     <FormLabel>Year</FormLabel>
                     <FormControl>
-                      <Input type="date" placeholder="Enter province" {...field} />
+                      <Input type="date" placeholder="Enter year" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -171,7 +166,7 @@ const VehiclesForm: React.FC<VehiclesFormProps> = ({ onAddVehicles }) => {
                   <FormItem>
                     <FormLabel>VRL</FormLabel>
                     <FormControl>
-                      <Input placeholder="" {...field} />
+                      <Input placeholder="Enter VRL" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -182,7 +177,7 @@ const VehiclesForm: React.FC<VehiclesFormProps> = ({ onAddVehicles }) => {
         </div>
 
         <div className="flex w-full flex-row justify-end gap-2">
-        <Button type="submit" variant={"outline"}>
+          <Button type="submit" variant={"outline"}>
             Save & Duplicate
           </Button>
           <Button type="submit" variant={"primaryGreen"}>
