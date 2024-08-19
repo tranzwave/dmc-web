@@ -9,7 +9,7 @@ const config = {
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
-	],
+  ],
   prefix: "",
   theme: {
     container: {
@@ -32,14 +32,15 @@ const config = {
           green: "#287F71",
           orange: "#EB862A",
           gray: "#ABBDD3",
-          black:"#111729",
-          textGray:"#636363",
+          black: "#111729",
+          textGray: "#636363",
           borderGray: "#d8d8d8"
 
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
+          green: "#D9FFDB"
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",

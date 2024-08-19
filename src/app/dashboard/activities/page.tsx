@@ -60,9 +60,12 @@ const ActivityHome = () => {
                             <DataTable
                                 columns={activityColumns}
                                 data={data}
+                                
                                 onRowClick={(activity: Activity) => {
                                     window.location.href = `/dashboard/activities/${activity.id}`;
                                 }}
+                                // onEdit={(row) => console.log("Edit row", row)} // Handle edit action
+                                // onDelete={(row) => console.log("Delete row", row)} 
                             />
                         </div>
                     </div>
