@@ -16,7 +16,7 @@ import AddBookingSubmitTab from '~/components/bookings/addBooking/forms/submitFo
 
 const AddBooking = () => {
   const pathname = usePathname();
-  const { setGeneralDetails, addHotel, addRestaurant, addActivity, addTransport, addShop } = useAddBooking();
+  const { setGeneralDetails, addHotelVoucher, addRestaurant, addActivity, addTransport, addShop } = useAddBooking();
 
   useEffect(() => {
     console.log('Add Booking Component');

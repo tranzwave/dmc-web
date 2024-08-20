@@ -37,43 +37,6 @@ const HotelsHome = () => {
         setSelectedHotel(hotel);
     };
 
-    const handleAddHotel = async () => {
-        try {
-            const response = await fetch('/api/hotels', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    hotelName: 'Test Hotel',
-                    stars: 5,
-                    primaryEmail: 'info@hotel.com',
-                    primaryContactNumber: '123456789',
-                    streetName: 'Main St',
-                    city: 'City Name',
-                    province: 'Province',
-                    hasRestaurant: true,
-                    restaurants: [{ restaurantName: 'Restaurant 1', mealType: 'Breakfast', startTime: '07:00', endTime: '10:00' }],
-                }),
-            });
-
-            if (!response.ok) {
-                const text = await response.text();
-                console.error('Server Error:', text);
-                setError('Failed to add hotel.');
-                return;
-            }
-
-            const data = await response.json();
-            console.log('Hotel added successfully:', data.hotel);
-            // Optionally refresh data
-            // await fetchData();
-        } catch (error) {
-            console.error('Error adding hotel:', error);
-            setError('An unexpected error occurred.');
-        }
-    };
-
     const handleCloseSidePanel = () => {
         setSelectedHotel(null);
     };
@@ -91,10 +54,10 @@ const HotelsHome = () => {
             <div className="flex-1">
                 <div className="flex flex-col gap-3">
                     <div className="flex flex-row gap-1 w-full justify-between">
-                        <TitleBar title="Hotels" link="toAddBooking" />
-                        <div>
-                            <Button variant="primaryGreen" onClick={handleAddHotel}>Add Hotel</Button>
-                        </div>
+                        <TitleBar title="Hotels" link="toAddHotel" />
+                        <Link href={`${pathname}/add`}>
+                            <Button variant="primaryGreen">Add Hotel</Button>
+                        </Link>  
                     </div>
                     <div className='flex flex-row gap-3 justify-center'>
                         <div className='w-[90%]'>
