@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAddTransport } from "~/app/dashboard/transport/add/context";
+import { useEditTransport } from "~/app/dashboard/transport/[id]/edit/context";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { Button } from "~/components/ui/button";
 import { columns, Vehicles } from "./columns";
@@ -8,7 +8,7 @@ import VehiclesForm from "./vehiclesForm";
 const vehiclesTab = ()=>{
     const [addedVehicle, setAddedVehicle] =useState<Vehicles[]>([])
 
-    const { addVehicles,transportDetails } = useAddTransport();
+    const { addVehicles,transportDetails } = useEditTransport();
 
     const updateVehicles = (vehicles:Vehicles)=>{
         console.log(vehicles);

@@ -650,6 +650,15 @@ export async function getTransportData(): Promise<Driver[]> {
   ]
 }
 
+export async function getTransportDataById(id: number): Promise<Driver> {
+  const transports = await getTransportData();
+  const transport = transports.find(transport => transport.id === id);
+  if (!transport) {
+    throw new Error("Activity not found");
+  }
+  return transport;
+}
+
 export async function getHotelData(): Promise<Hotel[]> {
   // Mock data
   const mockData: Hotel[] = hotelsMockData
@@ -711,8 +720,6 @@ export async function searchShopsData(searchParams: ShopsSearchParams): Promise<
 }
 
 export const getActivityData = async (): Promise<Activity[]> => {
-  // Implement the actual fetch logic here
-  // For demonstration purposes, we return a static list
   return [
     {
       id: 1,
@@ -747,11 +754,8 @@ export const getActivityData = async (): Promise<Activity[]> => {
   ];
 };
 
-// lib/api.ts
-
 export async function getActivityDataById(id: number): Promise<Activity> {
-  // Simulate a fetch request; replace with actual API request if available
-  const activities = await getActivityData(); // Assuming this gets all activities
+  const activities = await getActivityData();
   const activity = activities.find(activity => activity.id === id);
   if (!activity) {
     throw new Error("Activity not found");
@@ -759,16 +763,7 @@ export async function getActivityDataById(id: number): Promise<Activity> {
   return activity;
 }
 
-
-
-
-
-
-
-
-
 export type { Activity };
-
 
 export type { Driver };
 

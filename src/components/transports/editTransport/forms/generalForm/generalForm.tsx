@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useAddTransport } from "~/app/dashboard/transport/add/context";
+import { useEditTransport } from "~/app/dashboard/transport/[id]/edit/context";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -43,7 +43,7 @@ const includesOptions = [
 ];
 
 const GeneralForm = () => {
-  const { setGeneralDetails, transportDetails } = useAddTransport();
+  const { setGeneralDetails, transportDetails } = useEditTransport();
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
     defaultValues: transportDetails.general,

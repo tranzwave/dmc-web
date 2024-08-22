@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useAddTransport } from "~/app/dashboard/transport/add/context";
+import { useEditTransport } from "~/app/dashboard/transport/[id]/edit/context";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -28,7 +28,7 @@ export const ChargesSchema = z.object({
 type ChargesFormValues = z.infer<typeof ChargesSchema>;
 
 const ChargesForm = () => {
-  const { setChargesDetails, transportDetails } = useAddTransport();
+  const { setChargesDetails, transportDetails } = useEditTransport();
 
   const form = useForm<ChargesFormValues>({
     resolver: zodResolver(ChargesSchema),
