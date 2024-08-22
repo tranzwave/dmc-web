@@ -1,4 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
+import DataTableDropDwn from "~/components/common/dataTableDropdown";
 
 // Define the Address type
 type Address = {
@@ -83,6 +84,20 @@ export const driverColumns: ColumnDef<Driver>[] = [
   {
     accessorKey: "charges.feePerKm",
     header: "Fee per KM",
+  },
+  {
+    accessorKey: 'id',
+    header: '',
+    cell: ({ getValue, row }) => {
+      const transport = row.original as Driver;
+
+      return (
+          <DataTableDropDwn data={transport} routeBase="/transport" 
+          onViewPath={(data) => `/dashboard/transport/${data.id}`} 
+          onEditPath={(data) => `/dashboard/transport/${data.id}/edit`}
+          onDeletePath={(data) => `/dashboard/transport/${data.id}/delete`}/>
+      );
+    },
   },
 ];
 

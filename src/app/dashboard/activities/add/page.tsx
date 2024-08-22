@@ -26,7 +26,6 @@ const SubmitForm = () => {
           Submit
         </Button>
       </div>
-
     </div>
   );
 };

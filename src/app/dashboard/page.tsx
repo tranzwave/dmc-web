@@ -1,4 +1,3 @@
-import Overview from "./overview/page"
 
 
 const DashboardRootPage = ()=>{

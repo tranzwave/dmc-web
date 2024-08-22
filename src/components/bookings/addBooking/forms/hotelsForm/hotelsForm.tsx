@@ -1,16 +1,14 @@
 'use client';
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from 'zod';
+import { Button } from "~/components/ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "~/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '~/components/ui/select'; // Import Shadcn Select components
-import { Hotel } from "./columns";
-import { SelectHotel, SelectHotelVoucherLine, SelectShopVoucher } from "~/server/db/schemaTypes";
-import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "~/components/ui/dialog";
-import { HotelVoucher } from "~/app/dashboard/bookings/add/context";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'; // Import Shadcn Select components
+import { SelectHotel, SelectHotelVoucherLine } from "~/server/db/schemaTypes";
 
 interface HotelsFormProps {
   onAddHotel: (data: SelectHotelVoucherLine,isNewVoucher:boolean, hotel:any) => void;

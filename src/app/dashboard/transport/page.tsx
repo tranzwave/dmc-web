@@ -9,12 +9,13 @@ import { getTransportData } from "~/lib/api";
 import { Driver, driverColumns } from "~/lib/types/driver/type";
 
 const TransportHome = () => {
+    const pathname = usePathname();
+
     const [data, setData] = useState<Driver[]>([]);
-    const [selectedTransport, setSelectedTransport] = useState<Driver | null>(null);
+    // const [selectedTransport, setSelectedTransport] = useState<Driver | null>(null);
     const [loading, setLoading] = useState<boolean>(true);  // Added loading state
     const [error, setError] = useState<string | null>(null); // Added error state
 
-    const pathname = usePathname();
 
     // Fetch data on mount
     useEffect(() => {
@@ -33,14 +34,6 @@ const TransportHome = () => {
 
         fetchData();
     }, []);
-
-    const handleRowClick = (driver: Driver) => {
-        setSelectedTransport(driver);
-    };
-
-    const handleCloseSidePanel = () => {
-        setSelectedTransport(null);
-    };
 
     if (loading) {
         return <div>Loading...</div>;  // Render loading state
@@ -64,14 +57,8 @@ const TransportHome = () => {
                     </div>
                     <div className='flex flex-row gap-3 justify-center'>
                         <div className='w-[90%]'>
-                            <DataTable columns={driverColumns} data={data}
-                            onRowClick={(driver: Driver) => {
-                                window.location.href = `/dashboard/transport/${driver.id}`;
-                            }} />
+                            <DataTable columns={driverColumns} data={data}/>
                         </div>
-                        {/* <div className='w-[40%]'>
-                            <SidePanel booking={selectedBooking} onClose={handleCloseSidePanel} />
-                        </div> */}
                     </div>
                 </div>
             </div>

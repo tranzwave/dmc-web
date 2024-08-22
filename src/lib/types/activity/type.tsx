@@ -1,4 +1,6 @@
-import { ColumnDef } from "@tanstack/react-table"; // Adjust the import path as necessary
+import { ColumnDef } from "@tanstack/react-table";
+import DataTableDropDwn from "~/components/common/dataTableDropdown";
+
 // Define the Address type
 type Address = {
   streetName: string;
@@ -54,5 +56,20 @@ export const activityColumns: ColumnDef<Activity>[] = [
   {
     accessorKey: "general.capacity",
     header: "Capacity",
+  },
+  {
+    accessorKey: 'id',
+    header: '',
+    cell: ({ getValue, row }) => {
+      const activity = row.original as Activity;
+
+      return (
+          <DataTableDropDwn data={activity} routeBase="/activities/" 
+          onViewPath={(data) => `/dashboard/activities/${data.id}`}
+          onEditPath={(data) => `/dashboard/activities/${data.id}/edit`}
+          onDeletePath={(data) => `/dashboard/activities/${data.id}/delete`}
+/>
+      );
+    },
   },
 ];

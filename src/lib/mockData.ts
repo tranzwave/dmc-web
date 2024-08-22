@@ -82,7 +82,6 @@ export const driversMockData: Driver[] = [
       insurance: "INS654321",
     },
   },
-
   // New drivers
   {
     id: 3,
