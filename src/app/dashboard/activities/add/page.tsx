@@ -53,7 +53,7 @@ const AddActivity = () => {
           <div className='w-full'>
             <Tabs defaultValue="general" className="w-full border">
               <TabsList className='flex justify-evenly w-full'>
-                <TabsTrigger value="general" statusLabel="Mandotory">General</TabsTrigger>
+                <TabsTrigger value="general" statusLabel="Mandastory">General</TabsTrigger>
                 <TabsTrigger value="submit">Submit</TabsTrigger>
               </TabsList>
               <TabsContent value="general">

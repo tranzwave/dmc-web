@@ -62,7 +62,7 @@ export async function POST(req: Request, res: NextApiResponse) {
 
       // return res.status(200).json({ hotelId: newHotelId });
       return NextResponse.json({ hotelId: newHotelId }, { status: 200 });
-      
+
     } catch (error) {
       console.error("Error adding hotel:", error);
       return NextResponse.json({ error: 'Failed to add hotel' }, { status: 500 });
@@ -80,7 +80,7 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
 
     // Return combined result
     return NextResponse.json({ allHotels }, { status: 200 });
-    
+
   } catch (error) {
     console.error("Error fetching hotels:", error);
     return res.status(500).json({ error: 'Failed to fetch hotels' });
