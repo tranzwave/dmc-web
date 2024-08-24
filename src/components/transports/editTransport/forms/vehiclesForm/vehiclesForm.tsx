@@ -177,9 +177,6 @@ const VehiclesForm: React.FC<VehiclesFormProps> = ({ onAddVehicles }) => {
         </div>
 
         <div className="flex w-full flex-row justify-end gap-2">
-          <Button type="submit" variant={"outline"}>
-            Save & Duplicate
-          </Button>
           <Button type="submit" variant={"primaryGreen"}>
             Save
           </Button>
