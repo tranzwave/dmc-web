@@ -2,6 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { HotelVoucher } from "~/app/dashboard/bookings/add/context";
+import { HotelDTO } from "~/lib/types/hotel";
 
 
   
@@ -19,42 +20,26 @@ import { HotelVoucher } from "~/app/dashboard/bookings/add/context";
   };
   
 
-export const columns: ColumnDef<Hotel>[] = [
+export const columns: ColumnDef<HotelDTO>[] = [
     {
       accessorKey: "hotelName",
       header: "Hotel Name",
     },
     {
-      accessorKey: "quantity",
-      header: "Quantity",
+      accessorKey: "city.name",
+      header: "City",
     },
     {
-      accessorKey: "roomCount",
-      header: "Room Count",
+      accessorKey: "stars",
+      header: "Stars",
     },
     {
-      accessorKey: "checkInDate",
-      header: "Check-In Date",
+      accessorKey: "primaryContactNumber",
+      header: "Contact Number",
     },
     {
-      accessorKey: "checkInTime",
-      header: "Check-In Time",
-    },
-    {
-      accessorKey: "checkOutDate",
-      header: "Check-Out Date",
-    },
-    {
-      accessorKey: "checkOutTime",
-      header: "Check-Out Time",
-    },
-    {
-      accessorKey: "roomType",
-      header: "Room Type",
-    },
-    {
-      accessorKey: "basis",
-      header: "Basis",
+      accessorKey: "primaryEmail",
+      header: "Email",
     }
   ];
 

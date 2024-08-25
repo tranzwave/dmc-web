@@ -1,4 +1,13 @@
-import { hotel, driver, activityVendor, shop, booking, bookingLine, hotelVoucher, restaurantVoucher, transportVoucher, activityVoucher, shopVoucher, restaurant, restaurantMeal, hotelStaff, hotelRoom, hotelVoucherLine } from './schema'
+import { hotel, driver, activityVendor, shop, booking, bookingLine, hotelVoucher, restaurantVoucher, transportVoucher, activityVoucher, shopVoucher, restaurant, restaurantMeal, hotelStaff, hotelRoom, hotelVoucherLine, tenant, city } from './schema'
+
+//Tenant Types
+export type InsertTenant = typeof tenant.$inferSelect;
+export type SelectTenant = typeof tenant.$inferInsert;
+
+//City Types
+export type InsertCity = typeof city.$inferInsert;
+export type SelectCity = typeof city.$inferSelect;
+
 
 // Hotel Types
 export type InsertHotel = typeof hotel.$inferInsert;

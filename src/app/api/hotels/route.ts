@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
 import { db } from '~/server/db';
+import { getAllHotels } from '~/server/db/queries/hotel';
 import { hotelRoom, hotel, hotelStaff } from '~/server/db/schema';
 
 export async function POST(req: Request, res: NextApiResponse) {
@@ -16,16 +17,7 @@ export async function POST(req: Request, res: NextApiResponse) {
       console.log(req.body)
 
       // Insert into the hotels table
-      const [newHotel] = await db.insert(hotel).values({
-        hotelName: hotelGeneral.hotelName,
-        stars: hotelGeneral.stars,
-        primaryEmail: hotelGeneral.primaryEmail,
-        primaryContactNumber: hotelGeneral.primaryContactNumber,
-        streetName: hotelGeneral.streetName,
-        city: hotelGeneral.city,
-        province: hotelGeneral.province,
-        hasRestaurant: hotelGeneral.hasRestaurant,
-      }).returning({ id: hotel.id });
+      const [newHotel] = await db.insert(hotel).values([]).returning({ id: hotel.id });
 
       const newHotelId = newHotel?.id;
 
@@ -76,7 +68,7 @@ export async function POST(req: Request, res: NextApiResponse) {
 export async function GET(req: NextApiRequest, res: NextApiResponse) {
   try {
     // Fetch all hotels
-    const allHotels = await db.select().from(hotel);
+    const allHotels = await getAllHotels();
 
     // Return combined result
     return NextResponse.json({ allHotels }, { status: 200 });

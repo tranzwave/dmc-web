@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { NextApiRequest, NextApiResponse } from "next";
 import { NextResponse } from "next/server";
 import { db } from "~/server/db";
+import { getHotelByIdQuery } from "~/server/db/queries/hotel";
 import { hotel } from "~/server/db/schema";
 
 
@@ -10,7 +11,7 @@ export async function GET(req: NextApiRequest,{ params }: { params: { id: string
     try {
       const id = params.id
       // Fetch all hotels
-      const hotel = await db.select().from(hotel).where(eq(hotel.id,id));
+      const hotel = await getHotelByIdQuery(id)
   
       // Return combined result
       return NextResponse.json({ hotel }, { status: 200 });
