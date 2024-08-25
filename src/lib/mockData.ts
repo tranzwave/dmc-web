@@ -1,202 +1,206 @@
+import { Hotel } from "~/components/bookings/addBooking/forms/hotelsForm/columns";
 import { Shop } from "~/components/bookings/addBooking/forms/shopsForm/columns";
 import { Driver, VehicleType } from "./types/driver/type";
-import { Hotel } from "~/components/bookings/addBooking/forms/hotelsForm/columns";
 
 export const driversMockData: Driver[] = [
-    // Existing drivers
-    {
-      general: {
-        name: "John Doe",
-        languages: ["English", "Spanish"],
-        primaryEmail: "john.doe@example.com",
-        primaryContactNumber: "+1234567890",
-        address: {
-          streetName: "123 Elm Street",
-          city: "Springfield",
-          province: "IL",
-        },
-        guide: true,
+  // Existing drivers
+  {
+    id: 1,
+    general: {
+      name: "John Doe",
+      languages: ["English", "Spanish"],
+      primaryEmail: "john.doe@example.com",
+      primaryContactNumber: "+1234567890",
+      address: {
+        streetName: "123 Elm Street",
+        city: "Springfield",
+        province: "IL",
       },
-      vehicles: [
-        {
-          primary:true,
-          vehicleType: VehicleType.BUS,
-          numberPlate: "XYZ 1234",
-          seats: 12,
-          make: "Ford",
-          model: "Transit",
-          year: 2020,
-          licenseID: "LIC123456",
-        },
-      ],
-      charges: {
-        feePerKm: 0.5,
-        fuelAllowance: 100,
-        accommodationAllowance: 50,
-        mealAllowance: 20,
-      },
-      documents: {
-        driversLicense: "DL123456789",
-        guideLicense: "GL987654321",
-        vehicleEmissionTest: "EM123456",
-        insurance: "INS123456",
-      },
+      guide: true,
     },
-    {
-      general: {
-        name: "Jane Smith",
-        languages: ["English", "French"],
-        primaryEmail: "jane.smith@example.com",
-        primaryContactNumber: "+0987654321",
-        address: {
-          streetName: "456 Maple Avenue",
-          city: "Riverside",
-          province: "CA",
-        },
-        guide: false,
+    vehicles: [
+      {
+        primary: true,
+        vehicleType: VehicleType.BUS,
+        numberPlate: "XYZ 1234",
+        seats: 12,
+        make: "Ford",
+        model: "Transit",
+        year: 2020,
+        licenseID: "LIC123456",
       },
-      vehicles: [
-        {
-          primary:true,
-          vehicleType: VehicleType.BUS,
-          numberPlate: "ABC 5678",
-          seats: 4,
-          make: "Toyota",
-          model: "Camry",
-          year: 2018,
-          licenseID: "LIC654321",
-        },
-      ],
-      charges: {
-        feePerKm: 0.6,
-        fuelAllowance: 80,
-        accommodationAllowance: 40,
-        mealAllowance: 15,
-      },
-      documents: {
-        driversLicense: "DL987654321",
-        guideLicense: "GL123456789",
-        vehicleEmissionTest: "EM654321",
-        insurance: "INS654321",
-      },
+    ],
+    charges: {
+      feePerKm: 0.5,
+      fuelAllowance: 100,
+      accommodationAllowance: 50,
+      mealAllowance: 20,
     },
-    
-    // New drivers
-    {
-      general: {
-        name: "Emily Johnson",
-        languages: ["English", "German"],
-        primaryEmail: "emily.johnson@example.com",
-        primaryContactNumber: "+1122334455",
-        address: {
-          streetName: "789 Birch Road",
-          city: "Greenwood",
-          province: "WA",
-        },
-        guide: true,
-      },
-      vehicles: [
-        {
-          primary:true,
-          vehicleType: VehicleType.CAR,
-          numberPlate: "LMN 9876",
-          seats: 7,
-          make: "Honda",
-          model: "Pilot",
-          year: 2021,
-          licenseID: "LIC789123",
-        },
-      ],
-      charges: {
-        feePerKm: 0.7,
-        fuelAllowance: 120,
-        accommodationAllowance: 60,
-        mealAllowance: 25,
-      },
-      documents: {
-        driversLicense: "DL321654987",
-        guideLicense: "GL456789123",
-        vehicleEmissionTest: "EM987654",
-        insurance: "INS987654",
-      },
+    documents: {
+      driversLicense: "DL123456789",
+      guideLicense: "GL987654321",
+      vehicleEmissionTest: "EM123456",
+      insurance: "INS123456",
     },
-    {
-      general: {
-        name: "Michael Brown",
-        languages: ["English", "Chinese"],
-        primaryEmail: "michael.brown@example.com",
-        primaryContactNumber: "+2233445566",
-        address: {
-          streetName: "101 Oak Lane",
-          city: "Hillside",
-          province: "TX",
-        },
-        guide: false,
+  },
+  {
+    id: 2,
+    general: {
+      name: "Jane Smith",
+      languages: ["English", "French"],
+      primaryEmail: "jane.smith@example.com",
+      primaryContactNumber: "+0987654321",
+      address: {
+        streetName: "456 Maple Avenue",
+        city: "Riverside",
+        province: "CA",
       },
-      vehicles: [
-        {
-          primary:true,
-          vehicleType: VehicleType.BUS,
-          numberPlate: "OPQ 4567",
-          seats: 2,
-          make: "Chevrolet",
-          model: "Silverado",
-          year: 2019,
-          licenseID: "LIC321987",
-        },
-      ],
-      charges: {
-        feePerKm: 0.8,
-        fuelAllowance: 150,
-        accommodationAllowance: 70,
-        mealAllowance: 30,
-      },
-      documents: {
-        driversLicense: "DL654321987",
-        guideLicense: "GL789456123",
-        vehicleEmissionTest: "EM456789",
-        insurance: "INS456789",
-      },
+      guide: false,
     },
-    {
-      general: {
-        name: "Sophia Davis",
-        languages: ["English", "Japanese"],
-        primaryEmail: "sophia.davis@example.com",
-        primaryContactNumber: "+3344556677",
-        address: {
-          streetName: "202 Pine Street",
-          city: "Lakeside",
-          province: "FL",
-        },
-        guide: true,
+    vehicles: [
+      {
+        primary: true,
+        vehicleType: VehicleType.BUS,
+        numberPlate: "ABC 5678",
+        seats: 4,
+        make: "Toyota",
+        model: "Camry",
+        year: 2018,
+        licenseID: "LIC654321",
       },
-      vehicles: [
-        {
-          primary:true,
-          vehicleType: VehicleType.CAR,
-          numberPlate: "RST 2345",
-          seats: 8,
-          make: "Kia",
-          model: "Carnival",
-          year: 2022,
-          licenseID: "LIC987123",
-        },
-      ],
-      charges: {
-        feePerKm: 0.9,
-        fuelAllowance: 110,
-        accommodationAllowance: 55,
-        mealAllowance: 22,
+    ],
+    charges: {
+      feePerKm: 0.6,
+      fuelAllowance: 80,
+      accommodationAllowance: 40,
+      mealAllowance: 15,
+    },
+    documents: {
+      driversLicense: "DL987654321",
+      guideLicense: "GL123456789",
+      vehicleEmissionTest: "EM654321",
+      insurance: "INS654321",
+    },
+  },
+  // New drivers
+  {
+    id: 3,
+    general: {
+      name: "Emily Johnson",
+      languages: ["English", "German"],
+      primaryEmail: "emily.johnson@example.com",
+      primaryContactNumber: "+1122334455",
+      address: {
+        streetName: "789 Birch Road",
+        city: "Greenwood",
+        province: "WA",
       },
-      documents: {
-        driversLicense: "DL987321654",
-        guideLicense: "GL321456987",
-        vehicleEmissionTest: "EM321654",
-        insurance: "INS321654",
+      guide: true,
+    },
+    vehicles: [
+      {
+        primary: true,
+        vehicleType: VehicleType.CAR,
+        numberPlate: "LMN 9876",
+        seats: 7,
+        make: "Honda",
+        model: "Pilot",
+        year: 2021,
+        licenseID: "LIC789123",
       },
-    }
-  ];
+    ],
+    charges: {
+      feePerKm: 0.7,
+      fuelAllowance: 120,
+      accommodationAllowance: 60,
+      mealAllowance: 25,
+    },
+    documents: {
+      driversLicense: "DL321654987",
+      guideLicense: "GL456789123",
+      vehicleEmissionTest: "EM987654",
+      insurance: "INS987654",
+    },
+  },
+  {
+    id: 4,
+    general: {
+      name: "Michael Brown",
+      languages: ["English", "Chinese"],
+      primaryEmail: "michael.brown@example.com",
+      primaryContactNumber: "+2233445566",
+      address: {
+        streetName: "101 Oak Lane",
+        city: "Hillside",
+        province: "TX",
+      },
+      guide: false,
+    },
+    vehicles: [
+      {
+        primary: true,
+        vehicleType: VehicleType.BUS,
+        numberPlate: "OPQ 4567",
+        seats: 2,
+        make: "Chevrolet",
+        model: "Silverado",
+        year: 2019,
+        licenseID: "LIC321987",
+      },
+    ],
+    charges: {
+      feePerKm: 0.8,
+      fuelAllowance: 150,
+      accommodationAllowance: 70,
+      mealAllowance: 30,
+    },
+    documents: {
+      driversLicense: "DL654321987",
+      guideLicense: "GL789456123",
+      vehicleEmissionTest: "EM456789",
+      insurance: "INS456789",
+    },
+  },
+  {
+    id: 5,
+    general: {
+      name: "Sophia Davis",
+      languages: ["English", "Japanese"],
+      primaryEmail: "sophia.davis@example.com",
+      primaryContactNumber: "+3344556677",
+      address: {
+        streetName: "202 Pine Street",
+        city: "Lakeside",
+        province: "FL",
+      },
+      guide: true,
+    },
+    vehicles: [
+      {
+        primary: true,
+        vehicleType: VehicleType.CAR,
+        numberPlate: "RST 2345",
+        seats: 8,
+        make: "Kia",
+        model: "Carnival",
+        year: 2022,
+        licenseID: "LIC987123",
+      },
+    ],
+    charges: {
+      feePerKm: 0.9,
+      fuelAllowance: 110,
+      accommodationAllowance: 55,
+      mealAllowance: 22,
+    },
+    documents: {
+      driversLicense: "DL987321654",
+      guideLicense: "GL321456987",
+      vehicleEmissionTest: "EM321654",
+      insurance: "INS321654",
+    },
+  }
+];
 
 
 export const shopsMockData: Shop[] = [

@@ -49,7 +49,7 @@ export const AddActivityProvider: React.FC<{ children: ReactNode }> = ({ childre
 };
 
 // Custom hook to use context
-export const useAddActivity = (): AddActivityContextProps => {
+export const useAddAgent = (): AddActivityContextProps => {
   const context = useContext(AddActivityContext);
   if (!context) {
     throw new Error('useAddActivity must be used within an AddActivityProvider');

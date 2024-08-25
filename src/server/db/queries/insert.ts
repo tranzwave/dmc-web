@@ -1,5 +1,5 @@
 import { db } from "..";
-import { hotelRooms, hotels, hotelStaff, InsertHotel } from "../schema";
+import { hotelRooms, hotels, hotelStaff } from "../schema";
 
 export async function createHotel(){
       // Step 1: Insert into the hotels table

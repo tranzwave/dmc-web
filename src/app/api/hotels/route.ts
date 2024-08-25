@@ -1,102 +1,88 @@
-// src/pages/api/hotels.ts
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { shopsMockData } from '~/lib/mockData';
-import { db } from '~/server/db'; // Import your database connection
+import { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
+import { db } from '~/server/db';
 import { hotelRooms, hotels, hotelStaff } from '~/server/db/schema';
 
-
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
-  console.log("Here in the hotels route")
+export async function POST(req: Request, res: NextApiResponse) {
   if (req.method === 'POST') {
+    const requestBody = await req.json();
     try {
-      const { hotelName, stars, primaryEmail, primaryContactNumber, streetName, city, province, hasRestaurant, restaurants } = req.body;
+      const {
+        hotelGeneral,
+        hotelStaff: staffMembers,
+        hotelRooms: rooms,
+      } = requestBody;
 
-      const newHotelIdArray = await db.insert(hotels).values({
-        hotelName: "Grand Plaza",
-        stars: 5,
-        primaryEmail: "info@grandplaza.com",
-        primaryContactNumber: "+1234567890",
-        streetName: "123 Main St",
-        city: "Metropolis",
-        province: "Central Province",
-        hasRestaurant: true,
-        restaurants: [
-          {
-            restaurantName: "Sunset Grill",
-            mealType: "Breakfast",
-            startTime: "07:00",
-            endTime: "10:00",
-          },
-          {
-            restaurantName: "Ocean Breeze",
-            mealType: "Dinner",
-            startTime: "18:00",
-            endTime: "22:00",
-          },
-        ],
+      console.log(req.body)
+
+      // Insert into the hotels table
+      const [newHotel] = await db.insert(hotels).values({
+        hotelName: hotelGeneral.hotelName,
+        stars: hotelGeneral.stars,
+        primaryEmail: hotelGeneral.primaryEmail,
+        primaryContactNumber: hotelGeneral.primaryContactNumber,
+        streetName: hotelGeneral.streetName,
+        city: hotelGeneral.city,
+        province: hotelGeneral.province,
+        hasRestaurant: hotelGeneral.hasRestaurant,
       }).returning({ id: hotels.id });
 
-      const newHotelId = newHotelIdArray?.[0]?.id;
+      const newHotelId = newHotel?.id;
 
-      if(!newHotelId){
-        throw Error('Failed to add hotel')
+      if (!newHotelId) {
+        throw new Error('Failed to add hotel');
       }
 
-        // Step 2: Insert into the hotelRooms table
-        await db.insert(hotelRooms).values([
-          {
-            hotelId: newHotelId,
-            roomType: "Suite",
-            typeName: "King Suite",
-            count: 10,
-            amenities: "Wi-Fi, TV, Minibar",
-            floor: 5,
-            bedCount: 1,
-            additionalComments: "Sea view",
-          },
-          {
-            hotelId: newHotelId,
-            roomType: "Deluxe",
-            typeName: "Double Deluxe",
-            count: 20,
-            amenities: "Wi-Fi, TV, Minibar, Balcony",
-            floor: 3,
-            bedCount: 2,
-            additionalComments: "Pool view",
-          },
-        ]);
+      // Insert into the hotelRooms table
+      await db.insert(hotelRooms).values(
+        rooms.map((room: any) => ({
+          hotelId: newHotelId,
+          roomType: room.roomType,
+          typeName: room.typeName,
+          count: room.count,
+          amenities: room.amenities,
+          floor: room.floor,
+          bedCount: room.bedCount,
+          additionalComments: room.additionalComments,
+        }))
+      );
 
-
-        // Step 3: Insert into the hotelStaff table
-        await db.insert(hotelStaff).values([
-        {
-        hotelId: newHotelId,
-        name: "John Doe",
-        email: "john.doe@grandplaza.com",
-        contactNumber: "+1234567891",
-        occupation: "Manager",
-        },
-        {
-        hotelId: newHotelId,
-        name: "Jane Smith",
-        email: "jane.smith@grandplaza.com",
-        contactNumber: "+1234567892",
-        occupation: "Receptionist",
-        },
-        ]);
+      // Insert into the hotelStaff table
+      await db.insert(hotelStaff).values(
+        staffMembers.map((staff: any) => ({
+          hotelId: newHotelId,
+          name: staff.name,
+          email: staff.email,
+          contactNumber: staff.contactNumber,
+          occupation: staff.occupation,
+        }))
+      );
 
       console.log("New hotel added with ID:", newHotelId);
 
-      // res.status(200).json({ hotel: newHotelId });
+      // return res.status(200).json({ hotelId: newHotelId });
+      return NextResponse.json({ hotelId: newHotelId }, { status: 200 });
 
-      return new Response(`New hotel added with ID:${newHotelId}`,{
-        status:200
-      })
-      console.log(res)
     } catch (error) {
-      res.status(500).json({ error: 'Failed to add hotel' });
+      console.error("Error adding hotel:", error);
+      return NextResponse.json({ error: 'Failed to add hotel' }, { status: 500 });
     }
   } else {
-     res.status(405).json({ message: 'Method not allowed' });
+    return res.status(405).json({ message: 'Method not allowed' });
+  }
+}
+
+
+export async function GET(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    // Fetch all hotels
+    const allHotels = await db.select().from(hotels);
+
+    // Return combined result
+    return NextResponse.json({ allHotels }, { status: 200 });
+
+  } catch (error) {
+    console.error("Error fetching hotels:", error);
+    return res.status(500).json({ error: 'Failed to fetch hotels' });
   }
 }

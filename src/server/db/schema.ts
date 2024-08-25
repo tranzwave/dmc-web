@@ -1,17 +1,16 @@
 import { relations, sql } from "drizzle-orm";
 import {
+  boolean,
   index,
   integer,
+  jsonb,
   pgTableCreator,
-  boolean,
-  pgTable,
   primaryKey,
-  serial,
   text,
   timestamp,
-  varchar,
-  jsonb,
+  varchar
 } from "drizzle-orm/pg-core";
+import { AdapterAccount } from "next-auth/adapters";
 
 export const createTable = pgTableCreator((name) => `dmc-web_${name}`);
 
@@ -37,23 +36,14 @@ export const users = createTable("user", {
   ),
 });
 
-// Bookings table
-export const bookings = createTable("booking", {
+// Clients table
+export const clients = createTable("client", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  // parentId: varchar("parent_id", { length: 255 }).references(() => bookings.id),
-  clientId: varchar("client_id", { length: 255 }).references(() => users.id),
-  clientName: varchar("client_name", { length: 255 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
   primaryEmail: varchar("primary_email", { length: 255 }).notNull(),
-  startDate: timestamp("start_date").notNull(),
-  endDate: timestamp("end_date").notNull(),
-  numberOfDays: integer("number_of_days").notNull(),
-  marketingManager: varchar("marketing_manager", { length: 255 }),
-  agent: varchar("agent", { length: 255 }),
-  tourType: varchar("tour_type", { length: 255 }),
-  includes: text("includes").notNull(), // JSON or comma-separated values for hotels, transport, activities
   createdAt: timestamp("created_at", { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
@@ -62,10 +52,60 @@ export const bookings = createTable("booking", {
   ),
 });
 
+// Agents table
+export const agents = createTable("agent", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date()
+  ),
+});
+
+export const bookings = createTable("bookings", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  clientId: varchar("client_id", { length: 255 }).references(() => clients.id).notNull(),
+  agentId: varchar("agent_id", { length: 255 }).references(() => agents.id).notNull(),
+  coordinatorId: varchar("coordinator_id", { length: 255 }).references(() => users.id).notNull(),
+  managerId: varchar("manager_id", { length: 255 }).references(() => users.id).notNull(),
+  tourType: varchar('tour_type', { length: 255 }).notNull(), // e.g., adventure, honeymoon
+
+});
+
+export const bookingLines = createTable('booking_line', {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  bookingId: varchar("booking_id").notNull().references(() => bookings.id),
+  includes: jsonb('includes').$type<{
+    hotels: boolean,
+    transport: boolean,
+    activities: boolean
+  }>(),// e.g., { hotels: true, transport: true, activities: false }
+  adultsCount: integer("adults_count").notNull(),
+  kidsCount: integer("kids_count").notNull(),
+  startDate: timestamp('start_date').notNull(),
+  endDate: timestamp('end_date').notNull(),
+
+})
+
 // Table for Hotels
 //TODO Implement CHECK for stars
 export const hotels = createTable("hotels", {
-  id: serial("id").primaryKey(),
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   hotelName: varchar("hotel_name", { length: 255 }).notNull(),
   stars: integer("stars").notNull(),
   primaryEmail: varchar("primary_email", { length: 255 }).notNull(),
@@ -74,20 +114,23 @@ export const hotels = createTable("hotels", {
   city: varchar("city", { length: 255 }).notNull(),
   province: varchar("province", { length: 255 }).notNull(),
   hasRestaurant: boolean("has_restaurant").notNull().default(false),
-  restaurants: jsonb("restaurants").$type<Array<{
-    restaurantName: string;
-    mealType: string;
-    startTime: string;
-    endTime: string;
-  }>>(),
+  // restaurants: jsonb("restaurants").$type<Array<{
+  //   restaurantName: string;
+  //   mealType: string;
+  //   startTime: string;
+  //   endTime: string;
+  // }>>(),
   createdAt: timestamp("created_at", { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).$onUpdate(() => new Date()),
 });
 
 // Table for Rooms
 export const hotelRooms = createTable("hotel_rooms", {
-  id: serial("id").primaryKey(),
-  hotelId: integer("hotel_id").notNull().references(() => hotels.id),
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  hotelId: varchar("hotel_id").notNull().references(() => hotels.id),
   roomType: varchar("room_type", { length: 255 }).notNull(),
   typeName: varchar("type_name", { length: 255 }).notNull(),
   count: integer("count").notNull(),
@@ -101,8 +144,11 @@ export const hotelRooms = createTable("hotel_rooms", {
 
 // Table for Hotel Staff
 export const hotelStaff = createTable("hotel_staff", {
-  id: serial("id").primaryKey(),
-  hotelId: integer("hotel_id").notNull().references(() => hotels.id),
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  hotelId: varchar("hotel_id").notNull().references(() => hotels.id),
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull(),
   contactNumber: varchar("contact_number", { length: 20 }).notNull(),
@@ -111,45 +157,188 @@ export const hotelStaff = createTable("hotel_staff", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).$onUpdate(() => new Date()),
 });
 
-
-
-
-// Transport table
-export const transport = createTable("transport", {
+// Hotel Vouchers table
+export const hotelVouchers = createTable("hotel_voucher", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  bookingId: varchar("booking_id", { length: 255 })
-    .notNull()
-    .references(() => bookings.id),
-  vehicleType: varchar("vehicle_type", { length: 50 }).notNull(), // e.g., CAR, BUS, VAN, TUK
-  numberPlate: varchar("number_plate", { length: 50 }).notNull(),
-  seats: integer("seats").notNull(),
-  make: varchar("make", { length: 255 }).notNull(),
-  model: varchar("model", { length: 255 }).notNull(),
-  year: integer("year").notNull(),
-  licenseID: varchar("license_id", { length: 255 }).notNull(),
-  primary: boolean("primary").notNull(),
-  charges: text("charges").notNull(), // JSON or separate table for Charges
-  documents: text("documents").notNull(), // JSON or separate table for Documents
+  bookingLineId: varchar("booking_line_id", { length: 255 }).references(() => bookingLines.id).notNull(),
+  hotelId: varchar("hotel_id", { length: 255 }).references(() => hotels.id).notNull(),
+  coordinatorId: varchar("coordinator_id", { length: 255 }).references(() => users.id).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date()
+  ),
 });
 
-// Activities table
-export const activities = createTable("activity", {
+// Hotel Voucher Lines table
+export const hotelVoucherLines = createTable("hotel_voucher_line", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  bookingId: varchar("booking_id", { length: 255 })
+  hotelVoucherId: varchar("hotel_voucher_id", { length: 255 }).references(() => hotelVouchers.id).notNull(),
+  roomType: varchar("room_type", { length: 100 }).notNull(),
+  basis: varchar("basis", { length: 10 }).notNull(), // HB, FB, BB
+  checkInDate: timestamp("check_in_date").notNull(),
+  checkOutDate: timestamp("check_out_date").notNull(),
+  adultsCount: integer("adults_count").notNull(),
+  kidsCount: integer("kids_count").notNull(),
+  roomCount: integer("room_count").notNull(),
+  remarks: text("remarks"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date()
+  ),
+});
+
+// Restaurants table
+export const restaurants = createTable("restaurant", {
+  id: varchar("id", { length: 255 })
     .notNull()
-    .references(() => bookings.id),
-  vendorName: varchar("vendor_name", { length: 255 }).notNull(),
-  activity: varchar("activity", { length: 255 }).notNull(),
-  primaryEmail: varchar("primary_email", { length: 255 }).notNull(),
-  primaryContactNumber: varchar("primary_contact_number", { length: 50 }).notNull(),
-  address: text("address").notNull(), // JSON or separate table for Address
-  capacity: integer("capacity").notNull(),
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  hotelId: varchar('hotel_id', { length: 255 }).references(() => hotels.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  streetName: varchar("street_name", { length: 255 }).notNull(),
+  city: varchar("city", { length: 255 }).notNull(),
+  province: varchar("province", { length: 255 }).notNull(),
+  contactNumber: varchar("contact_number", { length: 50 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date()
+  ),
+});
+
+export const restaurantMeals = createTable("restaurant_meal", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  restaurantId: varchar('restaurant_id', { length: 255 }).references(() => restaurants.id),
+  mealType: varchar("meal_type", { length: 50 }).notNull(),
+  startTime: varchar("startTime", { length: 10 }).notNull(),
+  endTime: varchar("endTime", { length: 10 }).notNull(),
+})
+
+// Restaurant Vouchers table
+export const restaurantVouchers = createTable("restaurant_voucher", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  bookingLineId: varchar("booking_line_id", { length: 255 }).references(() => bookingLines.id).notNull(),
+  restaurantId: varchar("restaurant_id", { length: 255 }).references(() => restaurants.id).notNull(),
+  coordinatorId: varchar("coordinator_id", { length: 255 }).references(() => users.id).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date()
+  ),
+});
+
+// Restaurant Voucher Lines table
+export const restaurantVoucherLines = createTable("restaurant_voucher_line", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  restaurantVoucherId: varchar("restaurant_voucher_id", { length: 255 }).references(() => restaurantVouchers.id).notNull(),
+  mealType: varchar("meal_type", { length: 50 }).notNull(),
+  date: timestamp("date").notNull(),
+  time: varchar("time", { length: 10 }).notNull(),
+  adultsCount: integer("adults_count").notNull(),
+  kidsCount: integer("kids_count").notNull(),
+  remarks: text("remarks"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date()
+  ),
+});
+
+// Drivers table
+export const drivers = createTable("driver", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: varchar("name", { length: 255 }).notNull(),
+  vehicleType: varchar("vehicle_type", { length: 100 }).notNull(),
+  contactNumber: varchar("contact_number", { length: 50 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date()
+  ),
+});
+
+// Transport Vouchers table
+export const transportVouchers = createTable("transport_voucher", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  bookingLineId: varchar("booking_line_id", { length: 255 }).references(() => bookingLines.id).notNull(),
+  driverId: varchar("driver_id", { length: 255 }).references(() => drivers.id).notNull(),
+  coordinatorId: varchar("coordinator_id", { length: 255 }).references(() => users.id).notNull(),
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  languages: varchar("languages", { length: 255 }), // Comma-separated list of languages
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date()
+  ),
+});
+
+// Activity Vendors table
+export const activityVendors = createTable("activity_vendor", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: varchar("name", { length: 255 }).notNull(),
+  activityType: varchar("activity_type", { length: 255 }).notNull(),
+  contactNumber: varchar("contact_number", { length: 50 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date()
+  ),
+});
+
+// Activity Vouchers table
+export const activityVouchers = createTable("activity_voucher", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  bookingLineId: varchar("booking_line_id", { length: 255 }).references(() => bookingLines.id).notNull(),
+  activityVendorId: varchar("activity_vendor_id", { length: 255 }).references(() => activityVendors.id).notNull(),
+  coordinatorId: varchar("coordinator_id", { length: 255 }).references(() => users.id).notNull(),
+  date: timestamp("date").notNull(),
+  time: varchar("time", { length: 10 }).notNull(),
+  participantsCount: integer("participants_count").notNull(),
+  remarks: text("remarks"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date()
+  ),
 });
 
 // Shops table
@@ -158,196 +347,197 @@ export const shops = createTable("shop", {
     .notNull()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  bookingId: varchar("booking_id", { length: 255 })
-    .notNull()
-    .references(() => bookings.id),
-  shopName: varchar("shop_name", { length: 255 }).notNull(),
-  address: text("address").notNull(), // JSON or separate table for Address
+  name: varchar("name", { length: 255 }).notNull(),
+  address: varchar("address", { length: 255 }).notNull(),
   contactNumber: varchar("contact_number", { length: 50 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date()
+  ),
 });
 
-export const usersRelations = relations(users, ({ many }) => ({
-  bookings: many(bookings),
-}));
+// Shop Vouchers table
+export const shopVouchers = createTable("shop_voucher", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  bookingLineId: varchar("booking_line_id", { length: 255 }).references(() => bookingLines.id).notNull(),
+  shopId: varchar("shop_id", { length: 255 }).references(() => shops.id).notNull(),
+  coordinatorId: varchar("coordinator_id", { length: 255 }).references(() => users.id).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date()
+  ),
+});
+
 
 export const bookingsRelations = relations(bookings, ({ one, many }) => ({
-  client: one(users, { fields: [bookings.clientId], references: [users.id] }),
-  // parentBooking: one(bookings, { fields: [bookings.parentId], references: [bookings.id] }),
-  // childBookings: many(bookings, { fields: [bookings.id], references: [bookings.parentId] }),
-  hotels: many(hotels),
-  transport: many(transport),
-  activities: many(activities),
-  shops: many(shops),
+  client: one(clients, {
+    fields: [bookings.clientId],
+    references: [clients.id],
+  }),
+  agent: one(agents, {
+    fields: [bookings.agentId],
+    references: [agents.id],
+  }),
+  coordinator: one(users, {
+    fields: [bookings.coordinatorId],
+    references: [users.id],
+  }),
+  manager: one(users, {
+    fields: [bookings.managerId],
+    references: [users.id],
+  })
 }));
 
-export const hotelsRelations = relations(hotels, ({ one }) => ({
-  booking: one(bookings, { fields: [hotels.id], references: [bookings.id] }),
+export const bookingLinesRelations = relations(bookingLines, ({ one, many }) => ({
+  booking: one(bookings, {
+    fields: [bookingLines.bookingId],
+    references: [bookings.id],
+  }),
 }));
 
-export const transportRelations = relations(transport, ({ one }) => ({
-  booking: one(bookings, { fields: [transport.bookingId], references: [bookings.id] }),
+export const hotelVouchersRelations = relations(hotelVouchers, ({ one }) => ({
+  booking: one(bookingLines, {
+    fields: [hotelVouchers.bookingLineId],
+    references: [bookingLines.id],
+  }),
+  hotel: one(hotels, {
+    fields: [hotelVouchers.hotelId],
+    references: [hotels.id],
+  }),
 }));
 
-export const activitiesRelations = relations(activities, ({ one }) => ({
-  booking: one(bookings, { fields: [activities.bookingId], references: [bookings.id] }),
+export const restaurantRelations = relations(restaurants, ({ one }) => ({
+  hotel: one(hotels, {
+    fields: [restaurants.hotelId],
+    references: [hotels.id]
+  })
+}))
+
+export const restaurantMealsRelations = relations(restaurantMeals, ({ one }) => ({
+  restaurant: one(restaurants, {
+    fields: [restaurantMeals.restaurantId],
+    references: [restaurants.id]
+  })
+}))
+
+export const restaurantVouchersRelations = relations(restaurantVouchers, ({ one }) => ({
+  booking: one(bookings, {
+    fields: [restaurantVouchers.bookingLineId],
+    references: [bookings.id],
+  }),
+  restaurant: one(restaurants, {
+    fields: [restaurantVouchers.restaurantId],
+    references: [restaurants.id],
+  }),
 }));
 
-export const shopsRelations = relations(shops, ({ one }) => ({
-  booking: one(bookings, { fields: [shops.bookingId], references: [bookings.id] }),
+export const transportVouchersRelations = relations(transportVouchers, ({ one }) => ({
+  booking: one(bookings, {
+    fields: [transportVouchers.bookingLineId],
+    references: [bookings.id],
+  }),
+  driver: one(drivers, {
+    fields: [transportVouchers.driverId],
+    references: [drivers.id],
+  }),
 }));
 
-// export type Hotel = typeof hotels.$inferInsert
-// export type HotelRooms = typeof hotelRooms.$inferInsert
+export const activityVouchersRelations = relations(activityVouchers, ({ one }) => ({
+  booking: one(bookingLines, {
+    fields: [activityVouchers.bookingLineId],
+    references: [bookingLines.id],
+  }),
+  activityVendor: one(activityVendors, {
+    fields: [activityVouchers.activityVendorId],
+    references: [activityVendors.id],
+  }),
+}));
 
+export const shopVouchersRelations = relations(shopVouchers, ({ one }) => ({
+  booking: one(bookings, {
+    fields: [shopVouchers.bookingLineId],
+    references: [bookings.id],
+  }),
+  shop: one(shops, {
+    fields: [shopVouchers.shopId],
+    references: [shops.id],
+  }),
+}));
 
-export type InsertHotel = typeof hotels.$inferInsert
-export type SelectHotel = typeof hotels.$inferSelect
+export const accounts = createTable(
+  "account",
+  {
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id),
+    type: varchar("type", { length: 255 })
+      .$type<AdapterAccount["type"]>()
+      .notNull(),
+    provider: varchar("provider", { length: 255 }).notNull(),
+    providerAccountId: varchar("provider_account_id", {
+      length: 255,
+    }).notNull(),
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    expires_at: integer("expires_at"),
+    token_type: varchar("token_type", { length: 255 }),
+    scope: varchar("scope", { length: 255 }),
+    id_token: text("id_token"),
+    session_state: varchar("session_state", { length: 255 }),
+  },
+  (account) => ({
+    compoundKey: primaryKey({
+      columns: [account.provider, account.providerAccountId],
+    }),
+    userIdIdx: index("account_user_id_idx").on(account.userId),
+  })
+);
 
-export type InsertDriver = typeof transport.$inferInsert
-export type SelectDriver = typeof transport.$inferSelect
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, { fields: [accounts.userId], references: [users.id] }),
+}));
 
-export type InsertActivity = typeof activities.$inferInsert
-export type SelectActivity = typeof activities.$inferSelect
+export const sessions = createTable(
+  "session",
+  {
+    sessionToken: varchar("session_token", { length: 255 })
+      .notNull()
+      .primaryKey(),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id),
+    expires: timestamp("expires", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+  },
+  (session) => ({
+    userIdIdx: index("session_user_id_idx").on(session.userId),
+  })
+);
 
-export type InsertShop = typeof shops.$inferInsert
-export type SelectShop = typeof shops.$inferSelect
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, { fields: [sessions.userId], references: [users.id] }),
+}));
 
-export type InsertBooking = typeof bookings.$inferInsert
-export type SelectBooking = typeof bookings.$inferSelect
-
-
-
-
-
-
-
-// import { relations, sql } from "drizzle-orm";
-// import {
-//   index,
-//   integer,
-//   pgTableCreator,
-//   primaryKey,
-//   serial,
-//   text,
-//   timestamp,
-//   varchar,
-// } from "drizzle-orm/pg-core";
-// import { type AdapterAccount } from "next-auth/adapters";
-
-// /**
-//  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
-//  * database instance for multiple projects.
-//  *
-//  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
-//  */
-// export const createTable = pgTableCreator((name) => `dmc-web_${name}`);
-
-// export const posts = createTable(
-//   "post",
-//   {
-//     id: serial("id").primaryKey(),
-//     name: varchar("name", { length: 256 }),
-//     createdById: varchar("created_by", { length: 255 })
-//       .notNull()
-//       .references(() => users.id),
-//     createdAt: timestamp("created_at", { withTimezone: true })
-//       .default(sql`CURRENT_TIMESTAMP`)
-//       .notNull(),
-//     updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
-//       () => new Date()
-//     ),
-//   },
-//   (example) => ({
-//     createdByIdIdx: index("created_by_idx").on(example.createdById),
-//     nameIndex: index("name_idx").on(example.name),
-//   })
-// );
-
-// export const users = createTable("user", {
-//   id: varchar("id", { length: 255 })
-//     .notNull()
-//     .primaryKey()
-//     .$defaultFn(() => crypto.randomUUID()),
-//   name: varchar("name", { length: 255 }),
-//   email: varchar("email", { length: 255 }).notNull(),
-//   emailVerified: timestamp("email_verified", {
-//     mode: "date",
-//     withTimezone: true,
-//   }).default(sql`CURRENT_TIMESTAMP`),
-//   image: varchar("image", { length: 255 }),
-// });
-
-// export const usersRelations = relations(users, ({ many }) => ({
-//   accounts: many(accounts),
-// }));
-
-// export const accounts = createTable(
-//   "account",
-//   {
-//     userId: varchar("user_id", { length: 255 })
-//       .notNull()
-//       .references(() => users.id),
-//     type: varchar("type", { length: 255 })
-//       .$type<AdapterAccount["type"]>()
-//       .notNull(),
-//     provider: varchar("provider", { length: 255 }).notNull(),
-//     providerAccountId: varchar("provider_account_id", {
-//       length: 255,
-//     }).notNull(),
-//     refresh_token: text("refresh_token"),
-//     access_token: text("access_token"),
-//     expires_at: integer("expires_at"),
-//     token_type: varchar("token_type", { length: 255 }),
-//     scope: varchar("scope", { length: 255 }),
-//     id_token: text("id_token"),
-//     session_state: varchar("session_state", { length: 255 }),
-//   },
-//   (account) => ({
-//     compoundKey: primaryKey({
-//       columns: [account.provider, account.providerAccountId],
-//     }),
-//     userIdIdx: index("account_user_id_idx").on(account.userId),
-//   })
-// );
-
-// export const accountsRelations = relations(accounts, ({ one }) => ({
-//   user: one(users, { fields: [accounts.userId], references: [users.id] }),
-// }));
-
-// export const sessions = createTable(
-//   "session",
-//   {
-//     sessionToken: varchar("session_token", { length: 255 })
-//       .notNull()
-//       .primaryKey(),
-//     userId: varchar("user_id", { length: 255 })
-//       .notNull()
-//       .references(() => users.id),
-//     expires: timestamp("expires", {
-//       mode: "date",
-//       withTimezone: true,
-//     }).notNull(),
-//   },
-//   (session) => ({
-//     userIdIdx: index("session_user_id_idx").on(session.userId),
-//   })
-// );
-
-// export const sessionsRelations = relations(sessions, ({ one }) => ({
-//   user: one(users, { fields: [sessions.userId], references: [users.id] }),
-// }));
-
-// export const verificationTokens = createTable(
-//   "verification_token",
-//   {
-//     identifier: varchar("identifier", { length: 255 }).notNull(),
-//     token: varchar("token", { length: 255 }).notNull(),
-//     expires: timestamp("expires", {
-//       mode: "date",
-//       withTimezone: true,
-//     }).notNull(),
-//   },
-//   (vt) => ({
-//     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-//   })
-// );
+export const verificationTokens = createTable(
+  "verification_token",
+  {
+    identifier: varchar("identifier", { length: 255 }).notNull(),
+    token: varchar("token", { length: 255 }).notNull(),
+    expires: timestamp("expires", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+  },
+  (vt) => ({
+    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
+  })
+);

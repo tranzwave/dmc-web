@@ -28,6 +28,7 @@ const Page = ({ params }: { params: { id: string } }) => {
             } catch (error) {
                 setError('An error occurred while fetching the booking');
             } finally {
+                
                 setLoading(false);
             }
         };
@@ -72,11 +73,11 @@ const Page = ({ params }: { params: { id: string } }) => {
                             </TabsList>
                             <TabsContent value="general">
                                 {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
-                                General Tasks
+                                General Task View
                             </TabsContent>
                             <TabsContent value="hotels">
                                 {/* <HotelsTab onAddHotel={addHotel} /> */}
-                                <HotelsTasksTab hotels={booking.hotels}/>
+                                <HotelsTasksTab vouchers={booking.vouchers}/>
                             </TabsContent>
                             <TabsContent value="restaurants">
                                 {/* <RestaurantsTab onAddRestaurant={addRestaurant} /> */}

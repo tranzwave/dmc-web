@@ -6,15 +6,22 @@ import { Restaurant } from '~/components/bookings/addBooking/forms/restaurantsFo
 import { Shop } from '~/components/bookings/addBooking/forms/shopsForm/columns';
 import { Transport } from '~/components/bookings/addBooking/forms/transportForm/columns';
 import { Driver } from '~/lib/types/driver/type';
+import { SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine } from '~/server/db/schemaTypes';
 
 export interface TransportWithDriver {
   transport: Transport;
   driver: Driver;
 }
 
+export interface HotelVoucher {
+  hotel:SelectHotel,
+  voucher:SelectHotelVoucher
+  voucherLines:SelectHotelVoucherLine[]
+}
+
 export interface BookingDetails {
   general: General; 
-  hotels: Hotel[];
+  vouchers: HotelVoucher[];
   restaurants: Restaurant[];
   activities: Activity[];
   transport: TransportWithDriver[];
@@ -25,7 +32,7 @@ export interface BookingDetails {
 interface AddBookingContextProps {
   bookingDetails: BookingDetails;
   setGeneralDetails: (details: General) => void;
-  addHotel: (hotel: Hotel) => void;
+  addHotelVoucher: (hotel: HotelVoucher) => void;
   addRestaurant: (restaurant: Restaurant) => void;
   addActivity: (activity: Activity) => void;
   addTransport: (transportWithDriver: TransportWithDriver) => void;
@@ -64,7 +71,7 @@ const defaultHotel: Hotel = {
 
 const defaultBookingDetails: BookingDetails = {
   general: defaultGeneral,
-  hotels: [],
+  vouchers: [],
   restaurants: [],
   activities: [],
   transport: [],
@@ -80,8 +87,8 @@ export const AddBookingProvider: React.FC<{ children: ReactNode }> = ({ children
     setBookingDetails(prev => ({ ...prev, general: details }));
   };
 
-  const addHotel = (hotel: Hotel) => {
-    setBookingDetails(prev => ({ ...prev, hotels: [...prev.hotels, hotel] }));
+  const addHotelVoucher = (hotelVoucher: HotelVoucher) => {
+    setBookingDetails(prev => ({ ...prev, vouchers: [...prev.vouchers, hotelVoucher] }));
   };
 
   const addRestaurant = (restaurant: Restaurant) => {
@@ -105,7 +112,7 @@ export const AddBookingProvider: React.FC<{ children: ReactNode }> = ({ children
       value={{
         bookingDetails,
         setGeneralDetails,
-        addHotel,
+        addHotelVoucher,
         addRestaurant,
         addActivity,
         addTransport,

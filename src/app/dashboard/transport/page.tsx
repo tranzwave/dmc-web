@@ -9,12 +9,13 @@ import { getTransportData } from "~/lib/api";
 import { Driver, driverColumns } from "~/lib/types/driver/type";
 
 const TransportHome = () => {
+    const pathname = usePathname();
+
     const [data, setData] = useState<Driver[]>([]);
-    const [selectedTransport, setSelectedTransport] = useState<Driver | null>(null);
+    // const [selectedTransport, setSelectedTransport] = useState<Driver | null>(null);
     const [loading, setLoading] = useState<boolean>(true);  // Added loading state
     const [error, setError] = useState<string | null>(null); // Added error state
 
-    const pathname = usePathname();
 
     // Fetch data on mount
     useEffect(() => {
@@ -34,14 +35,6 @@ const TransportHome = () => {
         fetchData();
     }, []);
 
-    const handleRowClick = (driver: Driver) => {
-        setSelectedTransport(driver);
-    };
-
-    const handleCloseSidePanel = () => {
-        setSelectedTransport(null);
-    };
-
     if (loading) {
         return <div>Loading...</div>;  // Render loading state
     }
@@ -55,7 +48,7 @@ const TransportHome = () => {
             <div className="flex-1">
                 <div className="flex flex-col gap-3">
                     <div className="flex flex-row gap-1 w-full justify-between">
-                        <TitleBar title="Transport" link="toAddBooking" />
+                        <TitleBar title="Transport" link="toAddTransport" />
                         <div>
                             <Link href={`${pathname}/add`}>
                                 <Button variant="primaryGreen">Add Transport</Button>
@@ -64,11 +57,8 @@ const TransportHome = () => {
                     </div>
                     <div className='flex flex-row gap-3 justify-center'>
                         <div className='w-[90%]'>
-                            <DataTable columns={driverColumns} data={data} onRowClick={handleRowClick} />
+                            <DataTable columns={driverColumns} data={data}/>
                         </div>
-                        {/* <div className='w-[40%]'>
-                            <SidePanel booking={selectedBooking} onClose={handleCloseSidePanel} />
-                        </div> */}
                     </div>
                 </div>
             </div>

@@ -1,13 +1,18 @@
+'use client';
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from 'zod';
+import { Button } from "~/components/ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "~/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
-import { Hotel } from "./columns";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'; // Import Shadcn Select components
+import { SelectHotel, SelectHotelVoucherLine } from "~/server/db/schemaTypes";
 
 interface HotelsFormProps {
-  onAddHotel: (hotel: Hotel) => void;
+  onAddHotel: (data: SelectHotelVoucherLine,isNewVoucher:boolean, hotel:any) => void;
+  hotels:SelectHotel[]
 }
 
 export const hotelsSchema = z.object({
@@ -23,7 +28,10 @@ export const hotelsSchema = z.object({
   remarks: z.string().optional(), // Optional field
 });
 
-const HotelsForm: React.FC<HotelsFormProps> = ({ onAddHotel }) => {
+const HotelsForm: React.FC<HotelsFormProps> = ({ onAddHotel,hotels }) => {
+  const [selectedHotel,setSelectedHotel] = useState<SelectHotel | null>()
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const form = useForm<z.infer<typeof hotelsSchema>>({
     resolver: zodResolver(hotelsSchema),
     defaultValues: {
@@ -41,15 +49,51 @@ const HotelsForm: React.FC<HotelsFormProps> = ({ onAddHotel }) => {
   });
 
   function onSubmit(values: z.infer<typeof hotelsSchema>) {
-    onAddHotel({
-      ...values,
-      quantity: Number(values.quantity), // Ensure quantity is a number
-      roomCount: Number(values.roomCount), // Ensure roomCount is a number
-    });
-    form.reset();
+    setIsModalOpen(true);
   }
 
+  function handleModalResponse(isNewVoucher: boolean) {
+    const voucherLine: SelectHotelVoucherLine = {
+      id: "", // Optional field; if you don't have an ID yet, you can leave it as an empty string or `undefined`.
+      adultsCount: Number(form.getValues('quantity')), // Assuming you have an `adultsCount` field in your form.
+      kidsCount: Number(form.getValues('quantity')), // Assuming you have a `kidsCount` field in your form.
+      hotelVoucherId: "", // Use the selected hotel ID stored in the state.
+      roomType: form.getValues('roomType'), // Room type from the form.
+      basis: form.getValues('basis'), // Basis from the form.
+      checkInDate: new Date(form.getValues('checkInDate')), // Convert check-in date from form to a Date object.
+      checkOutDate: new Date(form.getValues('checkOutDate')), // Convert check-out date from form to a Date object.
+      roomCount: Number(form.getValues('roomCount')), // Room count from the form, converted to a number.
+      remarks: form.getValues('remarks') || "", // Optional remarks from the form; default to an empty string if not provided.
+      createdAt: new Date(), // Optional; usually set automatically.
+      updatedAt: new Date(), // Optional; usually set automatically.
+    };
+    
+    if(isNewVoucher){
+      onAddHotel(voucherLine,true,selectedHotel )
+    } else{
+      onAddHotel(voucherLine,false,selectedHotel)
+    }
+
+
+
+    // Reset form and close the modal
+    form.reset();
+    setIsModalOpen(false);
+  }
+
+  function getHotelId(hotelName: string) {
+    const hotel = hotels.find(hotel => hotel.hotelName === hotelName);
+    const id = hotel?.id;
+    alert(id);
+    setSelectedHotel(hotel);
+  }
+
+  useEffect(()=>{
+    console.log(hotels)
+  },[])
+
   return (
+    <>
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-3 gap-3">
@@ -57,7 +101,24 @@ const HotelsForm: React.FC<HotelsFormProps> = ({ onAddHotel }) => {
             <FormItem>
               <FormLabel>Hotel Name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter hotel name" {...field} />
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value)
+                    getHotelId(value)
+                  }}
+                  value={field.value}
+                >
+                  <SelectTrigger className="shadow-md bg-slate-100">
+                    <SelectValue placeholder="Select hotel" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {hotels.map((hotel) => (
+                      <SelectItem key={hotel.id} value={hotel.hotelName}>
+                        {hotel.hotelName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -66,10 +127,10 @@ const HotelsForm: React.FC<HotelsFormProps> = ({ onAddHotel }) => {
             <FormItem>
               <FormLabel>Quantity</FormLabel>
               <FormControl>
-              <Input
-                    type="number"
-                    value={field.value || ""}
-                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                <Input
+                  type="number"
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
                 />
               </FormControl>
               <FormMessage />
@@ -80,9 +141,9 @@ const HotelsForm: React.FC<HotelsFormProps> = ({ onAddHotel }) => {
               <FormLabel>Room Count</FormLabel>
               <FormControl>
                 <Input
-                    type="number"
-                    value={field.value || ""}
-                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                  type="number"
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
                 />
               </FormControl>
               <FormMessage />
@@ -161,6 +222,24 @@ const HotelsForm: React.FC<HotelsFormProps> = ({ onAddHotel }) => {
         </div>
       </form>
     </Form>
+
+    {/* Modal Component */}
+    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add to Voucher</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p>Would you like to add this to a new voucher or an existing voucher?</p>
+          </div>
+          <DialogFooter>
+            <Button variant={"primaryGreen"} onClick={() => handleModalResponse(true)}>New Voucher</Button>
+            <Button variant="outline" onClick={() => handleModalResponse(false)}>Existing Voucher</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+
   );
 };
 

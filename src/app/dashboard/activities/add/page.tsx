@@ -6,14 +6,14 @@ import GeneralTab from '~/components/activities/addActivity/forms/generalForm';
 import TitleBar from '~/components/common/titleBar';
 import { Button } from '~/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
-import { AddActivityProvider, useAddActivity } from './context';
+import { AddActivityProvider, useAddAgent } from './context';
 
 const SubmitForm = () => {
-  const { activityDetails } = useAddActivity();
+  const { activityDetails } = useAddAgent();
 
   const handleSubmit = () => {
     // Handle the submission of activityDetails
-    console.log('Submitting booking details:', activityDetails);
+    console.log('Submitting activity details:', activityDetails);
   };
 
   return (
@@ -26,14 +26,13 @@ const SubmitForm = () => {
           Submit
         </Button>
       </div>
-
     </div>
   );
 };
 
 const AddActivity = () => {
   const pathname = usePathname();
-  const { setGeneralDetails } = useAddActivity();
+  const { setGeneralDetails } = useAddAgent();
 
   useEffect(() => {
     console.log('Add Activity Component');
@@ -54,7 +53,7 @@ const AddActivity = () => {
           <div className='w-full'>
             <Tabs defaultValue="general" className="w-full border">
               <TabsList className='flex justify-evenly w-full'>
-                <TabsTrigger value="general">General</TabsTrigger>
+                <TabsTrigger value="general" statusLabel="Mandatory">General</TabsTrigger>
                 <TabsTrigger value="submit">Submit</TabsTrigger>
               </TabsList>
               <TabsContent value="general">

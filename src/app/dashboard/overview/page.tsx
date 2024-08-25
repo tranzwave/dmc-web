@@ -1,9 +1,9 @@
 import Image from "next/image";
 import TitleBar from "~/components/common/titleBar";
-import heroImage from '../../../../public/assets/Rectangle 47.png'
-import StatCards from "~/components/overview/statCards";
 import Services from "~/components/overview/services";
+import StatCards from "~/components/overview/statCards";
 import TouristsByCountry from "~/components/overview/touristsByCountry";
+import heroImage from '../../../../public/assets/Rectangle 47.png';
 
 const Overview = () => {
     return (
