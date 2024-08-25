@@ -4,9 +4,10 @@ import { Booking, CategoryDetails } from "~/components/bookings/home/columns";
 import { Button } from '~/components/ui/button';
 import { Progress } from '~/components/ui/progress';
 import { Lock } from "lucide-react"; // Import the lock icon
+import { BookingDTO } from "~/lib/types/booking";
 
 interface SidePanelProps {
-  booking: Booking | null;
+  booking: BookingDTO | null;
   onClose: () => void;
 }
 
@@ -65,10 +66,11 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
         <div>
         </div>
       </div>
-      {renderCard(booking.details.hotels)}
+      {booking.id}
+      {/* {renderCard(booking.details.hotels)}
       {renderCard(booking.details.transport)}
       {renderCard(booking.details.activities)}
-      {renderCard(booking.details.shops)}
+      {renderCard(booking.details.shops)} */}
     </div>
   );
 };

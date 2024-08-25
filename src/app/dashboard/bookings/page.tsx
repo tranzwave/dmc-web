@@ -4,29 +4,42 @@ import { useEffect, useState } from 'react';
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
 import { Booking, columns } from "~/components/bookings/home/columns";
-import { getData } from "~/lib/api";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import SidePanel from "~/components/bookings/home/sidePanel";
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { getAllBookings } from '~/server/db/queries/booking';
+import { BookingDTO } from '~/lib/types/booking';
 
 export default function Bookings() {
-  const [data, setData] = useState<Booking[]>([]);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [data, setData] = useState<BookingDTO[]>([]);
+  const [selectedBooking, setSelectedBooking] = useState<BookingDTO | null>(null);
+  const [loading,setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null);
 
   const pathname = usePathname()
 
   // Fetch data on mount
   useEffect(() => {
     async function fetchData() {
-      const result = await getData();
-      setData(result);
+        setLoading(true);
+        try {
+            // const result = await getHotelData();
+            const result = await getAllBookings();
+
+            setData(result);
+        } catch (error) {
+            console.error("Failed to fetch hotel data:", error);
+            setError("Failed to load data.");
+        } finally {
+            setLoading(false);
+        }
     }
 
     fetchData();
-  }, []);
+}, []);
 
-  const handleRowClick = (booking: Booking) => {
+  const handleRowClick = (booking: BookingDTO) => {
     setSelectedBooking(booking);
   };
 

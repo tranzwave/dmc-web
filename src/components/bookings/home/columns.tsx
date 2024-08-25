@@ -1,6 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import { BookingDTO } from "~/lib/types/booking";
 
 export type CategoryDetails = {
     title: string;
@@ -25,7 +26,7 @@ export type CategoryDetails = {
   };
   
 
-export const columns: ColumnDef<Booking>[] = [
+export const columns: ColumnDef<BookingDTO>[] = [
   {
     accessorKey: "client",
     header: "Client",
