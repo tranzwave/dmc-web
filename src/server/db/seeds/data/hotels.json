@@ -1,0 +1,258 @@
+[
+    {
+      "hotel": {
+        "tenantId": "tenant1",
+        "hotelName": "The Grand Colombo",
+        "stars": 5,
+        "primaryEmail": "contact@grandcolombo.com",
+        "primaryContactNumber": "+94112345678",
+        "streetName": "Galle Road",
+        "city": "Colombo",
+        "province": "Western Province",
+        "hasRestaurant": true
+      },
+      "hotelRooms": [
+        {
+          "hotelId": "hotel1",
+          "roomType": "Deluxe",
+          "typeName": "Deluxe King Room",
+          "count": 10,
+          "amenities": "Free Wi-Fi, Air Conditioning, Mini Bar",
+          "floor": 5,
+          "bedCount": 1,
+          "additionalComments": "Sea view"
+        },
+        {
+          "hotelId": "hotel1",
+          "roomType": "Standard",
+          "typeName": "Standard Double Room",
+          "count": 20,
+          "amenities": "Free Wi-Fi, Air Conditioning",
+          "floor": 3,
+          "bedCount": 2,
+          "additionalComments": "City view"
+        }
+      ],
+      "hotelStaffs": [
+        {
+          "hotelId": "hotel1",
+          "name": "John Smith",
+          "email": "john.smith@grandcolombo.com",
+          "contactNumber": "+94112345679",
+          "occupation": "Manager"
+        },
+        {
+          "hotelId": "hotel1",
+          "name": "Sarah Johnson",
+          "email": "sarah.johnson@grandcolombo.com",
+          "contactNumber": "+94112345680",
+          "occupation": "Front Desk Officer"
+        }
+      ]
+    },
+    {
+      "hotel": {
+        "tenantId": "tenant2",
+        "hotelName": "Mountain View Lodge",
+        "stars": 4,
+        "primaryEmail": "info@mountainview.com",
+        "primaryContactNumber": "+94771234567",
+        "streetName": "Kandy Road",
+        "city": "Colombo",
+        "province": "Central Province",
+        "hasRestaurant": false
+      },
+      "hotelRooms": [
+        {
+          "hotelId": "hotel2",
+          "roomType": "Suite",
+          "typeName": "Mountain Suite",
+          "count": 5,
+          "amenities": "Free Wi-Fi, Air Conditioning, Mountain View",
+          "floor": 2,
+          "bedCount": 1,
+          "additionalComments": "Panoramic mountain view"
+        },
+        {
+          "hotelId": "hotel2",
+          "roomType": "Standard",
+          "typeName": "Standard Twin Room",
+          "count": 15,
+          "amenities": "Free Wi-Fi, Air Conditioning",
+          "floor": 1,
+          "bedCount": 2,
+          "additionalComments": "Garden view"
+        }
+      ],
+      "hotelStaffs": [
+        {
+          "hotelId": "hotel2",
+          "name": "Michael Brown",
+          "email": "michael.brown@mountainview.com",
+          "contactNumber": "+94771234568",
+          "occupation": "Manager"
+        },
+        {
+          "hotelId": "hotel2",
+          "name": "Emily Davis",
+          "email": "emily.davis@mountainview.com",
+          "contactNumber": "+94771234569",
+          "occupation": "Housekeeping"
+        }
+      ]
+    },
+    {
+      "hotel": {
+        "tenantId": "tenant3",
+        "hotelName": "Beachside Resort",
+        "stars": 4,
+        "primaryEmail": "contact@beachside.com",
+        "primaryContactNumber": "+94772223333",
+        "streetName": "Beach Road",
+        "city": "Colombo",
+        "province": "Southern Province",
+        "hasRestaurant": true
+      },
+      "hotelRooms": [
+        {
+          "hotelId": "hotel3",
+          "roomType": "Deluxe",
+          "typeName": "Ocean View Room",
+          "count": 8,
+          "amenities": "Free Wi-Fi, Air Conditioning, Ocean View",
+          "floor": 4,
+          "bedCount": 1,
+          "additionalComments": "Private balcony"
+        },
+        {
+          "hotelId": "hotel3",
+          "roomType": "Standard",
+          "typeName": "Poolside Room",
+          "count": 10,
+          "amenities": "Free Wi-Fi, Air Conditioning",
+          "floor": 2,
+          "bedCount": 2,
+          "additionalComments": "Pool view"
+        }
+      ],
+      "hotelStaffs": [
+        {
+          "hotelId": "hotel3",
+          "name": "Alex White",
+          "email": "alex.white@beachside.com",
+          "contactNumber": "+94772223334",
+          "occupation": "Manager"
+        },
+        {
+          "hotelId": "hotel3",
+          "name": "Sophia Taylor",
+          "email": "sophia.taylor@beachside.com",
+          "contactNumber": "+94772223335",
+          "occupation": "Chef"
+        }
+      ]
+    },
+    {
+      "hotel": {
+        "tenantId": "tenant4",
+        "hotelName": "Urban Retreat",
+        "stars": 3,
+        "primaryEmail": "info@urbanretreat.com",
+        "primaryContactNumber": "+94115555555",
+        "streetName": "Main Street",
+        "city": "Kandy",
+        "province": "Western Province",
+        "hasRestaurant": false
+      },
+      "hotelRooms": [
+        {
+          "hotelId": "hotel4",
+          "roomType": "Suite",
+          "typeName": "City Suite",
+          "count": 4,
+          "amenities": "Free Wi-Fi, Air Conditioning, City View",
+          "floor": 7,
+          "bedCount": 1,
+          "additionalComments": "Private lounge access"
+        },
+        {
+          "hotelId": "hotel4",
+          "roomType": "Standard",
+          "typeName": "City View Room",
+          "count": 18,
+          "amenities": "Free Wi-Fi, Air Conditioning",
+          "floor": 5,
+          "bedCount": 1,
+          "additionalComments": "City view"
+        }
+      ],
+      "hotelStaffs": [
+        {
+          "hotelId": "hotel4",
+          "name": "Chris Green",
+          "email": "chris.green@urbanretreat.com",
+          "contactNumber": "+94115555556",
+          "occupation": "Manager"
+        },
+        {
+          "hotelId": "hotel4",
+          "name": "Olivia Black",
+          "email": "olivia.black@urbanretreat.com",
+          "contactNumber": "+94115555557",
+          "occupation": "Receptionist"
+        }
+      ]
+    },
+    {
+      "hotel": {
+        "tenantId": "tenant5",
+        "hotelName": "Lakeside Inn",
+        "stars": 4,
+        "primaryEmail": "contact@lakesideinn.com",
+        "primaryContactNumber": "+94116666666",
+        "streetName": "Lakeside Avenue",
+        "city": "Colombo",
+        "province": "Central Province",
+        "hasRestaurant": true
+      },
+      "hotelRooms": [
+        {
+          "hotelId": "hotel5",
+          "roomType": "Deluxe",
+          "typeName": "Lake View Room",
+          "count": 12,
+          "amenities": "Free Wi-Fi, Air Conditioning, Lake View",
+          "floor": 3,
+          "bedCount": 1,
+          "additionalComments": "Private balcony"
+        },
+        {
+          "hotelId": "hotel5",
+          "roomType": "Standard",
+          "typeName": "Garden View Room",
+          "count": 20,
+          "amenities": "Free Wi-Fi, Air Conditioning",
+          "floor": 2,
+          "bedCount": 2,
+          "additionalComments": "Garden access"
+        }
+      ],
+      "hotelStaffs": [
+        {
+          "hotelId": "hotel5",
+          "name": "Liam Brown",
+          "email": "liam.brown@lakesideinn.com",
+          "contactNumber": "+94116666667",
+          "occupation": "Manager"
+        },
+        {
+          "hotelId": "hotel5",
+          "name": "Emma Blue",
+          "email": "emma.blue@lakesideinn.com",
+          "contactNumber": "+94116666668",
+          "occupation": "Head Chef"
+        }
+      ]
+    }
+  ]
+  

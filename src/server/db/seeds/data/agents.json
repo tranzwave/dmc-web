@@ -1,0 +1,28 @@
+[
+    {
+      "country": "USA",
+      "name": "John Doe",
+      "email": "john.doe@agencyusa.com"
+    },
+    {
+      "country": "CAN",
+      "name": "Jane Smith",
+      "email": "jane.smith@agencycanada.ca"
+    },
+    {
+      "country": "GBR",
+      "name": "William Brown",
+      "email": "william.brown@agencyuk.co.uk"
+    },
+    {
+      "country": "AUS",
+      "name": "Emily White",
+      "email": "emily.white@agencyaus.com.au"
+    },
+    {
+      "country": "IND",
+      "name": "Rajesh Kumar",
+      "email": "rajesh.kumar@agencyindia.in"
+    }
+  ]
+  

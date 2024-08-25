@@ -1,64 +1,73 @@
-import { hotels, drivers, activityVendors, shops, bookings, bookingLines, hotelVouchers, restaurantVouchers, transportVouchers, activityVouchers, shopVouchers, restaurants, restaurantMeals, hotelStaff, hotelRooms, hotelVoucherLines } from './schema'
+import { hotel, driver, activityVendor, shop, booking, bookingLine, hotelVoucher, restaurantVoucher, transportVoucher, activityVoucher, shopVoucher, restaurant, restaurantMeal, hotelStaff, hotelRoom, hotelVoucherLine, tenant, city } from './schema'
+
+//Tenant Types
+export type InsertTenant = typeof tenant.$inferSelect;
+export type SelectTenant = typeof tenant.$inferInsert;
+
+//City Types
+export type InsertCity = typeof city.$inferInsert;
+export type SelectCity = typeof city.$inferSelect;
+
 
 // Hotel Types
-export type InsertHotel = typeof hotels.$inferInsert;
-export type SelectHotel = typeof hotels.$inferSelect;
+export type InsertHotel = typeof hotel.$inferInsert;
+export type SelectHotel = typeof hotel.$inferSelect;
 
-export type InsertHotelRoom = typeof hotelRooms.$inferInsert;
-export type SelectHotelRoom = typeof hotelRooms.$inferSelect;
+export type InsertHotelRoom = typeof hotelRoom.$inferInsert;
+export type SelectHotelRoom = typeof hotelRoom.$inferSelect;
 
 export type InsertHotelStaff = typeof hotelStaff.$inferInsert;
 export type SelectHotelStaff = typeof hotelStaff.$inferSelect;
 
 
 // Driver Types
-export type InsertDriver = typeof drivers.$inferInsert;
-export type SelectDriver = typeof drivers.$inferSelect;
+export type InsertDriver = typeof driver.$inferInsert;
+export type SelectDriver = typeof driver.$inferSelect;
 
 // Activity Vendor Types
-export type InsertActivity = typeof activityVendors.$inferInsert;
-export type SelectActivity = typeof activityVendors.$inferSelect;
+export type InsertActivity = typeof activityVendor.$inferInsert;
+export type SelectActivity = typeof activityVendor.$inferSelect;
 
 // Shop Types
-export type InsertShop = typeof shops.$inferInsert;
-export type SelectShop = typeof shops.$inferSelect;
+export type InsertShop = typeof shop.$inferInsert;
+export type SelectShop = typeof shop.$inferSelect;
 
 // Booking Types
-export type InsertBooking = typeof bookings.$inferInsert;
-export type SelectBooking = typeof bookings.$inferSelect;
+export type InsertBooking = typeof booking.$inferInsert;
+export type SelectBooking = typeof booking.$inferSelect;
 
 // Booking Line Types
-export type InsertBookingLine = typeof bookingLines.$inferInsert;
-export type SelectBookingLine = typeof bookingLines.$inferSelect;
+export type InsertBookingLine = typeof bookingLine.$inferInsert;
+export type SelectBookingLine = typeof bookingLine.$inferSelect;
 
 // Hotel Voucher Types
-export type InsertHotelVoucher = typeof hotelVouchers.$inferInsert;
-export type SelectHotelVoucher = typeof hotelVouchers.$inferSelect;
+export type InsertHotelVoucher = typeof hotelVoucher.$inferInsert;
+export type SelectHotelVoucher = typeof hotelVoucher.$inferSelect;
 
-export type InsertHotelVoucherLine = typeof hotelVoucherLines.$inferInsert;
-export type SelectHotelVoucherLine = typeof hotelVoucherLines.$inferInsert;
+export type InsertHotelVoucherLine = typeof hotelVoucherLine.$inferInsert;
+export type SelectHotelVoucherLine = typeof hotelVoucherLine.$inferInsert;
 
 //Restaurant Types
-export type InsertRestaurant = typeof restaurants.$inferInsert;
-export type SelectRestaurant = typeof restaurants.$inferSelect;
+export type InsertRestaurant = typeof restaurant.$inferInsert;
+export type SelectRestaurant = typeof restaurant.$inferSelect;
 
 //Meals Types
-export type InsertMeal = typeof restaurantMeals.$inferInsert;
-export type SelectMeal = typeof restaurantMeals.$inferSelect;
+export type InsertMeal = typeof restaurantMeal.$inferInsert;
+export type SelectMeal = typeof restaurantMeal.$inferSelect;
 
 
 // Restaurant Voucher Types
-export type InsertRestaurantVoucher = typeof restaurantVouchers.$inferInsert;
-export type SelectRestaurantVoucher = typeof restaurantVouchers.$inferSelect;
+export type InsertRestaurantVoucher = typeof restaurantVoucher.$inferInsert;
+export type SelectRestaurantVoucher = typeof restaurantVoucher.$inferSelect;
 
 // Transport Voucher Types
-export type InsertTransportVoucher = typeof transportVouchers.$inferInsert;
-export type SelectTransportVoucher = typeof transportVouchers.$inferSelect;
+export type InsertTransportVoucher = typeof transportVoucher.$inferInsert;
+export type SelectTransportVoucher = typeof transportVoucher.$inferSelect;
 
 // Activity Voucher Types
-export type InsertActivityVoucher = typeof activityVouchers.$inferInsert;
-export type SelectActivityVoucher = typeof activityVouchers.$inferSelect;
+export type InsertActivityVoucher = typeof activityVoucher.$inferInsert;
+export type SelectActivityVoucher = typeof activityVoucher.$inferSelect;
 
 // Shop Voucher Types
-export type InsertShopVoucher = typeof shopVouchers.$inferInsert;
-export type SelectShopVoucher = typeof shopVouchers.$inferSelect;
+export type InsertShopVoucher = typeof shopVoucher.$inferInsert;
+export type SelectShopVoucher = typeof shopVoucher.$inferSelect;

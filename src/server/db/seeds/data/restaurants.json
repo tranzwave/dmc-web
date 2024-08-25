@@ -1,0 +1,134 @@
+[
+    {
+      "restaurant": {
+        "tenantId": "tenant1",
+        "hotelId": "hotel1",
+        "name": "The Gourmet Kitchen",
+        "streetName": "Ocean Drive",
+        "city": "Colombo",
+        "province": "Western Province",
+        "contactNumber": "+94112233456"
+      },
+      "restaurantMeals": [
+        {
+          "restaurantId": "restaurant1",
+          "mealType": "Breakfast",
+          "startTime": "07:00 AM",
+          "endTime": "10:00 AM"
+        },
+        {
+          "restaurantId": "restaurant1",
+          "mealType": "Lunch",
+          "startTime": "12:00 PM",
+          "endTime": "03:00 PM"
+        },
+        {
+          "restaurantId": "restaurant1",
+          "mealType": "Dinner",
+          "startTime": "07:00 PM",
+          "endTime": "10:00 PM"
+        }
+      ]
+    },
+    {
+      "restaurant": {
+        "tenantId": "tenant2",
+        "hotelId": "hotel2",
+        "name": "City Diner",
+        "streetName": "Main Street",
+        "city": "Colombo",
+        "province": "Central Province",
+        "contactNumber": "+94115566789"
+      },
+      "restaurantMeals": [
+        {
+          "restaurantId": "restaurant2",
+          "mealType": "Breakfast",
+          "startTime": "06:30 AM",
+          "endTime": "09:30 AM"
+        },
+        {
+          "restaurantId": "restaurant2",
+          "mealType": "Dinner",
+          "startTime": "06:00 PM",
+          "endTime": "09:00 PM"
+        }
+      ]
+    },
+    {
+      "restaurant": {
+        "tenantId": "tenant3",
+        "hotelId": "hotel3",
+        "name": "Mountain View Café",
+        "streetName": "Hilltop Road",
+        "city": "Colombo",
+        "province": "Central Province",
+        "contactNumber": "+94117778899"
+      },
+      "restaurantMeals": [
+        {
+          "restaurantId": "restaurant3",
+          "mealType": "Breakfast",
+          "startTime": "07:00 AM",
+          "endTime": "10:00 AM"
+        },
+        {
+          "restaurantId": "restaurant3",
+          "mealType": "Lunch",
+          "startTime": "12:00 PM",
+          "endTime": "03:00 PM"
+        }
+      ]
+    },
+    {
+      "restaurant": {
+        "tenantId": "tenant4",
+        "hotelId": "hotel4",
+        "name": "Seaside Grill",
+        "streetName": "Beachfront Avenue",
+        "city": "Colombo",
+        "province": "Western Province",
+        "contactNumber": "+94118889900"
+      },
+      "restaurantMeals": [
+        {
+          "restaurantId": "restaurant4",
+          "mealType": "Lunch",
+          "startTime": "12:00 PM",
+          "endTime": "03:00 PM"
+        },
+        {
+          "restaurantId": "restaurant4",
+          "mealType": "Dinner",
+          "startTime": "07:00 PM",
+          "endTime": "10:00 PM"
+        }
+      ]
+    },
+    {
+      "restaurant": {
+        "tenantId": "tenant5",
+        "hotelId": "hotel5",
+        "name": "Garden Terrace",
+        "streetName": "Park Lane",
+        "city": "Colombo",
+        "province": "Central Province",
+        "contactNumber": "+94119990011"
+      },
+      "restaurantMeals": [
+        {
+          "restaurantId": "restaurant5",
+          "mealType": "Breakfast",
+          "startTime": "06:30 AM",
+          "endTime": "09:30 AM"
+        },
+        {
+          "restaurantId": "restaurant5",
+          "mealType": "Dinner",
+          "startTime": "06:00 PM",
+          "endTime": "09:00 PM"
+        }
+      ]
+    }
+  ]
+  

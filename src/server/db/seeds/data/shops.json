@@ -1,0 +1,77 @@
+[
+    {
+      "tenantId": "tenant1",
+      "name": "The Book Nook",
+      "streetName": "123 Literary Lane",
+      "city": "Colombo",
+      "province": "Western Province",
+      "contactNumber": "+94112233456",
+      "shopTypes": [
+        {
+          "name": "Bookstore"
+        }
+      ]
+    },
+    {
+      "tenantId": "tenant2",
+      "name": "Gourmet Delights",
+      "streetName": "456 Culinary Avenue",
+      "city": "Colombo",
+      "province": "Central Province",
+      "contactNumber": "+94114455667",
+      "shopTypes": [
+        {
+          "name": "Grocery"
+        },
+        {
+          "name": "Specialty Foods"
+        }
+      ]
+    },
+    {
+      "tenantId": "tenant3",
+      "name": "Tech World",
+      "streetName": "789 Electronics Street",
+      "city": "Colombo",
+      "province": "Southern Province",
+      "contactNumber": "+94113344567",
+      "shopTypes": [
+        {
+          "name": "Electronics"
+        }
+      ]
+    },
+    {
+      "tenantId": "tenant4",
+      "name": "Fashion Hub",
+      "streetName": "101 Trendy Boulevard",
+      "city": "Galle",
+      "province": "Central Province",
+      "contactNumber": "+94112277889",
+      "shopTypes": [
+        {
+          "name": "Clothing"
+        },
+        {
+          "name": "Accessories"
+        }
+      ]
+    },
+    {
+      "tenantId": "tenant5",
+      "name": "Home Essentials",
+      "streetName": "202 Comfort Street",
+      "city": "Galle",
+      "province": "Western Province",
+      "contactNumber": "+94119900990",
+      "shopTypes": [
+        {
+          "name": "Home Goods"
+        },
+        {
+          "name": "Furniture"
+        }
+      ]
+    }
+  ]
+  
