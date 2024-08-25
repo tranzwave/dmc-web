@@ -1,32 +1,9 @@
 import { db } from "..";
-import { hotelRooms, hotels, hotelStaff } from "../schema";
+import { hotelRoom, hotel, hotelStaff } from "../schema";
 
 export async function createHotel(){
       // Step 1: Insert into the hotels table
-  const newHotelIdArray = await db.insert(hotels).values({
-    hotelName: "Grand Plaza",
-    stars: 5,
-    primaryEmail: "info@grandplaza.com",
-    primaryContactNumber: "+1234567890",
-    streetName: "123 Main St",
-    city: "Metropolis",
-    province: "Central Province",
-    hasRestaurant: true,
-    restaurants: [
-      {
-        restaurantName: "Sunset Grill",
-        mealType: "Breakfast",
-        startTime: "07:00",
-        endTime: "10:00",
-      },
-      {
-        restaurantName: "Ocean Breeze",
-        mealType: "Dinner",
-        startTime: "18:00",
-        endTime: "22:00",
-      },
-    ],
-  }).returning({ id: hotels.id });
+  const newHotelIdArray = await db.insert(hotel).values([]).returning({ id: hotel.id });
 
   const newHotelId = newHotelIdArray?.[0]?.id;
 
@@ -34,7 +11,7 @@ export async function createHotel(){
     throw new Error("Failed to insert new hotel")
   }
     // Step 2: Insert into the hotelRooms table
-    await db.insert(hotelRooms).values([
+    await db.insert(hotelRoom).values([
         {
           hotelId: newHotelId,
           roomType: "Suite",

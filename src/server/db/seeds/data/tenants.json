@@ -1,0 +1,38 @@
+[
+    {
+      "name": "Tranzwave",
+      "country": "LKA",
+      "domain": "tranzwave.com",
+      "subscriptionPlan": "premium",
+      "isActive": true
+    },
+    {
+      "name": "Innovate Inc.",
+      "country": "LKA",
+      "domain": "innovateinc.com",
+      "subscriptionPlan": "standard",
+      "isActive": true
+    },
+    {
+      "name": "Global Solutions",
+      "country": "LKA",
+      "domain": "globalsolutions.org",
+      "subscriptionPlan": "basic",
+      "isActive": false
+    },
+    {
+      "name": "FutureTech",
+      "country": "LKA",
+      "domain": "futuretech.co",
+      "subscriptionPlan": "premium",
+      "isActive": true
+    },
+    {
+      "name": "NextGen Ventures",
+      "country": "LKA",
+      "domain": "nextgenventures.net",
+      "subscriptionPlan": "standard",
+      "isActive": true
+    }
+  ]
+  

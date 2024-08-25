@@ -1,0 +1,198 @@
+[
+  {
+    "driver": {
+      "tenantId": "tenant1",
+      "name": "John Perera",
+      "primaryEmail": "john.perera@example.com",
+      "primaryContactNumber": "+94112233456",
+      "streetName": "Galle Road",
+      "city": "Colombo",
+      "province": "Western Province",
+      "isGuide": true,
+      "feePerKM": 50,
+      "fuelAllowance": 5000,
+      "accommodationAllowance": 3000,
+      "mealAllowance": 1500,
+      "driversLicense": "DL-12345",
+      "guideLicense": "GL-12345",
+      "insurance": "INS-12345",
+      "contactNumber": "+94772233456",
+      "languages": ["English", "French"]
+    },
+    "vehicles": [
+      {
+        "vehicleType": "Van",
+        "numberPlate": "AB-1234",
+        "seats": 12,
+        "make": "Toyota",
+        "model": "Hiace",
+        "year": 2020,
+        "revenueLicense": "RVL-2020-1234"
+      },
+      {
+        "vehicleType": "Car",
+        "numberPlate": "BC-5678",
+        "seats": 4,
+        "make": "Honda",
+        "model": "Civic",
+        "year": 2019,
+        "revenueLicense": "RVL-2019-5678"
+      }
+    ]
+  },
+  {
+    "driver": {
+      "tenantId": "tenant2",
+      "name": "Samantha Silva",
+      "primaryEmail": "samantha.silva@example.com",
+      "primaryContactNumber": "+94114455667",
+      "streetName": "Main Street",
+      "city": "Colombo",
+      "province": "Central Province",
+      "isGuide": false,
+      "feePerKM": 45,
+      "fuelAllowance": 4000,
+      "accommodationAllowance": 2500,
+      "mealAllowance": 1200,
+      "driversLicense": "DL-56789",
+      "guideLicense": "GL-56789",
+      "insurance": "INS-56789",
+      "contactNumber": "+94775566778",
+      "languages": ["English", "Spanish"]
+    },
+    "vehicles": [
+      {
+        "vehicleType": "SUV",
+        "numberPlate": "CD-9101",
+        "seats": 5,
+        "make": "Nissan",
+        "model": "X-Trail",
+        "year": 2021,
+        "revenueLicense": "RVL-2021-9101"
+      }
+    ]
+  },
+  {
+    "driver": {
+      "tenantId": "tenant3",
+      "name": "Michael Fernando",
+      "primaryEmail": "michael.fernando@example.com",
+      "primaryContactNumber": "+94113344567",
+      "streetName": "Marine Drive",
+      "city": "Colombo",
+      "province": "Southern Province",
+      "isGuide": true,
+      "feePerKM": 55,
+      "fuelAllowance": 4500,
+      "accommodationAllowance": 2800,
+      "mealAllowance": 1400,
+      "driversLicense": "DL-67890",
+      "guideLicense": "GL-67890",
+      "insurance": "INS-67890",
+      "contactNumber": "+94773344567",
+      "languages": ["English", "German"]
+    },
+    "vehicles": [
+      {
+        "vehicleType": "Bus",
+        "numberPlate": "EF-1122",
+        "seats": 40,
+        "make": "Mercedes",
+        "model": "Sprinter",
+        "year": 2018,
+        "revenueLicense": "RVL-2018-1122"
+      },
+      {
+        "vehicleType": "Van",
+        "numberPlate": "GH-3344",
+        "seats": 15,
+        "make": "Ford",
+        "model": "Transit",
+        "year": 2020,
+        "revenueLicense": "RVL-2020-3344"
+      },
+      {
+        "vehicleType": "Car",
+        "numberPlate": "IJ-5566",
+        "seats": 4,
+        "make": "BMW",
+        "model": "3 Series",
+        "year": 2022,
+        "revenueLicense": "RVL-2022-5566"
+      }
+    ]
+  },
+  {
+    "driver": {
+      "tenantId": "tenant4",
+      "name": "Natasha Rajapakse",
+      "primaryEmail": "natasha.rajapakse@example.com",
+      "primaryContactNumber": "+94112277889",
+      "streetName": "Kandy Road",
+      "city": "Colombo",
+      "province": "Central Province",
+      "isGuide": false,
+      "feePerKM": 60,
+      "fuelAllowance": 5500,
+      "accommodationAllowance": 3200,
+      "mealAllowance": 1600,
+      "driversLicense": "DL-77889",
+      "guideLicense": "GL-77889",
+      "insurance": "INS-77889",
+      "contactNumber": "+94772277889",
+      "languages": ["English", "Italian"]
+    },
+    "vehicles": [
+      {
+        "vehicleType": "Car",
+        "numberPlate": "KL-7890",
+        "seats": 4,
+        "make": "Audi",
+        "model": "A4",
+        "year": 2021,
+        "revenueLicense": "RVL-2021-7890"
+      }
+    ]
+  },
+  {
+    "driver": {
+      "tenantId": "tenant5",
+      "name": "Ruwan Wijesinghe",
+      "primaryEmail": "ruwan.wijesinghe@example.com",
+      "primaryContactNumber": "+94119900990",
+      "streetName": "Park Lane",
+      "city": "Galle",
+      "province": "Western Province",
+      "isGuide": true,
+      "feePerKM": 65,
+      "fuelAllowance": 6000,
+      "accommodationAllowance": 3500,
+      "mealAllowance": 1800,
+      "driversLicense": "DL-99001",
+      "guideLicense": "GL-99001",
+      "insurance": "INS-99001",
+      "contactNumber": "+94779900990",
+      "languages": ["English", "Portuguese"]
+    },
+    "vehicles": [
+      {
+        "vehicleType": "Van",
+        "numberPlate": "MN-1122",
+        "seats": 12,
+        "make": "Toyota",
+        "model": "Hiace",
+        "year": 2022,
+        "revenueLicense": "RVL-2022-1122"
+      },
+      {
+        "vehicleType": "SUV",
+        "numberPlate": "OP-3344",
+        "seats": 5,
+        "make": "Land Rover",
+        "model": "Discovery",
+        "year": 2021,
+        "revenueLicense": "RVL-2021-3344"
+      }
+    ]
+  }
+]

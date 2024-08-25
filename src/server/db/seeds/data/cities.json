@@ -1,0 +1,35 @@
+[
+    {
+      "name": "New York",
+      "country": "USA"
+    },
+    {
+      "name": "Toronto",
+      "country": "CAN"
+    },
+    {
+      "name": "London",
+      "country": "GBR"
+    },
+    {
+      "name": "Sydney",
+      "country": "AUS"
+    },
+    {
+      "name": "Mumbai",
+      "country": "IND"
+    },
+    {
+      "name": "Colombo",
+      "country": "LKA"
+    },
+    {
+      "name": "Kandy",
+      "country": "LKA"
+    },
+    {
+      "name": "Galle",
+      "country": "LKA"
+    }
+  ]
+  
