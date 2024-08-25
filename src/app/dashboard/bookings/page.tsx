@@ -6,10 +6,10 @@ import { useEffect, useState } from 'react';
 import { Booking, columns } from "~/components/bookings/home/columns";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import SidePanel from "~/components/bookings/home/sidePanel";
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
 import { getAllBookings } from '~/server/db/queries/booking';
 import { BookingDTO } from '~/lib/types/booking';
+import TitleBar from '~/components/common/titleBar';
+import { Button } from '~/components/ui/button';
 
 export default function Bookings() {
   const [data, setData] = useState<BookingDTO[]>([]);
