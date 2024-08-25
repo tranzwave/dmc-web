@@ -3,38 +3,38 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useAddAgent } from "~/app/dashboard/activities/add/context";
+import { useAddAgent } from "~/app/dashboard/agents/add/context";
 import { Button } from "~/components/ui/button";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 
 // Define the schema for form validation
 export const generalSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  activity: z.string().min(1, "Activity is required"),
+  country: z.string().min(1, "Activity is required"),
   primaryEmail: z.string().email("Invalid email address"),
   primaryContactNumber: z.string().min(1, "Contact number is required"),
-  streetName: z.string().min(1, "Street name is required"),
-  city: z.string().min(1, "City is required"),
-  province: z.string().min(1, "Province is required"),
-  capacity: z.string().min(1, "Capacity is required"),
+  agency: z.string().min(1, "Street name is required"),
+  feild1: z.string().min(1, "City is required"),
+  feild2: z.string().min(1, "Province is required"),
+  feild3: z.string().min(1, "Capacity is required"),
 });
 
 // Define the type of the form values
 type GeneralFormValues = z.infer<typeof generalSchema>;
 
 const GeneralForm = () => {
-  const { setGeneralDetails, activityDetails } = useAddAgent();
+  const { setGeneralDetails, agentDetails } = useAddAgent();
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
-    defaultValues: activityDetails.general,
+    defaultValues: agentDetails.general,
   });
 
   const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
@@ -61,13 +61,13 @@ const GeneralForm = () => {
           />
 
           <FormField
-            name="activity"
+            name="country"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Activity</FormLabel>
+                <FormLabel>Country</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter activity" {...field} />
+                  <Input placeholder="Enter country" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -114,13 +114,13 @@ const GeneralForm = () => {
         <div className="grid grid-cols-3 gap-4">
           <div className="col-span-1">
             <FormField
-              name="streetName"
+              name="agency"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Street Name</FormLabel>
+                  <FormLabel>Agency</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter Street Name" {...field} />
+                    <Input placeholder="Enter Agency" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -131,26 +131,26 @@ const GeneralForm = () => {
           <div className="col-span-2">
             <div className="grid grid-cols-3 gap-4">
               <FormField
-                name="city"
+                name="feild1"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>City</FormLabel>
+                    <FormLabel>Feild 1</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter city" {...field} />
+                      <Input placeholder="Enter feild 1" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                name="province"
+                name="feild2"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Province</FormLabel>
+                    <FormLabel>Feild 2</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter province" {...field} />
+                      <Input placeholder="Enter feild 2" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -158,13 +158,13 @@ const GeneralForm = () => {
               />
 
               <FormField
-                name="capacity"
+                name="feild3"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Capacity</FormLabel>
+                    <FormLabel>Feild 3</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter capacity" {...field} />
+                      <Input placeholder="Enter feild 3" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

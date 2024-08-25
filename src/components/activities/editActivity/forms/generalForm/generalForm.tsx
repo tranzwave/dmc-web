@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useEditActivity } from '~/app/dashboard/activities/[id]/edit/context';
+import { useAddAgent } from "~/app/dashboard/activities/add/context";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -31,7 +31,7 @@ export const generalSchema = z.object({
 type GeneralFormValues = z.infer<typeof generalSchema>;
 
 const GeneralForm = () => {
-  const { setGeneralDetails, activityDetails } = useEditActivity();
+  const { setGeneralDetails, activityDetails } = useAddAgent();
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
     defaultValues: activityDetails.general,

@@ -5,6 +5,7 @@ import { Shop } from "~/components/bookings/addBooking/forms/shopsForm/columns";
 import { Booking } from "~/components/bookings/home/columns";
 import { driversMockData, hotelsMockData, shopsMockData } from "./mockData";
 import { Activity } from "./types/activity/type";
+import { Agent } from "./types/agent/type";
 import { Driver, VehicleType } from "./types/driver/type";
 
 export interface BookingSchema extends BookingDetails {
@@ -755,6 +756,42 @@ export const getActivityData = async (): Promise<Activity[]> => {
 };
 
 export async function getActivityDataById(id: number): Promise<Activity> {
+  const activities = await getActivityData();
+  const activity = activities.find(activity => activity.id === id);
+  if (!activity) {
+    throw new Error("Activity not found");
+  }
+  return activity;
+}
+
+export const getAgentData = async (): Promise<Agent[]> => {
+  return [
+    {
+      id: 1,
+      general: {
+        name: "Agent 1",
+        country: "US",
+        agency: "Agency 1",
+        primaryContactNumber: "123-456-7890",
+        primaryEmailAddress: "agent1@gmail.com",
+        tripsCompleted: "50"
+      }
+    },
+    {
+      id: 2,
+      general: {
+        name: "Agent 2",
+        country: "US",
+        agency: "Agency 2",
+        primaryContactNumber: "098-765-4321",
+        primaryEmailAddress: "agent1@gmail.com",
+        tripsCompleted: "30"
+      }
+    }
+  ];
+};
+
+export async function getAgentDataById(id: number): Promise<Activity> {
   const activities = await getActivityData();
   const activity = activities.find(activity => activity.id === id);
   if (!activity) {

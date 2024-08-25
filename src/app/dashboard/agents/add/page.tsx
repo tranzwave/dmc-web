@@ -2,24 +2,24 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import GeneralTab from '~/components/activities/addActivity/forms/generalForm';
+import GeneralTab from '~/components/agents/addAgent/forms/generalForm';
 import TitleBar from '~/components/common/titleBar';
 import { Button } from '~/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
-import { AddActivityProvider, useAddAgent } from './context';
+import { AddAgentProvider, useAddAgent } from './context';
 
 const SubmitForm = () => {
-  const { activityDetails } = useAddAgent();
+  const { agentDetails: agentDetails } = useAddAgent();
 
   const handleSubmit = () => {
-    // Handle the submission of activityDetails
-    console.log('Submitting activity details:', activityDetails);
+    // Handle the submission of agentDetails
+    console.log('Submitting agent details:', agentDetails);
   };
 
   return (
     <div className='flex flex-col gap-3'>
       <div className='card w-full h-10'>
-        <p>Review all the details and submit your activity.</p>
+        <p>Review all the details and submit your agent.</p>
       </div>
       <div className='flex w-full justify-center'>
         <Button variant="primaryGreen" onClick={handleSubmit}>
@@ -30,12 +30,12 @@ const SubmitForm = () => {
   );
 };
 
-const AddActivity = () => {
+const AddAgent = () => {
   const pathname = usePathname();
   const { setGeneralDetails } = useAddAgent();
 
   useEffect(() => {
-    console.log('Add Activity Component');
+    console.log('Add Agent Component');
   }, []);
 
   return (
@@ -43,7 +43,7 @@ const AddActivity = () => {
       <div className="flex-1">
         <div className="flex flex-col gap-3">
           <div className="flex flex-row gap-1 w-full justify-between">
-            <TitleBar title="Add Activity" link="toAddActivity" />
+            <TitleBar title="Add Agent" link="toAddAgent" />
             <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
@@ -71,10 +71,10 @@ const AddActivity = () => {
   );
 };
 
-export default function WrappedAddActivity() {
+export default function WrappedAddAgent() {
   return (
-    <AddActivityProvider>
-      <AddActivity />
-    </AddActivityProvider>
+    <AddAgentProvider>
+      <AddAgent />
+    </AddAgentProvider>
   );
 }
