@@ -21,12 +21,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onRowClick?: (row: TData) => void;
+  selectedRow?: TData
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   onRowClick,
+  selectedRow
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -60,7 +62,7 @@ export function DataTable<TData, TValue>({
                 key={row.id}
                 onClick={() => onRowClick && onRowClick(row.original)} // Handle row click
                 className={`cursor-pointer hover:bg-gray-100 ${
-                  row.getIsSelected() ? "bg-red-600" : "" // Highlight selected row
+                  row.getIsSelected() ? "bg-green-200" : "" // Highlight selected row
                 }`}
                 data-state={row.getIsSelected() && "selected"}
               >

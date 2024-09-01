@@ -2,11 +2,12 @@ import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { Activity } from '~/components/bookings/addBooking/forms/activitiesForm/columns';
 import { General } from '~/components/bookings/addBooking/forms/generalForm/columns';
 import { Hotel } from '~/components/bookings/addBooking/forms/hotelsForm/columns';
+import { RestaurantData } from '~/components/bookings/addBooking/forms/restaurantsForm';
 import { Restaurant } from '~/components/bookings/addBooking/forms/restaurantsForm/columns';
 import { Shop } from '~/components/bookings/addBooking/forms/shopsForm/columns';
 import { Transport } from '~/components/bookings/addBooking/forms/transportForm/columns';
 import { Driver } from '~/lib/types/driver/type';
-import { InsertHotelVoucher, InsertHotelVoucherLine, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine } from '~/server/db/schemaTypes';
+import { InsertHotelVoucher, InsertHotelVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant } from '~/server/db/schemaTypes';
 
 export interface TransportWithDriver {
   transport: Transport;
@@ -19,10 +20,16 @@ export type HotelVoucher = {
   voucherLines:InsertHotelVoucherLine[]
 }
 
+export type RestaurantVoucher = {
+  restaurant: RestaurantData,
+  voucher: InsertRestaurantVoucher
+  voucherLines: InsertRestaurantVoucherLine[]
+}
+
 export interface BookingDetails {
   general: General; 
   vouchers: HotelVoucher[];
-  restaurants: Restaurant[];
+  restaurants: RestaurantVoucher[];
   activities: Activity[];
   transport: TransportWithDriver[];
   shops: Shop[];
@@ -33,7 +40,7 @@ interface AddBookingContextProps {
   bookingDetails: BookingDetails;
   setGeneralDetails: (details: General) => void;
   addHotelVoucher: (hotel: HotelVoucher) => void;
-  addRestaurant: (restaurant: Restaurant) => void;
+  addRestaurantVoucher: (restaurant: RestaurantVoucher) => void;
   addActivity: (activity: Activity) => void;
   addTransport: (transportWithDriver: TransportWithDriver) => void;
   addShop: (shop: Shop) => void;
@@ -94,8 +101,9 @@ export const AddBookingProvider: React.FC<{ children: ReactNode }> = ({ children
     setBookingDetails(prev => ({ ...prev, vouchers: [...prev.vouchers, hotelVoucher] }));
   };
 
-  const addRestaurant = (restaurant: Restaurant) => {
-    setBookingDetails(prev => ({ ...prev, restaurants: [...prev.restaurants, restaurant] }));
+  const addRestaurantVoucher = (restaurantVoucher: RestaurantVoucher) => {
+    console.log(`Restaurant ID-${restaurantVoucher.restaurant.id}`)
+    setBookingDetails(prev => ({ ...prev, restaurants: [...prev.restaurants, restaurantVoucher] }));
   };
 
   const addActivity = (activity: Activity) => {
@@ -116,7 +124,7 @@ export const AddBookingProvider: React.FC<{ children: ReactNode }> = ({ children
         bookingDetails,
         setGeneralDetails,
         addHotelVoucher,
-        addRestaurant,
+        addRestaurantVoucher,
         addActivity,
         addTransport,
         addShop

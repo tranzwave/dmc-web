@@ -1,4 +1,4 @@
-import { relations, sql } from "drizzle-orm";
+import { Many, relations, sql } from "drizzle-orm";
 import {
   boolean,
   index,
@@ -346,7 +346,7 @@ export const restaurantVoucherLine = createTable("restaurant_voucher_lines", {
     .references(() => restaurantVoucher.id)
     .notNull(),
   mealType: varchar("meal_type", { length: 50 }).notNull(),
-  date: timestamp("date").notNull(),
+  date: varchar("date", {length: 100}).notNull(),
   time: varchar("time", { length: 10 }).notNull(),
   adultsCount: integer("adults_count").notNull(),
   kidsCount: integer("kids_count").notNull(),
@@ -626,12 +626,17 @@ export const bookingsRelations = relations(booking, ({ one }) => ({
   }),
 }));
 
-export const bookingLinesRelations = relations(bookingLine, ({ one }) => ({
+export const bookingLinesRelations = relations(bookingLine, ({ one, many }) => ({
   booking: one(booking, {
     fields: [bookingLine.bookingId],
     references: [booking.id],
   }),
 
+  hotelVouchers: many(hotelVoucher),
+  restaurantVouchers: many(restaurantVoucher),
+  shopsVouchers: many(shopVoucher),
+  transportVouchers: many(transportVoucher),
+  activityVouchers: many(activityVoucher)
 
 }));
 
@@ -669,11 +674,13 @@ export const hotelVoucherLinesRelations = relations(hotelVoucherLine,({one}) => 
   })
 }))
 
-export const restaurantRelations = relations(restaurant, ({ one }) => ({
+export const restaurantRelations = relations(restaurant, ({ one, many }) => ({
   city: one(city, {
     fields: [restaurant.cityId],
     references: [city.id],
   }),
+  restaurantVoucher: many(restaurantVoucher),
+  restaurantMeal: many(restaurantMeal)
 }));
 
 export const restaurantMealsRelations = relations(
@@ -688,17 +695,26 @@ export const restaurantMealsRelations = relations(
 
 export const restaurantVouchersRelations = relations(
   restaurantVoucher,
-  ({ one }) => ({
-    booking: one(booking, {
+  ({ one, many }) => ({
+    bookingLine: one(bookingLine, {
       fields: [restaurantVoucher.bookingLineId],
-      references: [booking.id],
+      references: [bookingLine.id],
     }),
     restaurant: one(restaurant, {
       fields: [restaurantVoucher.restaurantId],
       references: [restaurant.id],
     }),
+    restaurantVoucherLine: many(restaurantVoucherLine)
   }),
 );
+
+export const restaurantVoucherLinesRelations = relations(restaurantVoucherLine,
+  ({one,many}) => ({
+    restaurantVoucher: one(restaurantVoucher,{
+      fields: [restaurantVoucherLine.restaurantVoucherId],
+      references: [restaurantVoucher.id]
+    })
+  }))
 
 export const transportVouchersRelations = relations(
   transportVoucher,

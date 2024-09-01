@@ -2,6 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { HotelVoucher } from "~/app/dashboard/bookings/add/context";
+import { formatDate } from "~/components/bookings/tasks/hotels";
 import { HotelDTO } from "~/lib/types/hotel";
 
 
@@ -50,43 +51,39 @@ export const columns: ColumnDef<HotelDTO>[] = [
       header: "Hotel Name",
     },
     {
-      accessorKey: "voucherLines[0]?.adultsCount",
-      header: "Quantity",
-      cell: info => info.getValue() ?? 'N/A'  // Fallback to 'N/A' if undefined
+      header: "Adults",
+      accessorFn: row => row.voucherLines[0]?.adultsCount || 0,
     },
     {
-      accessorKey: "voucherLines[0]?.roomCount",
+      header: "Kids",
+      accessorFn: row => row.voucherLines[0]?.kidsCount || 0,
+    },
+    {
       header: "Room Count",
-      cell: info => info.getValue() ?? 'N/A'
+      accessorFn: row => row.voucherLines[0]?.roomCount || 0,
     },
     {
-      accessorKey: "voucherLines[0]?.checkInDate",
       header: "Check-In Date",
-      cell: info => info.getValue() ?? 'N/A'
+      accessorFn: row => formatDate(row.voucherLines[0]?.checkInDate || ""),
     },
     {
-      accessorKey: "voucherLines[0]?.checkInTime",
       header: "Check-In Time",
-      cell: info => info.getValue() ?? 'N/A'
+      accessorFn: row => row.voucherLines[0]?.checkInTime || ""
     },
     {
-      accessorKey: "voucherLines[0]?.checkOutDate",
       header: "Check-Out Date",
-      cell: info => info.getValue() ?? 'N/A'
+      accessorFn: row => formatDate(row.voucherLines[0]?.checkOutDate || ""),
     },
     {
-      accessorKey: "voucherLines[0]?.checkOutTime",
       header: "Check-Out Time",
-      cell: info => info.getValue() ?? 'N/A'
+      accessorFn: row => row.voucherLines[0]?.checkOutTime || ""
     },
     {
-      accessorKey: "voucherLines[0]?.roomType",
-      header: "Room Type",
-      cell: info => info.getValue() ?? 'N/A'
+      header: "Rooms",
+      accessorFn: row =>  `${row.voucherLines[0]?.roomType}-${row.voucherLines[0]?.roomCount}`
     },
     {
-      accessorKey: "voucherLines[0]?.basis",
       header: "Basis",
-      cell: info => info.getValue() ?? 'N/A'
+      accessorFn: row => row.voucherLines[0]?.basis
     }
   ];

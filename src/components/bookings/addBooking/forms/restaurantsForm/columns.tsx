@@ -1,6 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import { RestaurantVoucher } from "~/app/dashboard/bookings/add/context";
 
 export type Restaurant = {
   name: string;
@@ -14,33 +15,34 @@ export type Restaurant = {
   remarks?: string; // Optional field
 };
 
-export const columns: ColumnDef<Restaurant>[] = [
+export const restaurantVoucherColumns: ColumnDef<RestaurantVoucher>[] = [
   {
-    accessorKey: "name",
+    accessorKey: "restaurant.name",
     header: "Name",
   },
   {
-    accessorKey: "quantity.adults",
+    // accessorKey: "voucherLines[0]?.adultsCount",
     header: "Adults",
+    accessorFn: (row) => row.voucherLines[0]?.adultsCount  // Fallback to 'N/A' if undefined
   },
   {
-    accessorKey: "quantity.kids",
     header: "Kids",
+    accessorFn: (row) => row.voucherLines[0]?.kidsCount || 0
   },
   {
-    accessorKey: "date",
     header: "Date",
+    accessorFn: (row) => row.voucherLines[0]?.date
   },
   {
-    accessorKey: "time",
     header: "Time",
+    accessorFn: (row) => row.voucherLines[0]?.time
   },
   {
-    accessorKey: "mealType",
     header: "Meal Type",
+    accessorFn: (row) => row.voucherLines[0]?.mealType
   },
   {
-    accessorKey: "remarks",
     header: "Remarks",
+    accessorFn: (row) => row.voucherLines[0]?.remarks
   },
 ];

@@ -39,7 +39,7 @@ export const getDriverByIdQuery = (id:string)=>{
 
 
 export const getTransportVouchersForDriver = (id:string)=>{
-    return db.query.transportVoucher.findMany({
+    return db.query.shopsVoucher.findMany({
         where: eq(transportVoucher.driverId, id)
     })
 }

@@ -3,40 +3,42 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Booking, columns } from "~/components/bookings/home/columns";
+import { Booking, BookingDTO, columns } from "~/components/bookings/home/columns";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import SidePanel from "~/components/bookings/home/sidePanel";
-import { getAllBookings } from '~/server/db/queries/booking';
-import { BookingDTO } from '~/lib/types/booking';
+import { getAllBookingLines, getAllBookings } from '~/server/db/queries/booking';
+// import { BookingDTO } from '~/lib/types/booking';
 import TitleBar from '~/components/common/titleBar';
 import { Button } from '~/components/ui/button';
+import { SelectBookingLine } from '~/server/db/schemaTypes';
 
 export default function Bookings() {
   const [data, setData] = useState<BookingDTO[]>([]);
-  const [selectedBooking, setSelectedBooking] = useState<BookingDTO | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<BookingDTO | null>();
   const [loading,setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null);
 
   const pathname = usePathname()
 
+  const fetchBookingLines = async()=>{
+    setLoading(true);
+    try {
+        // const result = await getHotelData();
+        const result = await getAllBookingLines();
+
+        if(!result){
+          throw new Error("Couldn't find any bookings")
+        }
+
+        setData(result);
+    } catch (error) {
+        console.error("Failed to fetch hotel data:", error);
+        setError("Failed to load data.");
+    }
+  }
   // Fetch data on mount
   useEffect(() => {
-    async function fetchData() {
-        setLoading(true);
-        try {
-            // const result = await getHotelData();
-            const result = await getAllBookings();
-
-            setData(result);
-        } catch (error) {
-            console.error("Failed to fetch hotel data:", error);
-            setError("Failed to load data.");
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    fetchData();
+    fetchBookingLines();
 }, []);
 
   const handleRowClick = (booking: BookingDTO) => {
@@ -64,7 +66,7 @@ export default function Bookings() {
                 <DataTable columns={columns} data={data} onRowClick={handleRowClick} />
             </div>
             <div className='w-[40%]'>
-                <SidePanel booking={selectedBooking} onClose={handleCloseSidePanel} />
+                <SidePanel booking={selectedBooking ? selectedBooking : null} onClose={handleCloseSidePanel} />
             </div>
             
             
