@@ -1,23 +1,32 @@
-'use client'
+"use client";
 import { Loader2Icon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAddBooking } from "~/app/dashboard/bookings/add/context";
 import { Button } from "~/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "~/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "~/components/ui/dialog";
 import { addBooking } from "~/lib/api";
+import {
+  createBookingLine,
+  createNewBooking,
+} from "~/server/db/queries/booking";
 
 const SummaryCard = ({ day }: { day: number }) => {
   return (
     <div className="space-y-0">
-      <div className="bg-primary-green text-white font-bold text-sm p-1 rounded-t-xl w-24 flex justify-center items-center">
+      <div className="flex w-24 items-center justify-center rounded-t-xl bg-primary-green p-1 text-sm font-bold text-white">
         <div>Day {day}</div>
       </div>
-      <div className="grid grid-cols-3 border rounded-lg mb-2 shadow-md">
+      <div className="mb-2 grid grid-cols-3 rounded-lg border shadow-md">
         <div className="border-r p-2">
-          <div className="text-sm font-bold text-primary-green">
-            Hotel Name
-          </div>
+          <div className="text-sm font-bold text-primary-green">Hotel Name</div>
           <div className="text-xs font-normal">
             <div>20 Guests</div>
             <div>5 Double beds | 2 Kings bed | 4 single beds</div>
@@ -25,7 +34,9 @@ const SummaryCard = ({ day }: { day: number }) => {
           </div>
         </div>
         <div className="border-r p-2">
-          <div className="text-sm font-bold text-primary-green">Activity Name</div>
+          <div className="text-sm font-bold text-primary-green">
+            Activity Name
+          </div>
           <div className="text-xs font-normal">
             <div>20 Guests</div>
             <div>5</div>
@@ -50,33 +61,44 @@ const AddBookingSubmitTab = () => {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [id,setId] = useState('0');
+  const [id, setId] = useState("0");
   const pathname = usePathname();
   const router = useRouter();
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
-        const response = await addBooking(bookingDetails);
+      // Prepare the data to pass to the createNewBooking function
+      const bookingData = {
+        newBooking: bookingDetails.general,
+        generalData: bookingDetails.general,
+        hotelVouchers: bookingDetails.vouchers,
+      };
 
-        if (response.success) {
-            setId(response.id);
-            setMessage("Booking Added! Do you want to continue finalizing the tasks for this booking?");
-            setShowModal(true);
-        } else {
-            setMessage("Failed to add booking.");
-        }
+      // Call the createNewBooking function with the necessary data
+      const createdBooking = await createNewBooking(bookingDetails);
+
+      if (createdBooking) {
+        // If createNewBooking succeeds, set the success message and show modal
+        setMessage(
+          "Booking Added! Do you want to continue finalizing the tasks for this booking?",
+        );
+        setId(createdBooking)
+        setShowModal(true);
+      }
     } catch (error) {
-        setMessage("An error occurred while adding the booking.");
+      // Catch any errors and set error message
+      setMessage("An error occurred while adding the booking.");
+      console.error("Error in handleSubmit:", error);
     } finally {
-        setLoading(false);
+      // Always stop the loading spinner
+      setLoading(false);
     }
-};
+  };
 
   const handleYes = () => {
     setShowModal(false);
-    router.push(`${pathname.split('add')[0]}/${id}/tasks`)
-
+    router.push(`${pathname.split("add")[0]}/${id}/tasks`);
   };
 
   const handleNo = () => {
@@ -87,18 +109,34 @@ const AddBookingSubmitTab = () => {
   const numberOfDays = bookingDetails.general?.numberOfDays || 0;
 
   return (
-    <div className="flex flex-col gap-3 h-full justify-center items-center mt-4">
-      <div className="flex w-[80%] justify-start card-title">
+    <div className="mt-4 flex h-full flex-col items-center justify-center gap-3">
+      <div className="card-title flex w-[80%] justify-start">
         Booking Summary
       </div>
-      <div className="flex flex-col gap-2 overflow-y-auto w-[80%] card" style={{ maxHeight: 'calc(100vh - 300px)' }}>
+      <div
+        className="card flex w-[80%] flex-col gap-2 overflow-y-auto"
+        style={{ maxHeight: "calc(100vh - 300px)" }}
+      >
         {Array.from({ length: numberOfDays }, (_, index) => (
           <SummaryCard key={index} day={index + 1} />
         ))}
       </div>
       <div className="flex w-[80%] justify-end">
-        <Button variant="primaryGreen" onClick={handleSubmit} disabled={loading}>
-          {loading ? <div className="flex flex-row gap-2"><div><Loader2Icon className="animate-spin"/></div> <div> Saving </div></div>: 'Submit'}
+        <Button
+          variant="primaryGreen"
+          onClick={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? (
+            <div className="flex flex-row gap-2">
+              <div>
+                <Loader2Icon className="animate-spin" />
+              </div>{" "}
+              <div> Saving </div>
+            </div>
+          ) : (
+            "Submit"
+          )}
         </Button>
       </div>
 

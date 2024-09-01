@@ -6,10 +6,13 @@ import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
 import { StatsCard } from "~/components/ui/stats-card";
 import { Driver, getData, getTransportData } from "~/lib/api";
+import { BookingDTO } from "~/lib/types/booking";
+import { DriverDTO } from "~/lib/types/driver/type";
+import { getDriverByIdQuery, getTransportVouchersForDriver } from "~/server/db/queries/transport";
 
 const Page = ({ params }: { params: { id: string } }) => {
-  const [driver, setDriver] = useState<Driver | null>(null);
-  const [data, setData] = useState<Booking[]>([]);
+  const [driver, setDriver] = useState<DriverDTO | null>(null);
+  const [data, setData] = useState<any[]>([]);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,10 +21,7 @@ const Page = ({ params }: { params: { id: string } }) => {
     async function fetchDriverDetails() {
       try {
         setLoading(true);
-        const drivers = await getTransportData();
-        const selectedDriver = drivers.find(
-          (driver) => driver.id.toString() === params.id,
-        );
+        const selectedDriver = await getDriverByIdQuery(params.id);
         setDriver(selectedDriver ?? null);
       } catch (error) {
         console.error("Failed to fetch driver details:", error);
@@ -38,7 +38,7 @@ const Page = ({ params }: { params: { id: string } }) => {
     async function fetchData() {
       try {
         setLoading(true);
-        const result = await getData();
+        const result = await getTransportVouchersForDriver(params.id);
         setData(result);
       } catch (error) {
         console.error("Failed to fetch activity data:", error);
@@ -71,16 +71,16 @@ const Page = ({ params }: { params: { id: string } }) => {
         <div className="w-[30%]">
           <div className="w-full">
             <ContactBox
-              title={driver.general.name}
+              title={driver.name}
               description="Egestas elit dui scelerisque ut eu purus aliquam vitae habitasse."
-              location={driver.general.address.city}
+              location={driver.city.name}
               address={
-                driver.general.address.streetName +
+                driver.streetName +
                 ", " +
-                driver.general.address.city
+                driver.city.name
               }
-              phone={driver.general.primaryContactNumber}
-              email={driver.general.primaryEmail}
+              phone={driver.primaryContactNumber}
+              email={driver.primaryEmail}
             />{" "}
           </div>
         </div>

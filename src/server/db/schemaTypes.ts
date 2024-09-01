@@ -1,4 +1,9 @@
-import { hotel, driver, activityVendor, shop, booking, bookingLine, hotelVoucher, restaurantVoucher, transportVoucher, activityVoucher, shopVoucher, restaurant, restaurantMeal, hotelStaff, hotelRoom, hotelVoucherLine, tenant, city } from './schema'
+import { hotel, driver, activityVendor, shop, booking, bookingLine, hotelVoucher, restaurantVoucher, transportVoucher, activityVoucher, shopVoucher, restaurant, restaurantMeal, hotelStaff, hotelRoom, hotelVoucherLine, tenant, city, client, agent, user, country } from './schema'
+
+//Country Types
+export type InsertCountry = typeof country.$inferInsert;
+export type SelectCountry = typeof country.$inferSelect;
+
 
 //Tenant Types
 export type InsertTenant = typeof tenant.$inferSelect;
@@ -7,6 +12,19 @@ export type SelectTenant = typeof tenant.$inferInsert;
 //City Types
 export type InsertCity = typeof city.$inferInsert;
 export type SelectCity = typeof city.$inferSelect;
+
+//Client Type
+export type InsertClient = typeof client.$inferInsert;
+export type SelectClient = typeof client.$inferSelect;
+
+//Agent Type
+export type InsertAgent = typeof agent.$inferInsert;
+export type SelectAgent = typeof agent.$inferSelect;
+
+//User Type
+export type InsertUser = typeof user.$inferInsert;
+export type SelectUser = typeof user.$inferSelect;
+
 
 
 // Hotel Types
@@ -46,6 +64,11 @@ export type SelectHotelVoucher = typeof hotelVoucher.$inferSelect;
 
 export type InsertHotelVoucherLine = typeof hotelVoucherLine.$inferInsert;
 export type SelectHotelVoucherLine = typeof hotelVoucherLine.$inferInsert;
+
+//Combined Hotel voucher details
+export type CombinedHotelVoucher = InsertHotelVoucher & {
+    voucherLines: InsertHotelVoucherLine[]
+}
 
 //Restaurant Types
 export type InsertRestaurant = typeof restaurant.$inferInsert;

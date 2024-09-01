@@ -8,11 +8,12 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'; // Import Shadcn Select components
-import { SelectHotel, SelectHotelVoucherLine } from "~/server/db/schemaTypes";
+import { InsertHotelVoucherLine, SelectHotel, SelectHotelVoucherLine } from "~/server/db/schemaTypes";
 
 interface HotelsFormProps {
   onAddHotel: (data: SelectHotelVoucherLine,isNewVoucher:boolean, hotel:any) => void;
   hotels:SelectHotel[]
+  defaultValues: InsertHotelVoucherLine | null
 }
 
 export const hotelsSchema = z.object({
@@ -25,26 +26,18 @@ export const hotelsSchema = z.object({
   checkOutTime: z.string().min(1, "Check-out time is required"),
   roomType: z.string().min(1, "Room type is required"),
   basis: z.string().min(1, "Basis is required"),
-  remarks: z.string().optional(), // Optional field
+  remarks: z.string().min(1, "Remarks required"), // Optional field
 });
 
-const HotelsForm: React.FC<HotelsFormProps> = ({ onAddHotel,hotels }) => {
+const HotelsForm: React.FC<HotelsFormProps> = ({ onAddHotel,hotels, defaultValues }) => {
   const [selectedHotel,setSelectedHotel] = useState<SelectHotel | null>()
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const form = useForm<z.infer<typeof hotelsSchema>>({
     resolver: zodResolver(hotelsSchema),
     defaultValues: {
-      hotelName: "",
-      quantity: 1,
-      roomCount: 1,
-      checkInDate: "",
-      checkInTime: "",
-      checkOutDate: "",
-      checkOutTime: "",
-      roomType: "",
-      basis: "",
-      remarks: "",
+      ...defaultValues,
+      remarks: "No Remarks"
     },
   });
 
@@ -53,19 +46,18 @@ const HotelsForm: React.FC<HotelsFormProps> = ({ onAddHotel,hotels }) => {
   }
 
   function handleModalResponse(isNewVoucher: boolean) {
-    const voucherLine: SelectHotelVoucherLine = {
-      id: "", // Optional field; if you don't have an ID yet, you can leave it as an empty string or `undefined`.
+    const voucherLine: InsertHotelVoucherLine = {
       adultsCount: Number(form.getValues('quantity')), // Assuming you have an `adultsCount` field in your form.
       kidsCount: Number(form.getValues('quantity')), // Assuming you have a `kidsCount` field in your form.
       hotelVoucherId: "", // Use the selected hotel ID stored in the state.
       roomType: form.getValues('roomType'), // Room type from the form.
       basis: form.getValues('basis'), // Basis from the form.
-      checkInDate: new Date(form.getValues('checkInDate')), // Convert check-in date from form to a Date object.
-      checkOutDate: new Date(form.getValues('checkOutDate')), // Convert check-out date from form to a Date object.
+      checkInDate: form.getValues('checkInDate').toString(), // Convert check-in date from form to a Date object.
+      checkInTime:form.getValues('checkInTime'),
+      checkOutDate: form.getValues('checkOutDate').toString(), // Convert check-out date from form to a Date object.
+      checkOutTime:form.getValues('checkOutTime'),
       roomCount: Number(form.getValues('roomCount')), // Room count from the form, converted to a number.
-      remarks: form.getValues('remarks') || "", // Optional remarks from the form; default to an empty string if not provided.
-      createdAt: new Date(), // Optional; usually set automatically.
-      updatedAt: new Date(), // Optional; usually set automatically.
+      remarks: form.getValues('remarks'),
     };
     
     if(isNewVoucher){
@@ -73,8 +65,6 @@ const HotelsForm: React.FC<HotelsFormProps> = ({ onAddHotel,hotels }) => {
     } else{
       onAddHotel(voucherLine,false,selectedHotel)
     }
-
-
 
     // Reset form and close the modal
     form.reset();
@@ -90,7 +80,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({ onAddHotel,hotels }) => {
 
   useEffect(()=>{
     console.log(hotels)
-  },[])
+  },[defaultValues])
 
   return (
     <>

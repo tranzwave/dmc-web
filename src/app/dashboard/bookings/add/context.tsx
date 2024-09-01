@@ -6,17 +6,17 @@ import { Restaurant } from '~/components/bookings/addBooking/forms/restaurantsFo
 import { Shop } from '~/components/bookings/addBooking/forms/shopsForm/columns';
 import { Transport } from '~/components/bookings/addBooking/forms/transportForm/columns';
 import { Driver } from '~/lib/types/driver/type';
-import { SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine } from '~/server/db/schemaTypes';
+import { InsertHotelVoucher, InsertHotelVoucherLine, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine } from '~/server/db/schemaTypes';
 
 export interface TransportWithDriver {
   transport: Transport;
   driver: Driver;
 }
 
-export interface HotelVoucher {
+export type HotelVoucher = {
   hotel:SelectHotel,
-  voucher:SelectHotelVoucher
-  voucherLines:SelectHotelVoucherLine[]
+  voucher:InsertHotelVoucher
+  voucherLines:InsertHotelVoucherLine[]
 }
 
 export interface BookingDetails {
@@ -42,7 +42,10 @@ interface AddBookingContextProps {
 // Provide default values
 const defaultGeneral: General = {
   clientName: "",
+  country:"",
   primaryEmail: "",
+  adultsCount: 0,
+  kidsCount: 0,
   startDate: "",
   numberOfDays: 1,
   endDate: "",

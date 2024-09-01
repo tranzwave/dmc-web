@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import DataTableDropDwn from "~/components/common/dataTableDropdown";
+import DataTableDropDown from "~/components/common/dataTableDropdown";
 
 // Define the Agent type
 type Agent = {
@@ -48,7 +48,7 @@ export const agentColumns: ColumnDef<Agent>[] = [
     cell: ({ getValue, row }) => {
       const agent = row.original as Agent;
       return (
-          <DataTableDropDwn data={agent} routeBase="/agents/" 
+          <DataTableDropDown data={agent} routeBase="/agents/" 
           onViewPath={(data) => `/dashboard/agents/${data.id}`}
           onEditPath={(data) => `/dashboard/agents/${data.id}/edit`}
           onDeletePath={(data) => `/dashboard/agents/${data.id}/delete`}

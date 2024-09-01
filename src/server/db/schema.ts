@@ -12,6 +12,7 @@ import {
   foreignKey,
   unique,
   serial,
+  time,
 } from "drizzle-orm/pg-core";
 import { AdapterAccount } from "next-auth/adapters";
 
@@ -156,7 +157,7 @@ export const city = createTable(
 );
 
 export const cityRelations = relations(city, ({ one }) => ({
-  state: one(country, {
+  country: one(country, {
     fields: [city.country],
     references: [country.code],
   }),
@@ -269,12 +270,14 @@ export const hotelVoucherLine = createTable("hotel_voucher_lines", {
     .notNull(),
   roomType: varchar("room_type", { length: 100 }).notNull(),
   basis: varchar("basis", { length: 10 }).notNull(), // HB, FB, BB
-  checkInDate: timestamp("check_in_date").notNull(),
-  checkOutDate: timestamp("check_out_date").notNull(),
+  checkInDate: varchar("check_in_date", {length:100}).notNull(),
+  checkInTime: time("check_in_time").notNull(),
+  checkOutDate: varchar("check_out_date", {length:100}).notNull(),
+  checkOutTime:time("check_out_time").notNull(),
   adultsCount: integer("adults_count").notNull(),
   kidsCount: integer("kids_count").notNull(),
   roomCount: integer("room_count").notNull(),
-  remarks: text("remarks"),
+  remarks: text("remarks").default("No Remarks").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
@@ -628,17 +631,27 @@ export const bookingLinesRelations = relations(bookingLine, ({ one }) => ({
     fields: [bookingLine.bookingId],
     references: [booking.id],
   }),
+
+
 }));
 
-export const hotelRelations = relations(hotel, ({ one }) => ({
+export const hotelRelations = relations(hotel, ({ one, many }) => ({
   city: one(city, {
     fields: [hotel.cityId],
     references: [city.id],
   }),
+  hotelVoucher: many(hotelVoucher)
 }));
 
-export const hotelVouchersRelations = relations(hotelVoucher, ({ one }) => ({
-  booking: one(bookingLine, {
+export const driverRelations = relations(driver, ({ one }) => ({
+  city: one(city, {
+    fields: [driver.cityId],
+    references: [city.id],
+  }),
+}));
+
+export const hotelVouchersRelations = relations(hotelVoucher, ({ one, many }) => ({
+  bookingLine: one(bookingLine, {
     fields: [hotelVoucher.bookingLineId],
     references: [bookingLine.id],
   }),
@@ -646,7 +659,15 @@ export const hotelVouchersRelations = relations(hotelVoucher, ({ one }) => ({
     fields: [hotelVoucher.hotelId],
     references: [hotel.id],
   }),
+  voucherLine: many(hotelVoucherLine)
 }));
+
+export const hotelVoucherLinesRelations = relations(hotelVoucherLine,({one}) => ({
+  hotelVoucher: one(hotelVoucher, {
+    fields: [hotelVoucherLine.hotelVoucherId],
+    references: [hotelVoucher.id]
+  })
+}))
 
 export const restaurantRelations = relations(restaurant, ({ one }) => ({
   city: one(city, {

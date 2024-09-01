@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   ColumnDef,
@@ -6,6 +6,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { Collapsible, CollapsibleTrigger } from "~/components/ui/collapsible";
 
 import {
   Table,
@@ -13,7 +14,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from "~/components/ui/table";
 
 interface DataTableProps<TData, TValue> {
@@ -45,7 +46,7 @@ export function DataTable<TData, TValue>({
                     ? null
                     : flexRender(
                         header.column.columnDef.header,
-                        header.getContext()
+                        header.getContext(),
                       )}
                 </TableHead>
               ))}
@@ -63,6 +64,7 @@ export function DataTable<TData, TValue>({
                 }`}
                 data-state={row.getIsSelected() && "selected"}
               >
+
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -83,7 +85,6 @@ export function DataTable<TData, TValue>({
   );
 }
 
-
 // "use client"
 
 // import {
@@ -92,8 +93,6 @@ export function DataTable<TData, TValue>({
 //   getCoreRowModel,
 //   useReactTable
 // } from "@tanstack/react-table";
-
-
 
 // import {
 //   Table,
