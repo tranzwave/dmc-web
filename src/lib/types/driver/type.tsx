@@ -1,5 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
-import DataTableDropDwn from "~/components/common/dataTableDropdown";
+import DataTableDropDown from "~/components/common/dataTableDropdown";
+import { InsertCity, InsertDriver, SelectDriver } from "~/server/db/schemaTypes";
 
 // Define the Address type
 type Address = {
@@ -59,40 +60,62 @@ type Driver = {
   documents: Documents;
 };
 
-export const driverColumns: ColumnDef<Driver>[] = [
+export type DriverDTO = {
+  id?: string;
+  tenantId: string;
+  name: string;
+  primaryEmail: string;
+  primaryContactNumber: string;
+  streetName: string;
+  province: string;
+  isGuide?: boolean; 
+  feePerKM?: number | null; 
+  fuelAllowance?: number; 
+  accommodationAllowance?: number; 
+  mealAllowance?: number; 
+  driversLicense: string;
+  guideLicense?: string | null;
+  insurance: string;
+  contactNumber: string;
+  createdAt?: Date | null; 
+  updatedAt?: Date | null; 
+  city: InsertCity;
+}
+
+export const driverColumns: ColumnDef<DriverDTO>[] = [
   {
-    accessorKey: "general.name",
+    accessorKey: "name",
     header: "Name",
   },
   {
-    accessorKey: "general.primaryEmail",
+    accessorKey: "primaryEmail",
     header: "Primary Email",
   },
   {
-    accessorKey: "general.primaryContactNumber",
+    accessorKey: "primaryContactNumber",
     header: "Primary Contact Number",
   },
   {
-    accessorKey: "general.address.streetName",
+    accessorKey: "streetName",
     header: "Street Name",
   },
   {
-    accessorKey: "general.address.city",
+    accessorKey: "city.name",
     header: "City",
   },
 
   {
-    accessorKey: "charges.feePerKm",
-    header: "Fee per KM",
+    accessorKey: "province",
+    header: "Province",
   },
   {
     accessorKey: 'id',
     header: '',
     cell: ({ getValue, row }) => {
-      const transport = row.original as Driver;
+      const transport = row.original as DriverDTO;
 
       return (
-          <DataTableDropDwn data={transport} routeBase="/transport" 
+          <DataTableDropDown data={transport} routeBase="/transport" 
           onViewPath={(data) => `/dashboard/transport/${data.id}`} 
           onEditPath={(data) => `/dashboard/transport/${data.id}/edit`}
           onDeletePath={(data) => `/dashboard/transport/${data.id}/delete`}/>

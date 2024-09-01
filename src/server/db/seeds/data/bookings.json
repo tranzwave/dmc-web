@@ -1,0 +1,98 @@
+{
+    "id": "booking1",
+    "tenantId": "tenant1",
+    "clientId": "client1",
+    "agentId": "agent1",
+    "coordinatorId": "user1",
+    "managerId": "user2",
+    "tourType": "adventure",
+    "bookingLines": [
+      {
+        "id": "bookingLine1",
+        "bookingId": "booking1",
+        "includes": {
+          "hotels": true,
+          "transport": true,
+          "activities": true
+        },
+        "adultsCount": 2,
+        "kidsCount": 1,
+        "startDate": "2024-12-01T10:00:00Z",
+        "endDate": "2024-12-07T10:00:00Z",
+        "hotelVouchers": [
+          {
+            "id": "hotelVoucher1",
+            "bookingLineId": "bookingLine1",
+            "hotelId": "hotel1",
+            "coordinatorId": "user1"
+          }
+        ],
+        "hotelVoucherLines": [
+          {
+            "id": "hotelVoucherLine1",
+            "hotelVoucherId": "hotelVoucher1",
+            "roomType": "Suite",
+            "basis": "FB",
+            "checkInDate": "2024-12-01T15:00:00Z",
+            "checkOutDate": "2024-12-07T11:00:00Z",
+            "adultsCount": 2,
+            "kidsCount": 1,
+            "roomCount": 1,
+            "remarks": "Ocean view room requested"
+          }
+        ],
+        "restaurantVouchers": [
+          {
+            "id": "restaurantVoucher1",
+            "bookingLineId": "bookingLine1",
+            "restaurantId": "restaurant1",
+            "coordinatorId": "user1"
+          }
+        ],
+        "restaurantVoucherLines": [
+          {
+            "id": "restaurantVoucherLine1",
+            "restaurantVoucherId": "restaurantVoucher1",
+            "mealType": "Dinner",
+            "date": "2024-12-03T19:00:00Z",
+            "time": "19:00",
+            "adultsCount": 2,
+            "kidsCount": 1,
+            "remarks": "Table by the window"
+          }
+        ],
+        "transportVouchers": [
+          {
+            "id": "transportVoucher1",
+            "bookingLineId": "bookingLine1",
+            "driverId": "driver1",
+            "coordinatorId": "user1",
+            "startDate": "2024-12-01T12:00:00Z",
+            "endDate": "2024-12-07T12:00:00Z",
+            "languages": "English, Spanish"
+          }
+        ],
+        "activityVouchers": [
+          {
+            "id": "activityVoucher1",
+            "bookingLineId": "bookingLine1",
+            "activityVendorId": "activityVendor1",
+            "coordinatorId": "user1",
+            "date": "2024-12-04T10:00:00Z",
+            "time": "10:00",
+            "participantsCount": 3,
+            "remarks": "Snorkeling trip"
+          }
+        ],
+        "shopVouchers": [
+          {
+            "id": "shopVoucher1",
+            "bookingLineId": "bookingLine1",
+            "shopId": "shop1",
+            "coordinatorId": "user1"
+          }
+        ]
+      }
+    ]
+  }
+  

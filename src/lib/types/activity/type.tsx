@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import DataTableDropDwn from "~/components/common/dataTableDropdown";
+import DataTableDropDown from "~/components/common/dataTableDropdown";
 
 // Define the Address type
 type Address = {
@@ -64,7 +64,7 @@ export const activityColumns: ColumnDef<Activity>[] = [
       const activity = row.original as Activity;
 
       return (
-          <DataTableDropDwn data={activity} routeBase="/activities/" 
+          <DataTableDropDown data={activity} routeBase="/activities/" 
           onViewPath={(data) => `/dashboard/activities/${data.id}`}
           onEditPath={(data) => `/dashboard/activities/${data.id}/edit`}
           onDeletePath={(data) => `/dashboard/activities/${data.id}/delete`}
@@ -73,3 +73,21 @@ export const activityColumns: ColumnDef<Activity>[] = [
     },
   },
 ];
+
+
+const onView = () => {
+  console.log("View action triggered");
+  const path = `/dashboard/activities/${'data.id'}`
+  window.location.href = path;
+};
+
+const onEdit = () => {
+  console.log("Edit action triggered");
+  const path = `/dashboard/activities/${'data.id'}/edit`;
+  window.location.href = path;
+};
+
+const onDelete = () => {
+  console.log("Delete action triggered");
+  const path = `/dashboard/activities/${'data.id'}/delete`;
+};

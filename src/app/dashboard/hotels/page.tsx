@@ -2,15 +2,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { columns, Hotel } from "~/components/bookings/addBooking/forms/hotelsForm/columns";
+import { columns } from "~/components/bookings/addBooking/forms/hotelsForm/columns";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
-import { getHotelData } from "~/lib/api";// Assuming this type is defined
+import { getHotelData } from "~/lib/api";
+import { HotelDTO } from "~/lib/types/hotel";
+import { getAllHotels } from "~/server/db/queries/hotel";
 
 const HotelsHome = () => {
-    const [data, setData] = useState<Hotel[]>([]);
-    const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
+    const [data, setData] = useState<HotelDTO[]>([]);
+    const [selectedHotel, setSelectedHotel] = useState<HotelDTO | null>(null);
     const [loading, setLoading] = useState<boolean>(true);  
     const [error, setError] = useState<string | null>(null);
 
@@ -20,7 +22,9 @@ const HotelsHome = () => {
         async function fetchData() {
             setLoading(true);
             try {
-                const result = await getHotelData();
+                // const result = await getHotelData();
+                const result = await getAllHotels();
+
                 setData(result);
             } catch (error) {
                 console.error("Failed to fetch hotel data:", error);
@@ -33,7 +37,7 @@ const HotelsHome = () => {
         fetchData();
     }, []);
 
-    const handleRowClick = (hotel: Hotel) => {
+    const handleRowClick = (hotel: HotelDTO) => {
         setSelectedHotel(hotel);
     };
 

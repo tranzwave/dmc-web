@@ -1,0 +1,78 @@
+[
+    {
+      "tenantId": "tenant1",
+      "name": "Adventure Co.",
+      "streetName": "123 Adventure Lane",
+      "city": "Colombo",
+      "province": "Western Province",
+      "contactNumber": "+94112233456",
+      "activities": [
+        {
+          "activityType": "adventure",
+          "name": "Mountain Hiking",
+          "capacity": 20
+        }
+      ]
+    },
+    {
+      "tenantId": "tenant2",
+      "name": "Eco Tours",
+      "streetName": "456 Green Road",
+      "city": "Kandy",
+      "province": "Central Province",
+      "contactNumber": "+94114455667",
+      "activities": [
+        {
+          "activityType": "eco-tour",
+          "name": "Rainforest Walk",
+          "capacity": 15
+        }
+      ]
+    },
+    {
+      "tenantId": "tenant3",
+      "name": "Mountain Adventures",
+      "streetName": "789 Peak Drive",
+      "city": "Negombo",
+      "province": "Southern Province",
+      "contactNumber": "+94113344567",
+      "activities": [
+        {
+          "activityType": "adventure",
+          "name": "Rock Climbing",
+          "capacity": 10
+        }
+      ]
+    },
+    {
+      "tenantId": "tenant4",
+      "name": "Beachside Activities",
+      "streetName": "101 Sandy Beach Road",
+      "city": "Colombo",
+      "province": "Central Province",
+      "contactNumber": "+94112277889",
+      "activities": [
+        {
+          "activityType": "beach",
+          "name": "Snorkeling Tour",
+          "capacity": 25
+        }
+      ]
+    },
+    {
+      "tenantId": "tenant5",
+      "name": "Cultural Tours",
+      "streetName": "202 Culture Avenue",
+      "city": "Galle",
+      "province": "Western Province",
+      "contactNumber": "+94119900990",
+      "activities": [
+        {
+          "activityType": "cultural",
+          "name": "Historical City Tour",
+          "capacity": 30
+        }
+      ]
+    }
+  ]
+  

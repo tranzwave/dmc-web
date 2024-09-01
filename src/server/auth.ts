@@ -12,7 +12,7 @@ import { db } from "~/server/db";
 import {
   accounts,
   sessions,
-  users,
+  user,
   verificationTokens,
 } from "~/server/db/schema";
 
@@ -53,7 +53,7 @@ export const authOptions: NextAuthOptions = {
     }),
   },
   adapter: DrizzleAdapter(db, {
-    usersTable: users,
+    usersTable: user,
     accountsTable: accounts,
     sessionsTable: sessions,
     verificationTokensTable: verificationTokens,
