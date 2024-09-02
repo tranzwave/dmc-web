@@ -6,13 +6,12 @@ import {
   jsonb,
   pgTableCreator,
   primaryKey,
-  text,
-  timestamp,
-  varchar,
-  foreignKey,
-  unique,
   serial,
+  text,
   time,
+  timestamp,
+  unique,
+  varchar
 } from "drizzle-orm/pg-core";
 import { AdapterAccount } from "next-auth/adapters";
 
@@ -270,10 +269,10 @@ export const hotelVoucherLine = createTable("hotel_voucher_lines", {
     .notNull(),
   roomType: varchar("room_type", { length: 100 }).notNull(),
   basis: varchar("basis", { length: 10 }).notNull(), // HB, FB, BB
-  checkInDate: varchar("check_in_date", {length:100}).notNull(),
+  checkInDate: varchar("check_in_date", { length: 100 }).notNull(),
   checkInTime: time("check_in_time").notNull(),
-  checkOutDate: varchar("check_out_date", {length:100}).notNull(),
-  checkOutTime:time("check_out_time").notNull(),
+  checkOutDate: varchar("check_out_date", { length: 100 }).notNull(),
+  checkOutTime: time("check_out_time").notNull(),
   adultsCount: integer("adults_count").notNull(),
   kidsCount: integer("kids_count").notNull(),
   roomCount: integer("room_count").notNull(),
@@ -300,8 +299,8 @@ export const restaurant = createTable(
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
     cityId: integer("city_id")
-    .references(() => city.id)
-    .notNull(),
+      .references(() => city.id)
+      .notNull(),
   });
 
 export const restaurantMeal = createTable("restaurant_meals", {
@@ -412,8 +411,8 @@ export const driver = createTable(
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
     cityId: integer("city_id")
-    .references(() => city.id)
-    .notNull(),
+      .references(() => city.id)
+      .notNull(),
   });
 
 // Driver-Vehicle join table
@@ -492,8 +491,8 @@ export const activityVendor = createTable(
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
     cityId: integer("city_id")
-    .references(() => city.id)
-    .notNull(),
+      .references(() => city.id)
+      .notNull(),
   });
 
 //Activity type
@@ -662,7 +661,7 @@ export const hotelVouchersRelations = relations(hotelVoucher, ({ one, many }) =>
   voucherLine: many(hotelVoucherLine)
 }));
 
-export const hotelVoucherLinesRelations = relations(hotelVoucherLine,({one}) => ({
+export const hotelVoucherLinesRelations = relations(hotelVoucherLine, ({ one }) => ({
   hotelVoucher: one(hotelVoucher, {
     fields: [hotelVoucherLine.hotelVoucherId],
     references: [hotelVoucher.id]

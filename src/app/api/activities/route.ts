@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
 import { db } from '~/server/db';
-import { activityVendors } from '~/server/db/schema';
+import { activityVendor } from '~/server/db/schema';
 
 export async function POST(req: Request, res: NextApiResponse) {
     if (req.method === 'POST') {
@@ -14,11 +14,14 @@ export async function POST(req: Request, res: NextApiResponse) {
             console.log(req.body)
 
             // Insert into the activities table
-            const [newActivity] = await db.insert(activityVendors).values({
+            const [newActivity] = await db.insert(activityVendor).values({
+                tenantId: activityGeneral.tenant_id,
                 name: activityGeneral.name,
-                activityType: activityGeneral.type,
+                streetName: activityGeneral.street_name,
+                province: activityGeneral.province,
                 contactNumber: activityGeneral.primary_contact_number,
-            }).returning({ id: activityVendors.id });
+                cityId: activityGeneral.city_id,
+            }).returning({ id: activityVendor.id });
 
             const newActivityId = newActivity?.id;
 
@@ -41,11 +44,10 @@ export async function POST(req: Request, res: NextApiResponse) {
     }
 }
 
-
 export async function GET(req: NextApiRequest, res: NextApiResponse) {
     try {
         // Fetch all activities
-        const allActivities = await db.select().from(activityVendors);
+        const allActivities = await db.select().from(activityVendor);
 
         // Return combined result
         return NextResponse.json({ allActivities }, { status: 200 });
