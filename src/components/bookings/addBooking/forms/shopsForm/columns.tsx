@@ -1,6 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import { ShopVoucher } from "~/app/dashboard/bookings/add/context";
 
 export type Shop = {
   shopType: string;
@@ -13,37 +14,37 @@ export type Shop = {
   remarks?: string;
 };
 
-export const columns: ColumnDef<Shop>[] = [
+export const columns: ColumnDef<ShopVoucher>[] = [
   {
-    accessorKey: "shopType",
-    header: "Shop Type",
+    header: "Shop",
+    accessorFn: row => row.shop.name
   },
   {
-    accessorKey: "city",
     header: "City",
+    accessorFn: row => row.voucher.city
   },
   {
-    accessorKey: "productType",
-    header: "Product Type",
+    header: "Shop Type",
+    accessorFn: row => row.voucher.shopType
   },
   {
-    accessorKey: "date",
     header: "Date",
+    accessorFn: row => row.voucher.date
   },
   {
-    accessorKey: "time",
     header: "Time",
+    accessorFn: row => row.voucher.time
   },
   {
-    accessorKey: "headCount",
     header: "Head Count",
+    accessorFn: row => row.voucher.participantsCount
   },
   {
-    accessorKey: "hours",
     header: "Hours",
+    accessorFn: row => row.voucher.hours
   },
   {
-    accessorKey: "remarks",
     header: "Remarks",
+    accessorFn: row => row.voucher.remarks
   },
 ];

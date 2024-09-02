@@ -6,12 +6,13 @@ import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
 import { getTransportData } from "~/lib/api";
-import { Driver, driverColumns } from "~/lib/types/driver/type";
+import { Driver, driverColumns, DriverDTO } from "~/lib/types/driver/type";
+import { getAllDrivers } from "~/server/db/queries/transport";
 
 const TransportHome = () => {
     const pathname = usePathname();
 
-    const [data, setData] = useState<Driver[]>([]);
+    const [data, setData] = useState<DriverDTO[]>([]);
     // const [selectedTransport, setSelectedTransport] = useState<Driver | null>(null);
     const [loading, setLoading] = useState<boolean>(true);  // Added loading state
     const [error, setError] = useState<string | null>(null); // Added error state
@@ -22,7 +23,7 @@ const TransportHome = () => {
         async function fetchData() {
             try {
                 setLoading(true); // Set loading to true before starting fetch
-                const result = await getTransportData(); // Fetch transport data
+                const result = await getAllDrivers(); // Fetch transport data
                 setData(result);
             } catch (error) {
                 console.error("Failed to fetch transport data:", error);
