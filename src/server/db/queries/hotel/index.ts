@@ -26,6 +26,10 @@ export const getAllHotels = ()=>{
     })
 }
 
+export const getAllHotelsV2 = ()=>{
+  return db.query.hotel.findMany()
+}
+
 export const getHotelByIdQuery = (id:string)=>{
     return db.query.hotel.findFirst({
         where: eq(hotel.id, id),

@@ -15,6 +15,7 @@ import {
 } from "~/server/db/schemaTypes";
 import { Hotel, voucherColumns } from "./columns";
 import HotelsForm from "./hotelsForm";
+import { getAllHotels, getAllHotelsV2 } from "~/server/db/queries/hotel";
 
 const HotelsTab = () => {
   const [addedHotels, setAddedHotels] = useState<Hotel[]>([]);
@@ -42,7 +43,7 @@ const HotelsTab = () => {
       };
       addHotelVoucher(hotelVoucher);
     } else {
-      alert("Multiple vouchers for same hotel is not supported yet");
+      console.log("Multiple vouchers for same hotel is not supported yet");
     }
     // addHotelVoucher(hotel);
   };
@@ -51,21 +52,16 @@ const HotelsTab = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/hotels", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
 
-      if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
+      const newResponse = await getAllHotelsV2();
+
+      if (!newResponse) {
+        throw new Error(`Error: Couldn't get hotels`);
       }
+      console.log("Fetched Hotels:", newResponse);
 
-      const result = await response.json();
-      console.log("Fetched Hotels:", result);
-
-      setHotels(result.allHotels);
+      setHotels(newResponse);
+      setLoading(false)
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -73,8 +69,6 @@ const HotelsTab = () => {
         setError("An unknown error occurred");
       }
       console.error("Error:", error);
-    } finally {
-      setLoading(false);
     }
   };
 

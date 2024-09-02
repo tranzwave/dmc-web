@@ -12,9 +12,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "~/components/ui/dialog";
-import { addBooking } from "~/lib/api";
 import {
-  createBookingLine,
   createNewBooking,
 } from "~/server/db/queries/booking";
 
@@ -66,6 +64,7 @@ const AddBookingSubmitTab = () => {
   const router = useRouter();
 
   const handleSubmit = async () => {
+    console.log(bookingDetails)
     setLoading(true);
     try {
       // Prepare the data to pass to the createNewBooking function

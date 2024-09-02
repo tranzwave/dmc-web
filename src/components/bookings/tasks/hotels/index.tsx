@@ -27,7 +27,7 @@ interface HotelsTasksTabProps {
   bookingLineId: string;
 }
 
-type HotelVoucherData = {
+export type HotelVoucherData = {
   bookingLineId: string;
   id: string;
   createdAt: Date | null;
@@ -46,6 +46,7 @@ const HotelsTasksTab: React.FC<HotelsTasksTabProps> = ({ bookingLineId }) => {
   const [selectedVoucher, setSelectedVoucher] = useState<HotelVoucherData>();
   const [selectedVoucherLine, setSelectedVoucherLine] =
     useState<SelectHotelVoucherLine>();
+
 
   const getHotelVoucherData = async () => {
     setLoading(true);
@@ -84,6 +85,8 @@ const HotelsTasksTab: React.FC<HotelsTasksTabProps> = ({ bookingLineId }) => {
   const onAllHotelRowClick = (row: HotelVoucherData) => {
     console.log(row);
     setSelectedVoucher(row);
+    setSelectedVoucherLine(row.voucherLine[0])
+
   };
 
   const onVoucherLineRowClick = (row: SelectHotelVoucherLine) => {
@@ -189,7 +192,7 @@ const allHotelsColumns: ColumnDef<HotelVoucherData>[] = [
   },
 ];
 
-function formatDate(dateString: string) {
+export function formatDate(dateString: string) {
   // Convert the date string to a Date object
   const date = new Date(dateString);
 

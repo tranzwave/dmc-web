@@ -1,12 +1,12 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
-import { Activity } from '~/components/bookings/addBooking/forms/activitiesForm/columns';
 import { General } from '~/components/bookings/addBooking/forms/generalForm/columns';
 import { Hotel } from '~/components/bookings/addBooking/forms/hotelsForm/columns';
+import { RestaurantData } from '~/components/bookings/addBooking/forms/restaurantsForm';
 import { Restaurant } from '~/components/bookings/addBooking/forms/restaurantsForm/columns';
 import { Shop } from '~/components/bookings/addBooking/forms/shopsForm/columns';
 import { Transport } from '~/components/bookings/addBooking/forms/transportForm/columns';
 import { Driver } from '~/lib/types/driver/type';
-import { InsertHotelVoucher, InsertHotelVoucherLine, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine } from '~/server/db/schemaTypes';
+import { InsertActivityVoucher, InsertHotelVoucher, InsertHotelVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectActivityVoucher, SelectDriver, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant, SelectShop, SelectShopVoucher } from '~/server/db/schemaTypes';
 
 export interface TransportWithDriver {
   transport: Transport;
@@ -19,13 +19,34 @@ export type HotelVoucher = {
   voucherLines:InsertHotelVoucherLine[]
 }
 
+export type RestaurantVoucher = {
+  restaurant: RestaurantData,
+  voucher: InsertRestaurantVoucher
+  voucherLines: InsertRestaurantVoucherLine[]
+}
+
+export type ActivityVoucher = {
+  vendor: SelectActivityVendor,
+  voucher: InsertActivityVoucher
+}
+
+export type ShopVoucher = {
+  shop: SelectShop,
+  voucher: InsertShopVoucher
+}
+
+export type TransportVoucher = {
+  driver: SelectDriver,
+  voucher: InsertTransportVoucher
+}
+
 export interface BookingDetails {
   general: General; 
   vouchers: HotelVoucher[];
-  restaurants: Restaurant[];
-  activities: Activity[];
-  transport: TransportWithDriver[];
-  shops: Shop[];
+  restaurants: RestaurantVoucher[];
+  activities: ActivityVoucher[];
+  transport: TransportVoucher[];
+  shops: ShopVoucher[];
 }
 
 // Define context properties
@@ -33,10 +54,10 @@ interface AddBookingContextProps {
   bookingDetails: BookingDetails;
   setGeneralDetails: (details: General) => void;
   addHotelVoucher: (hotel: HotelVoucher) => void;
-  addRestaurant: (restaurant: Restaurant) => void;
-  addActivity: (activity: Activity) => void;
-  addTransport: (transportWithDriver: TransportWithDriver) => void;
-  addShop: (shop: Shop) => void;
+  addRestaurantVoucher: (restaurant: RestaurantVoucher) => void;
+  addActivity: (activity: ActivityVoucher) => void;
+  addTransport: (transport: TransportVoucher) => void;
+  addShop: (shop: ShopVoucher) => void;
 }
 
 // Provide default values
@@ -94,19 +115,20 @@ export const AddBookingProvider: React.FC<{ children: ReactNode }> = ({ children
     setBookingDetails(prev => ({ ...prev, vouchers: [...prev.vouchers, hotelVoucher] }));
   };
 
-  const addRestaurant = (restaurant: Restaurant) => {
-    setBookingDetails(prev => ({ ...prev, restaurants: [...prev.restaurants, restaurant] }));
+  const addRestaurantVoucher = (restaurantVoucher: RestaurantVoucher) => {
+    console.log(`Restaurant ID-${restaurantVoucher.restaurant.id}`)
+    setBookingDetails(prev => ({ ...prev, restaurants: [...prev.restaurants, restaurantVoucher] }));
   };
 
-  const addActivity = (activity: Activity) => {
+  const addActivity = (activity: ActivityVoucher) => {
     setBookingDetails(prev => ({ ...prev, activities: [...prev.activities, activity] }));
   };
 
-  const addTransport = (transportWithDriver: TransportWithDriver) => {
+  const addTransport = (transportWithDriver: TransportVoucher) => {
     setBookingDetails(prev => ({ ...prev, transport: [...prev.transport, transportWithDriver] }));
   };
 
-  const addShop = (shop: Shop) => {
+  const addShop = (shop: ShopVoucher) => {
     setBookingDetails(prev => ({ ...prev, shops: [...prev.shops, shop] }));
   };
 
@@ -116,7 +138,7 @@ export const AddBookingProvider: React.FC<{ children: ReactNode }> = ({ children
         bookingDetails,
         setGeneralDetails,
         addHotelVoucher,
-        addRestaurant,
+        addRestaurantVoucher,
         addActivity,
         addTransport,
         addShop
