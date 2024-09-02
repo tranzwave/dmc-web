@@ -1,4 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
+import { DriverData } from "~/components/bookings/addBooking/forms/transportForm";
 import DataTableDropDown from "~/components/common/dataTableDropdown";
 import { InsertCity, InsertDriver, SelectDriver } from "~/server/db/schemaTypes";
 
@@ -44,6 +45,8 @@ type Documents = {
   insurance: string;
 };
 
+
+
 // Define the Driver type
 type Driver = {
   id: number
@@ -82,7 +85,7 @@ export type DriverDTO = {
   city: InsertCity;
 }
 
-export const driverColumns: ColumnDef<DriverDTO>[] = [
+export const driverColumns: ColumnDef<DriverData>[] = [
   {
     accessorKey: "name",
     header: "Name",
@@ -112,7 +115,7 @@ export const driverColumns: ColumnDef<DriverDTO>[] = [
     accessorKey: 'id',
     header: '',
     cell: ({ getValue, row }) => {
-      const transport = row.original as DriverDTO;
+      const transport = row.original as DriverData;
 
       return (
           <DataTableDropDown data={transport} routeBase="/transport" 

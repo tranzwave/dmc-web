@@ -671,54 +671,53 @@ export async function getHotelData(): Promise<Hotel[]> {
 
 
 export type DriverSearchParams = {
-  vehicleType: VehicleType;
-  languages: string[];
+  vehicleType: string;
+  language: string;
   type: string
 }
 
-export async function searchDriverData(searchParams: DriverSearchParams): Promise<Driver[]> {
-  // Simulate a delay for the async function
-  await new Promise(resolve => setTimeout(resolve, 500));
+// export async function searchDriverData(searchParams: DriverSearchParams): Promise<Driver[]> {
+//   // Simulate a delay for the async function
+//   await new Promise(resolve => setTimeout(resolve, 500));
 
-  // Filter drivers based on search parameters
-  return driversMockData.filter(driver => {
-    const matchesVehicleType = driver.vehicles.some(vehicle => vehicle.vehicleType === searchParams.vehicleType);
+//   // Filter drivers based on search parameters
+//   return driversMockData.filter(driver => {
+//     const matchesVehicleType = driver.vehicles.some(vehicle => vehicle.vehicleType === searchParams.vehicleType);
 
-    // Check if at least one language matches
-    const matchesLanguages = searchParams.languages.some(language => driver.general.languages.includes(language));
+//     // Check if at least one language matches
+//     const matchesLanguages = searchParams.languages.some(language => driver.general.languages.includes(language));
 
-    const matchesGuideType = (
-      searchParams.type === 'Both' ||
-      (searchParams.type === 'Guide' && driver.general.guide) ||
-      (searchParams.type === 'Driver' && !driver.general.guide)
-    );
+//     const matchesGuideType = (
+//       searchParams.type === 'Both' ||
+//       (searchParams.type === 'Guide' && driver.general.guide) ||
+//       (searchParams.type === 'Driver' && !driver.general.guide)
+//     );
 
-    return matchesVehicleType && matchesLanguages && matchesGuideType;
-  });
-};
+//     return matchesVehicleType && matchesLanguages && matchesGuideType;
+//   });
+// };
 
 export type ShopsSearchParams = {
-  shopType: string;
-  city: string;
-  productType: string;
+  shopTypeId: Number;
+  cityId: Number;
 }
 
-export async function searchShopsData(searchParams: ShopsSearchParams): Promise<Shop[]> {
-  // Simulate a delay for the async function
-  await new Promise(resolve => setTimeout(resolve, 500));
+// export async function searchShopsData(searchParams: ShopsSearchParams): Promise<Shop[]> {
+//   // Simulate a delay for the async function
+//   await new Promise(resolve => setTimeout(resolve, 500));
 
-  // Filter drivers based on search parameters
-  return shopsMockData.filter(shop => {
-    const matchesShopType = shop.shopType === searchParams.shopType;
+//   // Filter drivers based on search parameters
+//   return shopsMockData.filter(shop => {
+//     const matchesShopType = shop.shopType === searchParams.shopType;
 
-    // Check if at least one language matches
-    const matchesShopCity = searchParams.city === shop.city;
+//     // Check if at least one language matches
+//     const matchesShopCity = searchParams.city === shop.city;
 
-    const matchesProductType = shop.productType === searchParams.productType;
+//     const matchesProductType = shop.productType === searchParams.productType;
 
-    return matchesShopType && matchesShopCity && matchesProductType;
-  });
-}
+//     return matchesShopType && matchesShopCity && matchesProductType;
+//   });
+// }
 
 export const getActivityData = async (): Promise<Activity[]> => {
   return [

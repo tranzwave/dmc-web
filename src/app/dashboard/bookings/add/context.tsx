@@ -6,7 +6,7 @@ import { Restaurant } from '~/components/bookings/addBooking/forms/restaurantsFo
 import { Shop } from '~/components/bookings/addBooking/forms/shopsForm/columns';
 import { Transport } from '~/components/bookings/addBooking/forms/transportForm/columns';
 import { Driver } from '~/lib/types/driver/type';
-import { InsertActivityVoucher, InsertHotelVoucher, InsertHotelVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, SelectActivityVendor, SelectActivityVoucher, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant } from '~/server/db/schemaTypes';
+import { InsertActivityVoucher, InsertHotelVoucher, InsertHotelVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectActivityVoucher, SelectDriver, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant, SelectShop, SelectShopVoucher } from '~/server/db/schemaTypes';
 
 export interface TransportWithDriver {
   transport: Transport;
@@ -30,13 +30,23 @@ export type ActivityVoucher = {
   voucher: InsertActivityVoucher
 }
 
+export type ShopVoucher = {
+  shop: SelectShop,
+  voucher: InsertShopVoucher
+}
+
+export type TransportVoucher = {
+  driver: SelectDriver,
+  voucher: InsertTransportVoucher
+}
+
 export interface BookingDetails {
   general: General; 
   vouchers: HotelVoucher[];
   restaurants: RestaurantVoucher[];
   activities: ActivityVoucher[];
-  transport: TransportWithDriver[];
-  shops: Shop[];
+  transport: TransportVoucher[];
+  shops: ShopVoucher[];
 }
 
 // Define context properties
@@ -46,8 +56,8 @@ interface AddBookingContextProps {
   addHotelVoucher: (hotel: HotelVoucher) => void;
   addRestaurantVoucher: (restaurant: RestaurantVoucher) => void;
   addActivity: (activity: ActivityVoucher) => void;
-  addTransport: (transportWithDriver: TransportWithDriver) => void;
-  addShop: (shop: Shop) => void;
+  addTransport: (transport: TransportVoucher) => void;
+  addShop: (shop: ShopVoucher) => void;
 }
 
 // Provide default values
@@ -114,11 +124,11 @@ export const AddBookingProvider: React.FC<{ children: ReactNode }> = ({ children
     setBookingDetails(prev => ({ ...prev, activities: [...prev.activities, activity] }));
   };
 
-  const addTransport = (transportWithDriver: TransportWithDriver) => {
+  const addTransport = (transportWithDriver: TransportVoucher) => {
     setBookingDetails(prev => ({ ...prev, transport: [...prev.transport, transportWithDriver] }));
   };
 
-  const addShop = (shop: Shop) => {
+  const addShop = (shop: ShopVoucher) => {
     setBookingDetails(prev => ({ ...prev, shops: [...prev.shops, shop] }));
   };
 

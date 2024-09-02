@@ -17,12 +17,16 @@ import {
   restaurantVoucher,
   restaurantVoucherLine,
   activityVoucher,
+  shopVoucher,
+  transportVoucher,
 } from "../../schema";
 import {
   ActivityVoucher,
   BookingDetails,
   HotelVoucher,
   RestaurantVoucher,
+  ShopVoucher,
+  TransportVoucher,
 } from "~/app/dashboard/bookings/add/context";
 import { PgTransaction } from "drizzle-orm/pg-core";
 
@@ -322,6 +326,26 @@ export const createNewBooking = async (
         );
       }
 
+      // Handle shop vouchers within the transaction
+      if (bookingDetails.general.includes.transport) {
+        await insertShopVouchersTx(
+          tx,
+          bookingDetails.shops,
+          lineId,
+          bookingDetails.general.marketingManager,
+        );
+      }
+
+      // Handle transport vouchers within the transaction
+      if (bookingDetails.general.includes.transport) {
+        await insertTransportVoucherTx(
+          tx,
+          bookingDetails.transport,
+          lineId,
+          bookingDetails.general.marketingManager,
+        );
+      }
+
       // Return the final booking line id
       return lineId;
     });
@@ -334,7 +358,7 @@ export const createNewBooking = async (
 };
 
 // Transactional functions for handling each operation
-export const createClientTx = async (tx:any, data: InsertClient) => {
+export const createClientTx = async (tx: any, data: InsertClient) => {
   const existingClient = await tx.query.client.findFirst({
     where: and(
       eq(client.tenantId, data.tenantId),
@@ -356,7 +380,10 @@ export const createClientTx = async (tx:any, data: InsertClient) => {
   return existingClient;
 };
 
-export const createBookingLineTx = async (tx:any, data: InsertBookingLine): Promise<string> => {
+export const createBookingLineTx = async (
+  tx: any,
+  data: InsertBookingLine,
+): Promise<string> => {
   const newBookingLine = await tx.insert(bookingLine).values(data).returning();
 
   if (!newBookingLine || !newBookingLine[0]?.id) {
@@ -364,7 +391,6 @@ export const createBookingLineTx = async (tx:any, data: InsertBookingLine): Prom
   }
   return newBookingLine[0].id;
 };
-
 
 export const insertHotelVouchersTx = async (
   trx: any, // Replace with actual transaction type
@@ -425,7 +451,6 @@ export const insertHotelVouchersTx = async (
   return hotelVouchers;
 };
 
-
 export const insertRestaurantVouchersTx = async (
   trx: any, // Replace with actual transaction type
   vouchers: RestaurantVoucher[],
@@ -481,7 +506,6 @@ export const insertRestaurantVouchersTx = async (
   return restaurantVouchers;
 };
 
-
 export const insertActivityVouchersTx = async (
   trx: any, // Replace with actual transaction type
   vouchers: ActivityVoucher[],
@@ -511,149 +535,60 @@ export const insertActivityVouchersTx = async (
   return activityVouchers;
 };
 
+export const insertShopVouchersTx = async (
+  trx: any,
+  vouchers: ShopVoucher[],
+  newBookingLineId: string,
+  coordinatorId: string,
+) => {
+  const shopVouchers = await Promise.all(
+    vouchers.map(async (currentVoucher) => {
+      const newVoucher = await trx
+        .insert(shopVoucher)
+        .values({
+          ...currentVoucher.voucher,
+          coordinatorId: coordinatorId,
+          bookingLineId: newBookingLineId,
+        })
+        .returning();
 
+      if (!newVoucher || !newVoucher[0]?.id) {
+        throw new Error("Couldn't add shop voucher");
+      }
 
+      const voucherId = newVoucher[0]?.id;
 
-// export const insertHotelVouchers = async (
-//   vouchers: HotelVoucher[],
-//   newBookingLineId: string,
-//   coordinatorId: string,
-// ) => {
-//   const hotelVouchers = await Promise.all(
-//     vouchers.map(async (currentVoucher) => {
-//       // Add a voucher
-//       const newVoucher = await db
-//         .insert(hotelVoucher)
-//         .values({
-//           bookingLineId: newBookingLineId,
-//           coordinatorId: coordinatorId,
-//           hotelId: currentVoucher.hotel.id,
-//         })
-//         .returning();
+      return voucherId;
+    }),
+  );
+  return shopVouchers;
+};
 
-//       if (!newVoucher || !newVoucher[0]?.id) {
-//         throw new Error("Couldn't add voucher");
-//       }
+export const insertTransportVoucherTx = async (
+  trx: any,
+  vouchers: TransportVoucher[],
+  newBookingLineId: string,
+  coordinatorId: string,
+) => {
+  const transportVouchers = await Promise.all(
+    vouchers.map(async (currentVoucher) => {
+      const newVoucher = await trx
+        .insert(transportVoucher)
+        .values({
+          ...currentVoucher.voucher,
+          coordinatorId: coordinatorId,
+          bookingLineId: newBookingLineId,
+        })
+        .returning();
 
-//       const voucherId = newVoucher[0]?.id;
+      if (!newVoucher || !newVoucher[0]?.id) {
+        throw new Error("Couldn't add transport voucher");
+      }
 
-//       console.log(voucherId);
-//       // Add voucher lines
-//       const voucherLines = await Promise.all(
-//         currentVoucher.voucherLines.map(async (currentVoucherLine) => {
-//           const newVoucherLine = await db
-//             .insert(hotelVoucherLine)
-//             .values({
-//               adultsCount: currentVoucherLine.adultsCount,
-//               kidsCount: currentVoucherLine.kidsCount,
-//               roomCount: currentVoucherLine.roomCount,
-//               checkInDate: currentVoucherLine.checkInDate,
-//               checkInTime: currentVoucherLine.checkInTime,
-//               checkOutDate: currentVoucherLine.checkOutDate,
-//               checkOutTime: currentVoucherLine.checkOutTime,
-//               basis: currentVoucherLine.basis,
-//               roomType: currentVoucherLine.roomType,
-//               hotelVoucherId: voucherId,
-//             })
-//             .returning();
+      const voucherId = newVoucher[0]?.id;
 
-//           if (!newVoucherLine || !newVoucherLine[0]?.id) {
-//             throw new Error("Couldn't add voucher line");
-//           }
-
-//           return newVoucherLine[0].id;
-//         }),
-//       );
-
-//       // Return a map of voucherId to voucherLineIds
-//       return { voucherId, voucherLines };
-//     }),
-//   );
-
-//   return hotelVouchers;
-// };
-
-// export const insertRestaurantVouchers = async (
-//   vouchers: RestaurantVoucher[],
-//   newBookingLineId: string,
-//   coordinatorId: string,
-// ) => {
-//   const restaurantVouchers = await Promise.all(
-//     vouchers.map(async (currentVoucher) => {
-//       //Add a voucher
-//       const newVoucher = await db
-//         .insert(restaurantVoucher)
-//         .values({
-//           bookingLineId: newBookingLineId,
-//           coordinatorId: coordinatorId,
-//           restaurantId: currentVoucher.restaurant.id,
-//         })
-//         .returning();
-
-//       if (!newVoucher || !newVoucher[0]?.id) {
-//         throw new Error("Couldn't add voucher");
-//       }
-
-//       const voucherId = newVoucher[0]?.id;
-
-//       console.log(voucherId);
-
-//       const voucherLines = await Promise.all(
-//         currentVoucher.voucherLines.map(async (currentVoucherLine) => {
-//           const newVoucherLine = await db
-//             .insert(restaurantVoucherLine)
-//             .values({
-//               adultsCount: currentVoucherLine.adultsCount,
-//               kidsCount: currentVoucherLine.kidsCount,
-//               mealType: currentVoucherLine.mealType,
-//               date: currentVoucherLine.date,
-//               time: currentVoucherLine.time,
-//               restaurantVoucherId: voucherId,
-//             })
-//             .returning();
-
-//           if (!newVoucherLine || !newVoucherLine[0]?.id) {
-//             throw new Error("Couldn't add voucher line");
-//           }
-
-//           return newVoucherLine[0].id;
-//         }),
-//       );
-
-//       // Return a map of voucherId to voucherLineIds
-//       return { voucherId, voucherLines };
-//     }),
-//   );
-
-//   return restaurantVouchers;
-// };
-
-// export const insertActivityVouchers = async (
-//   vouchers: ActivityVoucher[],
-//   newBookingLineId: string,
-//   coordinatorId: string,
-// ) => {
-//   const activityVouchers = await Promise.all(
-//     vouchers.map(async (currentVoucher) => {
-//       const newVoucher = await db
-//         .insert(activityVoucher)
-//         .values({
-//           ...currentVoucher.voucher,
-//           coordinatorId: coordinatorId,
-//           bookingLineId: newBookingLineId,
-//         })
-//         .returning();
-
-//       if (!newVoucher || !newVoucher[0]?.id) {
-//         throw new Error("Couldn't add activity voucher");
-//       }
-
-//       const voucherId = newVoucher[0]?.id;
-
-//       console.log(voucherId);
-
-//       return voucherId;
-//     }),
-//   );
-//   return activityVouchers;
-// };
+      return voucherId;
+    }),
+  );
+  return transportVouchers;
+};

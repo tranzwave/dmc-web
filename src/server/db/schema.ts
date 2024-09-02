@@ -462,9 +462,11 @@ export const transportVoucher = createTable("transport_vouchers", {
   coordinatorId: varchar("coordinator_id", { length: 255 })
     .references(() => user.id)
     .notNull(),
-  startDate: timestamp("start_date").notNull(),
-  endDate: timestamp("end_date").notNull(),
-  languages: varchar("languages", { length: 255 }), // Comma-separated list of languages
+  startDate: varchar("start_date", {length:100}).notNull(),
+  endDate: varchar("end_date", {length:100}).notNull(),
+  language: varchar("languages", { length: 255 }).notNull(),
+  vehicleType: varchar("vehicle_type", { length: 255 }),
+  remarks: varchar("remarks", { length: 255 }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
@@ -600,6 +602,13 @@ export const shopVoucher = createTable("shop_vouchers", {
   coordinatorId: varchar("coordinator_id", { length: 255 })
     .references(() => user.id)
     .notNull(),
+  shopType: varchar("shop_type", { length: 100 }).notNull(),
+  date: varchar("date", { length: 100 }).notNull(),
+  time: varchar("time", { length: 10 }).notNull(),
+  hours: integer("hours").notNull(),
+  participantsCount: integer("participants_count").notNull(),
+  city: varchar("city_name", { length: 50 }).notNull(),
+  remarks: text("remarks"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
@@ -645,13 +654,6 @@ export const hotelRelations = relations(hotel, ({ one, many }) => ({
     references: [city.id],
   }),
   hotelVoucher: many(hotelVoucher),
-}));
-
-export const driverRelations = relations(driver, ({ one }) => ({
-  city: one(city, {
-    fields: [driver.cityId],
-    references: [city.id],
-  }),
 }));
 
 export const hotelVouchersRelations = relations(
@@ -723,19 +725,71 @@ export const restaurantVoucherLinesRelations = relations(
   }),
 );
 
-export const transportVouchersRelations = relations(
-  transportVoucher,
-  ({ one }) => ({
-    booking: one(booking, {
-      fields: [transportVoucher.bookingLineId],
-      references: [booking.id],
-    }),
-    driver: one(driver, {
-      fields: [transportVoucher.driverId],
-      references: [driver.id],
-    }),
+// Languages table relations
+export const languageRelations = relations(language, ({ many }) => ({
+  drivers: many(driverLanguage),
+}));
+
+// Vehicles table relations
+export const vehicleRelations = relations(vehicle, ({ many }) => ({
+  drivers: many(driverVehicle),
+}));
+
+// Drivers table relations
+export const driverRelations = relations(driver, ({ many, one }) => ({
+  tenant: one(tenant, {
+    fields: [driver.tenantId],
+    references: [tenant.id],
   }),
-);
+  city: one(city, {
+    fields: [driver.cityId],
+    references: [city.id],
+  }),
+  vehicles: many(driverVehicle),
+  languages: many(driverLanguage),
+  transportVouchers: many(transportVoucher),
+}));
+
+// Driver-Vehicle join table relations
+export const driverVehicleRelations = relations(driverVehicle, ({ one }) => ({
+  driver: one(driver, {
+    fields: [driverVehicle.driverId],
+    references: [driver.id],
+  }),
+  vehicle: one(vehicle, {
+    fields: [driverVehicle.vehicleId],
+    references: [vehicle.id],
+  }),
+}));
+
+// Driver-Language join table relations
+export const driverLanguageRelations = relations(driverLanguage, ({ one }) => ({
+  driver: one(driver, {
+    fields: [driverLanguage.driverId],
+    references: [driver.id],
+  }),
+  language: one(language, {
+    fields: [driverLanguage.languageCode],
+    references: [language.code],
+  }),
+}));
+
+// Transport Vouchers table relations
+export const transportVoucherRelations = relations(transportVoucher, ({ one }) => ({
+  bookingLine: one(bookingLine, {
+    fields: [transportVoucher.bookingLineId],
+    references: [bookingLine.id],
+  }),
+  driver: one(driver, {
+    fields: [transportVoucher.driverId],
+    references: [driver.id],
+  }),
+  coordinator: one(user, {
+    fields: [transportVoucher.coordinatorId],
+    references: [user.id],
+  }),
+}));
+
 
 export const activityRelations = relations(activity, ({ one, many }) => ({
   activityVendor: one(activityVendor, {
@@ -773,16 +827,41 @@ export const activityVouchersRelations = relations(
   }),
 );
 
+export const shopRelations = relations(shop, ({ one, many }) => ({
+  shopTypes: many(shopShopType),  // Relation to the join table 'shop_shop_type'
+  shopVouchers: many(shopVoucher), // Relation to the 'shop_vouchers' table
+  city: one(city, {
+    fields: [shop.cityId],
+    references: [city.id],
+  }),
+}));
+
+export const shopShopTypeRelations = relations(shopShopType, ({ one }) => ({
+  shop: one(shop, {
+    fields: [shopShopType.shopId],
+    references: [shop.id],
+  }),
+  shopType: one(shopType, {
+    fields: [shopShopType.shopTypeId],
+    references: [shopType.id],
+  }),
+}));
+
 export const shopVouchersRelations = relations(shopVoucher, ({ one }) => ({
-  booking: one(booking, {
+  bookingLine: one(bookingLine, {
     fields: [shopVoucher.bookingLineId],
-    references: [booking.id],
+    references: [bookingLine.id],
   }),
   shop: one(shop, {
     fields: [shopVoucher.shopId],
     references: [shop.id],
   }),
+  coordinator: one(user, {
+    fields: [shopVoucher.coordinatorId],
+    references: [user.id],
+  }),
 }));
+
 
 export const accounts = createTable(
   "account",
