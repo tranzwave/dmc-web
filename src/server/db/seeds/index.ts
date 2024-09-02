@@ -8,6 +8,7 @@ export {default as driver} from "./driver"
 export {default as language} from "./language"
 export {default as activityVendor} from "./activityVendor"
 export {default as shop} from "./shop"
+export {default as user} from "./user"
 
 
 

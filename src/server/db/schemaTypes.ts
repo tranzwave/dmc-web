@@ -1,4 +1,4 @@
-import { hotel, driver, activityVendor, shop, booking, bookingLine, hotelVoucher, restaurantVoucher, transportVoucher, activityVoucher, shopVoucher, restaurant, restaurantMeal, hotelStaff, hotelRoom, hotelVoucherLine, tenant, city, client, agent, user, country, restaurantVoucherLine } from './schema'
+import { hotel, driver, activityVendor, shop, booking, bookingLine, hotelVoucher, restaurantVoucher, transportVoucher, activityVoucher, shopVoucher, restaurant, restaurantMeal, hotelStaff, hotelRoom, hotelVoucherLine, tenant, city, client, agent, user, country, restaurantVoucherLine, activityType, activity } from './schema'
 
 //Country Types
 export type InsertCountry = typeof country.$inferInsert;
@@ -43,8 +43,15 @@ export type InsertDriver = typeof driver.$inferInsert;
 export type SelectDriver = typeof driver.$inferSelect;
 
 // Activity Vendor Types
-export type InsertActivity = typeof activityVendor.$inferInsert;
-export type SelectActivity = typeof activityVendor.$inferSelect;
+export type InsertActivity = typeof activity.$inferInsert;
+export type SelectActivity = typeof activity.$inferSelect;
+
+export type InsertActivityType = typeof activityType.$inferInsert;
+export type SelectActivityType = typeof activityType.$inferSelect;
+
+export type InsertActivityVendor = typeof activityVendor.$inferInsert;
+export type SelectActivityVendor = typeof activityVendor.$inferSelect;
+
 
 // Shop Types
 export type InsertShop = typeof shop.$inferInsert;

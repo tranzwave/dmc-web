@@ -16,12 +16,15 @@ import {
   client,
   restaurantVoucher,
   restaurantVoucherLine,
+  activityVoucher,
 } from "../../schema";
 import {
+  ActivityVoucher,
   BookingDetails,
   HotelVoucher,
   RestaurantVoucher,
 } from "~/app/dashboard/bookings/add/context";
+import { PgTransaction } from "drizzle-orm/pg-core";
 
 export const getAllBookings = () => {
   return db.query.booking.findMany();
@@ -52,6 +55,158 @@ export const getBookingLineById = (id: string) => {
   });
 };
 
+// export const createNewBooking = async (
+//   bookingDetails: BookingDetails,
+//   newBooking?: InsertBooking,
+//   generalData?: any,
+//   parentBookingId?: string,
+//   hotelVouchers?: HotelVoucher[],
+//   restaurantVouchers?: any,
+//   activityVouchers?: any,
+//   shopsVouchers?: any,
+// ) => {
+//   try {
+//     const tenantExist = await db.query.tenant.findFirst();
+
+//     if (!tenantExist) {
+//       throw new Error("Couldn't find a tenant");
+//     }
+//     const tenantId = tenantExist.id;
+
+//     let parentBooking;
+
+//     //Create client
+//     const bookingClient = await createClient({
+//       name: bookingDetails.general.clientName,
+//       country: bookingDetails.general.country,
+//       primaryEmail: bookingDetails.general.primaryEmail,
+//       tenantId: tenantId,
+//     });
+
+//     // Check if the parent booking exists
+//     if (parentBookingId) {
+//       parentBooking = await db.query.booking.findFirst({
+//         where: eq(booking.id, parentBookingId),
+//       });
+//     }
+
+//     // If no parentBookingId, create a new parent booking
+//     if (!parentBooking) {
+//       parentBooking = await db
+//         .insert(booking)
+//         .values({
+//           agentId: bookingDetails.general.agent,
+//           clientId: bookingClient.id,
+//           coordinatorId: bookingDetails.general.marketingManager,
+//           managerId: bookingDetails.general.marketingManager,
+//           tenantId: tenantId,
+//           tourType: bookingDetails.general.tourType,
+//         })
+//         .returning();
+
+//       if (
+//         !parentBooking ||
+//         !Array.isArray(parentBooking) ||
+//         !parentBooking[0]?.id
+//       ) {
+//         throw new Error("Couldn't add new parent booking");
+//       }
+//     }
+
+//     // Now we know parentBooking is an array with at least one item
+//     const parentBookingIdToUse = Array.isArray(parentBooking)
+//       ? parentBooking[0]?.id || ""
+//       : parentBooking.id;
+
+//     // Create a new booking line
+//     const newBookingLineGeneral: InsertBookingLine = {
+//       bookingId: parentBookingIdToUse,
+//       adultsCount: 2,
+//       kidsCount: 2,
+//       startDate: new Date(bookingDetails.general.startDate),
+//       endDate: new Date(bookingDetails.general.endDate),
+//       includes: {
+//         hotels: true,
+//         transport: true,
+//         activities: true,
+//       },
+//     };
+
+//     const lineId = await createBookingLine(newBookingLineGeneral);
+
+//     if (!lineId) {
+//       throw new Error("Couldn't add new booking line");
+//     }
+
+//     // Handle hotel vouchers
+//     if (bookingDetails.general.includes.hotels) {
+//       await insertHotelVouchers(
+//         bookingDetails.vouchers,
+//         lineId,
+//         bookingDetails.general.marketingManager,
+//       );
+//     }
+
+//     if (bookingDetails.general.includes.hotels) {
+//       await insertRestaurantVouchers(
+//         bookingDetails.restaurants,
+//         lineId,
+//         bookingDetails.general.marketingManager,
+//       );
+//     }
+
+//     if(bookingDetails.general.includes.activities){
+//       await insertActivityVouchers(
+//         bookingDetails.activities,
+//         lineId,
+//         bookingDetails.general.marketingManager
+//       )
+//     }
+//     // Handle other vouchers similarly (e.g., restaurant, activity, shops)
+
+//     return lineId;
+//   } catch (error) {
+//     console.error("Error in createNewBooking:", error);
+//     throw error;
+//   }
+// };
+
+// export const createClient = async (data: InsertClient) => {
+//   //check if client exists
+//   const existingClient = await db.query.client.findFirst({
+//     where: and(
+//       eq(client.tenantId, data.tenantId),
+//       eq(client.name, data.name),
+//       eq(client.primaryEmail, data.primaryEmail),
+//     ),
+//   });
+
+//   if (!existingClient) {
+//     const newClient = await db.insert(client).values(data).returning();
+
+//     if (!newClient || !newClient[0]) {
+//       throw new Error("Couldn't create client");
+//     }
+
+//     return newClient[0];
+//   }
+
+//   return existingClient;
+
+//   //Create new client if client doesnt exist
+// };
+
+// export const createBookingLine = async (
+//   data: InsertBookingLine,
+// ): Promise<string> => {
+//   const newBookingLine = await db.insert(bookingLine).values(data).returning();
+
+//   if (!newBookingLine || !newBookingLine[0]?.id) {
+//     throw new Error("Couldn't add booking line");
+//   }
+//   return newBookingLine[0].id;
+// };
+
 export const createNewBooking = async (
   bookingDetails: BookingDetails,
   newBooking?: InsertBooking,
@@ -63,106 +218,124 @@ export const createNewBooking = async (
   shopsVouchers?: any,
 ) => {
   try {
-    const tenantExist = await db.query.tenant.findFirst();
+    // Start a transaction
+    const result = await db.transaction(async (tx) => {
+      const tenantExist = await tx.query.tenant.findFirst();
 
-    if (!tenantExist) {
-      throw new Error("Couldn't find a tenant");
-    }
-    const tenantId = tenantExist.id;
+      if (!tenantExist) {
+        throw new Error("Couldn't find a tenant");
+      }
+      const tenantId = tenantExist.id;
 
-    let parentBooking;
+      let parentBooking;
 
-    //Create client
-    const bookingClient = await createClient({
-      name: bookingDetails.general.clientName,
-      country: bookingDetails.general.country,
-      primaryEmail: bookingDetails.general.primaryEmail,
-      tenantId: tenantId,
+      // Create client within the transaction
+      const bookingClient = await createClientTx(tx, {
+        name: bookingDetails.general.clientName,
+        country: bookingDetails.general.country,
+        primaryEmail: bookingDetails.general.primaryEmail,
+        tenantId: tenantId,
+      });
+
+      // Check if the parent booking exists
+      if (parentBookingId) {
+        parentBooking = await tx.query.booking.findFirst({
+          where: eq(booking.id, parentBookingId),
+        });
+      }
+
+      // If no parentBookingId, create a new parent booking
+      if (!parentBooking) {
+        parentBooking = await tx
+          .insert(booking)
+          .values({
+            agentId: bookingDetails.general.agent,
+            clientId: bookingClient.id,
+            coordinatorId: bookingDetails.general.marketingManager,
+            managerId: bookingDetails.general.marketingManager,
+            tenantId: tenantId,
+            tourType: bookingDetails.general.tourType,
+          })
+          .returning();
+
+        if (
+          !parentBooking ||
+          !Array.isArray(parentBooking) ||
+          !parentBooking[0]?.id
+        ) {
+          throw new Error("Couldn't add new parent booking");
+        }
+      }
+
+      // Now we know parentBooking is an array with at least one item
+      const parentBookingIdToUse = Array.isArray(parentBooking)
+        ? parentBooking[0]?.id || ""
+        : parentBooking.id;
+
+      // Create a new booking line within the transaction
+      const newBookingLineGeneral: InsertBookingLine = {
+        bookingId: parentBookingIdToUse,
+        adultsCount: 2,
+        kidsCount: 2,
+        startDate: new Date(bookingDetails.general.startDate),
+        endDate: new Date(bookingDetails.general.endDate),
+        includes: {
+          hotels: true,
+          transport: true,
+          activities: true,
+        },
+      };
+
+      const lineId = await createBookingLineTx(tx, newBookingLineGeneral);
+
+      if (!lineId) {
+        throw new Error("Couldn't add new booking line");
+      }
+
+      // Handle hotel vouchers within the transaction
+      if (bookingDetails.general.includes.hotels) {
+        await insertHotelVouchersTx(
+          tx,
+          bookingDetails.vouchers,
+          lineId,
+          bookingDetails.general.marketingManager,
+        );
+      }
+
+      // Handle restaurant vouchers within the transaction
+      if (bookingDetails.general.includes.hotels) {
+        await insertRestaurantVouchersTx(
+          tx,
+          bookingDetails.restaurants,
+          lineId,
+          bookingDetails.general.marketingManager,
+        );
+      }
+
+      // Handle activity vouchers within the transaction
+      if (bookingDetails.general.includes.activities) {
+        await insertActivityVouchersTx(
+          tx,
+          bookingDetails.activities,
+          lineId,
+          bookingDetails.general.marketingManager,
+        );
+      }
+
+      // Return the final booking line id
+      return lineId;
     });
 
-    // Check if the parent booking exists
-    if (parentBookingId) {
-      parentBooking = await db.query.booking.findFirst({
-        where: eq(booking.id, parentBookingId),
-      });
-    }
-
-    // If no parentBookingId, create a new parent booking
-    if (!parentBooking) {
-      parentBooking = await db
-        .insert(booking)
-        .values({
-          agentId: bookingDetails.general.agent,
-          clientId: bookingClient.id,
-          coordinatorId: bookingDetails.general.marketingManager,
-          managerId: bookingDetails.general.marketingManager,
-          tenantId: tenantId,
-          tourType: bookingDetails.general.tourType,
-        })
-        .returning();
-
-      if (
-        !parentBooking ||
-        !Array.isArray(parentBooking) ||
-        !parentBooking[0]?.id
-      ) {
-        throw new Error("Couldn't add new parent booking");
-      }
-    }
-
-    // Now we know parentBooking is an array with at least one item
-    const parentBookingIdToUse = Array.isArray(parentBooking)
-      ? parentBooking[0]?.id || ""
-      : parentBooking.id;
-
-    // Create a new booking line
-    const newBookingLineGeneral: InsertBookingLine = {
-      bookingId: parentBookingIdToUse,
-      adultsCount: 2,
-      kidsCount: 2,
-      startDate: new Date(bookingDetails.general.startDate),
-      endDate: new Date(bookingDetails.general.endDate),
-      includes: {
-        hotels: true,
-        transport: true,
-        activities: true,
-      },
-    };
-
-    const lineId = await createBookingLine(newBookingLineGeneral);
-
-    if (!lineId) {
-      throw new Error("Couldn't add new booking line");
-    }
-
-    // Handle hotel vouchers
-    if (bookingDetails.general.includes.hotels) {
-      await insertHotelVouchers(
-        bookingDetails.vouchers,
-        lineId,
-        bookingDetails.general.marketingManager,
-      );
-    }
-
-    if(bookingDetails.general.includes.hotels){
-        await insertRestaurantVouchers(
-            bookingDetails.restaurants,
-            lineId,
-            bookingDetails.general.marketingManager
-        )
-    }
-    // Handle other vouchers similarly (e.g., restaurant, activity, shops)
-
-    return lineId;
+    return result;
   } catch (error) {
     console.error("Error in createNewBooking:", error);
     throw error;
   }
 };
 
-export const createClient = async (data: InsertClient) => {
-  //check if client exists
-  const existingClient = await db.query.client.findFirst({
+// Transactional functions for handling each operation
+export const createClientTx = async (tx:any, data: InsertClient) => {
+  const existingClient = await tx.query.client.findFirst({
     where: and(
       eq(client.tenantId, data.tenantId),
       eq(client.name, data.name),
@@ -171,7 +344,7 @@ export const createClient = async (data: InsertClient) => {
   });
 
   if (!existingClient) {
-    const newClient = await db.insert(client).values(data).returning();
+    const newClient = await tx.insert(client).values(data).returning();
 
     if (!newClient || !newClient[0]) {
       throw new Error("Couldn't create client");
@@ -181,14 +354,10 @@ export const createClient = async (data: InsertClient) => {
   }
 
   return existingClient;
-
-  //Create new client if client doesnt exist
 };
 
-export const createBookingLine = async (
-  data: InsertBookingLine,
-): Promise<string> => {
-  const newBookingLine = await db.insert(bookingLine).values(data).returning();
+export const createBookingLineTx = async (tx:any, data: InsertBookingLine): Promise<string> => {
+  const newBookingLine = await tx.insert(bookingLine).values(data).returning();
 
   if (!newBookingLine || !newBookingLine[0]?.id) {
     throw new Error("Couldn't add booking line");
@@ -196,7 +365,9 @@ export const createBookingLine = async (
   return newBookingLine[0].id;
 };
 
-export const insertHotelVouchers = async (
+
+export const insertHotelVouchersTx = async (
+  trx: any, // Replace with actual transaction type
   vouchers: HotelVoucher[],
   newBookingLineId: string,
   coordinatorId: string,
@@ -204,7 +375,7 @@ export const insertHotelVouchers = async (
   const hotelVouchers = await Promise.all(
     vouchers.map(async (currentVoucher) => {
       // Add a voucher
-      const newVoucher = await db
+      const newVoucher = await trx
         .insert(hotelVoucher)
         .values({
           bookingLineId: newBookingLineId,
@@ -214,16 +385,15 @@ export const insertHotelVouchers = async (
         .returning();
 
       if (!newVoucher || !newVoucher[0]?.id) {
-        throw new Error("Couldn't add voucher");
+        throw new Error("Couldn't add hotel voucher");
       }
 
       const voucherId = newVoucher[0]?.id;
 
-      console.log(voucherId);
       // Add voucher lines
       const voucherLines = await Promise.all(
         currentVoucher.voucherLines.map(async (currentVoucherLine) => {
-          const newVoucherLine = await db
+          const newVoucherLine = await trx
             .insert(hotelVoucherLine)
             .values({
               adultsCount: currentVoucherLine.adultsCount,
@@ -240,7 +410,7 @@ export const insertHotelVouchers = async (
             .returning();
 
           if (!newVoucherLine || !newVoucherLine[0]?.id) {
-            throw new Error("Couldn't add voucher line");
+            throw new Error("Couldn't add hotel voucher line");
           }
 
           return newVoucherLine[0].id;
@@ -255,15 +425,17 @@ export const insertHotelVouchers = async (
   return hotelVouchers;
 };
 
-export const insertRestaurantVouchers = async (
+
+export const insertRestaurantVouchersTx = async (
+  trx: any, // Replace with actual transaction type
   vouchers: RestaurantVoucher[],
   newBookingLineId: string,
   coordinatorId: string,
 ) => {
   const restaurantVouchers = await Promise.all(
     vouchers.map(async (currentVoucher) => {
-      //Add a voucher
-      const newVoucher = await db
+      // Add a voucher
+      const newVoucher = await trx
         .insert(restaurantVoucher)
         .values({
           bookingLineId: newBookingLineId,
@@ -273,16 +445,15 @@ export const insertRestaurantVouchers = async (
         .returning();
 
       if (!newVoucher || !newVoucher[0]?.id) {
-        throw new Error("Couldn't add voucher");
+        throw new Error("Couldn't add restaurant voucher");
       }
 
       const voucherId = newVoucher[0]?.id;
 
-      console.log(voucherId);
-
+      // Add voucher lines
       const voucherLines = await Promise.all(
         currentVoucher.voucherLines.map(async (currentVoucherLine) => {
-          const newVoucherLine = await db
+          const newVoucherLine = await trx
             .insert(restaurantVoucherLine)
             .values({
               adultsCount: currentVoucherLine.adultsCount,
@@ -295,7 +466,7 @@ export const insertRestaurantVouchers = async (
             .returning();
 
           if (!newVoucherLine || !newVoucherLine[0]?.id) {
-            throw new Error("Couldn't add voucher line");
+            throw new Error("Couldn't add restaurant voucher line");
           }
 
           return newVoucherLine[0].id;
@@ -309,3 +480,180 @@ export const insertRestaurantVouchers = async (
 
   return restaurantVouchers;
 };
+
+
+export const insertActivityVouchersTx = async (
+  trx: any, // Replace with actual transaction type
+  vouchers: ActivityVoucher[],
+  newBookingLineId: string,
+  coordinatorId: string,
+) => {
+  const activityVouchers = await Promise.all(
+    vouchers.map(async (currentVoucher) => {
+      const newVoucher = await trx
+        .insert(activityVoucher)
+        .values({
+          ...currentVoucher.voucher,
+          coordinatorId: coordinatorId,
+          bookingLineId: newBookingLineId,
+        })
+        .returning();
+
+      if (!newVoucher || !newVoucher[0]?.id) {
+        throw new Error("Couldn't add activity voucher");
+      }
+
+      const voucherId = newVoucher[0]?.id;
+
+      return voucherId;
+    }),
+  );
+  return activityVouchers;
+};
+
+
+
+
+// export const insertHotelVouchers = async (
+//   vouchers: HotelVoucher[],
+//   newBookingLineId: string,
+//   coordinatorId: string,
+// ) => {
+//   const hotelVouchers = await Promise.all(
+//     vouchers.map(async (currentVoucher) => {
+//       // Add a voucher
+//       const newVoucher = await db
+//         .insert(hotelVoucher)
+//         .values({
+//           bookingLineId: newBookingLineId,
+//           coordinatorId: coordinatorId,
+//           hotelId: currentVoucher.hotel.id,
+//         })
+//         .returning();
+
+//       if (!newVoucher || !newVoucher[0]?.id) {
+//         throw new Error("Couldn't add voucher");
+//       }
+
+//       const voucherId = newVoucher[0]?.id;
+
+//       console.log(voucherId);
+//       // Add voucher lines
+//       const voucherLines = await Promise.all(
+//         currentVoucher.voucherLines.map(async (currentVoucherLine) => {
+//           const newVoucherLine = await db
+//             .insert(hotelVoucherLine)
+//             .values({
+//               adultsCount: currentVoucherLine.adultsCount,
+//               kidsCount: currentVoucherLine.kidsCount,
+//               roomCount: currentVoucherLine.roomCount,
+//               checkInDate: currentVoucherLine.checkInDate,
+//               checkInTime: currentVoucherLine.checkInTime,
+//               checkOutDate: currentVoucherLine.checkOutDate,
+//               checkOutTime: currentVoucherLine.checkOutTime,
+//               basis: currentVoucherLine.basis,
+//               roomType: currentVoucherLine.roomType,
+//               hotelVoucherId: voucherId,
+//             })
+//             .returning();
+
+//           if (!newVoucherLine || !newVoucherLine[0]?.id) {
+//             throw new Error("Couldn't add voucher line");
+//           }
+
+//           return newVoucherLine[0].id;
+//         }),
+//       );
+
+//       // Return a map of voucherId to voucherLineIds
+//       return { voucherId, voucherLines };
+//     }),
+//   );
+
+//   return hotelVouchers;
+// };
+
+// export const insertRestaurantVouchers = async (
+//   vouchers: RestaurantVoucher[],
+//   newBookingLineId: string,
+//   coordinatorId: string,
+// ) => {
+//   const restaurantVouchers = await Promise.all(
+//     vouchers.map(async (currentVoucher) => {
+//       //Add a voucher
+//       const newVoucher = await db
+//         .insert(restaurantVoucher)
+//         .values({
+//           bookingLineId: newBookingLineId,
+//           coordinatorId: coordinatorId,
+//           restaurantId: currentVoucher.restaurant.id,
+//         })
+//         .returning();
+
+//       if (!newVoucher || !newVoucher[0]?.id) {
+//         throw new Error("Couldn't add voucher");
+//       }
+
+//       const voucherId = newVoucher[0]?.id;
+
+//       console.log(voucherId);
+
+//       const voucherLines = await Promise.all(
+//         currentVoucher.voucherLines.map(async (currentVoucherLine) => {
+//           const newVoucherLine = await db
+//             .insert(restaurantVoucherLine)
+//             .values({
+//               adultsCount: currentVoucherLine.adultsCount,
+//               kidsCount: currentVoucherLine.kidsCount,
+//               mealType: currentVoucherLine.mealType,
+//               date: currentVoucherLine.date,
+//               time: currentVoucherLine.time,
+//               restaurantVoucherId: voucherId,
+//             })
+//             .returning();
+
+//           if (!newVoucherLine || !newVoucherLine[0]?.id) {
+//             throw new Error("Couldn't add voucher line");
+//           }
+
+//           return newVoucherLine[0].id;
+//         }),
+//       );
+
+//       // Return a map of voucherId to voucherLineIds
+//       return { voucherId, voucherLines };
+//     }),
+//   );
+
+//   return restaurantVouchers;
+// };
+
+// export const insertActivityVouchers = async (
+//   vouchers: ActivityVoucher[],
+//   newBookingLineId: string,
+//   coordinatorId: string,
+// ) => {
+//   const activityVouchers = await Promise.all(
+//     vouchers.map(async (currentVoucher) => {
+//       const newVoucher = await db
+//         .insert(activityVoucher)
+//         .values({
+//           ...currentVoucher.voucher,
+//           coordinatorId: coordinatorId,
+//           bookingLineId: newBookingLineId,
+//         })
+//         .returning();
+
+//       if (!newVoucher || !newVoucher[0]?.id) {
+//         throw new Error("Couldn't add activity voucher");
+//       }
+
+//       const voucherId = newVoucher[0]?.id;
+
+//       console.log(voucherId);
+
+//       return voucherId;
+//     }),
+//   );
+//   return activityVouchers;
+// };
