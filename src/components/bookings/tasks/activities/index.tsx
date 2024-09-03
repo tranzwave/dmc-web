@@ -4,10 +4,11 @@ import { ColumnDef } from "@tanstack/react-table";
 import { formatDate } from "~/lib/utils/index";
 import TasksTab from "~/components/common/tasksTab";
 import ActivityForm from './form';
-import { SelectActivityVoucher } from '~/server/db/schemaTypes';
+import { SelectActivity, SelectActivityVendor, SelectActivityVoucher } from '~/server/db/schemaTypes';
 
 export type ActivityVoucherData = SelectActivityVoucher & {
-
+  activity: SelectActivity,
+  activityVendor: SelectActivityVendor
 }
 
 
@@ -15,57 +16,57 @@ export type ActivityVoucherData = SelectActivityVoucher & {
 // Define specific columns for activities
 const activityColumns: ColumnDef<ActivityVoucherData>[] = [
   {
-    accessorKey: "activity.activityName",
+    header: "Vendor",
+    accessorFn: (row) => row.activityVendor.name,
+  },
+  {
     header: "Activity",
-  },
-  {
-    accessorKey: "activity.primaryEmail",
-    header: "Email",
-    cell: (info) => info.getValue() ?? "N/A",
-  },
-  {
-    accessorKey: "voucherLine",
-    header: "Voucher Lines",
-    accessorFn: (row) => row.city,
-  },
-  {
-    accessorKey: "voucherLine",
-    header: "Progress",
     accessorFn: (row) => row.activityName,
+  },
+  {
+    header: "Contact Number",
+    accessorFn: (row) => row.activityVendor.contactNumber,
+  },
+  {
+    header: "Voucher Lines",
+    accessorFn: (row) => 1,
+  },
+  {
+    header: "Progress",
+    accessorFn: (row) => 1,
   },
 ];
 
 const activityVoucherLineColumns: ColumnDef<SelectActivityVoucher>[] = [
   {
-    header: "Head Count",
-    accessorFn: (row) => `${row.participantsCount}-Adults | ${row.participantsCount}-Kids`,
+    header: "City",
+    accessorFn: row => row.city
   },
   {
-    accessorKey: "activityDate",
-    header: "Activity Date",
+    header: "Date",
     accessorFn: (row) => formatDate(row.date),
   },
   {
-    accessorKey: "activityTime",
-    header: "Activity Time",
+    header: "Time",
+    accessorFn: (row) => row.time,
   },
   {
-    accessorKey: "basis",
-    header: "Basis",
+    header: "Head Count",
+    accessorFn: (row) => `${row.participantsCount}`,
   },
   {
-    header: "Details",
+    header: "Remarks",
     accessorFn: (row) => `${row.remarks}`,
   },
 ];
 
 // Use TasksTab for Activities
-const ActivitiesTasksTab = ({ bookingLineId }: { bookingLineId: string }) => (
+const ActivitiesTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string ; vouchers:ActivityVoucherData[] }) => (
   <TasksTab
     bookingLineId={bookingLineId}
     columns={activityColumns}
     voucherColumns={activityVoucherLineColumns}
-    fetchVouchers={getActivityVouchers}
+    vouchers={vouchers}
     formComponent={ActivityForm}
   />
 );

@@ -1,7 +1,8 @@
 "use server"
 import { eq } from "drizzle-orm"
 import { db } from "~/server/db"
-import { restaurantVoucher, restaurant, restaurantMeal } from './../../../schema';
+import { restaurantVoucher, restaurant, restaurantMeal, restaurantVoucherLine } from './../../../schema';
+import { SelectRestaurantVoucher, SelectRestaurantVoucherLine } from "~/server/db/schemaTypes";
 
 
 export const getAllRestaurants = ()=>{
@@ -20,9 +21,8 @@ export const getRestaurantVouchers = (bookingLineId:string) => {
             // voucherLine: true,
             // hotel:true,
             // bookingLine:true
-            restaurantVoucherLine:true,
-            restaurant:true,
-            bookingLine:true
+            voucherLine:true,
+            restaurant:true
         }
     })
 
@@ -46,4 +46,44 @@ export const getMeals = (restaurantId:string)=>{
     // })
 
 
+    export const updateRestaurantVoucherRate = async (data: SelectRestaurantVoucherLine) => {
+        try {
+          await db.update(restaurantVoucherLine)
+            .set({ rate: data.rate })
+            .where(eq(restaurantVoucherLine.id, data.id ?? ""));
+        } catch (error) {
+          console.error(`Failed to update voucher rate for ID ${data.id}:`, error);
+          throw error; 
+        }
+      };
+    
+    
+      export const bulkUpdateRestaurantVoucherRates = async (voucherLines: SelectRestaurantVoucherLine[]) => {
+        try {
+          await db.transaction(async (trx) => {
+            
+            for (const voucherLine of voucherLines) {
+              await trx.update(restaurantVoucherLine)
+                .set({ rate: voucherLine.rate })
+                .where(eq(restaurantVoucherLine.id, voucherLine.id ?? ""));
+            }
+          });
+      
+          console.log('All voucher rates updated successfully');
+        } catch (error) {
+          console.error('Error updating voucher rates:', error);
+          throw error;
+        }
+      };
 
+
+      export const updateRestaurantVoucherStatus = async (voucher: SelectRestaurantVoucher) =>{
+        try {
+          await db.update(restaurantVoucher)
+            .set({ status: voucher.status })
+            .where(eq(restaurantVoucher.id, voucher.id ?? ""));
+        } catch (error) {
+          console.error(`Failed to update voucher rate for ID ${voucher.id}:`, error);
+          throw error; // Ensure to propagate the error for transaction handling
+        }
+      }

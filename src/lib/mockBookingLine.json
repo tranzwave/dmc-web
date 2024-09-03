@@ -39,7 +39,7 @@
             "hotel": {
                 "id": "39ee45bb-a8b6-49ce-bf42-b758b7ac5405",
                 "tenantId": "87f03e05-7db3-401f-a5de-e3ce2acdf0c2",
-                "hotelName": "Urban Retreat",
+                "name": "Urban Retreat",
                 "stars": 3,
                 "primaryEmail": "info@urbanretreat.com",
                 "primaryContactNumber": "+94115555555",
@@ -79,7 +79,7 @@
             "hotel": {
                 "id": "9b8a9c4b-3671-477a-81fe-75fb60deaf8f",
                 "tenantId": "87f03e05-7db3-401f-a5de-e3ce2acdf0c2",
-                "hotelName": "Mountain View Lodge",
+                "name": "Mountain View Lodge",
                 "stars": 4,
                 "primaryEmail": "info@mountainview.com",
                 "primaryContactNumber": "+94771234567",

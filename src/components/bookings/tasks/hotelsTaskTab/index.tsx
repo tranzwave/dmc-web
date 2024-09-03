@@ -1,16 +1,16 @@
-
-import { getHotelVouchers } from "~/server/db/queries/booking/hotelVouchers";
 import { ColumnDef } from "@tanstack/react-table";
 import HotelsForm from "./voucherForm/index";
-import {formatDate } from "~/lib/utils/index";
-import { SelectHotelVoucherLine } from "~/server/db/schemaTypes";
+import { formatDate } from "~/lib/utils/index";
+import { SelectHotelVoucher, SelectHotelVoucherLine } from "~/server/db/schemaTypes";
 import TasksTab from "~/components/common/tasksTab";
 import { HotelVoucherData } from "../hotels";
+import { bulkUpdateHotelVoucherRates, updateHotelVoucherStatus } from "~/server/db/queries/booking/hotelVouchers";
+import { useToast } from "~/hooks/use-toast";
 
 // Define specific columns for hotels
 const hotelColumns: ColumnDef<HotelVoucherData>[] = [
   {
-    accessorKey: "hotel.hotelName",
+    accessorKey: "hotel.name",
     header: "Hotel",
   },
   {
@@ -55,15 +55,61 @@ const hotelVoucherLineColumns: ColumnDef<SelectHotelVoucherLine>[] = [
   },
 ];
 
-// Use TasksTab for Hotels
-const HotelsTasksTab = ({ bookingLineId }: { bookingLineId: string }) => (
+
+
+
+
+
+// Update the HotelsTasksTab component to receive vouchers as a prop
+const HotelsTasksTab = ({
+  bookingLineId,
+  vouchers,
+}: {
+  bookingLineId: string;
+  vouchers: HotelVoucherData[]; // Accept vouchers as a prop
+}) => {
+  const {toast} = useToast()
+  const updateVoucherLine = async (voucherLine: any[]) => {
+    alert("Updating voucher line:");
+    try{
+      const bulkUpdateResponse = bulkUpdateHotelVoucherRates(voucherLine)
+  
+      if(!bulkUpdateResponse){
+        throw new Error("Failed")
+      }
+    } catch(error){
+      console.error("Error updating voucher line:", error);
+      alert("Failed to update voucher line. Please try again.");
+    }
+  };
+  const updateVoucherStatus = async (voucher: SelectHotelVoucher)=>{
+    alert("Updating voucher status:");
+    try{
+      const voucherUpdateResponse = updateHotelVoucherStatus(voucher)
+  
+      if(!voucherUpdateResponse){
+        throw new Error("Failed")
+      }
+      return true
+    } catch(error){
+      console.error("Error updating voucher line:", error);
+      toast({
+        title: "Error",
+        description: "Error while updating the voucher status",
+      })
+      return false
+    }
+  }
+  return (
   <TasksTab
     bookingLineId={bookingLineId}
     columns={hotelColumns}
     voucherColumns={hotelVoucherLineColumns}
-    fetchVouchers={getHotelVouchers}
+    vouchers={vouchers} // Pass vouchers directly to TasksTab
     formComponent={HotelsForm}
+    updateVoucherLine={updateVoucherLine}
+    updateVoucherStatus={updateVoucherStatus}
   />
-);
+)};
 
 export default HotelsTasksTab;

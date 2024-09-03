@@ -6,7 +6,7 @@ export type HotelDTO = {
     updatedAt?: Date | null;
     tenantId: string;
     primaryEmail: string;
-    hotelName: string;
+    name: string;
     stars: number;
     primaryContactNumber: string;
     streetName: string;

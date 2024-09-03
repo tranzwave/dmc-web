@@ -77,7 +77,7 @@ export const getBookingLineWithAllData = (id:string) => {
       restaurantVouchers: {
         with: {
           restaurant: true,
-          restaurantVoucherLine: true
+          voucherLine: true
         }
       },
       transportVouchers: {

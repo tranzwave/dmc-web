@@ -308,7 +308,7 @@ export const shopsMockData: Shop[] = [
 
 export const hotelsMockData: Hotel[] = [
   {
-    hotelName: "The Plaza",
+    name: "The Plaza",
     quantity: 2,
     roomCount: 4,
     checkInDate: "2024-08-01",
@@ -320,7 +320,7 @@ export const hotelsMockData: Hotel[] = [
     remarks: "Include spa access"
   },
   {
-    hotelName: "Grand Hyatt",
+    name: "Grand Hyatt",
     quantity: 1,
     roomCount: 2,
     checkInDate: "2024-08-02",
@@ -332,7 +332,7 @@ export const hotelsMockData: Hotel[] = [
     remarks: "Sea view room"
   },
   {
-    hotelName: "Hilton Garden Inn",
+    name: "Hilton Garden Inn",
     quantity: 3,
     roomCount: 6,
     checkInDate: "2024-08-03",
@@ -343,7 +343,7 @@ export const hotelsMockData: Hotel[] = [
     basis: "Full Board"
   },
   {
-    hotelName: "Marriott Marquis",
+    name: "Marriott Marquis",
     quantity: 2,
     roomCount: 4,
     checkInDate: "2024-08-04",
@@ -355,7 +355,7 @@ export const hotelsMockData: Hotel[] = [
     remarks: "Free airport shuttle"
   },
   {
-    hotelName: "Ritz-Carlton",
+    name: "Ritz-Carlton",
     quantity: 1,
     roomCount: 1,
     checkInDate: "2024-08-05",
@@ -367,7 +367,7 @@ export const hotelsMockData: Hotel[] = [
     remarks: "Private butler service"
   },
   {
-    hotelName: "Sheraton",
+    name: "Sheraton",
     quantity: 4,
     roomCount: 8,
     checkInDate: "2024-08-06",
@@ -379,7 +379,7 @@ export const hotelsMockData: Hotel[] = [
     remarks: "Adjoining rooms"
   },
   {
-    hotelName: "Holiday Inn",
+    name: "Holiday Inn",
     quantity: 2,
     roomCount: 2,
     checkInDate: "2024-08-07",
@@ -391,7 +391,7 @@ export const hotelsMockData: Hotel[] = [
     remarks: "Late check-out"
   },
   {
-    hotelName: "Four Seasons",
+    name: "Four Seasons",
     quantity: 1,
     roomCount: 1,
     checkInDate: "2024-08-08",
@@ -403,7 +403,7 @@ export const hotelsMockData: Hotel[] = [
     remarks: "Ocean view"
   },
   {
-    hotelName: "InterContinental",
+    name: "InterContinental",
     quantity: 3,
     roomCount: 3,
     checkInDate: "2024-08-09",
@@ -414,7 +414,7 @@ export const hotelsMockData: Hotel[] = [
     basis: "Bed and Breakfast"
   },
   {
-    hotelName: "Westin",
+    name: "Westin",
     quantity: 1,
     roomCount: 2,
     checkInDate: "2024-08-10",

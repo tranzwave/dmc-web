@@ -25,7 +25,7 @@ interface SidePanelProps {
 
 const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string>();
+  const [errorD, setError] = useState<string>();
   const [hotelVouchers, setHotelVouchers] = useState<HotelVoucherData[]>([]);
   const [transportVouchers, setTransportVouchers] = useState<any[]>([]);
   const [activityVouchers, setActivityVouchers] = useState<any[]>([]);
@@ -38,6 +38,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
       // Run both requests in parallel
       setLoading(true);
       if (!booking) {
+        console.log("Error fetching booking vouchers")
         throw new Error("Can't fetch the booking");
       }
       const [
@@ -56,22 +57,27 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
 
       // Check for errors in the responses
       if (!hotelVoucherResponse) {
+        console.log("Error fetching hotel vouchers")
         throw new Error("Error fetching hotel vouchers");
       }
 
       if (!transportVoucherResponse) {
+        console.log("Error fetching transport vouchers")
         throw new Error("Error fetching transport vouchers");
       }
 
       if (!activityVoucherResponse) {
+        console.log("Error fetching activity vouchers")
         throw new Error("Error fetching activity vouchers");
       }
 
       if (!shopVoucherResponse) {
+        console.log("Error fetching shops vouchers")
         throw new Error("Error fetching shops vouchers");
       }
 
       if (!restaurantVoucherResponse) {
+        console.log("Error fetching restaurant vouchers")
         throw new Error("Error fetching restaurant vouchers");
       }
 
@@ -96,6 +102,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
         setError("An unknown error occurred");
       }
       console.error("Error fetching data:", error);
+      setLoading(false)
     }
   };
 
@@ -145,7 +152,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
         </div>
         <div className="w-1/5">
           <div className="flex h-full items-end justify-end">
-            <Link href={`${pathname}/${booking.id}/tasks`}>
+            <Link href={`${pathname}/${booking.id}/tasks?tab=${category.title.toLowerCase()}`}>
               <Button variant={"outline"}>Proceed</Button>
             </Link>
           </div>
@@ -190,7 +197,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
         vouchersToFinalize: transportVouchers?.length || 0,
       })}
       {renderCard({
-        title: "Activity",
+        title: "Activities",
         totalVouchers: activityVouchers?.length || 0,
         done: 0,
         locked: activityVouchers?.length || 0 > 0 ? false : true,

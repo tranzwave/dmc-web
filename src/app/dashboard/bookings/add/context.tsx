@@ -81,7 +81,7 @@ const defaultGeneral: General = {
 };
 
 const defaultHotel: Hotel = {
-  hotelName: "",
+  name: "",
   quantity: 0,
   roomCount: 0,
   checkInDate: "",
