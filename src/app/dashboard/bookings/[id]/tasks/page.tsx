@@ -7,29 +7,39 @@ import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { BookingSchema } from "~/lib/api"; // Adjust the import path as necessary
 import { BookingDetails } from "../../add/context";
-import HotelsTasksTab from "~/components/bookings/tasks/hotels";
 import {
   getBookingById,
   getBookingLineById,
+  getBookingLineWithAllData,
 } from "~/server/db/queries/booking";
 import { SelectBookingLine } from "~/server/db/schemaTypes";
+import HotelsTasksTab from "~/components/bookings/tasks/hotelsTaskTab";
+import RestaurantsTasksTab from "~/components/bookings/tasks/restaurants";
+import ActivitiesTasksTab from "~/components/bookings/tasks/activities";
+import ShopsTasksTab from "~/components/bookings/tasks/shops";
+import TransportTasksTab from "~/components/bookings/tasks/transport";
+import { BookingLineWithAllData } from "~/lib/types/booking";
+// import HotelsTasksTab from "~/components/bookings/tasks/hotels";
 
 const Page = ({ params }: { params: { id: string } }) => {
   const pathname = usePathname();
   const [booking, setBooking] = useState<SelectBookingLine>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [bookingLine, setBookingLine] = useState<BookingLineWithAllData>()
 
   // Fetch the booking details when the component mounts
   const fetchBooking = async () => {
     setLoading(true)
     try {
       const booking = await getBookingLineById(params.id);
-      console.log(booking)
-      if (!booking) {
+      const bookingLineData = await getBookingLineWithAllData(params.id)
+      console.log(bookingLineData)
+      if (!booking || !bookingLineData) {
         setError("Booking not found");
       }
       setBooking(booking);
+      setBookingLine(bookingLineData)
       setLoading(false)
     } catch (error) {
       console.error(error);
@@ -74,7 +84,6 @@ const Page = ({ params }: { params: { id: string } }) => {
                 <TabsTrigger value="activities">Activities</TabsTrigger>
                 <TabsTrigger value="transport">Transport</TabsTrigger>
                 <TabsTrigger value="shops">Shops</TabsTrigger>
-                <TabsTrigger value="submit">Submit</TabsTrigger>
               </TabsList>
               <TabsContent value="general">
                 {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
@@ -83,21 +92,23 @@ const Page = ({ params }: { params: { id: string } }) => {
               <TabsContent value="hotels">
                 {/* <HotelsTab onAddHotel={addHotel} /> */}
                 <HotelsTasksTab bookingLineId={params.id} />
+                {/* <HotelsTasksTab bookingLineId={params.id}/> */}
               </TabsContent>
               <TabsContent value="restaurants">
                 {/* <RestaurantsTab onAddRestaurant={addRestaurant} /> */}
-                Restaurants Tasks
+                <RestaurantsTasksTab bookingLineId={params.id}/>
               </TabsContent>
               <TabsContent value="activities">
                 {/* <ActivitiesTab onAddActivity={addActivity} /> */}
-                Activities Tasks
+                <ActivitiesTasksTab bookingLineId={params.id}/>
               </TabsContent>
               <TabsContent value="transport">
                 {/* <TransportTab onAddTransport={addTransport} /> */}
-                Transport Tasks
+                <TransportTasksTab bookingLineId={params.id}/>
               </TabsContent>
-              <TabsContent value="shops">Shops Tasks</TabsContent>
-              <TabsContent value="submit">Submit Tasks</TabsContent>
+              <TabsContent value="shops">
+                <ShopsTasksTab bookingLineId={params.id}/>
+              </TabsContent>
             </Tabs>
           </div>
         </div>

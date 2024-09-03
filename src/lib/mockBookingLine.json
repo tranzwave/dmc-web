@@ -1,0 +1,282 @@
+{
+    "id": "3da9b98d-ca43-42e5-90e3-1148d5d1874a",
+    "bookingId": "fba281e5-4200-416e-9260-92273238ee5f",
+    "includes": {
+        "hotels": true,
+        "transport": true,
+        "activities": true
+    },
+    "adultsCount": 2,
+    "kidsCount": 2,
+    "startDate": "2024-09-17T00:00:00.000Z",
+    "endDate": "2024-09-28T00:00:00.000Z",
+    "booking": {
+        "id": "fba281e5-4200-416e-9260-92273238ee5f",
+        "tenantId": "87f03e05-7db3-401f-a5de-e3ce2acdf0c2",
+        "clientId": "ba633649-362d-4cfa-900c-2cae7a73530f",
+        "agentId": "2af5dea6-1216-4817-acf6-72b79fc1cbbd",
+        "coordinatorId": "ae7c2960-ea2b-4c5c-bae7-553ec6af9c77",
+        "managerId": "ae7c2960-ea2b-4c5c-bae7-553ec6af9c77",
+        "tourType": "Adventure",
+        "client": {
+            "id": "ba633649-362d-4cfa-900c-2cae7a73530f",
+            "tenantId": "87f03e05-7db3-401f-a5de-e3ce2acdf0c2",
+            "country": "AUS",
+            "name": "Ishan Fernando",
+            "primaryEmail": "ishan@gmail.com",
+            "createdAt": "2024-09-02T16:14:52.034Z",
+            "updatedAt": "2024-09-02T16:14:52.034Z"
+        }
+    },
+    "hotelVouchers": [
+        {
+            "id": "fb7064c2-80fc-4bbe-b7db-e69d0e9970df",
+            "bookingLineId": "3da9b98d-ca43-42e5-90e3-1148d5d1874a",
+            "hotelId": "39ee45bb-a8b6-49ce-bf42-b758b7ac5405",
+            "coordinatorId": "ae7c2960-ea2b-4c5c-bae7-553ec6af9c77",
+            "createdAt": "2024-09-02T16:14:52.034Z",
+            "updatedAt": "2024-09-02T16:14:52.034Z",
+            "hotel": {
+                "id": "39ee45bb-a8b6-49ce-bf42-b758b7ac5405",
+                "tenantId": "87f03e05-7db3-401f-a5de-e3ce2acdf0c2",
+                "hotelName": "Urban Retreat",
+                "stars": 3,
+                "primaryEmail": "info@urbanretreat.com",
+                "primaryContactNumber": "+94115555555",
+                "streetName": "Main Street",
+                "province": "Western Province",
+                "hasRestaurant": false,
+                "createdAt": "2024-09-02T14:07:14.772Z",
+                "updatedAt": "2024-09-02T14:07:14.772Z",
+                "cityId": 1
+            },
+            "voucherLine": [
+                {
+                    "id": "0eb6f011-7224-4cc2-871c-e22cd587e907",
+                    "hotelVoucherId": "fb7064c2-80fc-4bbe-b7db-e69d0e9970df",
+                    "roomType": "Single",
+                    "basis": "HB",
+                    "checkInDate": "2024-09-19",
+                    "checkInTime": "11:45:00",
+                    "checkOutDate": "2024-09-26",
+                    "checkOutTime": "12:45:00",
+                    "adultsCount": 3,
+                    "kidsCount": 3,
+                    "roomCount": 3,
+                    "remarks": "No Remarks",
+                    "createdAt": "2024-09-02T16:14:52.034Z",
+                    "updatedAt": "2024-09-02T16:14:52.034Z"
+                }
+            ]
+        },
+        {
+            "id": "15a8cc95-d511-498a-9ab1-d391561e2cc2",
+            "bookingLineId": "3da9b98d-ca43-42e5-90e3-1148d5d1874a",
+            "hotelId": "9b8a9c4b-3671-477a-81fe-75fb60deaf8f",
+            "coordinatorId": "ae7c2960-ea2b-4c5c-bae7-553ec6af9c77",
+            "createdAt": "2024-09-02T16:14:52.034Z",
+            "updatedAt": "2024-09-02T16:14:52.034Z",
+            "hotel": {
+                "id": "9b8a9c4b-3671-477a-81fe-75fb60deaf8f",
+                "tenantId": "87f03e05-7db3-401f-a5de-e3ce2acdf0c2",
+                "hotelName": "Mountain View Lodge",
+                "stars": 4,
+                "primaryEmail": "info@mountainview.com",
+                "primaryContactNumber": "+94771234567",
+                "streetName": "Kandy Road",
+                "province": "Central Province",
+                "hasRestaurant": false,
+                "createdAt": "2024-09-02T14:07:14.772Z",
+                "updatedAt": "2024-09-02T14:07:14.772Z",
+                "cityId": 6
+            },
+            "voucherLine": [
+                {
+                    "id": "188618fb-1f0b-4860-872b-0401496bb0f7",
+                    "hotelVoucherId": "15a8cc95-d511-498a-9ab1-d391561e2cc2",
+                    "roomType": "Single",
+                    "basis": "HB",
+                    "checkInDate": "2024-09-26",
+                    "checkInTime": "12:42:00",
+                    "checkOutDate": "2024-09-30",
+                    "checkOutTime": "21:46:00",
+                    "adultsCount": 3,
+                    "kidsCount": 4,
+                    "roomCount": 3,
+                    "remarks": "No Remarks",
+                    "createdAt": "2024-09-02T16:14:52.034Z",
+                    "updatedAt": "2024-09-02T16:14:52.034Z"
+                }
+            ]
+        }
+    ],
+    "restaurantVouchers": [
+        {
+            "id": "0cb388da-fd9b-4908-b064-abc3e6d8ff60",
+            "bookingLineId": "3da9b98d-ca43-42e5-90e3-1148d5d1874a",
+            "restaurantId": "03f4f849-46f3-4295-9553-8c47f59a322c",
+            "coordinatorId": "ae7c2960-ea2b-4c5c-bae7-553ec6af9c77",
+            "createdAt": "2024-09-02T16:14:52.034Z",
+            "updatedAt": "2024-09-02T16:14:52.034Z",
+            "restaurant": {
+                "id": "03f4f849-46f3-4295-9553-8c47f59a322c",
+                "tenantId": "87f03e05-7db3-401f-a5de-e3ce2acdf0c2",
+                "name": "Mountain View Café",
+                "streetName": "Hilltop Road",
+                "province": "Central Province",
+                "contactNumber": "+94117778899",
+                "createdAt": "2024-09-02T14:07:14.793Z",
+                "updatedAt": "2024-09-02T14:07:14.793Z",
+                "cityId": 6
+            },
+            "restaurantVoucherLine": [
+                {
+                    "id": "0de657ba-6d56-4fed-9d62-ddab651ae2a7",
+                    "restaurantVoucherId": "0cb388da-fd9b-4908-b064-abc3e6d8ff60",
+                    "mealType": "Lunch",
+                    "date": "2024-09-13",
+                    "time": "12:45",
+                    "adultsCount": 4,
+                    "kidsCount": 0,
+                    "remarks": null,
+                    "createdAt": "2024-09-02T16:14:52.034Z",
+                    "updatedAt": "2024-09-02T16:14:52.034Z"
+                }
+            ]
+        },
+        {
+            "id": "5a8c3121-1d8a-4e03-a5d4-4a549afa12bc",
+            "bookingLineId": "3da9b98d-ca43-42e5-90e3-1148d5d1874a",
+            "restaurantId": "78da98e1-e8a3-4da7-a402-f1713214f747",
+            "coordinatorId": "ae7c2960-ea2b-4c5c-bae7-553ec6af9c77",
+            "createdAt": "2024-09-02T16:14:52.034Z",
+            "updatedAt": "2024-09-02T16:14:52.034Z",
+            "restaurant": {
+                "id": "78da98e1-e8a3-4da7-a402-f1713214f747",
+                "tenantId": "87f03e05-7db3-401f-a5de-e3ce2acdf0c2",
+                "name": "City Diner",
+                "streetName": "Main Street",
+                "province": "Central Province",
+                "contactNumber": "+94115566789",
+                "createdAt": "2024-09-02T14:07:14.793Z",
+                "updatedAt": "2024-09-02T14:07:14.793Z",
+                "cityId": 6
+            },
+            "restaurantVoucherLine": [
+                {
+                    "id": "6335c47d-edfd-4df5-81fe-b8d0ef1cb51d",
+                    "restaurantVoucherId": "5a8c3121-1d8a-4e03-a5d4-4a549afa12bc",
+                    "mealType": "Dinner",
+                    "date": "2024-09-04",
+                    "time": "21:45",
+                    "adultsCount": 4,
+                    "kidsCount": 1,
+                    "remarks": null,
+                    "createdAt": "2024-09-02T16:14:52.034Z",
+                    "updatedAt": "2024-09-02T16:14:52.034Z"
+                }
+            ]
+        }
+    ],
+    "transportVouchers": [
+        {
+            "id": "6e577f1b-24f2-4c03-9077-53d58d4f2967",
+            "bookingLineId": "3da9b98d-ca43-42e5-90e3-1148d5d1874a",
+            "driverId": "728b4286-9da5-47a2-b360-d42698fd846e",
+            "coordinatorId": "ae7c2960-ea2b-4c5c-bae7-553ec6af9c77",
+            "startDate": "2024-09-17",
+            "endDate": "2024-09-28",
+            "language": "en",
+            "vehicleType": "Car",
+            "remarks": "No Remarks",
+            "createdAt": "2024-09-02T16:14:52.034Z",
+            "updatedAt": "2024-09-02T16:14:52.034Z",
+            "driver": {
+                "id": "728b4286-9da5-47a2-b360-d42698fd846e",
+                "tenantId": "87f03e05-7db3-401f-a5de-e3ce2acdf0c2",
+                "name": "John Perera",
+                "primaryEmail": "john.perera@example.com",
+                "primaryContactNumber": "+94112233456",
+                "streetName": "Galle Road",
+                "province": "Western Province",
+                "isGuide": true,
+                "feePerKM": 50,
+                "fuelAllowance": 5000,
+                "accommodationAllowance": 3000,
+                "mealAllowance": 1500,
+                "driversLicense": "DL-12345",
+                "guideLicense": "GL-12345",
+                "insurance": "INS-12345",
+                "contactNumber": "+94772233456",
+                "createdAt": "2024-09-02T14:07:14.811Z",
+                "updatedAt": "2024-09-02T14:07:14.811Z",
+                "cityId": 6
+            }
+        }
+    ],
+    "activityVouchers": [
+        {
+            "id": "7b65a5c2-3b26-4ab6-9a24-126ae00d2c2d",
+            "bookingLineId": "3da9b98d-ca43-42e5-90e3-1148d5d1874a",
+            "activityName": "Rainforest Walk",
+            "city": "Kandy",
+            "activityVendorId": "1d36c285-8692-4a49-9ce8-df07ea9ded82",
+            "activityId": "b638727f-c205-4c35-8170-0c3c211509c9",
+            "coordinatorId": "ae7c2960-ea2b-4c5c-bae7-553ec6af9c77",
+            "date": "2024-09-12",
+            "time": "21:48",
+            "hours": 1,
+            "participantsCount": 4,
+            "remarks": "NO Remarks",
+            "createdAt": "2024-09-02T16:14:52.034Z",
+            "updatedAt": "2024-09-02T16:14:52.034Z",
+            "activity": {
+                "id": "b638727f-c205-4c35-8170-0c3c211509c9",
+                "tenantId": "87f03e05-7db3-401f-a5de-e3ce2acdf0c2",
+                "activityVendorId": "1d36c285-8692-4a49-9ce8-df07ea9ded82",
+                "activityType": 2,
+                "name": "Rainforest Walk",
+                "capacity": 15
+            },
+            "activityVendor": {
+                "id": "1d36c285-8692-4a49-9ce8-df07ea9ded82",
+                "tenantId": "87f03e05-7db3-401f-a5de-e3ce2acdf0c2",
+                "name": "Eco Tours",
+                "streetName": "456 Green Road",
+                "province": "Central Province",
+                "contactNumber": "+94114455667",
+                "createdAt": "2024-09-02T14:07:14.892Z",
+                "updatedAt": "2024-09-02T14:07:14.892Z",
+                "cityId": 1
+            }
+        }
+    ],
+    "shopsVouchers": [
+        {
+            "id": "1f51766b-6307-4681-a0b7-8d5fbe2ec5dd",
+            "bookingLineId": "3da9b98d-ca43-42e5-90e3-1148d5d1874a",
+            "shopId": "f9742dd0-ef99-4a0d-9ff6-347f93f5e338",
+            "coordinatorId": "ae7c2960-ea2b-4c5c-bae7-553ec6af9c77",
+            "shopType": "Electronics",
+            "date": "2024-09-18",
+            "time": "09:45",
+            "hours": 1,
+            "participantsCount": 4,
+            "city": "Colombo",
+            "remarks": "No remakrs",
+            "createdAt": "2024-09-02T16:14:52.034Z",
+            "updatedAt": "2024-09-02T16:14:52.034Z",
+            "shop": {
+                "id": "f9742dd0-ef99-4a0d-9ff6-347f93f5e338",
+                "tenantId": "87f03e05-7db3-401f-a5de-e3ce2acdf0c2",
+                "name": "Tech World",
+                "streetName": "789 Electronics Street",
+                "province": "Southern Province",
+                "contactNumber": "+94113344567",
+                "createdAt": "2024-09-02T14:07:14.952Z",
+                "updatedAt": "2024-09-02T14:07:14.952Z",
+                "cityId": 6
+            }
+        }
+    ]
+}

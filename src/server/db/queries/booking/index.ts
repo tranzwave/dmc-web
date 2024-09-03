@@ -59,6 +59,47 @@ export const getBookingLineById = (id: string) => {
   });
 };
 
+export const getBookingLineWithAllData = (id:string) => {
+  return db.query.bookingLine.findFirst({
+    where: eq(bookingLine.id, id),
+    with: {
+      booking: {
+        with: {
+          client: true
+        }
+      },
+      hotelVouchers: {
+        with: {
+          hotel: true,
+          voucherLine: true
+        }
+      },
+      restaurantVouchers: {
+        with: {
+          restaurant: true,
+          restaurantVoucherLine: true
+        }
+      },
+      transportVouchers: {
+        with: {
+          driver: true
+        }
+      },
+      activityVouchers: {
+        with: {
+          activity: true,
+          activityVendor: true
+        }
+      },
+      shopsVouchers: {
+        with: {
+          shop: true
+        }
+      }
+    }
+  })
+}
+
 // export const createNewBooking = async (
 //   bookingDetails: BookingDetails,
 //   newBooking?: InsertBooking,

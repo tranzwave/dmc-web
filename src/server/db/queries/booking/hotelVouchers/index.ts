@@ -23,18 +23,6 @@ export const getHotelVouchers = (bookingLineId:string) => {
         }
     })
 
-    // return db.query.hotel.findMany({
-    //     with: {
-    //         hotelVoucher: {
-    //             where: eq(hotelVoucher.bookingLineId,bookingLineId),
-    //             with:{
-    //                 voucherLine:true
-    //             }
-    //         }
-    //     }
-    // })
-
-
 }
 
 // export const getBookingLinesWithHotelVouchers = (bookingLineId:string) => {
