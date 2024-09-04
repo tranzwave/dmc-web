@@ -12,7 +12,8 @@ import {
   text,
   time,
   timestamp,
-  varchar,
+  unique,
+  varchar
 } from "drizzle-orm/pg-core";
 import { AdapterAccount } from "next-auth/adapters";
 
