@@ -49,6 +49,12 @@ export interface BookingDetails {
   shops: ShopVoucher[];
 }
 
+export type StatusKey = "hotels" | "restaurants" | "transport" | "activities" | "shops";
+export type StatusValue = "Mandatory" | "Locked";
+
+// Define the type for the status labels map
+export type StatusLabels = Record<StatusKey, StatusValue>;
+
 // Define context properties
 interface AddBookingContextProps {
   bookingDetails: BookingDetails;
@@ -58,6 +64,10 @@ interface AddBookingContextProps {
   addActivity: (activity: ActivityVoucher) => void;
   addTransport: (transport: TransportVoucher) => void;
   addShop: (shop: ShopVoucher) => void;
+  activeTab: string,
+  setActiveTab: (tab:string) => void,
+  statusLabels: StatusLabels,
+  setStatusLabels: React.Dispatch<React.SetStateAction<StatusLabels>>;
 }
 
 // Provide default values
@@ -102,10 +112,20 @@ const defaultBookingDetails: BookingDetails = {
   shops: []
 };
 
+
+
 const AddBookingContext = createContext<AddBookingContextProps | undefined>(undefined);
 
 export const AddBookingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [bookingDetails, setBookingDetails] = useState<BookingDetails>(defaultBookingDetails);
+  const [activeTab, setActiveTab] = useState<string>("general");
+  const [statusLabels, setStatusLabels] = useState<StatusLabels>({
+    hotels: "Locked",
+    restaurants: "Locked",
+    transport: "Locked",
+    activities: "Locked",
+    shops: "Locked",
+  });
 
   const setGeneralDetails = (details: General) => {
     setBookingDetails(prev => ({ ...prev, general: details }));
@@ -141,7 +161,11 @@ export const AddBookingProvider: React.FC<{ children: ReactNode }> = ({ children
         addRestaurantVoucher,
         addActivity,
         addTransport,
-        addShop
+        addShop,
+        activeTab,
+        setActiveTab,
+        statusLabels,
+        setStatusLabels
       }}
     >
       {children}

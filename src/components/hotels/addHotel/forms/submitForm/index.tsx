@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAddHotel } from "~/app/dashboard/hotels/add/context"
 import { Button } from "~/components/ui/button";
+import { insertHotel } from "~/server/db/queries/hotel";
 
 const AddHotelSubmitView = () =>{
     const {hotelGeneral,restaurants,hotelRooms,hotelStaff} = useAddHotel()
