@@ -13,15 +13,18 @@ import { ShopsSearchParams } from "~/lib/api";
 import { SelectCity, SelectShopType } from "~/server/db/schemaTypes";
 import { getAllShopTypes } from "~/server/db/queries/shops";
 import { getAllCities } from "~/server/db/queries/activities";
+import { useToast } from "~/hooks/use-toast";
+import { Calendar } from "~/components/ui/calendar";
 
 const ShopsTab = () => {
-  const { addShop, bookingDetails } = useAddBooking();
+  const { addShop, bookingDetails, setActiveTab } = useAddBooking();
   const [searchResults, setSearchResults] = useState<Shop[]>([]);
   const [searchDetails, setSearchDetails] = useState<Shop | null>(null);
   const [cities, setCities] = useState<SelectCity[]>([]);
   const [error, setError] = useState<string | null>();
   const [loading, setLoading] = useState(false);
   const [shopTypes, setShopTypes] = useState<SelectShopType[]>([]);
+  const {toast} = useToast()
 
   const handleRowClick = (shop: ShopVoucher) => {
     if (searchDetails) {
@@ -81,6 +84,18 @@ const ShopsTab = () => {
     }
   };
 
+  const onNextClick = () => {
+    console.log(bookingDetails)
+    if (bookingDetails.shops.length > 0) {
+      setActiveTab("submit");
+    } else {
+      toast({
+        title: "Uh Oh!",
+        description: "You must add shops to continue",
+      });
+    }
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -89,7 +104,13 @@ const ShopsTab = () => {
     <div className="flex flex-col gap-3">
       <div className="mx-9 flex flex-row justify-center gap-2">
         <div className="w-[25%]">
-          <div className="card">Calendar</div>
+          <div className="card w-[85%]">
+          <Calendar
+            mode="range"
+            selected={{from: new Date(bookingDetails.general.startDate), to:new Date(bookingDetails.general.endDate)}}
+            className="rounded-md"
+          />
+          </div>
         </div>
         <div className="card w-[70%] space-y-6">
           <div className="card-title">Shop Information</div>
@@ -104,7 +125,7 @@ const ShopsTab = () => {
         <DataTable columns={columns} data={bookingDetails.shops} />
       </div>
       <div className="flex w-full justify-end">
-        <Button variant={"primaryGreen"}>Next</Button>
+        <Button variant={"primaryGreen"} onClick={onNextClick}>Next</Button>
       </div>
     </div>
   );

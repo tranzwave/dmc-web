@@ -16,13 +16,16 @@ import {
 import { Hotel, voucherColumns } from "./columns";
 import HotelsForm from "./hotelsForm";
 import { getAllHotels, getAllHotelsV2 } from "~/server/db/queries/hotel";
+import { useToast } from "~/hooks/use-toast";
+import { Calendar } from "~/components/ui/calendar";
 
 const HotelsTab = () => {
   const [addedHotels, setAddedHotels] = useState<Hotel[]>([]);
-  const { addHotelVoucher, bookingDetails } = useAddBooking();
+  const { addHotelVoucher, bookingDetails, setActiveTab } = useAddBooking();
   const [loading, setLoading] = useState(false);
   const [hotels, setHotels] = useState<SelectHotel[]>([]);
   const [error, setError] = useState<string | null>();
+  const {toast} = useToast()
 
   const updateHotels = (
     data: InsertHotelVoucherLine,
@@ -73,17 +76,37 @@ const HotelsTab = () => {
   };
 
   useEffect(() => {
+    console.log("rerenderinggg")
     getHotels();
   }, []);
 
   if (loading) {
     return <div>Loading</div>;
   }
+
+  const onNextClick = () => {
+    console.log(bookingDetails)
+    if (bookingDetails.vouchers.length > 0) {
+      setActiveTab("restaurants");
+    } else {
+      toast({
+        title: "Uh Oh!",
+        description: "You must add hotel vouchers to continue",
+      });
+    }
+  };
+  
   return (
     <div className="flex flex-col items-center justify-center gap-3">
       <div className="flex w-full flex-row justify-center gap-2">
         <div className="w-[25%]">
-          <div className="card">Calendar</div>
+          <div className="card w-[85%]">
+          <Calendar
+            mode="range"
+            selected={{from: new Date(bookingDetails.general.startDate), to:new Date(bookingDetails.general.endDate)}}
+            className="rounded-md"
+          />
+          </div>
         </div>
         <div className="card w-[70%] space-y-6">
           <div className="card-title">Hotel Information</div>
@@ -112,7 +135,7 @@ const HotelsTab = () => {
           <DataTable columns={voucherColumns} data={bookingDetails.vouchers} />
         </div>
         <div className="flex w-full justify-end">
-          <Button variant={"primaryGreen"}>Next</Button>
+          <Button variant={"primaryGreen"} onClick={onNextClick}>Next</Button>
         </div>
       </div>
     </div>

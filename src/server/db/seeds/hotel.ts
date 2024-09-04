@@ -53,7 +53,7 @@ export default async function seed(db:DB) {
   
         // Check if hotel already exists
         const foundHotel = await db.query.hotel.findFirst({
-          where: and(eq(hotel.tenantId, tenant.id),eq(hotel.cityId,cityObject.id),eq(hotel.hotelName,currentHotel.hotel.hotelName)),
+          where: and(eq(hotel.tenantId, tenant.id),eq(hotel.cityId,cityObject.id),eq(hotel.name,currentHotel.hotel.name)),
         });
   
         if (!foundHotel) {

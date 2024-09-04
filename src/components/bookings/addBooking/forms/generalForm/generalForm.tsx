@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useEffect, useState } from "react";
-import { useAddBooking } from "~/app/dashboard/bookings/add/context";
+import { StatusKey, StatusLabels, useAddBooking } from "~/app/dashboard/bookings/add/context";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import {
@@ -64,12 +64,16 @@ type GeneralFormValues = z.infer<typeof generalSchema>;
 // Define checkbox options
 const includesOptions = [
   { id: "hotels", label: "Hotels" },
+  { id: "restaurants", label: "Restaurants" },
   { id: "transport", label: "Transport" },
   { id: "activities", label: "Activities" },
+  { id: "shops", label: "Shops" },
+
 ];
 
 const GeneralForm = () => {
-  const { setGeneralDetails, bookingDetails } = useAddBooking();
+  const { setGeneralDetails, bookingDetails, setActiveTab, setStatusLabels } =
+    useAddBooking();
   const [loading, setLoading] = useState(false);
   const [agents, setAgents] = useState<SelectAgent[]>([]);
   const [users, setUsers] = useState<SelectUser[]>([]);
@@ -171,16 +175,26 @@ const GeneralForm = () => {
   }, []);
 
   useEffect(() => {
-    if (startDate && numberOfDays) {
-      const endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + numberOfDays);
-      form.setValue("endDate", endDate.toISOString().split("T")[0] ?? "");
-    }
+    // if (startDate && numberOfDays) {
+    //   const endDate = new Date(startDate);
+    //   endDate.setDate(endDate.getDate());
+    //   form.setValue("endDate", endDate.toISOString().split("T")[0] ?? "");
+    // }
   }, [startDate, numberOfDays, form]);
 
   const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
+    const sd = new Date(data.startDate);
+    const ed = new Date(data.endDate);
+    
+    const diffInMilliseconds = ed.getTime() - sd.getTime();
+    
+    const diffInDays = Math.ceil(diffInMilliseconds / (1000 * 60 * 60 * 24));
+    
+    alert(`Number of days between the dates: ${diffInDays}`);
+    data.numberOfDays = diffInDays
     console.log(data);
     setGeneralDetails(data);
+    setActiveTab("hotels");
   };
 
   function getAgentId(agentName: string) {
@@ -271,46 +285,44 @@ const GeneralForm = () => {
           />
         </div>
 
-
-
         <div className="grid grid-cols-3 gap-4">
-        <div className="flex flex-row gap-1">
-          <FormField
-            name="adultsCount"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Adults</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    value={field.value || ""}
-                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="flex flex-row gap-1">
+            <FormField
+              name="adultsCount"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Adults</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      value={field.value || ""}
+                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            name="kidsCount"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Kids</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    value={field.value || ""}
-                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+            <FormField
+              name="kidsCount"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Kids</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      value={field.value || ""}
+                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           <FormField
             name="startDate"
             control={form.control}
@@ -466,6 +478,11 @@ const GeneralForm = () => {
                           field.value[option.id as keyof typeof field.value]
                         }
                         onCheckedChange={(checked) => {
+                          const labelKey = option.id as keyof StatusLabels
+                          setStatusLabels((prev) => ({
+                            ...prev,
+                            [labelKey]: checked ? "Mandatory" : "Locked",
+                          }));
                           field.onChange({
                             ...field.value,
                             [option.id]: checked,

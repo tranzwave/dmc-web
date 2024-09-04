@@ -7,7 +7,7 @@ export const generalSchema = z.object({
 });
 
 export const hotelsSchema = z.object({
-  hotelName: z.string().min(1, "Hotel name is required"),
+  name: z.string().min(1, "Hotel name is required"),
   hotelBookingDate: z.string().min(1, "Hotel booking date is required"),
 });
 

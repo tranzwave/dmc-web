@@ -44,7 +44,7 @@ interface HotelsFormProps {
 }
 
 export const hotelsSchema = z.object({
-  hotelName: z.string().min(1, "Hotel name is required"),
+  name: z.string().min(1, "Hotel name is required"),
   adultsCount: z.number().min(1, "Quantity is required"),
   kidsCount: z.number().min(1, "Quantity is required"),
   roomCount: z.number().min(1, "Room count is required"),
@@ -74,7 +74,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
     values: {
       adultsCount: defaultValues?.adultsCount || 0,
       kidsCount:defaultValues?.kidsCount || 0,
-      hotelName: hotels[0]?.hotelName || "",
+      name: hotels[0]?.name || "",
       checkInDate:defaultValues?.checkInDate || "",
       checkInTime: defaultValues?.checkInTime|| "",
       checkOutDate:defaultValues?.checkOutDate ||"",
@@ -116,8 +116,8 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
     setIsModalOpen(false);
   }
 
-  function getHotelId(hotelName: string) {
-    const hotel = hotels.find((hotel) => hotel.hotelName === hotelName);
+  function getHotelId(name: string) {
+    const hotel = hotels.find((hotel) => hotel.name === name);
     const id = hotel?.id;
     setSelectedHotel(hotel);
   }
@@ -132,7 +132,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-3 gap-3">
             <FormField
-              name="hotelName"
+              name="name"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -150,8 +150,8 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                       </SelectTrigger>
                       <SelectContent>
                         {hotels.map((hotel) => (
-                          <SelectItem key={hotel.id} value={hotel.hotelName}>
-                            {hotel.hotelName}
+                          <SelectItem key={hotel.id} value={hotel.name}>
+                            {hotel.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
