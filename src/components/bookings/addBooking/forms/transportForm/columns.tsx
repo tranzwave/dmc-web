@@ -1,47 +1,47 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { TransportWithDriver } from "~/app/dashboard/bookings/add/context";
-import { Driver, VehicleType } from "~/lib/types/driver/type";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
 import { EllipsisVertical } from "lucide-react";
+import { TransportVoucher, TransportWithDriver } from "~/app/dashboard/bookings/add/context";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
+import { Driver, VehicleType } from "~/lib/types/driver/type";
 
 export type Transport = {
   driver: Driver | null;
-  vehicle: VehicleType;
+  vehicleType: string;
   startDate: string;
   endDate: string;
-  languages: string;
-  type: "Driver" | "Guide" | "Both";
+  languageCode: string;
+  type: "Driver" | "Chauffer";
   remarks?: string; // Optional field
 };
 
-export const columns: ColumnDef<TransportWithDriver>[] = [
+export const columns: ColumnDef<TransportVoucher>[] = [
   {
-    accessorKey: "driver.general.name",
     header: "Name",
+    accessorFn: row => row.driver.name
   },
   {
-    accessorKey: "transport.vehicle",
     header: "Vehicle",
+    accessorFn: row => row.voucher.vehicleType
   },
   {
-    accessorKey: "transport.startDate",
     header: "Start Date",
+    accessorFn: row => row.voucher.startDate
   },
   {
-    accessorKey: "transport.endDate",
     header: "End Date",
+    accessorFn: row => row.voucher.endDate
   },
   {
-    accessorKey: "transport.languages",
-    header: "Languages",
+    header: "Language",
+    accessorFn: row => row.voucher.language
   },
   {
-    accessorKey: "transport.type",
     header: "Type",
+    accessorFn: row => row.driver.isGuide ? "Chauffer" : "Driver"
   },
   {
-    accessorKey: "transport.remarks",
     header: "Remarks",
+    accessorFn: row => row.voucher.remarks
   },
   {
     id: "actions",
@@ -52,7 +52,7 @@ export const columns: ColumnDef<TransportWithDriver>[] = [
   },
 ];
 
-const ActionsDropdown = ({ row }: { row: TransportWithDriver }) => {
+const ActionsDropdown = ({ row }: { row: TransportVoucher }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex items-center">
@@ -73,14 +73,14 @@ const ActionsDropdown = ({ row }: { row: TransportWithDriver }) => {
   );
 };
 
-const handleEdit = (row: TransportWithDriver) => {
+const handleEdit = (row: TransportVoucher) => {
   console.log("Edit", row);
 };
 
-const handleDelete = (row: TransportWithDriver) => {
+const handleDelete = (row: TransportVoucher) => {
   console.log("Delete", row);
 };
 
-const handleDuplicate = (row: TransportWithDriver) => {
+const handleDuplicate = (row: TransportVoucher) => {
   console.log("Duplicate", row);
 };

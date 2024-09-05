@@ -1,41 +1,82 @@
 'use client';
+import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { columns, Hotel } from "~/components/bookings/addBooking/forms/hotelsForm/columns";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
-import { getHotelData, getTransportData } from "~/lib/api";
+import { HotelDTO } from "~/lib/types/hotel";
+import { getAllHotels } from "~/server/db/queries/hotel";
+import { SelectHotel } from "~/server/db/schemaTypes";
+import DataTableDropDown from "~/components/common/dataTableDropdown";
 
 const HotelsHome = () => {
-    const [data, setData] = useState<Hotel[]>([]);
-    const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);  // Added loading state
-    const [error, setError] = useState<string | null>(null); // Added error state
+    const columns: ColumnDef<HotelDTO>[] = [
+        {
+          accessorKey: "name",
+          header: "Hotel Name",
+        },
+        {
+          accessorKey: "city.name",
+          header: "City",
+        },
+        {
+          accessorKey: "stars",
+          header: "Stars",
+        },
+        {
+          accessorKey: "primaryContactNumber",
+          header: "Contact Number",
+        },
+        {
+          accessorKey: "primaryEmail",
+          header: "Email",
+        },
+        {
+            accessorKey: 'id',
+            header: '',
+            cell: ({ getValue, row }) => {
+              const hotel = row.original;
+        
+              return (
+                  <DataTableDropDown data={hotel} routeBase="/hotels" 
+                  onViewPath={(data) => `/dashboard/hotels/${data.id}`} 
+                  onEditPath={(data) => `/dashboard/hotels/${data.id}/edit`}
+                  onDeletePath={(data) => `/dashboard/hotels/${data.id}/delete`}/>
+              );
+            },
+          },
+        
+      ];
+    const [data, setData] = useState<HotelDTO[]>([]);
+    const [selectedHotel, setSelectedHotel] = useState<HotelDTO | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);  
+    const [error, setError] = useState<string | null>(null);
 
     const pathname = usePathname();
 
-    // Fetch data on mount
     useEffect(() => {
         async function fetchData() {
+            setLoading(true);
             try {
-                setLoading(true); // Set loading to true before starting fetch
-                const result = await getHotelData(); // Fetch transport data
+                // const result = await getHotelData();
+                const result = await getAllHotels();
+
                 setData(result);
             } catch (error) {
-                console.error("Failed to fetch transport data:", error);
-                setError("Failed to load data."); // Set error message
+                console.error("Failed to fetch hotel data:", error);
+                setError("Failed to load data.");
             } finally {
-                setLoading(false); // Set loading to false after fetch is complete
+                setLoading(false);
             }
         }
 
         fetchData();
     }, []);
 
-    const handleRowClick = (driver: Hotel) => {
-        setSelectedHotel(driver);
+    const handleRowClick = (hotel: HotelDTO) => {
+        setSelectedHotel(hotel);
     };
 
     const handleCloseSidePanel = () => {
@@ -43,11 +84,11 @@ const HotelsHome = () => {
     };
 
     if (loading) {
-        return <div>Loading...</div>;  // Render loading state
+        return <div>Loading...</div>;
     }
 
     if (error) {
-        return <div>Error: {error}</div>;  // Render error message if there's an error
+        return <div>Error: {error}</div>;
     }
 
     return (
@@ -55,20 +96,15 @@ const HotelsHome = () => {
             <div className="flex-1">
                 <div className="flex flex-col gap-3">
                     <div className="flex flex-row gap-1 w-full justify-between">
-                        <TitleBar title="Hotels" link="toAddBooking" />
-                        <div>
-                            <Link href={`${pathname}/add`}>
-                                <Button variant="primaryGreen">Add Hotel</Button>
-                            </Link>             
-                        </div>
+                        <TitleBar title="Hotels" link="toAddHotel" />
+                        <Link href={`${pathname}/add`}>
+                            <Button variant="primaryGreen">Add Hotel</Button>
+                        </Link>  
                     </div>
                     <div className='flex flex-row gap-3 justify-center'>
                         <div className='w-[90%]'>
                             <DataTable columns={columns} data={data} onRowClick={handleRowClick} />
                         </div>
-                        {/* <div className='w-[40%]'>
-                            <SidePanel booking={selectedBooking} onClose={handleCloseSidePanel} />
-                        </div> */}
                     </div>
                 </div>
             </div>
@@ -77,3 +113,4 @@ const HotelsHome = () => {
 }
 
 export default HotelsHome;
+

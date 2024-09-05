@@ -1,41 +1,82 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
-import { Activity } from '~/components/bookings/addBooking/forms/activitiesForm/columns';
 import { General } from '~/components/bookings/addBooking/forms/generalForm/columns';
 import { Hotel } from '~/components/bookings/addBooking/forms/hotelsForm/columns';
+import { RestaurantData } from '~/components/bookings/addBooking/forms/restaurantsForm';
 import { Restaurant } from '~/components/bookings/addBooking/forms/restaurantsForm/columns';
 import { Shop } from '~/components/bookings/addBooking/forms/shopsForm/columns';
 import { Transport } from '~/components/bookings/addBooking/forms/transportForm/columns';
 import { Driver } from '~/lib/types/driver/type';
+import { InsertActivityVoucher, InsertHotelVoucher, InsertHotelVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectActivityVoucher, SelectDriver, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant, SelectShop, SelectShopVoucher } from '~/server/db/schemaTypes';
 
 export interface TransportWithDriver {
   transport: Transport;
   driver: Driver;
 }
 
-interface BookingDetails {
-  general: General; 
-  hotels: Hotel[];
-  restaurants: Restaurant[];
-  activities: Activity[];
-  transport: TransportWithDriver[];
-  shops: Shop[];
+export type HotelVoucher = {
+  hotel:SelectHotel,
+  voucher:InsertHotelVoucher
+  voucherLines:InsertHotelVoucherLine[]
 }
+
+export type RestaurantVoucher = {
+  restaurant: RestaurantData,
+  voucher: InsertRestaurantVoucher
+  voucherLines: InsertRestaurantVoucherLine[]
+}
+
+export type ActivityVoucher = {
+  vendor: SelectActivityVendor,
+  voucher: InsertActivityVoucher
+}
+
+export type ShopVoucher = {
+  shop: SelectShop,
+  voucher: InsertShopVoucher
+}
+
+export type TransportVoucher = {
+  driver: SelectDriver,
+  voucher: InsertTransportVoucher
+}
+
+export interface BookingDetails {
+  general: General; 
+  vouchers: HotelVoucher[];
+  restaurants: RestaurantVoucher[];
+  activities: ActivityVoucher[];
+  transport: TransportVoucher[];
+  shops: ShopVoucher[];
+}
+
+export type StatusKey = "hotels" | "restaurants" | "transport" | "activities" | "shops";
+export type StatusValue = "Mandatory" | "Locked";
+
+// Define the type for the status labels map
+export type StatusLabels = Record<StatusKey, StatusValue>;
 
 // Define context properties
 interface AddBookingContextProps {
   bookingDetails: BookingDetails;
   setGeneralDetails: (details: General) => void;
-  addHotel: (hotel: Hotel) => void;
-  addRestaurant: (restaurant: Restaurant) => void;
-  addActivity: (activity: Activity) => void;
-  addTransport: (transportWithDriver: TransportWithDriver) => void;
-  addShop: (shop: Shop) => void;
+  addHotelVoucher: (hotel: HotelVoucher) => void;
+  addRestaurantVoucher: (restaurant: RestaurantVoucher) => void;
+  addActivity: (activity: ActivityVoucher) => void;
+  addTransport: (transport: TransportVoucher) => void;
+  addShop: (shop: ShopVoucher) => void;
+  activeTab: string,
+  setActiveTab: (tab:string) => void,
+  statusLabels: StatusLabels,
+  setStatusLabels: React.Dispatch<React.SetStateAction<StatusLabels>>;
 }
 
 // Provide default values
 const defaultGeneral: General = {
   clientName: "",
+  country:"",
   primaryEmail: "",
+  adultsCount: 0,
+  kidsCount: 0,
   startDate: "",
   numberOfDays: 1,
   endDate: "",
@@ -50,7 +91,7 @@ const defaultGeneral: General = {
 };
 
 const defaultHotel: Hotel = {
-  hotelName: "",
+  name: "",
   quantity: 0,
   roomCount: 0,
   checkInDate: "",
@@ -64,39 +105,50 @@ const defaultHotel: Hotel = {
 
 const defaultBookingDetails: BookingDetails = {
   general: defaultGeneral,
-  hotels: [],
+  vouchers: [],
   restaurants: [],
   activities: [],
   transport: [],
   shops: []
 };
 
+
+
 const AddBookingContext = createContext<AddBookingContextProps | undefined>(undefined);
 
 export const AddBookingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [bookingDetails, setBookingDetails] = useState<BookingDetails>(defaultBookingDetails);
+  const [activeTab, setActiveTab] = useState<string>("general");
+  const [statusLabels, setStatusLabels] = useState<StatusLabels>({
+    hotels: "Locked",
+    restaurants: "Locked",
+    transport: "Locked",
+    activities: "Locked",
+    shops: "Locked",
+  });
 
   const setGeneralDetails = (details: General) => {
     setBookingDetails(prev => ({ ...prev, general: details }));
   };
 
-  const addHotel = (hotel: Hotel) => {
-    setBookingDetails(prev => ({ ...prev, hotels: [...prev.hotels, hotel] }));
+  const addHotelVoucher = (hotelVoucher: HotelVoucher) => {
+    setBookingDetails(prev => ({ ...prev, vouchers: [...prev.vouchers, hotelVoucher] }));
   };
 
-  const addRestaurant = (restaurant: Restaurant) => {
-    setBookingDetails(prev => ({ ...prev, restaurants: [...prev.restaurants, restaurant] }));
+  const addRestaurantVoucher = (restaurantVoucher: RestaurantVoucher) => {
+    console.log(`Restaurant ID-${restaurantVoucher.restaurant.id}`)
+    setBookingDetails(prev => ({ ...prev, restaurants: [...prev.restaurants, restaurantVoucher] }));
   };
 
-  const addActivity = (activity: Activity) => {
+  const addActivity = (activity: ActivityVoucher) => {
     setBookingDetails(prev => ({ ...prev, activities: [...prev.activities, activity] }));
   };
 
-  const addTransport = (transportWithDriver: TransportWithDriver) => {
+  const addTransport = (transportWithDriver: TransportVoucher) => {
     setBookingDetails(prev => ({ ...prev, transport: [...prev.transport, transportWithDriver] }));
   };
 
-  const addShop = (shop: Shop) => {
+  const addShop = (shop: ShopVoucher) => {
     setBookingDetails(prev => ({ ...prev, shops: [...prev.shops, shop] }));
   };
 
@@ -105,11 +157,15 @@ export const AddBookingProvider: React.FC<{ children: ReactNode }> = ({ children
       value={{
         bookingDetails,
         setGeneralDetails,
-        addHotel,
-        addRestaurant,
+        addHotelVoucher,
+        addRestaurantVoucher,
         addActivity,
         addTransport,
-        addShop
+        addShop,
+        activeTab,
+        setActiveTab,
+        statusLabels,
+        setStatusLabels
       }}
     >
       {children}

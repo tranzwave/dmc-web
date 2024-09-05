@@ -1,44 +1,145 @@
-'use client'
-import { useState } from "react"
-import { DataTable } from "~/components/bookings/home/dataTable"
-import { columns, Hotel } from "./columns"
-import HotelsForm from "./hotelsForm"
-import { useAddBooking } from "~/app/dashboard/bookings/add/context"
-import { Button } from "~/components/ui/button"
+"use client";
+import { useEffect, useState } from "react";
+import {
+  HotelVoucher,
+  useAddBooking,
+} from "~/app/dashboard/bookings/add/context";
+import { DataTable } from "~/components/bookings/home/dataTable";
+import { Button } from "~/components/ui/button";
+import {
+  InsertHotelVoucher,
+  InsertHotelVoucherLine,
+  SelectHotel,
+  SelectHotelVoucher,
+  SelectHotelVoucherLine,
+} from "~/server/db/schemaTypes";
+import { Hotel, voucherColumns } from "./columns";
+import HotelsForm from "./hotelsForm";
+import { getAllHotels, getAllHotelsV2 } from "~/server/db/queries/hotel";
+import { useToast } from "~/hooks/use-toast";
+import { Calendar } from "~/components/ui/calendar";
 
 const HotelsTab = () => {
-    const [addedHotels, setAddedHotels] =useState<Hotel[]>([])
-    const { addHotel,bookingDetails } = useAddBooking();
+  const [addedHotels, setAddedHotels] = useState<Hotel[]>([]);
+  const { addHotelVoucher, bookingDetails, setActiveTab } = useAddBooking();
+  const [loading, setLoading] = useState(false);
+  const [hotels, setHotels] = useState<SelectHotel[]>([]);
+  const [error, setError] = useState<string | null>();
+  const {toast} = useToast()
 
-    const updateHotels = (hotel:Hotel)=>{
-        console.log(hotel);
-        addHotel(hotel);
+  const updateHotels = (
+    data: InsertHotelVoucherLine,
+    isNewVoucher: boolean,
+    hotel: SelectHotel,
+  ) => {
+    console.log(data);
+    const voucher: InsertHotelVoucher = {
+      hotelId: hotel.id,
+      bookingLineId: "",
+      coordinatorId: bookingDetails.general.marketingManager,
+    };
+    if (isNewVoucher) {
+      const hotelVoucher: HotelVoucher = {
+        hotel: hotel,
+        voucher: voucher,
+        voucherLines: [data],
+      };
+      addHotelVoucher(hotelVoucher);
+    } else {
+      console.log("Multiple vouchers for same hotel is not supported yet");
     }
-    return (
-        <div className="flex flex-col gap-3 justify-center items-center ">
-            <div className='w-full flex flex-row gap-2 justify-center'>
-                <div className='w-[25%]'>
-                    <div className='card'>
-                        Calendar
-                    </div>
-                </div>
-                <div className='card w-[70%] space-y-6'>
-                    <div className='card-title'>Hotel Information</div>
-                    <HotelsForm onAddHotel={updateHotels} />
-                </div>
-            </div>
-            <div className='flex flex-col gap-2 items-center justify-center w-[95%]'>
-                <div className='w-full'>
-                    <DataTable columns={columns} data={bookingDetails.hotels}/>
-                </div>
-                <div className="w-full flex justify-end">
-                <Button variant={"primaryGreen"}>Next</Button>
-            </div>
-            </div>
-            
-        </div>
-    );
-}
+    // addHotelVoucher(hotel);
+  };
 
+  const getHotels = async () => {
+    setLoading(true);
+
+    try {
+
+      const newResponse = await getAllHotelsV2();
+
+      if (!newResponse) {
+        throw new Error(`Error: Couldn't get hotels`);
+      }
+      console.log("Fetched Hotels:", newResponse);
+
+      setHotels(newResponse);
+      setLoading(false)
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+      console.error("Error:", error);
+    }
+  };
+
+  useEffect(() => {
+    console.log("rerenderinggg")
+    getHotels();
+  }, []);
+
+  if (loading) {
+    return <div>Loading</div>;
+  }
+
+  const onNextClick = () => {
+    console.log(bookingDetails)
+    if (bookingDetails.vouchers.length > 0) {
+      setActiveTab("restaurants");
+    } else {
+      toast({
+        title: "Uh Oh!",
+        description: "You must add hotel vouchers to continue",
+      });
+    }
+  };
+  
+  return (
+    <div className="flex flex-col items-center justify-center gap-3">
+      <div className="flex w-full flex-row justify-center gap-2">
+        <div className="w-[25%]">
+          <div className="card w-[85%]">
+          <Calendar
+            mode="range"
+            selected={{from: new Date(bookingDetails.general.startDate), to:new Date(bookingDetails.general.endDate)}}
+            className="rounded-md"
+          />
+          </div>
+        </div>
+        <div className="card w-[70%] space-y-6">
+          <div className="card-title">Hotel Information</div>
+          {hotels && (
+            <HotelsForm
+              onAddHotel={updateHotels}
+              hotels={hotels}
+              defaultValues={{
+                adultsCount: 0,
+                kidsCount: 0,
+                hotelVoucherId: "",
+                roomType: "",
+                basis: "",
+                checkInDate: "",
+                checkInTime: "",
+                checkOutDate: "",
+                checkOutTime: "",
+                roomCount: 0,
+              }}
+            />
+          )}
+        </div>
+      </div>
+      <div className="flex w-[95%] flex-col items-center justify-center gap-2">
+        <div className="w-full">
+          <DataTable columns={voucherColumns} data={bookingDetails.vouchers} />
+        </div>
+        <div className="flex w-full justify-end">
+          <Button variant={"primaryGreen"} onClick={onNextClick}>Next</Button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default HotelsTab;

@@ -1,11 +1,14 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import { HotelVoucher } from "~/app/dashboard/bookings/add/context";
+import { formatDate } from "~/components/bookings/tasks/hotels";
+import { HotelDTO } from "~/lib/types/hotel";
 
 
   
   export type Hotel = {
-    hotelName: string;
+    name: string;
     quantity: number;
     roomCount: number;
     checkInDate: string;
@@ -18,41 +21,70 @@ import { ColumnDef } from "@tanstack/react-table";
   };
   
 
-export const columns: ColumnDef<Hotel>[] = [
+export const columns: ColumnDef<HotelDTO>[] = [
     {
-      accessorKey: "hotelName",
+      accessorKey: "name",
       header: "Hotel Name",
     },
     {
-      accessorKey: "quantity",
-      header: "Quantity",
+      accessorKey: "city.name",
+      header: "City",
     },
     {
-      accessorKey: "roomCount",
+      accessorKey: "stars",
+      header: "Stars",
+    },
+    {
+      accessorKey: "primaryContactNumber",
+      header: "Contact Number",
+    },
+    {
+      accessorKey: "primaryEmail",
+      header: "Email",
+    },
+    
+  ];
+
+
+  export const voucherColumns: ColumnDef<HotelVoucher>[] = [
+    {
+      accessorKey: "hotel.name",
+      header: "Hotel Name",
+    },
+    {
+      header: "Adults",
+      accessorFn: row => row.voucherLines[0]?.adultsCount ?? 0,
+    },
+    {
+      header: "Kids",
+      accessorFn: row => row.voucherLines[0]?.kidsCount ?? 0,
+    },
+    {
       header: "Room Count",
+      accessorFn: row => row.voucherLines[0]?.roomCount ?? 0,
     },
     {
-      accessorKey: "checkInDate",
       header: "Check-In Date",
+      accessorFn: row => formatDate(row.voucherLines[0]?.checkInDate ?? ""),
     },
     {
-      accessorKey: "checkInTime",
       header: "Check-In Time",
+      accessorFn: row => row.voucherLines[0]?.checkInTime ?? ""
     },
     {
-      accessorKey: "checkOutDate",
       header: "Check-Out Date",
+      accessorFn: row => formatDate(row.voucherLines[0]?.checkOutDate ?? ""),
     },
     {
-      accessorKey: "checkOutTime",
       header: "Check-Out Time",
+      accessorFn: row => row.voucherLines[0]?.checkOutTime ?? ""
     },
     {
-      accessorKey: "roomType",
-      header: "Room Type",
+      header: "Rooms",
+      accessorFn: row =>  `${row.voucherLines[0]?.roomType}-${row.voucherLines[0]?.roomCount}`
     },
     {
-      accessorKey: "basis",
       header: "Basis",
+      accessorFn: row => row.voucherLines[0]?.basis
     }
   ];

@@ -1,6 +1,8 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import { SelectBooking, SelectBookingLine, SelectClient } from "~/server/db/schemaTypes";
+import { formatDate } from "../tasks/hotels";
 
 export type CategoryDetails = {
     title: string;
@@ -23,23 +25,32 @@ export type CategoryDetails = {
       shops: CategoryDetails;
     };
   };
-  
 
-export const columns: ColumnDef<Booking>[] = [
+
+export type BookingDTO = SelectBookingLine & {
+  booking:SelectBooking & {
+    client:SelectClient
+  },
+}
+
+export const columns: ColumnDef<BookingDTO>[] = [
   {
-    accessorKey: "client",
     header: "Client",
+    accessorFn: (row) => row.booking.client.name,
   },
   {
-    accessorKey: "date",
-    header: "Date",
+    header: "Country",
+    accessorFn: (row) => row.booking.client.country,
   },
   {
-    accessorKey: "days",
-    header: "Days",
+    accessorKey: "startDate",
+    header: "Start Date",
+    accessorFn: (row) => formatDate(row.startDate.toString()),
   },
   {
-    accessorKey: "progress",
-    header: "Progress",
+    accessorKey: "endDate",
+    header: "End Date",
+    accessorFn: (row) => formatDate(row.endDate.toString())
   },
+
 ];

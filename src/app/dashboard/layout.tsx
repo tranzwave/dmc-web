@@ -1,7 +1,6 @@
 
 import SideNavBar from "~/components/common/sideNavComponent";
 import TopBar from "~/components/common/topBarComponent";
-import Overview from "./overview/page";
 
 export default function DashboardLayout({
   children,

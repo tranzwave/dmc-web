@@ -1,10 +1,12 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
 
 export type General = {
   clientName: string;
+  country:string;
   primaryEmail: string;
+  adultsCount: number,
+  kidsCount: number,
   startDate: string;
   numberOfDays: number;
   endDate: string;

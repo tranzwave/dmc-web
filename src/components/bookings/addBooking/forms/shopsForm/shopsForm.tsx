@@ -1,19 +1,58 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
+import { z } from "zod";
 import { Button } from "~/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
+import { Input } from "~/components/ui/input";
 import { Shop } from "./columns";
+import {
+  SelectCity,
+  SelectShop,
+  SelectShopShopType,
+  SelectShopType,
+} from "~/server/db/schemaTypes";
+import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { LoaderCircle } from "lucide-react";
+import { getShopsByTypeAndCity } from "~/server/db/queries/shops";
+import {
+  ShopVoucher,
+  useAddBooking,
+} from "~/app/dashboard/bookings/add/context";
 
+export type ShopsData = SelectShop & {
+  shopTypes: {
+    shopTypeId: number,
+    shopId: string,
+    shopType: SelectShopType;
+  }[];
+  city: SelectCity;
+};
 interface ShopsFormProps {
-  onAddShop: (shop: Shop) => void;
+  onAddShop: (shop: ShopVoucher) => void;
+  shopTypes: SelectShopType[];
+  cities: SelectCity[];
 }
+
+type ShopWithoutCityAndTypes = Omit<ShopsData, "city" | "shopTypes">;
 
 export const shopsSchema = z.object({
   shopType: z.string().min(1, "Shop type is required"),
   city: z.string().min(1, "City is required"),
-  productType: z.string().min(1, "Product type is required"),
+  shop: z.string().min(1, "Shop is required"),
   date: z.string().min(1, "Date is required"),
   time: z.string().min(1, "Time is required"),
   headCount: z.number().min(1, "Head count is required"),
@@ -21,13 +60,24 @@ export const shopsSchema = z.object({
   remarks: z.string().optional(), // Optional field
 });
 
-const ShopsForm: React.FC<ShopsFormProps> = ({ onAddShop }) => {
+const ShopsForm: React.FC<ShopsFormProps> = ({
+  onAddShop,
+  shopTypes,
+  cities,
+}) => {
+  const [shops, setShops] = useState<ShopsData[]>([]);
+  const [selectedCity, setSelectedCity] = useState<SelectCity>();
+  const [selectedShopType, setSelectedShopType] = useState<SelectShopType>();
+  const [shopsLoading, setShopsLoading] = useState(false);
+  const [error, setError] = useState<string>();
+  const [selectedShop, setSelectedShop] = useState<ShopsData | null>();
+  const { bookingDetails } = useAddBooking();
   const form = useForm<z.infer<typeof shopsSchema>>({
     resolver: zodResolver(shopsSchema),
     defaultValues: {
       shopType: "",
       city: "",
-      productType: "",
+      shop: "",
       date: "",
       time: "",
       headCount: 1,
@@ -37,103 +87,294 @@ const ShopsForm: React.FC<ShopsFormProps> = ({ onAddShop }) => {
   });
 
   function onSubmit(values: z.infer<typeof shopsSchema>) {
+    const {
+      city,
+      shopTypes,
+      ...shopWithoutCityAndTypes
+    }: ShopWithoutCityAndTypes | any = selectedShop;
     onAddShop({
-      ...values,
-      headCount: Number(values.headCount),
-      hours: Number(values.hours), 
+      shop: shopWithoutCityAndTypes,
+      voucher: {
+        bookingLineId: "",
+        coordinatorId: bookingDetails.general.marketingManager,
+        shopId: shopWithoutCityAndTypes.id,
+        date: values.date,
+        time: values.time,
+        hours: values.hours,
+        participantsCount: values.headCount,
+        city: selectedShop?.city.name ?? "",
+        shopType: selectedShopType?.name ?? "",
+        remarks:values.remarks
+      },
     });
     form.reset();
   }
 
+  const fetchShops = async () => {
+    alert(`${selectedShopType?.name} city - ${selectedCity?.name}`);
+    try {
+      if (selectedShopType && selectedCity) {
+        setShopsLoading(true);
+        const [shopsResponse] = await Promise.all([
+          getShopsByTypeAndCity(selectedShopType?.id, selectedCity?.id),
+        ]);
+
+        if (!shopsResponse) {
+          throw new Error("Couldn't get any activity");
+        }
+
+        console.log(shopsResponse);
+        setShops(shopsResponse);
+        setShopsLoading(false);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+      console.error("Error fetching data:", error);
+      setShopsLoading(false);
+    }
+  };
+
+  const getCityId = (name: string) => {
+    setShops([]);
+    setShopsLoading(false);
+    const city = cities.find((city) => city.name === name);
+    alert(city?.name);
+    setSelectedCity(city);
+  };
+
+  const getShopTypeId = (name: string) => {
+    setSelectedShop(null);
+    setShops([]);
+    setShopsLoading(false);
+    const type = shopTypes.find((type) => type.name === name);
+    alert(type?.name);
+    setSelectedShopType(type);
+  };
+
+  const getShopId = (name: string) => {
+    const shop = shops.find((shop) => shop.name === name);
+
+    alert(shop?.name);
+    setSelectedShop(shop);
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-3 gap-3">
-          <FormField name="shopType" control={form.control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Shop Type</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter shop type" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
-          <FormField name="city" control={form.control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>City</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter city" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
-          <FormField name="productType" control={form.control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Product Type</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter product type" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
+        <div className="flex w-full flex-row items-end gap-3">
+          <div className="grid w-full grid-cols-2 gap-3">
+            <FormField
+              name="shopType"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Shop Type</FormLabel>
+                  <FormControl>
+                    {/* <Input placeholder="Enter shop type" {...field} /> */}
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        // getHotelId(value);
+                        getShopTypeId(value);
+                      }}
+                      value={field.value}
+                    >
+                      <SelectTrigger className="bg-slate-100 shadow-md">
+                        <SelectValue placeholder="Select shop type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {shopTypes.map((shopType) => (
+                          <SelectItem key={shopType.id} value={shopType.name}>
+                            {shopType.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="city"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>City</FormLabel>
+                  <FormControl>
+                    {/* <Input placeholder="Enter city" {...field} /> */}
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        // getHotelId(value);
+                        getCityId(value);
+                      }}
+                      value={field.value}
+                    >
+                      <SelectTrigger className="bg-slate-100 shadow-md">
+                        <SelectValue placeholder="Select city" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {cities.map((city) => (
+                          <SelectItem key={city.id} value={city.name}>
+                            {city.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="w-[10%]">
+            <Button
+              variant={"primaryGreen"}
+              onClick={fetchShops}
+              type="button"
+              className="w-full"
+            >
+              {shopsLoading ? (
+                shopsLoading && (
+                  <div>
+                    <LoaderCircle className="animate-spin" />
+                  </div>
+                )
+              ) : (
+                <div>Search</div>
+              )}
+            </Button>
+          </div>
+        </div>
+        <div className="flex w-full flex-row items-center">
+          <FormField
+            name="shop"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Shop</FormLabel>
+                <FormControl>
+                  {/* <Input placeholder="Enter vendor" {...field} /> */}
+                  {shopsLoading ? (
+                    <div>Loading...</div>
+                  ) : shops.length > 0 ? (
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        // getHotelId(value);
+                        getShopId(value);
+                      }}
+                      value={field.value}
+                    >
+                      <SelectTrigger className="bg-slate-100 shadow-md">
+                        <SelectValue placeholder="Select shop" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {shops.map((shop) => (
+                          <SelectItem key={shop.id} value={shop.name}>
+                            {shop.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input
+                      placeholder={`Please click search after selecting a valid shop type and a city`}
+                      {...field}
+                      disabled={true}
+                    />
+                  )}
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* <Button variant={"outline"}>Search</Button> */}
         </div>
         <div className="grid grid-cols-4 gap-3">
-          <FormField name="date" control={form.control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Date</FormLabel>
-              <FormControl>
-                <Input type="date" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
-          <FormField name="time" control={form.control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Time</FormLabel>
-              <FormControl>
-                <Input type="time" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
-          <FormField name="headCount" control={form.control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Head Count</FormLabel>
-              <FormControl>
-                <Input
+          <FormField
+            name="date"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Date</FormLabel>
+                <FormControl>
+                  <Input type="date" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="time"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Time</FormLabel>
+                <FormControl>
+                  <Input type="time" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="headCount"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Head Count</FormLabel>
+                <FormControl>
+                  <Input
                     type="number"
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
-          <FormField name="hours" control={form.control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Hours</FormLabel>
-              <FormControl>
-                <Input
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="hours"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Hours</FormLabel>
+                <FormControl>
+                  <Input
                     type="number"
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
-        <FormField name="remarks" control={form.control} render={({ field }) => (
-          <FormItem>
-            <FormLabel>Remarks</FormLabel>
-            <FormControl>
-              <Input placeholder="Enter any remarks" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )} />
-        <div className="w-full flex flex-row justify-end">
-          <Button variant={'primaryGreen'} type="submit" className="px-5">Add</Button>
+        <FormField
+          name="remarks"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Remarks</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter any remarks" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="flex w-full flex-row justify-end">
+          <Button variant={"primaryGreen"} type="submit" className="px-5">
+            Add
+          </Button>
         </div>
       </form>
     </Form>
