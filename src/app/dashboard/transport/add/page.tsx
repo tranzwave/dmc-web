@@ -48,7 +48,7 @@ const AddTransport = () => {
       <div className="flex-1">
         <div className="flex flex-col gap-3">
           <div className="flex flex-row gap-1 w-full justify-between">
-            <TitleBar title="Add Driver & Guid" link="toAddTransport" />
+            <TitleBar title="Add Driver" link="toAddTransport" />
             <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>

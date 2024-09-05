@@ -6,7 +6,7 @@ import { InsertHotel, InsertHotelRoom, InsertHotelStaff } from "../../schemaType
 import { db } from "../..";
 
 export type CompleteHotel = {
-    hotel: InsertHotel & {city:string},
+    hotel: InsertHotel & {city?:string},
     hotelRooms:InsertHotelRoom[],
     hotelStaffs:InsertHotelStaff[]
 }
@@ -64,21 +64,63 @@ export const getHotelVouchersForHotel = (hotelId:string) => {
     })
 }
 
-export const getHotelVoucherLinesForVoucherAndHotel = (voucherId:string, hotelId:string) => {
-    return db.query.hotelVoucherLine.findMany({
-        where: eq(hotelVoucherLine.hotelVoucherId, voucherId),
-        with: {
-            hotelVoucher:{
-                where: eq(hotelVoucher.id, voucherId),
-                with: {
-                    hotel:{
-                        where: eq(hotel.id,hotelId)
-                    }
-                }
-            }
-        }
-    })
-}
+// export const getHotelVoucherLinesForVoucherAndHotel = (voucherId:string, hotelId:string) => {
+//     return db.query.hotelVoucherLine.findMany({
+//         where: eq(hotelVoucherLine.hotelVoucherId, voucherId),
+//         with: {
+//             hotelVoucher:{
+//                 where: eq(hotelVoucher.id, voucherId),
+//                 with: {
+//                     hotel:{
+//                         where: eq(hotel.id,hotelId)
+//                     }
+//                 }
+//             }
+//         }
+//     })
+// }
+
+export const getVoucherLinesByHotelId = async (hotelId: string) => {
+  const voucherLines = await db
+      .select({
+          voucherLineId: hotelVoucherLine.id,
+          hotelVoucherId: hotelVoucherLine.hotelVoucherId,
+          rate: hotelVoucherLine.rate,
+          roomType: hotelVoucherLine.roomType,
+          basis: hotelVoucherLine.basis,
+          checkInDate: hotelVoucherLine.checkInDate,
+          checkInTime: hotelVoucherLine.checkInTime,
+          checkOutDate: hotelVoucherLine.checkOutDate,
+          checkOutTime: hotelVoucherLine.checkOutTime,
+          adultsCount: hotelVoucherLine.adultsCount,
+          kidsCount: hotelVoucherLine.kidsCount,
+          roomCount: hotelVoucherLine.roomCount,
+          remarks: hotelVoucherLine.remarks,
+          createdAt: hotelVoucherLine.createdAt,
+          updatedAt: hotelVoucherLine.updatedAt,
+      })
+      .from(hotelVoucherLine)
+      .leftJoin(hotelVoucher, eq(hotelVoucherLine.hotelVoucherId, hotelVoucher.id))
+      .where(eq(hotelVoucher.hotelId, hotelId));
+
+  return voucherLines.map(row => ({
+      voucherLineId: row.voucherLineId,
+      hotelVoucherId: row.hotelVoucherId,
+      rate: row.rate,
+      roomType: row.roomType,
+      basis: row.basis,
+      checkInDate: row.checkInDate,
+      checkInTime: row.checkInTime,
+      checkOutDate: row.checkOutDate,
+      checkOutTime: row.checkOutTime,
+      adultsCount: row.adultsCount,
+      kidsCount: row.kidsCount,
+      roomCount: row.roomCount,
+      remarks: row.remarks,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+  }));
+};
 
 
 export async function insertHotel(hotels:CompleteHotel[]) {
@@ -93,14 +135,17 @@ export async function insertHotel(hotels:CompleteHotel[]) {
     const cities = await Promise.all(
       hotels.map(async (currentHotel) => {
         const foundCity = await db.query.city.findFirst({
-          where: eq(city.name, currentHotel.hotel.city),
+          where: eq(city.id, currentHotel.hotel.cityId),
         });
   
         if (!foundCity) {
-          // Create a new country if it does not exist
+          // Create a new city if it does not exist
+          if(!currentHotel.hotel.city){
+            throw new Error("Couldn't add city")
+          }
           const newCity = await db.insert(city).values(
             {
-                "name": currentHotel.hotel.city,
+                "name": currentHotel.hotel?.city || "",
                 "country": foundTenant.country
             },
           ).returning({
@@ -120,9 +165,9 @@ export async function insertHotel(hotels:CompleteHotel[]) {
 
     console.log(citiesList)
 
-    await Promise.all(
+    const newHotels = await Promise.all(
       hotels.map(async (currentHotel) => {
-        const cityObject = citiesList.find(city => city?.name === currentHotel.hotel.city);
+        const cityObject = citiesList.find(city => city?.id === currentHotel.hotel.cityId);
   
         if (!cityObject) {
           throw new Error("City not found for hotel: " + currentHotel.hotel.city);
@@ -163,8 +208,11 @@ export async function insertHotel(hotels:CompleteHotel[]) {
               }))
             
           )
+
+          return newHotelId
         }
       })
     );
+    return newHotels;
   }
   

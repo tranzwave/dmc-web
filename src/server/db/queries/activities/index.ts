@@ -1,6 +1,6 @@
 "use server"
 
-import { activityVendor, city, activity } from './../../schema';
+import { activityVendor, city, activity, activityVoucher } from './../../schema';
 import { db } from "../.."
 import { and, eq } from 'drizzle-orm';
 
@@ -11,7 +11,26 @@ export const getAllCities = (countryCode:string)=>{
 }
 
 export const getAllActivityVendors = ()=>{
-    return db.query.activityVendor.findMany()
+    return db.query.activityVendor.findMany({
+        with: {
+            city: true
+        }
+    })
+}
+
+export const getActivityVendorById = (id:string)=>{
+    return db.query.activityVendor.findFirst({
+        where: eq(activityVendor.id,id),
+        with:{
+            city:true
+        }
+    })
+}
+
+export const getActivityVouchersForVendor = (id:string)=>{
+    return db.query.activityVoucher.findMany({
+        where: eq(activityVoucher.activityVendorId, id)
+    })
 }
 
 export const getActivitiesByTypeAndCity = async(typeId:number, cityId:number)=>{

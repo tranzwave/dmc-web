@@ -41,7 +41,8 @@ export const columns: ColumnDef<HotelDTO>[] = [
     {
       accessorKey: "primaryEmail",
       header: "Email",
-    }
+    },
+    
   ];
 
 

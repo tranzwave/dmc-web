@@ -37,7 +37,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom }) => {
       floor: Number(data.floor),
       bedCount: Number(data.bedCount)
     });
-    roomsForm.reset(); // Reset the form after submission
+    roomsForm.reset();
   }
 
   return (

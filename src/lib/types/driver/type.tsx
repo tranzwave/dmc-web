@@ -85,7 +85,7 @@ export type DriverDTO = {
   city: InsertCity;
 }
 
-export const driverColumns: ColumnDef<DriverData>[] = [
+export const driverColumns: ColumnDef<DriverDTO>[] = [
   {
     accessorKey: "name",
     header: "Name",
@@ -115,7 +115,7 @@ export const driverColumns: ColumnDef<DriverData>[] = [
     accessorKey: 'id',
     header: '',
     cell: ({ getValue, row }) => {
-      const transport = row.original as DriverData;
+      const transport = row.original as DriverDTO;
 
       return (
           <DataTableDropDown data={transport} routeBase="/transport" 

@@ -1,14 +1,101 @@
-import React from "react";
+"use client"
+import React, { useState } from "react";
 import { useAddTransport } from "~/app/dashboard/transport/add/context";
 import { Button } from "~/components/ui/button";
+import { useToast } from "~/hooks/use-toast";
+import { insertDriver } from "~/server/db/queries/transport";
+import { InsertDriver, InsertLanguage, InsertVehicle } from "~/server/db/schemaTypes";
 
 const SubmitForm = () => {
     const { transportDetails } = useAddTransport();
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
+    const { toast } = useToast()
     const { general, vehicles, charges, documents } = transportDetails;
 
-    const handleSubmit = () => {
-        console.log('Submitting transport details:', transportDetails);
-    };
+    const addDriver = async () => {
+        console.log({
+          general,
+          vehicles,
+          charges,
+          documents,
+        });
+        const driverData:InsertDriver[] = [{
+            name: general.name,
+            primaryEmail: general.primaryEmail,
+            primaryContactNumber: general.primaryContactNumber,
+            streetName: general.streetName,
+            province: general.province,
+            contactNumber: general.primaryContactNumber,
+            tenantId: "",
+            cityId: 0,
+            driversLicense: documents.driverLicense,
+            insurance: documents.insurance,
+            isGuide: true,
+            guideLicense: documents.guideLicense,
+            accommodationAllowance: charges.accommodationAllowance,
+            fuelAllowance:charges.fuelAllowance,
+            mealAllowance:charges.mealAllowance,
+            feePerKM:charges.feePerKm
+        }]
+        
+        const vehicleData:InsertVehicle[] = vehicles.map((v) => {
+            return {
+                make: v.make,
+                model: v.model,
+                numberPlate:v.numberPlate,
+                seats:v.seats,
+                vehicleType:v.vehicle,
+                tenantId:"",
+                year:Number(v.year),
+                revenueLicense: v.vrl,
+            }
+        })
+
+        const languages:InsertLanguage[] = [{
+            name:"English",
+            code: "en"
+        }]
+      
+        try {
+          // Replace insertDriver with your function to handle the insertion of driver details
+          const response = await insertDriver(
+            driverData,
+            vehicleData,
+            languages
+            // charges,
+            // documents,
+          );
+      
+          if (!response) {
+            throw new Error(`Error: ${response}`);
+          }
+      
+          console.log("Success:", response);
+      
+          setLoading(false);
+          // Handle successful response (e.g., show a success message)
+          toast({
+            title: "Success",
+            description: "Driver added successfully",
+          });
+        } catch (error) {
+          if (error instanceof Error) {
+            setError(error.message);
+          } else {
+            setError("An unknown error occurred");
+          }
+          console.error("Error:", error);
+          setLoading(false);
+          toast({
+            title: "Uh Oh!",
+            description: "Error while adding the driver",
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
+      
 
     return (
         <div>
@@ -159,7 +246,7 @@ const SubmitForm = () => {
 
             {/* Submit Button */}
             <div className="flex w-full justify-center mt-4">
-                <Button variant="primaryGreen" onClick={handleSubmit}>
+                <Button variant="primaryGreen" onClick={addDriver}>
                     Submit
                 </Button>
             </div>

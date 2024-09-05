@@ -174,7 +174,7 @@ const GeneralForm = () => {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Guid</FormLabel>
+                    <FormLabel>Guide</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter guid" {...field} />
                     </FormControl>

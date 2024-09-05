@@ -1,5 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import DataTableDropDown from "~/components/common/dataTableDropdown";
+import { SelectActivity, SelectActivityVendor } from "~/server/db/schemaTypes";
 
 // Define the Address type
 type Address = {
@@ -24,7 +25,7 @@ type Activity = {
 export type { Activity };
 
 
-export const activityColumns: ColumnDef<Activity>[] = [
+export const activityColumns: ColumnDef<SelectActivityVendor>[] = [
   {
     accessorKey: "general.vendorName",
     header: "Vendor Name",
@@ -61,7 +62,7 @@ export const activityColumns: ColumnDef<Activity>[] = [
     accessorKey: 'id',
     header: '',
     cell: ({ getValue, row }) => {
-      const activity = row.original as Activity;
+      const activity = row.original as SelectActivityVendor;
 
       return (
           <DataTableDropDown data={activity} routeBase="/activities/" 
