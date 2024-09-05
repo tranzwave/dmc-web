@@ -1,16 +1,16 @@
 "use server"
 
-import { activityVendor, city, activity, activityVoucher } from './../../schema';
-import { db } from "../.."
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
+import { db } from "../..";
+import { activity, activityVendor, activityVoucher, city } from './../../schema';
 
-export const getAllCities = (countryCode:string)=>{
+export const getAllCities = (countryCode: string) => {
     return db.query.city.findMany({
-        where: eq(city.country,countryCode )
+        where: eq(city.country, countryCode)
     })
 }
 
-export const getAllActivityVendors = ()=>{
+export const getAllActivityVendors = () => {
     return db.query.activityVendor.findMany({
         with: {
             city: true
@@ -18,22 +18,22 @@ export const getAllActivityVendors = ()=>{
     })
 }
 
-export const getActivityVendorById = (id:string)=>{
+export const getActivityVendorById = (id: string) => {
     return db.query.activityVendor.findFirst({
-        where: eq(activityVendor.id,id),
-        with:{
-            city:true
+        where: eq(activityVendor.id, id),
+        with: {
+            city: true
         }
     })
 }
 
-export const getActivityVouchersForVendor = (id:string)=>{
+export const getActivityVouchersForVendor = (id: string) => {
     return db.query.activityVoucher.findMany({
         where: eq(activityVoucher.activityVendorId, id)
     })
 }
 
-export const getActivitiesByTypeAndCity = async(typeId:number, cityId:number)=>{
+export const getActivitiesByTypeAndCity = async (typeId: number, cityId: number) => {
     // return db.query.activity.findMany({
     //     where: eq(activity.activityType,typeId),
     //     with:{
@@ -48,18 +48,18 @@ export const getActivitiesByTypeAndCity = async(typeId:number, cityId:number)=>{
         with: {
             activityVendor: {
                 with: {
-                    city:true
+                    city: true
                 }
             }
         }
-    }).then((payload)=> payload.filter((act)=>act.activityVendor.cityId === cityId))
+    }).then((payload) => payload.filter((act) => act.activityVendor.cityId === cityId))
 
-    if(activitiesData){
+    if (activitiesData) {
         return activitiesData
     }
     // return db.query.activity.findMany()
 }
 
-export const getAllActivityTypes = ()=>{
+export const getAllActivityTypes = () => {
     return db.query.activityType.findMany()
 }

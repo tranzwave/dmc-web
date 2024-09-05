@@ -1,5 +1,5 @@
 'use client'
-import { Activity, BarChart2, Building, Calendar, Car, Home, User } from 'lucide-react';
+import { Activity, BarChart2, Building, Calendar, Car, Home, User, Utensils } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -11,6 +11,7 @@ const SideNavBar = () => {
         { name: 'Overview', path: '/overview', icon: <Home className='icon-size' /> },
         { name: 'Bookings', path: '/bookings', icon: <Calendar className='icon-size'/> },
         { name: 'Hotels', path: '/hotels', icon: <Building className='icon-size'/> },
+        { name: 'Restaurants', path: '/restaurants', icon: <Utensils className='icon-size'/> },
         { name: 'Transport', path: '/transport', icon: <Car className='icon-size'/> },
         { name: 'Activities', path: '/activities', icon: <Activity className='icon-size'/> },
         { name: 'Reports', path: '/reports', icon: <BarChart2 className='icon-size'/> },

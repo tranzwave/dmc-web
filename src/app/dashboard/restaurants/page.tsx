@@ -7,17 +7,17 @@ import { DataTable } from "~/components/bookings/home/dataTable";
 import DataTableDropDown from "~/components/common/dataTableDropdown";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
-import { getAllActivityVendors } from "~/server/db/queries/activities";
-import { SelectActivityVendor, SelectCity } from "~/server/db/schemaTypes";
+import { getAllRestaurants } from "~/server/db/queries/restaurants";
+import { SelectCity, SelectRestaurant } from "~/server/db/schemaTypes";
 
-export type ActivityVendorData = SelectActivityVendor & {
+export type RestaurantData = SelectRestaurant & {
     city: SelectCity
 }
 
-const ActivityHome = () => {
+const RestaurantHome = () => {
     const pathname = usePathname();
 
-    const [data, setData] = useState<ActivityVendorData[]>([]);
+    const [data, setData] = useState<RestaurantData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -27,10 +27,10 @@ const ActivityHome = () => {
             async function fetchData() {
                 try {
                     setLoading(true);
-                    const result = await getAllActivityVendors();
+                    const result = await getAllRestaurants();
                     setData(result);
                 } catch (error) {
-                    console.error("Failed to fetch activity data:", error);
+                    console.error("Failed to fetch restaurant data:", error);
                     setError("Failed to load data.");
                 } finally {
                     setLoading(false);
@@ -54,17 +54,17 @@ const ActivityHome = () => {
             <div className="flex-1">
                 <div className="flex flex-col gap-3">
                     <div className="flex flex-row gap-1 w-full justify-between">
-                        <TitleBar title="Activity Vendors" link="toAddBooking" />
+                        <TitleBar title="Restaurants" link="toAddRestaurant" />
                         <div>
                         <Link href={`${pathname}/add`}>
-                             <Button variant="primaryGreen">Add Activity</Button>
+                             <Button variant="primaryGreen">Add Restaurant</Button>
                           </Link>           
                         </div>  
                     </div>
                     <div className='flex flex-row gap-3 justify-center'>
                         <div className='w-[90%]'>
                             <DataTable
-                                columns={activityVendorColumns}
+                                columns={restaurantColumns}
                                 data={data}
                             />
                         </div>
@@ -75,13 +75,13 @@ const ActivityHome = () => {
     );
 }
 
-export default ActivityHome;
+export default RestaurantHome;
 
 
 
-export const activityVendorColumns: ColumnDef<ActivityVendorData>[] = [
+export const restaurantColumns: ColumnDef<RestaurantData>[] = [
     {
-      header: "Vendor Name",
+      header: "Restaurant",
       accessorFn: row => row.name
     },
     {
@@ -104,13 +104,13 @@ export const activityVendorColumns: ColumnDef<ActivityVendorData>[] = [
       accessorKey: 'id',
       header: '',
       cell: ({ getValue, row }) => {
-        const activity = row.original as ActivityVendorData;
+        const restaurant = row.original as RestaurantData;
   
         return (
-            <DataTableDropDown data={activity} routeBase="/activities/" 
-            onViewPath={(data) => `/dashboard/activities/${data.id}`}
-            onEditPath={(data) => `/dashboard/activities/${data.id}/edit`}
-            onDeletePath={(data) => `/dashboard/activities/${data.id}/delete`}
+            <DataTableDropDown data={restaurant} routeBase="/restaurants/" 
+            onViewPath={(data) => `/dashboard/restaurants/${data.id}`}
+            onEditPath={(data) => `/dashboard/restaurants/${data.id}/edit`}
+            onDeletePath={(data) => `/dashboard/restaurants/${data.id}/delete`}
   />
         );
       },

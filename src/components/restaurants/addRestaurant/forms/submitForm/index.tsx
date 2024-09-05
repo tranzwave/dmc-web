@@ -1,0 +1,68 @@
+import { useAddRestaurant } from "~/app/dashboard/restaurants/add/context";
+import { Button } from "~/components/ui/button";
+
+const SubmitForm = () => {
+    const { restaurantDetails } = useAddRestaurant();
+
+    const { general } = restaurantDetails;
+
+    const handleSubmit = () => {
+        // Handle the submission of activityDetails
+        console.log('Submitting activity details:', restaurantDetails);
+    };
+
+    return (
+        <div>
+            <div className="bg-primary-green text-white font-bold text-sm p-1 rounded-t-xl w-24 flex justify-center items-center">
+                <div>General</div>
+            </div>
+            
+            <div className="border rounded-lg mb-2 shadow-md">
+                <table className="min-w-full text-xs">
+                    <tbody>
+                        <tr>
+                            <td className="border px-4 py-2 font-bold w-1/2">Name:</td>
+                            <td className="border px-4 py-2 w-1/2">{general.name}</td>
+                        </tr>
+                        <tr>
+                            <td className="border px-4 py-2 font-bold">Meal Type:</td>
+                            <td className="border px-4 py-2">{general.mealType}</td>
+                        </tr>
+                        <tr>
+                            <td className="border px-4 py-2 font-bold">Start Time:</td>
+                            <td className="border px-4 py-2">{general.startTime}</td>
+                        </tr>
+                        <tr>
+                            <td className="border px-4 py-2 font-bold">End Time:</td>
+                            <td className="border px-4 py-2">{general.endTime}</td>
+                        </tr>
+                        <tr>
+                            <td className="border px-4 py-2 font-bold">Street Name:</td>
+                            <td className="border px-4 py-2">{general.streetName}</td>
+                        </tr>
+                        <tr>
+                            <td className="border px-4 py-2 font-bold">City:</td>
+                            <td className="border px-4 py-2">{general.city}</td>
+                        </tr>
+                        <tr>
+                            <td className="border px-4 py-2 font-bold">Province:</td>
+                            <td className="border px-4 py-2">{general.province}</td>
+                        </tr>
+                        <tr>
+                            <td className="border px-4 py-2 font-bold">Contact Nummber:</td>
+                            <td className="border px-4 py-2">{general.primaryContactNumber}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div className="flex w-full justify-center mt-4">
+                <Button variant="primaryGreen" onClick={handleSubmit}>
+                    Submit
+                </Button>
+            </div>
+        </div>
+    );
+}
+
+export default SubmitForm;
