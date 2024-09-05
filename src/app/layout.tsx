@@ -5,6 +5,7 @@ import { Roboto_Flex as FontSans } from "next/font/google";
 import { type Metadata } from "next";
 import SideNavBar from "~/components/common/sideNavComponent";
 import TopBar from "~/components/common/topBarComponent";
+import { Toaster } from "~/components/ui/toaster";
 
 const fontSans = FontSans({
   weight:['100','300','400','500','700','900'],
@@ -25,6 +26,7 @@ export default function RootLayout({
     <html lang="en" className={`${fontSans.variable}`}>
       <body>
         <div>{children}</div>
+        <Toaster/>
       </body>
     </html>
 

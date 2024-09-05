@@ -19,7 +19,7 @@ interface AddHotelContextProps {
 
 // Provide default values
 const defaultHotelGeneral: HotelGeneralType = {
-  hotelName: "",
+  name: "",
   stars: 0,
   primaryEmail: "",
   primaryContactNumber: "",

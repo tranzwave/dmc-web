@@ -26,7 +26,7 @@ import { ArrowRightSquareIcon } from "lucide-react";
 
 // Define the schema for form validation
 export const hotelGeneralSchema = z.object({
-  hotelName: z.string().min(1, "Hotel name is required"),
+  name: z.string().min(1, "Hotel name is required"),
   stars: z.number().min(1, "Star rating is required"),
   primaryEmail: z.string().email("Invalid email address"),
   primaryContactNumber: z.string().min(1, "Primary contact number is required"),
@@ -139,7 +139,7 @@ const HotelGeneralForm = () => {
         >
           <div className="grid grid-cols-4 gap-4">
             <FormField
-              name="hotelName"
+              name="name"
               control={generalForm.control}
               render={({ field }) => (
                 <FormItem>

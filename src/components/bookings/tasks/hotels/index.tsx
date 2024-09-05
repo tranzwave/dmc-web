@@ -34,7 +34,6 @@ export type HotelVoucherData = {
   updatedAt: Date | null;
   coordinatorId: string;
   hotelId: string;
-  bookingLine: SelectBookingLine;
   hotel: SelectHotel;
   voucherLine: SelectHotelVoucherLine[];
 };
@@ -117,7 +116,7 @@ const HotelsTasksTab: React.FC<HotelsTasksTabProps> = ({ bookingLineId }) => {
           <div className="flex flex-row items-end justify-between">
             <div>
               {selectedVoucher?.hotel
-                ? `${selectedVoucher?.hotel.hotelName} - Voucher Lines`
+                ? `${selectedVoucher?.hotel.name} - Voucher Lines`
                 : ""}
             </div>
             <div className="flex flex-row gap-2">
@@ -172,8 +171,8 @@ export default HotelsTasksTab;
 
 const allHotelsColumns: ColumnDef<HotelVoucherData>[] = [
   {
-    accessorKey: "hotel.hotelName",
     header: "Hotel",
+    accessorFn: (row) => row.hotel.name,
   },
   {
     accessorKey: "hotel.primaryEmail",

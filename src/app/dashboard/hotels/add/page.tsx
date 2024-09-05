@@ -27,7 +27,7 @@ const AddHotel = () => {
     //             'Content-Type': 'application/json',
     //         },
     //         body: JSON.stringify({
-    //             hotelName: 'Test Hotel',
+    //             name: 'Test Hotel',
     //             stars: 5,
     //             primaryEmail: 'info@hotel.com',
     //             primaryContactNumber: '123456789',

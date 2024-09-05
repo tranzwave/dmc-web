@@ -8,7 +8,7 @@ import { HotelDTO } from "~/lib/types/hotel";
 
   
   export type Hotel = {
-    hotelName: string;
+    name: string;
     quantity: number;
     roomCount: number;
     checkInDate: string;
@@ -23,7 +23,7 @@ import { HotelDTO } from "~/lib/types/hotel";
 
 export const columns: ColumnDef<HotelDTO>[] = [
     {
-      accessorKey: "hotelName",
+      accessorKey: "name",
       header: "Hotel Name",
     },
     {
@@ -47,7 +47,7 @@ export const columns: ColumnDef<HotelDTO>[] = [
 
   export const voucherColumns: ColumnDef<HotelVoucher>[] = [
     {
-      accessorKey: "hotel.hotelName",
+      accessorKey: "hotel.name",
       header: "Hotel Name",
     },
     {

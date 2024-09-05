@@ -1,35 +1,40 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { BookingSchema } from "~/lib/api"; // Adjust the import path as necessary
-import { BookingDetails } from "../../add/context";
-import HotelsTasksTab from "~/components/bookings/tasks/hotels";
 import {
-  getBookingById,
-  getBookingLineById,
+  getBookingLineWithAllData,
 } from "~/server/db/queries/booking";
 import { SelectBookingLine } from "~/server/db/schemaTypes";
+import HotelsTasksTab from "~/components/bookings/tasks/hotelsTaskTab";
+import RestaurantsTasksTab from "~/components/bookings/tasks/restaurants";
+import ActivitiesTasksTab from "~/components/bookings/tasks/activities";
+import ShopsTasksTab from "~/components/bookings/tasks/shops";
+import TransportTasksTab from "~/components/bookings/tasks/transport";
+import { BookingLineWithAllData } from "~/lib/types/booking";
 
 const Page = ({ params }: { params: { id: string } }) => {
   const pathname = usePathname();
   const [booking, setBooking] = useState<SelectBookingLine>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [bookingLine, setBookingLine] = useState<BookingLineWithAllData>()
+  const searchParams = useSearchParams();
+  const tab = searchParams.get('tab');
 
   // Fetch the booking details when the component mounts
   const fetchBooking = async () => {
     setLoading(true)
     try {
-      const booking = await getBookingLineById(params.id);
-      console.log(booking)
-      if (!booking) {
+      const bookingLineData = await getBookingLineWithAllData(params.id)
+      console.log(bookingLineData)
+      if (!bookingLineData) {
         setError("Booking not found");
       }
-      setBooking(booking);
+      setBookingLine(bookingLineData)
       setLoading(false)
     } catch (error) {
       console.error(error);
@@ -49,16 +54,17 @@ const Page = ({ params }: { params: { id: string } }) => {
     return <div>Error: {error}</div>;
   }
 
-  if (!booking) {
+  if (!bookingLine) {
     return <div>No booking details available</div>;
   }
+
 
   return (
     <div className="flex">
       <div className="flex-1">
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
-            <TitleBar title={`${booking.id} - Tasks`} link="toAddBooking" />
+            <TitleBar title={`${bookingLine.id} - Tasks`} link="toAddBooking" />
             <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
@@ -66,38 +72,39 @@ const Page = ({ params }: { params: { id: string } }) => {
             </div>
           </div>
           <div className="w-full">
-            <Tabs defaultValue="hotels" className="w-full border">
+            <Tabs defaultValue={tab ?? "hotels"} className="w-full border">
               <TabsList className="flex w-full justify-evenly">
-                <TabsTrigger value="general">General</TabsTrigger>
+                {/* <TabsTrigger value="general">General</TabsTrigger> */}
                 <TabsTrigger value="hotels">Hotels</TabsTrigger>
                 <TabsTrigger value="restaurants">Restaurants</TabsTrigger>
                 <TabsTrigger value="activities">Activities</TabsTrigger>
                 <TabsTrigger value="transport">Transport</TabsTrigger>
                 <TabsTrigger value="shops">Shops</TabsTrigger>
-                <TabsTrigger value="submit">Submit</TabsTrigger>
               </TabsList>
-              <TabsContent value="general">
+              {/* <TabsContent value="general"> */}
                 {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
-                General Task View
-              </TabsContent>
+                {/* General Task View */}
+              {/* </TabsContent> */}
               <TabsContent value="hotels">
                 {/* <HotelsTab onAddHotel={addHotel} /> */}
-                <HotelsTasksTab bookingLineId={params.id} />
+                <HotelsTasksTab bookingLineId={params.id} vouchers={bookingLine?.hotelVouchers ?? []}/>
+                {/* <HotelsTasksTab bookingLineId={params.id}/> */}
               </TabsContent>
               <TabsContent value="restaurants">
                 {/* <RestaurantsTab onAddRestaurant={addRestaurant} /> */}
-                Restaurants Tasks
+                <RestaurantsTasksTab bookingLineId={params.id} vouchers={bookingLine?.restaurantVouchers ?? []}/>
               </TabsContent>
               <TabsContent value="activities">
                 {/* <ActivitiesTab onAddActivity={addActivity} /> */}
-                Activities Tasks
+                <ActivitiesTasksTab bookingLineId={params.id} vouchers={bookingLine?.activityVouchers ?? []}/>
               </TabsContent>
               <TabsContent value="transport">
                 {/* <TransportTab onAddTransport={addTransport} /> */}
-                Transport Tasks
+                <TransportTasksTab bookingLineId={params.id} vouchers={bookingLine?.transportVouchers ?? []}/>
               </TabsContent>
-              <TabsContent value="shops">Shops Tasks</TabsContent>
-              <TabsContent value="submit">Submit Tasks</TabsContent>
+              <TabsContent value="shops">
+                <ShopsTasksTab bookingLineId={params.id} vouchers = {bookingLine?.shopsVouchers ?? []}/>
+              </TabsContent>
             </Tabs>
           </div>
         </div>
