@@ -122,7 +122,7 @@ const VehiclesForm: React.FC<VehiclesFormProps> = ({ onAddVehicles }) => {
                 <FormItem>
                   <FormLabel>Make</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter Street Name" {...field} />
+                    <Input placeholder="Enter make" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -152,7 +152,7 @@ const VehiclesForm: React.FC<VehiclesFormProps> = ({ onAddVehicles }) => {
                   <FormItem>
                     <FormLabel>Year</FormLabel>
                     <FormControl>
-                      <Input type="date" placeholder="Enter year" {...field} />
+                      <Input type="number" placeholder="Enter year" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

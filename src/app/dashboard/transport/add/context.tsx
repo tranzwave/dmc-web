@@ -29,7 +29,7 @@ const defaultGeneral: General = {
   streetName: "",
   city: "",
   province: "",
-  guid: "",
+  guide: false,
   includes: {
     vehicles: false,
     charges: false,

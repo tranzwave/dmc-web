@@ -276,7 +276,7 @@ const HotelGeneralForm = () => {
                     value={field.value}
                   >
                     <SelectTrigger className="bg-slate-100 shadow-md">
-                      <SelectValue placeholder="Select country" />
+                      <SelectValue placeholder="Select city" />
                     </SelectTrigger>
                     <SelectContent>
                       {cities.map((city) => (

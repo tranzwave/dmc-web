@@ -1,46 +1,64 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { General } from '~/components/activities/addActivity/forms/generalForm/columns';
+import { InsertActivity, InsertActivityVendor } from '~/server/db/schemaTypes'; // Import the activity type definition
 
-interface ActivityDetails {
-  general: General; 
+export type ActivityVendorDTO = InsertActivityVendor & {
+  city?:string
+}
+
+export type ActivityTypeDTO = InsertActivity & {
+  typeName?:string
+}
+
+export interface ActivityVendorDetails {
+  general: ActivityVendorDTO;
+  activities: ActivityTypeDTO[]; // Activities array for the vendor
 }
 
 // Define context properties
 interface AddActivityContextProps {
-  activityDetails: ActivityDetails;
-  setGeneralDetails: (details: General) => void;
+  activityVendorDetails: ActivityVendorDetails;
+  setGeneralDetails: (details: InsertActivityVendor) => void;
+  addActivity: (activity: InsertActivity) => void; // Method to add activities
 }
 
 // Provide default values
-const defaultGeneral: General = {
+const defaultGeneral: InsertActivityVendor = {
   name: "",
-  activity: "",
-  primaryEmail: "",
-  primaryContactNumber: "",
   streetName: "",
-  city: "",
   province: "",
-  capacity: "",
+  cityId:0,
+  contactNumber:"",
+  tenantId:"",
 };
 
-const defaultActivityDetails: ActivityDetails = {
+const defaultActivityVendorDetails: ActivityVendorDetails = {
   general: defaultGeneral,
+  activities: [], // Initialize with an empty array
 };
 
 const AddActivityContext = createContext<AddActivityContextProps | undefined>(undefined);
 
 export const AddActivityProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [activityDetails, setActivityDetails] = useState<ActivityDetails>(defaultActivityDetails);
+  const [activityVendorDetails, setActivityVendorDetails] = useState<ActivityVendorDetails>(defaultActivityVendorDetails);
 
-  const setGeneralDetails = (details: General) => {
-    setActivityDetails(prev => ({ ...prev, general: details }));
+  const setGeneralDetails = (details: InsertActivityVendor) => {
+    setActivityVendorDetails(prev => ({ ...prev, general: details }));
+  };
+
+  const addActivity = (activity: InsertActivity) => {
+    setActivityVendorDetails(prev => ({
+      ...prev,
+      activities: [...prev.activities, activity],
+    }));
   };
 
   return (
     <AddActivityContext.Provider
       value={{
-        activityDetails,
-        setGeneralDetails
+        activityVendorDetails,
+        setGeneralDetails,
+        addActivity
       }}
     >
       {children}

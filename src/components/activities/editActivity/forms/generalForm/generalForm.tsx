@@ -31,7 +31,7 @@ export const generalSchema = z.object({
 type GeneralFormValues = z.infer<typeof generalSchema>;
 
 const GeneralForm = () => {
-  const { setGeneralDetails, activityDetails } = useAddActivity();
+  const { setGeneralDetails, activityVendor: activityDetails } = useAddActivity();
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
     defaultValues: activityDetails.general,

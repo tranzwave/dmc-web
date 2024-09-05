@@ -22,6 +22,7 @@ import {
 } from "~/server/db/schemaTypes";
 import { useToast } from "~/hooks/use-toast";
 import { Calendar } from "~/components/ui/calendar";
+import { ColumnDef } from "@tanstack/react-table";
 
 type DriverWithoutVehiclesAndLanguages = Omit<
   DriverData,
@@ -194,7 +195,7 @@ const TransportTab = () => {
               </div>
             </div>
             <DataTable
-              columns={driverColumns}
+              columns={driverDataColumns}
               data={drivers}
               onRowClick={handleRowClick}
             />
@@ -214,3 +215,19 @@ const TransportTab = () => {
 };
 
 export default TransportTab;
+
+
+export const driverDataColumns: ColumnDef<DriverData>[] = [
+  {
+    accessorKey: "name",
+    header: "Name",
+  },
+  {
+    accessorKey: "primaryEmail",
+    header: "Primary Email",
+  },
+  {
+    accessorKey: "primaryContactNumber",
+    header: "Primary Contact Number",
+  },
+];

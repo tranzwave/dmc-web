@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useAddActivity } from "~/app/dashboard/activities/add/context";
@@ -14,38 +15,78 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+import { getAllCities } from "~/server/db/queries/activities";
+import { SelectCity } from "~/server/db/schemaTypes";
 
 // Define the schema for form validation
 export const generalSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  activity: z.string().min(1, "Activity is required"),
+  // activity: z.string().min(1, "Activity is required"),
   primaryEmail: z.string().email("Invalid email address"),
   primaryContactNumber: z.string().min(1, "Contact number is required"),
   streetName: z.string().min(1, "Street name is required"),
   city: z.string().min(1, "City is required"),
   province: z.string().min(1, "Province is required"),
-  capacity: z.string().min(1, "Capacity is required"),
 });
 
 // Define the type of the form values
 type GeneralFormValues = z.infer<typeof generalSchema>;
 
 const GeneralForm = () => {
-  const { setGeneralDetails, activityDetails } = useAddActivity();
+  const [error, setError] = useState<string>();
+  const [loading, setLoading] = useState(false);
+  const [cities, setCities] = useState<SelectCity[]>([]);
+  const { setGeneralDetails, activityVendorDetails } = useAddActivity();
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
-    defaultValues: activityDetails.general,
   });
 
   const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
     console.log(data);
-    setGeneralDetails(data);
+    setGeneralDetails({
+      cityId: Number(data.city),
+      name: data.name,
+      contactNumber: data.primaryContactNumber,
+      province: data.province,
+      streetName: data.streetName,
+      tenantId: "",
+    });
   };
+
+  const fetchData = async () => {
+    try {
+      // Run both requests in parallel
+      setLoading(true);
+      const [citiesResponse] = await Promise.all([getAllCities("LK")]);
+
+      if (!citiesResponse) {
+        throw new Error("Error fetching cities");
+      }
+
+      console.log("Fetched cities:", citiesResponse);
+
+      setCities(citiesResponse);
+
+      setLoading(false);
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <FormField
             name="name"
             control={form.control}
@@ -60,7 +101,7 @@ const GeneralForm = () => {
             )}
           />
 
-          <FormField
+          {/* <FormField
             name="activity"
             control={form.control}
             render={({ field }) => (
@@ -72,7 +113,7 @@ const GeneralForm = () => {
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
 
           <FormField
             name="primaryEmail"
@@ -112,52 +153,68 @@ const GeneralForm = () => {
         </div>
 
         <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-1">
-            <FormField
-              name="streetName"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Street Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter Street Name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="col-span-2">
-            <div className="grid grid-cols-3 gap-4">
-              <FormField
-                name="city"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter city" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="province"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Province</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter province" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
+          <FormField
+            name="streetName"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Street Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter Street Name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="city"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>City</FormLabel>
+                <FormControl>
+                  {/* <Input placeholder="Enter city" {...field} /> */}
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      alert(value);
+                    }}
+                    value={field.value}
+                  >
+                    <SelectTrigger className="bg-slate-100 shadow-md">
+                      <SelectValue placeholder="Select city" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cities.map((city) => (
+                        <SelectItem
+                          key={city.id}
+                          value={String(city.id ?? 0) || "0"}
+                        >
+                          {city.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="province"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Province</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter province" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="grid grid-cols-3 gap-4">
+            {/* <FormField
                 name="capacity"
                 control={form.control}
                 render={({ field }) => (
@@ -169,14 +226,13 @@ const GeneralForm = () => {
                     <FormMessage />
                   </FormItem>
                 )}
-              />
-            </div>
+              /> */}
           </div>
         </div>
 
         <div className="flex w-full flex-row justify-end">
           <Button type="submit" variant={"primaryGreen"}>
-            Submit
+            Next
           </Button>
         </div>
       </form>
