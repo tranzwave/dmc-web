@@ -1,17 +1,35 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
-import { Booking, columns } from "~/components/bookings/home/columns";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
 import { StatsCard } from "~/components/ui/stats-card";
-import { Activity, getActivityData, getData } from "~/lib/api";
-import { getActivityVendorById, getActivityVouchersForVendor, getAllActivityVendors } from "~/server/db/queries/activities";
+import { getActivityVendorById, getActivityVouchersForVendor } from "~/server/db/queries/activities";
 import { SelectActivityVoucher } from "~/server/db/schemaTypes";
 import { ActivityVendorData } from "../page";
 
 const Page = ({ params }: { params: { id: string } }) => {
+
+  const activityVoucherColumns: ColumnDef<SelectActivityVoucher>[] = [
+    {
+      header: "Activity",
+      accessorFn: (row) => row.activityName,
+    },
+    {
+      header: "Date",
+      accessorFn: (row) => row.date,
+    },
+    {
+      header: "Time",
+      accessorFn: (row) => row.time,
+    },
+    {
+      header: "Participant Count",
+      accessorFn: (row) => row.participantsCount
+    },
+  
+  ];
   const [activityVendor, setActivityVendor] = useState<ActivityVendorData | null>(null);
   const [data, setData] = useState<SelectActivityVoucher[]>([]);
 
@@ -105,26 +123,6 @@ const Page = ({ params }: { params: { id: string } }) => {
     </div>
   );
 };
+ export default Page;
 
-export default Page;
 
-
-export const activityVoucherColumns: ColumnDef<SelectActivityVoucher>[] = [
-  {
-    header: "Activity",
-    accessorFn: (row) => row.activityName,
-  },
-  {
-    header: "Date",
-    accessorFn: (row) => row.date,
-  },
-  {
-    header: "Time",
-    accessorFn: (row) => row.time,
-  },
-  {
-    header: "Participant Count",
-    accessorFn: (row) => row.participantsCount
-  },
-
-];

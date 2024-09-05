@@ -141,7 +141,7 @@ const GeneralForm = () => {
                       {languages.map((language) => (
                         <SelectItem
                           key={language.id}
-                          value={String(language.id ?? 0) || "0"}
+                          value={String(language.id ?? 0) ?? "0"}
                         >
                           {language.name}
                         </SelectItem>
@@ -232,7 +232,7 @@ const GeneralForm = () => {
                       {cities.map((city) => (
                         <SelectItem
                           key={city.id}
-                          value={String(city.id ?? 0) || "0"}
+                          value={String(city.id ?? 0) ?? "0"}
                         >
                           {city.name}
                         </SelectItem>

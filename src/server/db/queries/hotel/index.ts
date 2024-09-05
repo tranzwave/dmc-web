@@ -145,7 +145,7 @@ export async function insertHotel(hotels:CompleteHotel[]) {
           }
           const newCity = await db.insert(city).values(
             {
-                "name": currentHotel.hotel?.city || "",
+                "name": currentHotel.hotel?.city ?? "",
                 "country": foundTenant.country
             },
           ).returning({
@@ -189,14 +189,14 @@ export async function insertHotel(hotels:CompleteHotel[]) {
           });
 
           if(!newHotelId[0]){
-            throw new Error(`Couldn't add hotel: ${currentHotel.hotel}`)
+            throw new Error(`Couldn't add hotel: ${currentHotel.hotel.name}`)
           }
 
           //Add hotel rooms
           await db.insert(hotelRoom).values(
             currentHotel.hotelRooms.map((room) => ({
               ...room,
-              hotelId: newHotelId[0]?.id || room.hotelId
+              hotelId: newHotelId[0]?.id ?? room.hotelId
             }))
           );
 
@@ -204,7 +204,7 @@ export async function insertHotel(hotels:CompleteHotel[]) {
           await db.insert(hotelStaff).values(
             currentHotel.hotelStaffs.map((staff) => ({
                 ...staff,
-                hotelId: newHotelId[0]?.id || staff.hotelId
+                hotelId: newHotelId[0]?.id ?? staff.hotelId
               }))
             
           )

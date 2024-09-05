@@ -64,7 +64,7 @@ const AddBooking = () => {
                   value="hotels"
                   onClick={() => setActiveTab("hotels")}
                   disabled={bookingDetails.vouchers.length == 0}
-                  statusLabel={statusLabels["hotels"]}
+                  statusLabel={statusLabels.hotels}
                   isCompleted = {bookingDetails.vouchers.length > 0}
                   inProgress = {activeTab == "hotels"}
                 >
@@ -74,7 +74,7 @@ const AddBooking = () => {
                   value="restaurants"
                   onClick={() => setActiveTab("restaurants")}
                   disabled={bookingDetails.restaurants.length == 0}
-                  statusLabel={statusLabels["restaurants"]}
+                  statusLabel={statusLabels.restaurants}
                   isCompleted = {bookingDetails.restaurants.length > 0}
                   inProgress = {activeTab == "restaurants"}
                 >
@@ -84,7 +84,7 @@ const AddBooking = () => {
                   value="activities"
                   onClick={() => setActiveTab("activities")}
                   disabled={bookingDetails.activities.length == 0}
-                  statusLabel={statusLabels["activities"]}
+                  statusLabel={statusLabels.activities}
                   isCompleted = {bookingDetails.activities.length > 0}
                   inProgress = {activeTab == "activities"}
                 >
@@ -94,7 +94,7 @@ const AddBooking = () => {
                   value="transport"
                   onClick={() => setActiveTab("transport")}
                   disabled={bookingDetails.transport.length == 0}
-                  statusLabel={statusLabels["transport"]}
+                  statusLabel={statusLabels.transport}
                   isCompleted = {bookingDetails.transport.length > 0}
                   inProgress = {activeTab == "transport"}
                 >
@@ -104,7 +104,7 @@ const AddBooking = () => {
                   value="shops"
                   onClick={() => setActiveTab("shops")}
                   disabled={bookingDetails.shops.length == 0}
-                  statusLabel={statusLabels["shops"]}
+                  statusLabel={statusLabels.shops}
                   isCompleted = {bookingDetails.shops.length > 0}
                   inProgress = {activeTab == "shops"}
                 >

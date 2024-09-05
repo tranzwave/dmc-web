@@ -67,7 +67,7 @@ export default async function seed(db: DB) {
                       name: shopType.name
                   });
                   if(!newShopType[0]){
-                      throw new Error("Couldn't add new activity " + t)
+                      throw new Error("Couldn't add new activity ")
                   }
                   shopTypesMap.set(t.name, newShopType[0]);
               } else {

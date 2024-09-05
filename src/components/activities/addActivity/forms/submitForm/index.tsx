@@ -23,7 +23,7 @@ const SubmitForm = () => {
             const response = await insertActivityVendor([activityVendorDetails]);
         
             if (!response) {
-              throw new Error(`Error: ${response}`);
+              throw new Error(`Error: Inserting Activity Vendor`);
             }
         
             console.log("Success:", response);

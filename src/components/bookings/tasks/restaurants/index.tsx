@@ -24,12 +24,12 @@ const restaurantColumns: ColumnDef<RestaurantVoucherData>[] = [
   {
     accessorKey: "voucherLine",
     header: "Voucher Lines",
-    accessorFn: (row) => row.voucherLine?.length || "Not found",
+    accessorFn: (row) => row.voucherLine?.length ?? "Not found",
   },
   {
     accessorKey: "voucherLine",
     header: "Progress",
-    accessorFn: (row) => row.voucherLine?.length || "Not found",
+    accessorFn: (row) => row.voucherLine?.length ?? "Not found",
   },
 ];
 

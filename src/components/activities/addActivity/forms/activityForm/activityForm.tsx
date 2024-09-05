@@ -55,7 +55,7 @@ const VendorActivityForm: React.FC<ActivityFormProps> = ({ onAddActivity }) => {
               <FormControl>
                 <Input
                   type="name"
-                  value={field.value || ""}
+                  value={field.value ?? ""}
                   onChange={(e) => field.onChange(e.target.value)}
                   placeholder="Enter activity type"
                 />
@@ -69,7 +69,7 @@ const VendorActivityForm: React.FC<ActivityFormProps> = ({ onAddActivity }) => {
               <FormControl>
                 <Input
                   type="number"
-                  value={field.value || ""}
+                  value={field.value ?? ""}
                   onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   placeholder="Enter capacity"
                 />

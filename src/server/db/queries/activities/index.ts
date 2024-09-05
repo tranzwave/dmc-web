@@ -5,16 +5,10 @@ import {
   city,
   activity,
   activityVoucher,
-  language,
   activityType,
 } from "./../../schema";
 import { db } from "../..";
 import { and, eq } from "drizzle-orm";
-import {
-  InsertActivity,
-  InsertActivityType,
-  InsertActivityVendor,
-} from "../../schemaTypes";
 import { ActivityVendorDetails } from "~/app/dashboard/activities/add/context";
 
 export const getAllCities = (countryCode: string) => {
@@ -95,7 +89,7 @@ export const insertActivityVendor = async (
         throw new Error("Couldn't find any tenant");
       }
 
-      let addedVendors = []
+      const addedVendors = []
 
       for (const vendorDetails of activityVendorDetails) {
         const { general, activities } = vendorDetails;

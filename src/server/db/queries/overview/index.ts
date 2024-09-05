@@ -21,11 +21,11 @@ export const getStat = async () => {
     ]);
 
     // Extract the counts from the results
-    const bookingCount = bookingCountResult[0]?.bookingCount || 0;
-    const clientCount = clientCountResult[0]?.clientCount || 0;
-    const hotelCount = hotelCountResult[0]?.hotelCount || 0;
-    const activityVendorCount = activityVendorCountResult[0]?.activityVendorCount || 0;
-    const driverCount = driverCountResult[0]?.driverCount || 0;
+    const bookingCount = bookingCountResult[0]?.bookingCount ?? 0;
+    const clientCount = clientCountResult[0]?.clientCount ?? 0;
+    const hotelCount = hotelCountResult[0]?.hotelCount ?? 0;
+    const activityVendorCount = activityVendorCountResult[0]?.activityVendorCount ?? 0;
+    const driverCount = driverCountResult[0]?.driverCount ?? 0;
 
     return {
         bookingCount,
@@ -49,8 +49,8 @@ export const getClientCountByCountry = async () => {
         .groupBy(country.name, country.code);
 
     return clientCountByCountry.map(row => ({
-        country: row.countryName || "Unknown",
-        code: row.countryCode || "Unknown",
+        country: row.countryName ?? "Unknown",
+        code: row.countryCode ?? "Unknown",
         count: row.clientCount,
     }));
 };

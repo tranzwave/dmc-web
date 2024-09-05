@@ -99,7 +99,7 @@ const Overview = () => {
       <div className="flex w-full justify-center rounded-lg bg-[#83c9b6]">
         <Image src={heroImage} alt="" />
       </div>
-      <StatCards stats={data.stats || []}/>
+      <StatCards stats={data.stats ?? []}/>
       <div className="flex w-full flex-row gap-3">
         <div className="card w-1/2 gap-3">
           <div>
@@ -120,7 +120,7 @@ const Overview = () => {
             </div>
           </div>
           <div>
-            <TouristsByCountry data={data.tourists || []}/>
+            <TouristsByCountry data={data.tourists ?? []}/>
           </div>
         </div>
       </div>

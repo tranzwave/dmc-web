@@ -129,7 +129,7 @@ const HotelsTasksTab: React.FC<HotelsTasksTabProps> = ({ bookingLineId }) => {
           </div>
           <DataTable
             columns={selectedHotelVoucherLinesColumns}
-            data={selectedVoucher?.voucherLine || []}
+            data={selectedVoucher?.voucherLine ?? []}
             onRowClick={onVoucherLineRowClick}
           />
           <div className="w-full flex flex-row items-end justify-end">
@@ -144,16 +144,16 @@ const HotelsTasksTab: React.FC<HotelsTasksTabProps> = ({ bookingLineId }) => {
             hotels={selectedVoucher?.hotel ? [selectedVoucher?.hotel] : []}
             onAddHotel={() => console.log("Hotel added")}
             defaultValues={{
-              adultsCount: selectedVoucherLine?.adultsCount || 0,
-              kidsCount: selectedVoucherLine?.kidsCount || 0,
-              hotelVoucherId: selectedVoucherLine?.hotelVoucherId || "",
-              roomType: selectedVoucherLine?.roomType || "",
-              basis: selectedVoucherLine?.basis || "",
-              checkInDate: selectedVoucherLine?.checkInDate || "",
-              checkInTime: selectedVoucherLine?.checkInTime || "",
-              checkOutDate: selectedVoucherLine?.checkOutDate || "",
-              checkOutTime: selectedVoucherLine?.checkOutTime || "",
-              roomCount: selectedVoucherLine?.roomCount || 0,
+              adultsCount: selectedVoucherLine?.adultsCount ?? 0,
+              kidsCount: selectedVoucherLine?.kidsCount ?? 0,
+              hotelVoucherId: selectedVoucherLine?.hotelVoucherId ?? "",
+              roomType: selectedVoucherLine?.roomType ?? "",
+              basis: selectedVoucherLine?.basis ?? "",
+              checkInDate: selectedVoucherLine?.checkInDate ?? "",
+              checkInTime: selectedVoucherLine?.checkInTime ?? "",
+              checkOutDate: selectedVoucherLine?.checkOutDate ?? "",
+              checkOutTime: selectedVoucherLine?.checkOutTime ?? "",
+              roomCount: selectedVoucherLine?.roomCount ?? 0,
             }}
           />
         </div>
@@ -231,7 +231,7 @@ const selectedHotelVoucherLinesColumns: ColumnDef<SelectHotelVoucherLine>[] = [
     id: "actions",
     header: "Actions",
     cell: ({ getValue, row }) => {
-        const voucherLine = row.original as SelectHotelVoucherLine;
+        const voucherLine = row.original;
         return (
             <div>
             <DropdownMenu>

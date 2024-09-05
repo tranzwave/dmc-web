@@ -62,9 +62,9 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
 
   const [selectedMeal, setSelectedMeal] = useState<SelectMeal>();
 
-  const fetchMeals = async (restaurantId: string) => {
-    const response = await getMeals;
-  };
+  // const fetchMeals = async (restaurantId: string) => {
+  //   const response = await getMeals;
+  // };
   const form = useForm<z.infer<typeof restaurantSchema>>({
     resolver: zodResolver(restaurantSchema),
     defaultValues: {
@@ -149,7 +149,7 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
                 <FormControl>
                   <Input
                     type="number"
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>
@@ -166,7 +166,7 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
                 <FormControl>
                   <Input
                     type="number"
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>

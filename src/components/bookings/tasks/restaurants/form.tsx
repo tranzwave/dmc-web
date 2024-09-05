@@ -34,7 +34,7 @@ const RestaurantsForm: React.FC<RestaurantsFormProps> = ({ selectedItem, onSave 
           type="text"
           id="restaurantName"
           name="restaurantName"
-          value={restaurantData?.restaurant.name || ''}
+          value={restaurantData?.restaurant.name ?? ''}
           onChange={handleChange}
           required
         />
@@ -45,7 +45,7 @@ const RestaurantsForm: React.FC<RestaurantsFormProps> = ({ selectedItem, onSave 
           type="tel"
           id="contactNumber"
           name="contactNumber"
-          value={restaurantData?.restaurant.contactNumber || ''}
+          value={restaurantData?.restaurant.contactNumber ?? ''}
           onChange={handleChange}
         />
       </div>
@@ -55,7 +55,7 @@ const RestaurantsForm: React.FC<RestaurantsFormProps> = ({ selectedItem, onSave 
           type="text"
           id="address"
           name="address"
-          value={restaurantData?.restaurant.cityId || ''}
+          value={restaurantData?.restaurant.cityId ?? ''}
           onChange={handleChange}
         />
       </div>

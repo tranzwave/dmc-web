@@ -15,6 +15,43 @@ export type ActivityVendorData = SelectActivityVendor & {
 }
 
 const ActivityHome = () => {
+    const activityVendorColumns: ColumnDef<ActivityVendorData>[] = [
+        {
+          header: "Vendor Name",
+          accessorFn: row => row.name
+        },
+        {
+          header: "Contact Number",
+          accessorFn: row => row.contactNumber
+        },
+        {
+            header: "Street Name",
+            accessorFn: row => row.streetName
+        },
+        {
+            header: "City",
+            accessorFn: row => row.city.name
+        },
+        {
+            header: "Province",
+            accessorFn: row => row.province
+        },
+        {
+          accessorKey: 'id',
+          header: '',
+          cell: ({ getValue, row }) => {
+            const activity = row.original;
+      
+            return (
+                <DataTableDropDown data={activity} routeBase="/activities/" 
+                onViewPath={(data) => `/dashboard/activities/${data.id}`}
+                onEditPath={(data) => `/dashboard/activities/${data.id}/edit`}
+                onDeletePath={(data) => `/dashboard/activities/${data.id}/delete`}
+      />
+            );
+          },
+        },
+      ];
     const pathname = usePathname();
 
     const [data, setData] = useState<ActivityVendorData[]>([]);
@@ -76,43 +113,3 @@ const ActivityHome = () => {
 }
 
 export default ActivityHome;
-
-
-
-export const activityVendorColumns: ColumnDef<ActivityVendorData>[] = [
-    {
-      header: "Vendor Name",
-      accessorFn: row => row.name
-    },
-    {
-      header: "Contact Number",
-      accessorFn: row => row.contactNumber
-    },
-    {
-        header: "Street Name",
-        accessorFn: row => row.streetName
-    },
-    {
-        header: "City",
-        accessorFn: row => row.city.name
-    },
-    {
-        header: "Province",
-        accessorFn: row => row.province
-    },
-    {
-      accessorKey: 'id',
-      header: '',
-      cell: ({ getValue, row }) => {
-        const activity = row.original as ActivityVendorData;
-  
-        return (
-            <DataTableDropDown data={activity} routeBase="/activities/" 
-            onViewPath={(data) => `/dashboard/activities/${data.id}`}
-            onEditPath={(data) => `/dashboard/activities/${data.id}/edit`}
-            onDeletePath={(data) => `/dashboard/activities/${data.id}/delete`}
-  />
-        );
-      },
-    },
-  ];

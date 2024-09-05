@@ -69,7 +69,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom }) => {
               <FormControl>
                 <Input
                   type="number"
-                  value={field.value || ""}
+                  value={field.value ?? ""}
                   onChange={(e) => field.onChange(e.target.valueAsNumber)}
                 />
               </FormControl>
@@ -93,7 +93,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom }) => {
               <FormControl>
                 <Input
                   type="number"
-                  value={field.value || ""}
+                  value={field.value ?? ""}
                   onChange={(e) => field.onChange(e.target.valueAsNumber)}
                 />
               </FormControl>
@@ -106,7 +106,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom }) => {
               <FormControl>
                 <Input
                   type="number"
-                  value={field.value || ""}
+                  value={field.value ?? ""}
                   onChange={(e) => field.onChange(e.target.valueAsNumber)}
                 />
               </FormControl>

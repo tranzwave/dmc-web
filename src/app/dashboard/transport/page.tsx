@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
-import { getTransportData } from "~/lib/api";
 import { Driver, driverColumns, DriverDTO } from "~/lib/types/driver/type";
 import { getAllDrivers } from "~/server/db/queries/transport";
 

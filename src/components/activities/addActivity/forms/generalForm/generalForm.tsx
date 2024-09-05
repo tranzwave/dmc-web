@@ -188,7 +188,7 @@ const GeneralForm = () => {
                       {cities.map((city) => (
                         <SelectItem
                           key={city.id}
-                          value={String(city.id ?? 0) || "0"}
+                          value={String(city.id ?? 0) ?? "0"}
                         >
                           {city.name}
                         </SelectItem>

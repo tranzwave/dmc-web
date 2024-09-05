@@ -53,31 +53,31 @@ export const columns: ColumnDef<HotelDTO>[] = [
     },
     {
       header: "Adults",
-      accessorFn: row => row.voucherLines[0]?.adultsCount || 0,
+      accessorFn: row => row.voucherLines[0]?.adultsCount ?? 0,
     },
     {
       header: "Kids",
-      accessorFn: row => row.voucherLines[0]?.kidsCount || 0,
+      accessorFn: row => row.voucherLines[0]?.kidsCount ?? 0,
     },
     {
       header: "Room Count",
-      accessorFn: row => row.voucherLines[0]?.roomCount || 0,
+      accessorFn: row => row.voucherLines[0]?.roomCount ?? 0,
     },
     {
       header: "Check-In Date",
-      accessorFn: row => formatDate(row.voucherLines[0]?.checkInDate || ""),
+      accessorFn: row => formatDate(row.voucherLines[0]?.checkInDate ?? ""),
     },
     {
       header: "Check-In Time",
-      accessorFn: row => row.voucherLines[0]?.checkInTime || ""
+      accessorFn: row => row.voucherLines[0]?.checkInTime ?? ""
     },
     {
       header: "Check-Out Date",
-      accessorFn: row => formatDate(row.voucherLines[0]?.checkOutDate || ""),
+      accessorFn: row => formatDate(row.voucherLines[0]?.checkOutDate ?? ""),
     },
     {
       header: "Check-Out Time",
-      accessorFn: row => row.voucherLines[0]?.checkOutTime || ""
+      accessorFn: row => row.voucherLines[0]?.checkOutTime ?? ""
     },
     {
       header: "Rooms",

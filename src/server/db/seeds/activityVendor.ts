@@ -65,7 +65,7 @@ export default async function seed(db: DB) {
                       name: activityType.name
                   });
                   if(!newActivity[0]){
-                      throw new Error("Couldn't add new activity " + act)
+                      throw new Error("Couldn't add new activity " + act.name)
                   }
                   activityTypesMap.set(act.name, newActivity[0]);
               } else {
@@ -108,7 +108,7 @@ export default async function seed(db: DB) {
             currentVendor.activities.map((act) => ({
               ...act,
               tenantId: foundTenant.id,
-              activityVendorId: newVendorId[0]?.id || "",
+              activityVendorId: newVendorId[0]?.id ?? "",
               activityType: activityTypesMap.get(act.name)?.id ?? 0
             }))
           );            
