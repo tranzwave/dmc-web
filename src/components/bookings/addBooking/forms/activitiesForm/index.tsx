@@ -41,7 +41,7 @@ const ActivitiesTab = () => {
       //TODO: Dynamic country code
       const [activityResponse, cityResponse] = await Promise.all([
         getAllActivityTypes(),
-        getAllCities("LKA"),
+        getAllCities("LK"),
       ]);
 
       // Check for errors in the responses

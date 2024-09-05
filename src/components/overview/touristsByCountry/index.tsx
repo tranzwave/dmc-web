@@ -1,24 +1,30 @@
-import Image from 'next/image'; // Import the Progress component from ShadCN
 import { Progress } from '~/components/ui/progress';
 import ReactCountryFlag from 'react-country-flag';
 
-// Mock Data
-const touristsByCountry = [
-  { name: 'USA', tourists: 1235, total: 12348, code: 'US' },
-  { name: 'France', tourists: 5241, total: 12348, code: 'FR' },
-  { name: 'Italy', tourists: 2354, total: 12348, code: 'IT' },
-  { name: 'Spain', tourists: 1233, total: 12348, code: 'ES' },
-];
+// Define prop types
+export type TouristData = {
+  country: string;
+  code:string;
+  count: number;
+};
 
-const TouristsByCountry = () => {
+// Define the props for the TouristsByCountry component
+type TouristsByCountryProps = {
+  data: TouristData[];
+};
+
+const TouristsByCountry: React.FC<TouristsByCountryProps> = ({ data }) => {
+  const totalClients = data.reduce((sum, country) => sum + country.count, 0);
+  console.log(data)
+
   return (
     <div className="space-y-1">
-      {touristsByCountry.map((country, index) => (
+      {data.map((country, index) => (
         <CountryCard
           key={index}
-          name={country.name}
-          tourists={country.tourists}
-          total={country.total}
+          name={country.country}
+          tourists={country.count}
+          total={totalClients}
           code={country.code}
         />
       ))}
@@ -40,16 +46,15 @@ const CountryCard: React.FC<CountryCardProps> = ({ name, tourists, total, code }
     <div className="flex flex-row gap-4 items-center p-2 rounded-lg">
       <div className="w-12 h-12 rounded-full border overflow-hidden flex justify-center">
         <div>
-        <ReactCountryFlag
-          countryCode={code}
-          svg
-          style={{
-            transform: 'scale(5)', 
-            transformOrigin: 'center',
-          }}
-        />
+          <ReactCountryFlag
+            countryCode={code}
+            svg
+            style={{
+              transform: 'scale(5)', 
+              transformOrigin: 'center',
+            }}
+          />
         </div>
-
       </div>
       <div className="w-full">
         <div className="flex flex-row justify-between mb-2">

@@ -1,35 +1,34 @@
 [
-    {
-      "name": "New York",
-      "country": "USA"
-    },
-    {
-      "name": "Toronto",
-      "country": "CAN"
-    },
-    {
-      "name": "London",
-      "country": "GBR"
-    },
-    {
-      "name": "Sydney",
-      "country": "AUS"
-    },
-    {
-      "name": "Mumbai",
-      "country": "IND"
-    },
-    {
-      "name": "Colombo",
-      "country": "LKA"
-    },
-    {
-      "name": "Kandy",
-      "country": "LKA"
-    },
-    {
-      "name": "Galle",
-      "country": "LKA"
-    }
-  ]
-  
+  {
+    "name": "New York",
+    "country": "US"
+  },
+  {
+    "name": "Toronto",
+    "country": "CA"
+  },
+  {
+    "name": "London",
+    "country": "GB"
+  },
+  {
+    "name": "Sydney",
+    "country": "AU"
+  },
+  {
+    "name": "Mumbai",
+    "country": "IN"
+  },
+  {
+    "name": "Colombo",
+    "country": "LK"
+  },
+  {
+    "name": "Kandy",
+    "country": "LK"
+  },
+  {
+    "name": "Galle",
+    "country": "LK"
+  }
+]

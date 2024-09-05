@@ -1,35 +1,35 @@
 [
     {
       "name": "Tranzwave",
-      "country": "LKA",
+      "country": "LK",
       "domain": "tranzwave.com",
       "subscriptionPlan": "premium",
       "isActive": true
     },
     {
       "name": "Innovate Inc.",
-      "country": "LKA",
+      "country": "LK",
       "domain": "innovateinc.com",
       "subscriptionPlan": "standard",
       "isActive": true
     },
     {
       "name": "Global Solutions",
-      "country": "LKA",
+      "country": "LK",
       "domain": "globalsolutions.org",
       "subscriptionPlan": "basic",
       "isActive": false
     },
     {
       "name": "FutureTech",
-      "country": "LKA",
+      "country": "LK",
       "domain": "futuretech.co",
       "subscriptionPlan": "premium",
       "isActive": true
     },
     {
       "name": "NextGen Ventures",
-      "country": "LKA",
+      "country": "LK",
       "domain": "nextgenventures.net",
       "subscriptionPlan": "standard",
       "isActive": true
