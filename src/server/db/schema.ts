@@ -1,5 +1,4 @@
-import { columns } from "~/components/bookings/home/columns";
-import { Many, relations, sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   index,
@@ -8,9 +7,8 @@ import {
   pgTableCreator,
   primaryKey,
   text,
-  timestamp,
   varchar,
-  foreignKey,
+  timestamp,
   unique,
   serial,
   time,

@@ -3,36 +3,37 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import GeneralTab from '~/components/activities/addActivity/forms/generalForm';
+import SubmitForm from '~/components/activities/addActivity/forms/submitForm';
 import TitleBar from '~/components/common/titleBar';
 import { Button } from '~/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
-import { AddActivityProvider, useAddAgent } from './context';
+import { AddActivityProvider, useAddActivity } from './context';
 
-const SubmitForm = () => {
-  const { activityDetails } = useAddAgent();
+// const SubmitForm = () => {
+//   const { activityDetails } = useAddAgent();
 
-  const handleSubmit = () => {
-    // Handle the submission of activityDetails
-    console.log('Submitting activity details:', activityDetails);
-  };
+//   const handleSubmit = () => {
+//     // Handle the submission of activityDetails
+//     console.log('Submitting activity details:', activityDetails);
+//   };
 
-  return (
-    <div className='flex flex-col gap-3'>
-      <div className='card w-full h-10'>
-        <p>Review all the details and submit your activity.</p>
-      </div>
-      <div className='flex w-full justify-center'>
-        <Button variant="primaryGreen" onClick={handleSubmit}>
-          Submit
-        </Button>
-      </div>
-    </div>
-  );
-};
+//   return (
+//     <div className='flex flex-col gap-3'>
+//       <div className='card w-full h-10'>
+//         <p>Review all the details and submit your activity.</p>
+//       </div>
+//       <div className='flex w-full justify-center'>
+//         <Button variant="primaryGreen" onClick={handleSubmit}>
+//           Submit
+//         </Button>
+//       </div>
+//     </div>
+//   );
+// };
 
 const AddActivity = () => {
   const pathname = usePathname();
-  const { setGeneralDetails } = useAddAgent();
+  const { setGeneralDetails } = useAddActivity();
 
   useEffect(() => {
     console.log('Add Activity Component');

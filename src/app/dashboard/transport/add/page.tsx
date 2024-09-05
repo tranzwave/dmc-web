@@ -6,33 +6,34 @@ import TitleBar from '~/components/common/titleBar';
 import ChargesTab from '~/components/transports/addTransport/forms/chargesForm';
 import DocumentsTab from '~/components/transports/addTransport/forms/documentsForm';
 import GeneralTab from "~/components/transports/addTransport/forms/generalForm";
+import SubmitForm from '~/components/transports/addTransport/forms/submitForm';
 import VehiclesTab from '~/components/transports/addTransport/forms/vehiclesForm';
 import { Button } from '~/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { AddTransportProvider, useAddTransport } from './context';
 
-const SubmitForm = () => {
-  const { transportDetails } = useAddTransport();
+// const SubmitForm = () => {
+//   const { transportDetails } = useAddTransport();
 
-  const handleSubmit = () => {
-    // Handle the submission of activityDetails
-    console.log('Submitting booking details:', transportDetails);
-  };
+//   const handleSubmit = () => {
+//     // Handle the submission of activityDetails
+//     console.log('Submitting booking details:', transportDetails);
+//   };
 
-  return (
-    <div className='flex flex-col gap-3'>
-      <div className='card w-full h-10'>
-        <p>Review all the details and submit your activity.</p>
-      </div>
-      <div className='flex w-full justify-center'>
-        <Button variant="primaryGreen" onClick={handleSubmit}>
-          Submit
-        </Button>
-      </div>
+//   return (
+//     <div className='flex flex-col gap-3'>
+//       <div className='card w-full h-10'>
+//         <p>Review all the details and submit your activity.</p>
+//       </div>
+//       <div className='flex w-full justify-center'>
+//         <Button variant="primaryGreen" onClick={handleSubmit}>
+//           Submit
+//         </Button>
+//       </div>
 
-    </div>
-  );
-};
+//     </div>
+//   );
+// };
 
 const AddTransport = () => {
   const pathname = usePathname();

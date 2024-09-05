@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
 import { db } from '~/server/db';
 import { getAllHotels } from '~/server/db/queries/hotel';
-import { hotelRoom, hotel, hotelStaff } from '~/server/db/schema';
+import { hotel, hotelRoom, hotelStaff } from '~/server/db/schema';
 
 export async function POST(req: Request, res: NextApiResponse) {
   if (req.method === 'POST') {
