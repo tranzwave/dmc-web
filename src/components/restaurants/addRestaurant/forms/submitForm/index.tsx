@@ -1,14 +1,45 @@
+import { useState } from "react";
 import { useAddRestaurant } from "~/app/dashboard/restaurants/add/context";
 import { Button } from "~/components/ui/button";
+import { saveRestaurant } from "~/server/db/queries/restaurants";
 
 const SubmitForm = () => {
     const { restaurantDetails } = useAddRestaurant();
 
     const { general } = restaurantDetails;
 
-    const handleSubmit = () => {
-        // Handle the submission of activityDetails
-        console.log('Submitting activity details:', restaurantDetails);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    
+
+    const handleSubmit = async () => {
+        console.log('Submitting restaurant details:', restaurantDetails);
+        setLoading(true);
+        setError(null);
+
+        try {
+            const restaurantData = {
+                name: general.name,
+                streetName: general.streetName,
+                cityId: general.cityId, // Assuming you have a way to get the cityId
+                tenantId: general.tenantId, // Assuming tenantId is available in your context or form data
+                province: general.province,
+                primaryContactNumber: general.primaryContactNumber,
+                mealType: general.mealType,
+                startTime: general.startTime,
+                endTime: general.endTime,
+            };
+
+            // Call the server-side function to save the restaurant data
+            await saveRestaurant(restaurantData);
+            console.log("Restaurant saved successfully!");
+
+        } catch (err) {
+            console.error("Failed to save restaurant:", err);
+            setError("Failed to save restaurant. Please try again.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -42,7 +73,7 @@ const SubmitForm = () => {
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">City:</td>
-                            <td className="border px-4 py-2">{general.city}</td>
+                            <td className="border px-4 py-2">{general.cityId}</td>
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">Province:</td>

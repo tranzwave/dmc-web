@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useAddRestaurant } from "~/app/dashboard/restaurants/add/context";
@@ -14,6 +15,15 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { getAllCities } from "~/server/db/queries/restaurants";
+import { SelectCity } from "~/server/db/schemaTypes";
 
 // Define the schema for form validation
 export const generalSchema = z.object({
@@ -22,9 +32,10 @@ export const generalSchema = z.object({
   startTime: z.string().min(1, "Start time is required"),
   endTime: z.string().min(1, "Contact number is required"),
   streetName: z.string().min(1, "Street name is required"),
-  city: z.string().min(1, "City is required"),
+  cityId: z.string().min(1, "City is required"),
   province: z.string().min(1, "Province is required"),
-  primaryContactNumber: z.string().min(1, "COntact number is required"),
+  primaryContactNumber: z.string().min(1, "Contact number is required"),
+  tenantId: z.string().default("f7f856e0-5be1-4a62-bd6c-b3f0dd887ac0"),
 });
 
 // Define the type of the form values
@@ -32,6 +43,27 @@ type GeneralFormValues = z.infer<typeof generalSchema>;
 
 const GeneralForm = () => {
   const { setGeneralDetails, restaurantDetails } = useAddRestaurant();
+  const [cities, setCities] = useState<SelectCity[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+        try {
+            setLoading(true);
+            const result = await getAllCities();
+            setCities(result);
+        } catch (error) {
+            console.error("Failed to fetch restaurant data:", error);
+            setError("Failed to load data.");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    fetchData();
+}, []);
+
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
     defaultValues: restaurantDetails.general,
@@ -122,19 +154,41 @@ const GeneralForm = () => {
 
           <div className="col-span-2">
             <div className="grid grid-cols-3 gap-4">
-              <FormField
-                name="city"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter city" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+            name="cityId"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>City</FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      alert(value);
+                    }}
+                    value={field.value}
+                  >
+                    <SelectTrigger className="bg-slate-100 shadow-md">
+                      <SelectValue placeholder="Select city" />
+                      
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cities.map((city) => (
+                        <SelectItem
+                          key={city.id}
+                          value={String(city.id)}
+                        >
+                          {city.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
               <FormField
                 name="province"
                 control={form.control}

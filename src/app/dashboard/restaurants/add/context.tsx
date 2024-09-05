@@ -13,14 +13,16 @@ interface AddRestaurantContextProps {
 
 // Provide default values
 const defaultGeneral: General = {
+  
   name: "",
   mealType: "",
   startTime: "",
   endTime: "",
   streetName: "",
-  city: "",
+  cityId: "",
   province: "",
   primaryContactNumber: "",
+  tenantId: "f7f856e0-5be1-4a62-bd6c-b3f0dd887ac0"
 };
 
 const defaultRestaurantDetails: RestaurantDetails = {
