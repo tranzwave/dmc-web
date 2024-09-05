@@ -12,6 +12,7 @@ export const env = createEnv({
    */
   server: {
     DATABASE_URL: z.string().url(),
+    POSTGRES_URL:z.string().url(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -28,7 +29,8 @@ export const env = createEnv({
     ),
     DISCORD_CLIENT_ID: z.string(),
     DISCORD_CLIENT_SECRET: z.string(),
-    DB_SEEDING:stringBoolean
+    DB_SEEDING:stringBoolean,
+    DB_MIGRATING:stringBoolean
   },
 
   /**
@@ -51,7 +53,9 @@ export const env = createEnv({
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
-    DB_SEEDING:process.env.DB_SEEDING
+    DB_SEEDING:process.env.DB_SEEDING,
+    DB_MIGRATING:process.env.DB_MIGRATING,
+    POSTGRES_URL: process.env.POSTGRES_URL
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
