@@ -8,6 +8,8 @@ import heroImage from "../../../../public/assets/Rectangle 47.png";
 import { useEffect, useState } from "react";
 import { useToast } from "~/hooks/use-toast";
 import { getClientCountByCountry, getStat } from "~/server/db/queries/overview";
+import Link from "next/link";
+import LoadingLayout from "~/components/common/dashboardLoading";
 type Stat = {
   title: string;
   value: number;
@@ -87,10 +89,15 @@ const Overview = () => {
     return ((value - baseValue) / baseValue) * 100;
   };
 
-  if(loading){
+  if (loading) {
     return (
-        <div>Loading...</div>
-    )
+      <div>
+        <div className="flex w-full flex-row justify-between gap-1">
+          <TitleBar title="Overview" link="toReadMe" />
+        </div>
+          <LoadingLayout />
+      </div>
+    );
   }
 
   return (

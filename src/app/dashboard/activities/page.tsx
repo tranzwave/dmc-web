@@ -9,6 +9,7 @@ import { Button } from "~/components/ui/button";
 import { getAllActivityVendors } from "~/server/db/queries/activities";
 import { SelectActivityVendor, SelectCity } from "~/server/db/schemaTypes";
 import DataTableDropDown from "~/components/common/dataTableDropdown";
+import LoadingLayout from "~/components/common/dashboardLoading";
 
 export type ActivityVendorData = SelectActivityVendor & {
     city: SelectCity
@@ -79,8 +80,20 @@ const ActivityHome = () => {
 
     
         if (loading) {
-            return <div>Loading...</div>;
-        }
+            return (
+              <div>
+                <div className="flex w-full flex-row justify-between gap-1">
+                  <TitleBar title="Activity Vendors" link="toAddHotel" />
+                  <div>
+                    <Link href={`${pathname}/add`}>
+                      <Button variant="primaryGreen">Add Activity</Button>
+                    </Link>
+                  </div>
+                </div>
+                  <LoadingLayout />
+              </div>
+            );
+          }
     
         if (error) {
             return <div>Error: {error}</div>;
