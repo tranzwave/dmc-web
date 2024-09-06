@@ -1,21 +1,10 @@
-import { drizzle } from 'drizzle-orm/vercel-postgres'
-import { sql } from '@vercel/postgres'
-import postgres from "postgres";
+// db.ts
+const isProduction = process.env.NODE_ENV === "production";
 
-import { env } from "~/env";
-import * as schema from "./schema";
+console.log(`Current DB Environment: ${process.env.NODE_ENV}`);
 
-/**
- * Cache the database connection in development. This avoids creating a new connection on every HMR
- * update.
- */
-const globalForDb = globalThis as unknown as {
-  conn: postgres.Sql | undefined;
-};
-
-export const conn = globalForDb.conn ?? postgres(env.DATABASE_URL);
-if (env.NODE_ENV !== "production") globalForDb.conn = conn;
-
-export const db = drizzle(sql, { schema, logger:true });
+export const { db } = isProduction
+  ? require("./db.production")
+  : require("./db.development");
 
 export type DB = typeof db;
