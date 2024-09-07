@@ -3,9 +3,14 @@ import "~/styles/globals.css";
 
 import { Roboto_Flex as FontSans } from "next/font/google";
 import { type Metadata } from "next";
-import SideNavBar from "~/components/common/sideNavComponent";
-import TopBar from "~/components/common/topBarComponent";
 import { Toaster } from "~/components/ui/toaster";
+import {
+  ClerkProvider,
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton
+} from '@clerk/nextjs'
 
 const fontSans = FontSans({
   weight:['100','300','400','500','700','900'],
@@ -23,12 +28,22 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
+    <ClerkProvider>
     <html lang="en" className={`${fontSans.variable}`}>
       <body>
-        <div>{children}</div>
+        <div>
+          {children}
+        </div>
         <Toaster/>
       </body>
     </html>
+  </ClerkProvider>
+    // <html lang="en" className={`${fontSans.variable}`}>
+    //   <body>
+    //     <div>{children}</div>
+    //     <Toaster/>
+    //   </body>
+    // </html>
 
   );
 }
