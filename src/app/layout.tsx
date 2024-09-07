@@ -1,4 +1,3 @@
-
 import "~/styles/globals.css";
 
 import { Roboto_Flex as FontSans } from "next/font/google";
@@ -9,14 +8,14 @@ import {
   SignInButton,
   SignedIn,
   SignedOut,
-  UserButton
-} from '@clerk/nextjs'
+  UserButton,
+} from "@clerk/nextjs";
 
 const fontSans = FontSans({
-  weight:['100','300','400','500','700','900'],
+  weight: ["100", "300", "400", "500", "700", "900"],
   subsets: ["latin"],
   variable: "--font-sans",
-})
+});
 
 export const metadata: Metadata = {
   title: "Tranzwave",
@@ -28,22 +27,25 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <ClerkProvider>
-    <html lang="en" className={`${fontSans.variable}`}>
-      <body>
-        <div>
-          {children}
-        </div>
-        <Toaster/>
-      </body>
-    </html>
-  </ClerkProvider>
+    <ClerkProvider
+      appearance={{
+        variables: {
+          colorPrimary: "#287F71"
+        },
+      }}
+    >
+      <html lang="en" className={`${fontSans.variable}`}>
+        <body>
+          <div className="h-screen w-screen">{children}</div>
+          <Toaster />
+        </body>
+      </html>
+    </ClerkProvider>
     // <html lang="en" className={`${fontSans.variable}`}>
     //   <body>
     //     <div>{children}</div>
     //     <Toaster/>
     //   </body>
     // </html>
-
   );
 }

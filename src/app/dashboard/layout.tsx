@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useOrganizationList, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation"; // Import useRouter from next/navigation
 import SideNavBar from "~/components/common/sideNavComponent";
@@ -9,15 +9,19 @@ export default function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const { user, isSignedIn, isLoaded } = useUser();
-  const { setActive } = useOrganizationList();
-  const router = useRouter(); // Initialize the router
+  const { setActive,userInvitations } = useOrganizationList();
+  const [invs,setInvs] = useState();
+  const router = useRouter();
+
+
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {
       const memberships = user?.organizationMemberships;
-
-      if (memberships && memberships.length !== 1) {
-        router.push("/onboarding"); // Redirect to /onboarding if no valid organization 
+      console.log(memberships)
+      console.log(userInvitations)
+      if (memberships && memberships.length !== 1 && userInvitations.data?.length == 0) {
+        router.push("/onboarding");
       }
     }
   }, [isLoaded, isSignedIn, user, setActive, router]);
@@ -26,6 +30,7 @@ export default function DashboardLayout({
     return <div>Loading...</div>;
   }
 
+  if (!(user?.organizationMemberships && user?.organizationMemberships.length !== 1 && userInvitations.data?.length == 0)) {
   return (
     <div className="w-screen flex flex-row">
       <div className="side-nav">
@@ -39,4 +44,5 @@ export default function DashboardLayout({
       </div>
     </div>
   );
+  }
 }
