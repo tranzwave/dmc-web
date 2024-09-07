@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
+import LoadingLayout from "~/components/common/dashboardLoading";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
 import { getAgentData } from "~/lib/api";
@@ -36,8 +37,20 @@ const AgentHome = () => {
 
     
         if (loading) {
-            return <div>Loading...</div>;
-        }
+            return (
+              <div>
+                <div className="flex w-full flex-row justify-between gap-1">
+                  <TitleBar title="Agents" link="toAddHotel" />
+                  <div>
+                    <Link href={`${pathname}/add`}>
+                      <Button variant="primaryGreen">Add Agent</Button>
+                    </Link>
+                  </div>
+                </div>
+                  <LoadingLayout />
+              </div>
+            );
+          }
     
         if (error) {
             return <div>Error: {error}</div>;
