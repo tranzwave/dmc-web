@@ -10,6 +10,7 @@ import { useToast } from "~/hooks/use-toast";
 import { getClientCountByCountry, getStat } from "~/server/db/queries/overview";
 import Link from "next/link";
 import LoadingLayout from "~/components/common/dashboardLoading";
+import { useUser } from "@clerk/nextjs";
 type Stat = {
   title: string;
   value: number;
@@ -28,6 +29,8 @@ const Overview = () => {
   });
 
   const [loading, setLoading] = useState(true);
+  const { user, isSignedIn, isLoaded } = useUser();
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -89,7 +92,7 @@ const Overview = () => {
     return ((value - baseValue) / baseValue) * 100;
   };
 
-  if (loading) {
+  if (loading || !isLoaded) {
     return (
       <div>
         <div className="flex w-full flex-row justify-between gap-1">
@@ -101,14 +104,19 @@ const Overview = () => {
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <TitleBar title="Overview" link="toReadMe" />
-      <div className="flex w-full justify-center rounded-lg bg-[#83c9b6]">
-        <Image src={heroImage} alt="" />
+    <div className="h-full flex flex-col gap-4">
+      <div className="h-[3%]">
+        <TitleBar title="Overview" link="toReadMe"/>
       </div>
-      <StatCards stats={data.stats ?? []}/>
-      <div className="flex w-full flex-row gap-3">
-        <div className="card w-1/2 gap-3">
+      <div className="flex w-full h-[20%] flex-col gap-2 justify-center items-center rounded-lg bg-welcome-bg bg-cover">
+        <div className="text-5xl font-semibold text-[#235026]">WELCOME</div>
+        <div className="text-5xl font-semibold text-[#235026]">{user ? user.fullName?.toUpperCase() : "To Tranzwave"}</div>
+      </div>
+      <div className="h-[14%]">
+        <StatCards stats={data.stats ?? []}/>
+      </div>
+      <div className="flex w-full h-[55%] flex-row gap-3">
+        <div className="card w-1/2 gap-3 h-full">
           <div>
             <div className="card-title">Services</div>
             <div className="text-sm text-primary-gray">

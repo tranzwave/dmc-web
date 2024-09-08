@@ -51,7 +51,7 @@ const SideNavBar = () => {
   ];
 
   return (
-    <div className="flex h-screen flex-col gap-4 bg-primary-green text-white">
+    <div className="flex h-full flex-col gap-4 bg-primary-green text-white">
       {/* Logo Section */}
       <div className="mb-2 flex items-center justify-center p-4">
         <Image

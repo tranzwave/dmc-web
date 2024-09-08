@@ -32,11 +32,11 @@ export default function DashboardLayout({
 
   if (!(user?.organizationMemberships && user?.organizationMemberships.length !== 1 && userInvitations.data?.length == 0)) {
   return (
-    <div className="w-screen flex flex-row">
-      <div className="side-nav">
+    <div className="w-screen h-screen flex flex-row overflow-y-scroll">
+      <div className="side-nav h-full">
         <SideNavBar />
       </div>
-      <div className="w-full">
+      <div className="w-full h-full">
         <div className="top-bar">
           <TopBar />
         </div>
