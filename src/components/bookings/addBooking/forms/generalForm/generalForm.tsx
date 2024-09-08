@@ -174,6 +174,34 @@ const GeneralForm = () => {
     fetchData();
   }, []);
 
+  const selectTabToActive = (includes:any[], currentTab:string)=>{
+    switch(currentTab){
+      case 'general':
+        console.log("next to hotel");
+        includesOptions.forEach(include => {
+          if(include){
+            setActiveTab
+          }
+        })
+        break;
+      case 'hotels':
+        console.log("next to hotel");
+        break;      
+      case 'restaurants':
+        console.log("next to hotel");
+        break;
+      case 'activities':
+        console.log("next to hotel");
+        break;
+      case 'transport':
+        console.log("next to hotel");
+        break;      
+      case 'shops':
+        console.log("next to hotel");
+        break;
+    }
+  }
+
   useEffect(() => {
     // if (startDate && numberOfDays) {
     //   const endDate = new Date(startDate);
