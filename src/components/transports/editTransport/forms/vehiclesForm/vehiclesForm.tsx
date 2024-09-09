@@ -102,7 +102,7 @@ const VehiclesForm: React.FC<VehiclesFormProps> = ({ onAddVehicles }) => {
                     <Input
                       type="number"
                       placeholder="Enter number of seats"
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                       onChange={(e) => field.onChange(e.target.valueAsNumber)}
                     />
                   </FormControl>

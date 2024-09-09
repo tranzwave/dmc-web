@@ -57,6 +57,15 @@ const shopVoucherLineColumns: ColumnDef<SelectShopVoucher>[] = [
   },
 ];
 
+const updateVoucherLine = async(voucher:any)=>{
+  console.log("Updating")
+}
+
+const updateVoucherStatus = async(voucher:any)=>{
+  console.log("Updating")
+  return true
+}
+
 // Use TasksTab for Shops
 const ShopsTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string ; vouchers: ShopVoucherData[] }) => (
   <TasksTab
@@ -65,6 +74,8 @@ const ShopsTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string ; vo
     voucherColumns={shopVoucherLineColumns}
     vouchers={vouchers}
     formComponent={ShopsForm}
+    updateVoucherLine={updateVoucherLine}
+    updateVoucherStatus={updateVoucherStatus}
   />
 );
 

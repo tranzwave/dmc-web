@@ -5,7 +5,7 @@ import { Button } from "~/components/ui/button";
 import { columns, Vehicles } from "./columns";
 import VehiclesForm from "./vehiclesForm";
 
-const vehiclesTab = ()=>{
+const VehiclesTab = ()=>{
     const [addedVehicle, setAddedVehicle] =useState<Vehicles[]>([])
 
     const { addVehicles,transportDetails } = useAddTransport();
@@ -33,4 +33,4 @@ const vehiclesTab = ()=>{
     );
 }
 
-export default vehiclesTab;
+export default VehiclesTab;

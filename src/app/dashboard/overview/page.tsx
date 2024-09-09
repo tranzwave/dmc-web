@@ -8,6 +8,8 @@ import heroImage from "../../../../public/assets/Rectangle 47.png";
 import { useEffect, useState } from "react";
 import { useToast } from "~/hooks/use-toast";
 import { getClientCountByCountry, getStat } from "~/server/db/queries/overview";
+import Link from "next/link";
+import LoadingLayout from "~/components/common/dashboardLoading";
 type Stat = {
   title: string;
   value: number;
@@ -87,10 +89,15 @@ const Overview = () => {
     return ((value - baseValue) / baseValue) * 100;
   };
 
-  if(loading){
+  if (loading) {
     return (
-        <div>Loading...</div>
-    )
+      <div>
+        <div className="flex w-full flex-row justify-between gap-1">
+          <TitleBar title="Overview" link="toReadMe" />
+        </div>
+          <LoadingLayout />
+      </div>
+    );
   }
 
   return (
@@ -99,7 +106,7 @@ const Overview = () => {
       <div className="flex w-full justify-center rounded-lg bg-[#83c9b6]">
         <Image src={heroImage} alt="" />
       </div>
-      <StatCards stats={data.stats || []}/>
+      <StatCards stats={data.stats ?? []}/>
       <div className="flex w-full flex-row gap-3">
         <div className="card w-1/2 gap-3">
           <div>
@@ -120,7 +127,7 @@ const Overview = () => {
             </div>
           </div>
           <div>
-            <TouristsByCountry data={data.tourists || []}/>
+            <TouristsByCountry data={data.tourists ?? []}/>
           </div>
         </div>
       </div>

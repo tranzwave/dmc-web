@@ -1,12 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Booking, columns } from "~/components/bookings/home/columns";
+import { columns } from "~/components/bookings/home/columns";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
 import { StatsCard } from "~/components/ui/stats-card";
-import { Driver, getData, getTransportData } from "~/lib/api";
-import { BookingDTO } from "~/lib/types/booking";
 import { DriverDTO } from "~/lib/types/driver/type";
 import { getDriverByIdQuery, getTransportVouchersForDriver } from "~/server/db/queries/transport";
 

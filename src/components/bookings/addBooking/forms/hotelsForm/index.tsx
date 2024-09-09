@@ -40,7 +40,7 @@ const HotelsTab = () => {
     };
     if (isNewVoucher) {
       const hotelVoucher: HotelVoucher = {
-        hotel: hotel as SelectHotel,
+        hotel: hotel,
         voucher: voucher,
         voucherLines: [data],
       };

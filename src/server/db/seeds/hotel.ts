@@ -67,14 +67,14 @@ export default async function seed(db:DB) {
           });
 
           if(!newHotelId[0]){
-            throw new Error(`Couldn't add hotel: ${currentHotel.hotel}`)
+            throw new Error(`Couldn't add hotel: ${currentHotel.hotel.name}`)
           }
 
           //Add hotel rooms
           await db.insert(hotelRoom).values(
             currentHotel.hotelRooms.map((room) => ({
               ...room,
-              hotelId: newHotelId[0]?.id || room.hotelId
+              hotelId: newHotelId[0]?.id ?? room.hotelId
             }))
           );
 
@@ -82,7 +82,7 @@ export default async function seed(db:DB) {
           await db.insert(hotelStaff).values(
             currentHotel.hotelStaffs.map((staff) => ({
                 ...staff,
-                hotelId: newHotelId[0]?.id || staff.hotelId
+                hotelId: newHotelId[0]?.id ?? staff.hotelId
               }))
             
           )

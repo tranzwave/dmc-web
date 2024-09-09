@@ -30,7 +30,7 @@ const AddHotelSubmitView = () => {
       ]);
 
       if (!response) {
-        throw new Error(`Error: ${response}`);
+        throw new Error(`Error:Adding hotel`);
       }
 
       console.log("Success:", response);

@@ -202,7 +202,7 @@ const HotelGeneralForm = () => {
                   <FormControl>
                     <Input
                       type="number"
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                       onChange={(e) => field.onChange(e.target.valueAsNumber)}
                       placeholder="Enter star rating"
                     />
@@ -276,13 +276,13 @@ const HotelGeneralForm = () => {
                     value={field.value}
                   >
                     <SelectTrigger className="bg-slate-100 shadow-md">
-                      <SelectValue placeholder="Select country" />
+                      <SelectValue placeholder="Select city" />
                     </SelectTrigger>
                     <SelectContent>
                       {cities.map((city) => (
                         <SelectItem
                           key={city.id}
-                          value={String(city.id ?? 0) || "0"}
+                          value={String(city.id ?? 0) ?? "0"}
                         >
                           {city.name}
                         </SelectItem>

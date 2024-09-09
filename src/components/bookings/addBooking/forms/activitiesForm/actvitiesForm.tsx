@@ -347,7 +347,7 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
                 <FormControl>
                   <Input
                     type="number"
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>
@@ -364,7 +364,7 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
                 <FormControl>
                   <Input
                     type="number"
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>

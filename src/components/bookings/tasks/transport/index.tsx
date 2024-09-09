@@ -54,7 +54,14 @@ const transportVoucherLineColumns: ColumnDef<SelectTransportVoucher>[] = [
     accessorFn: row => row.remarks
   },
 ];
+const updateVoucherLine = async(voucher:any)=>{
+  console.log("Updating")
+}
 
+const updateVoucherStatus = async(voucher:any)=>{
+  console.log("Updating")
+  return true
+}
 // Use TasksTab for Transport
 const TransportTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string, vouchers: TransportVoucherData[] }) => (
   <TasksTab
@@ -63,6 +70,9 @@ const TransportTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string,
     voucherColumns={transportVoucherLineColumns}
     vouchers={vouchers}
     formComponent={TransportForm}
+    updateVoucherLine={updateVoucherLine}
+    updateVoucherStatus={updateVoucherStatus}
+
   />
 );
 

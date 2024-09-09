@@ -1,13 +1,36 @@
 "use client";
+import { ColumnDef } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 import { Booking, columns } from "~/components/bookings/home/columns";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
 import { StatsCard } from "~/components/ui/stats-card";
-import { Agent, getAgentData, getData } from "~/lib/api";
+import { getAgentData, getData } from "~/lib/api";
+import { Agent } from "~/lib/types/agent/type";
 
 const Page = ({ params }: { params: { id: string } }) => {
+  const columns2: ColumnDef<Booking>[] = [
+    {
+      header: "Client",
+      accessorFn: (row) => row.client,
+    },
+    {
+      header: "Country",
+      accessorFn: (row) => row.client,
+    },
+    {
+      accessorKey: "startDate",
+      header: "Start Date",
+      // accessorFn: (row) => formatDate(row.startDate.toString()),
+    },
+    {
+      accessorKey: "endDate",
+      header: "End Date",
+      // accessorFn: (row) => formatDate(row.endDate.toString())
+    },
+  
+  ];
   const [agent, setAgent] = useState<Agent | null>(null);
   const [data, setData] = useState<Booking[]>([]);
 
@@ -80,7 +103,7 @@ const Page = ({ params }: { params: { id: string } }) => {
         </div>
         <div className="card w-[70%] space-y-6">
           <div>Current Booking</div>
-          <DataTable columns={columns} data={data} />
+          <DataTable columns={columns2} data={data} />
 
           <div>Booking History</div>
           <div className="col-span-3 flex justify-between gap-6">
@@ -90,7 +113,7 @@ const Page = ({ params }: { params: { id: string } }) => {
           </div>
 
           <div>Trip History</div>
-          <DataTable columns={columns} data={data} />
+          <DataTable columns={columns2} data={data} />
         </div>
       </div>
     </div>

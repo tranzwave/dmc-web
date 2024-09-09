@@ -53,7 +53,7 @@ const ChargesForm = () => {
                   <FormLabel>Fee Per km</FormLabel>
                   <FormControl>
                     <Input type="number" placeholder="Enter fee per km" 
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)} />
                   </FormControl>
                   <FormMessage />
@@ -71,7 +71,7 @@ const ChargesForm = () => {
                   <Input
                     type="number"
                     placeholder="Enter fuel allowance"
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                   onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>
@@ -91,7 +91,7 @@ const ChargesForm = () => {
                   <Input
                     type="number"
                     placeholder="Enter accommodation allowance"
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                   onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>
@@ -107,7 +107,7 @@ const ChargesForm = () => {
                   <FormLabel>Meal ALlowance</FormLabel>
                   <FormControl>
                     <Input type="number" placeholder="Enter meal allowance"
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                   onChange={(e) => field.onChange(e.target.valueAsNumber)}/>
                   </FormControl>
                   <FormMessage />

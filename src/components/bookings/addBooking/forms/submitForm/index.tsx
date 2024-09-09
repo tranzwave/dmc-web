@@ -105,7 +105,7 @@ const AddBookingSubmitTab = () => {
     setShowModal(false);
   };
 
-  const numberOfDays = bookingDetails.general?.numberOfDays || 0;
+  const numberOfDays = bookingDetails.general?.numberOfDays ?? 0;
 
   return (
     <div className="mt-4 flex h-full flex-col items-center justify-center gap-3">

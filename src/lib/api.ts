@@ -13,56 +13,56 @@ export interface BookingSchema extends BookingDetails {
   id: string
 }
 
-let bookings: BookingSchema[] = [];
+const bookings: BookingSchema[] = [];
 
-if (typeof window !== "undefined") {  //use this for checck browser environment
-  bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
-}
+// if (typeof window !== "undefined") {  //use this for checck browser environment
+//   bookings = JSON.parse(localStorage.getItem('bookings') ?? '[]');
+// }
 
 // Mock data for storing bookings
-// let bookings: BookingSchema[] = JSON.parse(localStorage.getItem('bookings') || '[]');
+// let bookings: BookingSchema[] = JSON.parse(localStorage.getItem('bookings') ?? '[]');
 
-export async function addBooking(bookingDetails: BookingDetails): Promise<{ success: boolean; message: string; id: string }> {
+// export async function addBooking(bookingDetails: BookingDetails): Promise<{ success: boolean; message: string; id: string }> {
 
-  const time = Date.now()
-  const id = 'B' + time;
+//   const time = Date.now()
+//   const id = 'B' + time;
 
-  const booking = {
-    ...bookingDetails,
-    createdAt: time,
-    id: id
-  };
+//   const booking = {
+//     ...bookingDetails,
+//     createdAt: time,
+//     id: id
+//   };
 
-  await new Promise(resolve => setTimeout(resolve, 1000));
+//   await new Promise(resolve => setTimeout(resolve, 1000));
 
-  // Add the booking to the mock data
-  bookings.push(booking);
+//   // Add the booking to the mock data
+//   bookings.push(booking);
 
-  // Save the updated bookings to local storage
-  localStorage.setItem('bookings', JSON.stringify(bookings));
+//   // Save the updated bookings to local storage
+//   localStorage.setItem('bookings', JSON.stringify(bookings));
 
-  return { success: true, message: "Booking added successfully", id: booking.id };
-}
+//   return { success: true, message: "Booking added successfully", id: booking.id };
+// }
 
 // Mock API function to get a booking by ID
-export async function getBookingById(id: string): Promise<BookingSchema | null> {
-  // Simulate a delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
+// export async function getBookingById(id: string): Promise<BookingSchema | null> {
+//   // Simulate a delay
+//   await new Promise(resolve => setTimeout(resolve, 1000));
 
-  // Retrieve bookings from local storage
-  const bookingsJson = localStorage.getItem('bookings');
-  if (!bookingsJson) {
-    return null; // No bookings found
-  }
+//   // Retrieve bookings from local storage
+//   const bookingsJson = localStorage.getItem('bookings');
+//   if (!bookingsJson) {
+//     return null; // No bookings found
+//   }
 
-  const bookings: BookingSchema[] = JSON.parse(bookingsJson);
+//   const bookings: BookingSchema[] = JSON.parse(bookingsJson);
 
-  // Find the booking by ID
-  const booking = bookings.find(b => b.id === id);
+//   // Find the booking by ID
+//   const booking = bookings.find(b => b.id === id);
 
-  // Return the booking or null if not found
-  return booking || null;
-}
+//   // Return the booking or null if not found
+//   return booking ?? null;
+// }
 
 
 
@@ -444,9 +444,9 @@ export async function getData(): Promise<Booking[]> {
 }
 
 
-export async function getDrivers(): Promise<Hotel[]> {
-  return [];
-}
+// export async function getDrivers(): Promise<Hotel[]> {
+//   return [];
+// }
 
 
 export async function getTransportData(): Promise<Driver[]> {
@@ -651,23 +651,23 @@ export async function getTransportData(): Promise<Driver[]> {
   ]
 }
 
-export async function getTransportDataById(id: number): Promise<Driver> {
-  const transports = await getTransportData();
-  const transport = transports.find(transport => transport.id === id);
-  if (!transport) {
-    throw new Error("Activity not found");
-  }
-  return transport;
-}
+// export async function getTransportDataById(id: number): Promise<Driver> {
+//   const transports = await getTransportData();
+//   const transport = transports.find(transport => transport.id === id);
+//   if (!transport) {
+//     throw new Error("Activity not found");
+//   }
+//   return transport;
+// }
 
-export async function getHotelData(): Promise<Hotel[]> {
-  // Mock data
-  const mockData: Hotel[] = hotelsMockData
+// export async function getHotelData(): Promise<Hotel[]> {
+//   // Mock data
+//   const mockData: Hotel[] = hotelsMockData
 
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(mockData), 1000); // Simulate network delay
-  });
-}
+//   return new Promise((resolve) => {
+//     setTimeout(() => resolve(mockData), 1000); // Simulate network delay
+//   });
+// }
 
 
 export type DriverSearchParams = {
@@ -698,8 +698,8 @@ export type DriverSearchParams = {
 // };
 
 export type ShopsSearchParams = {
-  shopTypeId: Number;
-  cityId: Number;
+  shopTypeId: number;
+  cityId: number;
 }
 
 // export async function searchShopsData(searchParams: ShopsSearchParams): Promise<Shop[]> {

@@ -115,7 +115,7 @@ export const driverColumns: ColumnDef<DriverDTO>[] = [
     accessorKey: 'id',
     header: '',
     cell: ({ getValue, row }) => {
-      const transport = row.original as DriverDTO;
+      const transport = row.original;
 
       return (
           <DataTableDropDown data={transport} routeBase="/transport" 

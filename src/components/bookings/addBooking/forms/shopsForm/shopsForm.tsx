@@ -102,8 +102,8 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
         time: values.time,
         hours: values.hours,
         participantsCount: values.headCount,
-        city: selectedShop?.city.name || "",
-        shopType: selectedShopType?.name || "",
+        city: selectedShop?.city.name ?? "",
+        shopType: selectedShopType?.name ?? "",
         remarks:values.remarks
       },
     });
@@ -332,7 +332,7 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
                 <FormControl>
                   <Input
                     type="number"
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>
@@ -349,7 +349,7 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
                 <FormControl>
                   <Input
                     type="number"
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>

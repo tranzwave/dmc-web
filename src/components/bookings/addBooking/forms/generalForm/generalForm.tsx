@@ -254,7 +254,7 @@ const GeneralForm = () => {
                       {countries.map((country) => (
                         <SelectItem
                           key={country.id}
-                          value={country?.code || ""}
+                          value={country?.code ?? ""}
                         >
                           {country.name}
                         </SelectItem>
@@ -296,7 +296,7 @@ const GeneralForm = () => {
                   <FormControl>
                     <Input
                       type="number"
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                       onChange={(e) => field.onChange(e.target.valueAsNumber)}
                     />
                   </FormControl>
@@ -314,7 +314,7 @@ const GeneralForm = () => {
                   <FormControl>
                     <Input
                       type="number"
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                       onChange={(e) => field.onChange(e.target.valueAsNumber)}
                     />
                   </FormControl>
@@ -345,7 +345,7 @@ const GeneralForm = () => {
                 <FormControl>
                   <Input
                     type="number"
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>
@@ -363,7 +363,7 @@ const GeneralForm = () => {
                   <Input
                     type="date"
                     {...field}
-                    min={form.watch("startDate") || ""}
+                    min={form.watch("startDate") ?? ""}
                   />
                 </FormControl>
                 <FormMessage />
@@ -394,7 +394,7 @@ const GeneralForm = () => {
                     <SelectContent>
                       {users.map((user) =>
                         user.role === "manager" ? (
-                          <SelectItem key={user.id} value={user?.id || ""}>
+                          <SelectItem key={user.id} value={user?.id ?? ""}>
                             {user.name}
                           </SelectItem>
                         ) : null,
@@ -426,7 +426,7 @@ const GeneralForm = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {agents.map((agent) => (
-                        <SelectItem key={agent.id} value={agent?.id || ""}>
+                        <SelectItem key={agent.id} value={agent?.id ?? ""}>
                           {agent.name}
                         </SelectItem>
                       ))}

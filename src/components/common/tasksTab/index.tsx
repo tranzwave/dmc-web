@@ -38,6 +38,7 @@ const TasksTab = <
 }: TasksTabProps<T, L>) => {
   const [selectedVoucher, setSelectedVoucher] = useState<T | any>();
   const [selectedVoucherLine, setSelectedVoucherLine] = useState<L | T>();
+  const [rate, setRate] = useState<number | "">(0);
 
   const { toast } = useToast();
 
@@ -158,12 +159,14 @@ const TasksTab = <
                 trigger={proceedButton}
                 onConfirm={handleConfirm}
                 onCancel={handleCancel}
-                dialogContent={proceedContent(
+                dialogContent={ProceedContent(
                   voucherColumns,
                   selectedVoucher,
                   onVoucherLineRowClick,
                   updateVoucherLine,
                   updateVoucherStatus,
+                  rate,
+                  setRate
                 )}
                 size="large"
               />
@@ -173,7 +176,7 @@ const TasksTab = <
             columns={voucherColumns}
             data={
               selectedVoucher
-                ? selectedVoucher.voucherLine || [selectedVoucher]
+                ? selectedVoucher.voucherLine ?? [selectedVoucher]
                 : []
             }
             onRowClick={onVoucherLineRowClick}
@@ -203,12 +206,13 @@ const TasksTab = <
 
 export default TasksTab;
 
-const createRateColumn = <T extends object>(): ColumnDef<T> => ({
+const CreateRateColumn = <T extends object>(rate:number | string,setRate:any): ColumnDef<T> => ({
   accessorKey: "rate",
   header: "Rate - USD",
   cell: ({ getValue, row, column }) => {
     const initialRate = getValue() as number;
-    const [rate, setRate] = useState<number | "">(initialRate);
+    setRate(initialRate)
+    // const [rate, setRate] = useState<number | "">(initialRate);
 
     const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const inputValue = e.target.value;
@@ -239,14 +243,16 @@ const createRateColumn = <T extends object>(): ColumnDef<T> => ({
   },
 });
 
-const proceedContent = (
+const ProceedContent = (
   voucherColumns: any,
   selectedVoucher: any,
   onVoucherLineRowClick: any,
   updateVoucherLine: any,
   updateVoucherStatus: any,
+  rate:number|string,
+  setRate:any
 ) => {
-  const rateColumn = createRateColumn<typeof voucherColumns>();
+  const rateColumn = CreateRateColumn<typeof voucherColumns>(rate,setRate);
   const VoucherLineColumnsWithRate = [...voucherColumns, rateColumn];
 
   const [ratesConfirmedBy, setRatesConfirmedBy] = useState("");
@@ -317,7 +323,7 @@ const proceedContent = (
         columns={VoucherLineColumnsWithRate}
         data={
           selectedVoucher
-            ? selectedVoucher.voucherLine || [selectedVoucher]
+            ? selectedVoucher.voucherLine ?? [selectedVoucher]
             : []
         }
         onRowClick={onVoucherLineRowClick}

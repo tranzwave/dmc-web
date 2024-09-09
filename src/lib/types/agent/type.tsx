@@ -46,7 +46,7 @@ export const agentColumns: ColumnDef<Agent>[] = [
     accessorKey: 'id',
     header: '',
     cell: ({ getValue, row }) => {
-      const agent = row.original as Agent;
+      const agent = row.original;
       return (
           <DataTableDropDown data={agent} routeBase="/agents/" 
           onViewPath={(data) => `/dashboard/agents/${data.id}`}

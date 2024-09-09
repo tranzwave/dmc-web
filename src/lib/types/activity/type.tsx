@@ -62,7 +62,7 @@ export const activityColumns: ColumnDef<SelectActivityVendor>[] = [
     accessorKey: 'id',
     header: '',
     cell: ({ getValue, row }) => {
-      const activity = row.original as SelectActivityVendor;
+      const activity = row.original;
 
       return (
           <DataTableDropDown data={activity} routeBase="/activities/" 

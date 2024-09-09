@@ -35,6 +35,6 @@ export const columns: ColumnDef<HotelRoomType>[] = [
   {
     accessorKey: "additionalComments",
     header: "Comments",
-    cell: ({ row }) => <span>{row.original.additionalComments || "N/A"}</span>,
+    cell: ({ row }) => <span>{row.original.additionalComments ?? "N/A"}</span>,
   },
 ];

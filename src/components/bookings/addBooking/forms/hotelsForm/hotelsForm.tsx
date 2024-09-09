@@ -72,17 +72,17 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       remarks: "No Remarks",
     },
     values: {
-      adultsCount: defaultValues?.adultsCount || 0,
-      kidsCount:defaultValues?.kidsCount || 0,
-      name: hotels[0]?.name || "",
-      checkInDate:defaultValues?.checkInDate || "",
-      checkInTime: defaultValues?.checkInTime|| "",
-      checkOutDate:defaultValues?.checkOutDate ||"",
-      checkOutTime:defaultValues?.checkOutTime ||"",
-      roomType:defaultValues?.roomType || "",
-      basis:defaultValues?.basis || "",
-      roomCount:defaultValues?.roomCount || 0,
-      remarks:defaultValues?.remarks || ""
+      adultsCount: defaultValues?.adultsCount ?? 0,
+      kidsCount:defaultValues?.kidsCount ?? 0,
+      name: hotels[0]?.name ?? "",
+      checkInDate:defaultValues?.checkInDate ?? "",
+      checkInTime: defaultValues?.checkInTime ?? "",
+      checkOutDate:defaultValues?.checkOutDate ?? "",
+      checkOutTime:defaultValues?.checkOutTime ?? "",
+      roomType:defaultValues?.roomType ?? "",
+      basis:defaultValues?.basis ?? "",
+      roomCount:defaultValues?.roomCount ?? 0,
+      remarks:defaultValues?.remarks ?? ""
     }
   });
 
@@ -171,7 +171,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                     <FormControl>
                       <Input
                         type="number"
-                        value={field.value || ""}
+                        value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
                       />
                     </FormControl>
@@ -188,7 +188,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                     <FormControl>
                       <Input
                         type="number"
-                        value={field.value || ""}
+                        value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
                       />
                     </FormControl>
@@ -206,7 +206,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                   <FormControl>
                     <Input
                       type="number"
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                       onChange={(e) => field.onChange(e.target.valueAsNumber)}
                     />
                   </FormControl>
@@ -252,7 +252,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                     <Input
                       type="date"
                       {...field}
-                      min={form.watch("checkInDate") || ""}
+                      min={form.watch("checkInDate") ?? ""}
                     />
                   </FormControl>
                   <FormMessage />

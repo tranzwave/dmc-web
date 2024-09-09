@@ -60,6 +60,15 @@ const activityVoucherLineColumns: ColumnDef<SelectActivityVoucher>[] = [
   },
 ];
 
+const updateVoucherLine = async(voucher:any)=>{
+  console.log("Updating")
+}
+
+const updateVoucherStatus = async(voucher:any)=>{
+  console.log("Updating")
+  return true
+}
+
 // Use TasksTab for Activities
 const ActivitiesTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string ; vouchers:ActivityVoucherData[] }) => (
   <TasksTab
@@ -68,6 +77,8 @@ const ActivitiesTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string
     voucherColumns={activityVoucherLineColumns}
     vouchers={vouchers}
     formComponent={ActivityForm}
+    updateVoucherLine={updateVoucherLine}
+    updateVoucherStatus={updateVoucherStatus}
   />
 );
 
