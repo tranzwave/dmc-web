@@ -2,7 +2,7 @@
 
 import { eq } from "drizzle-orm";
 import { db } from "../..";
-import { city, restaurant, restaurantMeal } from './../../schema';
+import { city, restaurant, restaurantMeal, restaurantVoucher } from './../../schema';
 
 export const getTenantId = () => {
     return db.query.tenant.findFirst()
@@ -19,11 +19,26 @@ export const getCityById = (id: string) => {
     });
 };
 
-export const getAllRestaurants = () => {
+export const getAllRestaurantVendors = () => {
     return db.query.restaurant.findMany({
         with: {
             city: true
         }
+    })
+}
+
+export const getRestaurantVendorById = (id: string) => {
+    return db.query.restaurant.findFirst({
+        where: eq(restaurant.id, id),
+        with: {
+            city: true
+        }
+    })
+}
+
+export const getRestaurantVouchersForVendor = (id: string) => {
+    return db.query.restaurantVoucher.findMany({
+        where: eq(restaurantVoucher.restaurantId, id)
     })
 }
 

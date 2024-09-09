@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { DB } from "..";
-import restaurants from './data/restaurants.json'
-import { city, hotel, restaurant, restaurantMeal, tenant } from "../schema";
+import { city, restaurant, restaurantMeal } from "../schema";
+import restaurants from './data/restaurants.json';
 
 export default async function seed(db: DB) {
   // Fetch tenants
@@ -29,9 +29,10 @@ export default async function seed(db: DB) {
         const newCity = await db.insert(city).values({
           name: currentRestaurant.city,
           country: tenantCountry
-        }).returning({             
-            id: city.id,
-            name: city.name });
+        }).returning({
+          id: city.id,
+          name: city.name
+        });
 
         return newCity[0];
       }

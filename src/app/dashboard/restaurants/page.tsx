@@ -7,7 +7,7 @@ import { DataTable } from "~/components/bookings/home/dataTable";
 import DataTableDropDown from "~/components/common/dataTableDropdown";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
-import { getAllRestaurants } from "~/server/db/queries/restaurants";
+import { getAllRestaurantVendors } from "~/server/db/queries/restaurants";
 import { SelectCity, SelectRestaurant } from "~/server/db/schemaTypes";
 
 export type RestaurantData = SelectRestaurant & {
@@ -27,7 +27,7 @@ const RestaurantHome = () => {
             async function fetchData() {
                 try {
                     setLoading(true);
-                    const result = await getAllRestaurants();
+                    const result = await getAllRestaurantVendors();
                     setData(result);
                 } catch (error) {
                     console.error("Failed to fetch restaurant data:", error);

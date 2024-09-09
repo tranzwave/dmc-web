@@ -5,22 +5,22 @@ import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
 import { StatsCard } from "~/components/ui/stats-card";
-import { getActivityVendorById, getActivityVouchersForVendor } from "~/server/db/queries/activities";
-import { SelectActivityVoucher } from "~/server/db/schemaTypes";
-import { ActivityVendorData } from "../page";
+import { getRestaurantVendorById, getRestaurantVouchersForVendor } from "~/server/db/queries/restaurants";
+import { SelectRestaurantVoucher } from "~/server/db/schemaTypes";
+import { RestaurantData } from "../page";
 
 const Page = ({ params }: { params: { id: string } }) => {
-  const [activityVendor, setActivityVendor] = useState<ActivityVendorData | null>(null);
-  const [data, setData] = useState<SelectActivityVoucher[]>([]);
+  const [restaurant, setRestaurant] = useState<RestaurantData | null>(null);
+  const [data, setData] = useState<SelectRestaurantVoucher[]>([]);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>();
 
   useEffect(() => {
-    async function fetchActivityVoucherDetails() {
+    async function fetchRestaurantVoucherDetails() {
       try {
         setLoading(true);
-        const vouchers = await getActivityVouchersForVendor(params.id);
+        const vouchers = await getRestaurantVouchersForVendor(params.id);
         setData(vouchers)
       } catch (error) {
         console.error("Failed to fetch activity details:", error);
@@ -30,15 +30,15 @@ const Page = ({ params }: { params: { id: string } }) => {
       }
     }
 
-    fetchActivityVoucherDetails();
+    fetchRestaurantVoucherDetails();
   }, [params.id]);
 
   useEffect(() => {
     async function fetchVendorData() {
       try {
         setLoading(true);
-        const result = await getActivityVendorById(params.id);
-        setActivityVendor(result ?? null);
+        const result = await getRestaurantVendorById(params.id);
+        setRestaurant(result ?? null);
       } catch (error) {
         console.error("Failed to fetch activity data:", error);
         setError("Failed to load data.");
@@ -61,33 +61,33 @@ const Page = ({ params }: { params: { id: string } }) => {
   // if (!activityVouchers) {
   //   return <div>No activity found with the given ID.</div>;
   // }
-  if (!activityVendor) {
+  if (!restaurant) {
     return <div>No vendor found with the given ID.</div>;
   }
   return (
     <div className="flex flex-col gap-3 w-full justify-between">
 
-      <TitleBar title={`Activity Vendor - ${activityVendor.name}`} link="toAddActivity" />
+      <TitleBar title={`Restaurant - ${restaurant.name}`} link="toAddRestaurant" />
       <div className="mx-9 flex flex-row justify-between">
         <div className="w-[30%]">
           <div className="w-full">
             <ContactBox
-              title={activityVendor.name }
+              title={restaurant.name }
               description="Egestas elit dui scelerisque ut eu purus aliquam vitae habitasse."
-              location={activityVendor.city.name}
+              location={restaurant.city.name}
               address={
-                activityVendor.streetName +
+                restaurant.streetName +
                 ", " +
-                activityVendor.city.name + ", " + activityVendor.province
+                restaurant.city.name + ", " + restaurant.province
               }
-              phone={activityVendor.contactNumber}
+              phone={restaurant.contactNumber}
               email={"No email"}
             />{" "}
           </div>
         </div>
         <div className="card w-[70%] space-y-6">
           <div>Current Booking</div>
-          <DataTable columns={activityVoucherColumns} data={data} />
+          <DataTable columns={RestaurantVoucherColumns} data={data} />
 
           <div>Booking History</div>
           <div className="col-span-3 flex justify-between gap-6">
@@ -97,7 +97,7 @@ const Page = ({ params }: { params: { id: string } }) => {
           </div>
 
           <div>Trip History</div>
-          <DataTable columns={activityVoucherColumns} data={data} />
+          <DataTable columns={RestaurantVoucherColumns} data={data} />
         </div>
       </div>
     </div>
@@ -107,22 +107,10 @@ const Page = ({ params }: { params: { id: string } }) => {
 export default Page;
 
 
-export const activityVoucherColumns: ColumnDef<SelectActivityVoucher>[] = [
+export const RestaurantVoucherColumns: ColumnDef<SelectRestaurantVoucher>[] = [
   {
-    header: "Activity",
-    accessorFn: (row) => row.activityName,
-  },
-  {
-    header: "Date",
-    accessorFn: (row) => row.date,
-  },
-  {
-    header: "Time",
-    accessorFn: (row) => row.time,
-  },
-  {
-    header: "Participant Count",
-    accessorFn: (row) => row.participantsCount
-  },
+    header: "Restaurant",
+    accessorFn: (row) => row.status,
+  }
 
 ];
