@@ -2,13 +2,13 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
+import ActivityTab from '~/components/activities/addActivity/forms/activityForm';
 import GeneralTab from '~/components/activities/addActivity/forms/generalForm';
 import SubmitForm from '~/components/activities/addActivity/forms/submitForm';
 import TitleBar from '~/components/common/titleBar';
 import { Button } from '~/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { AddActivityProvider, useAddActivity } from './context';
-import ActivityTab from '~/components/activities/addActivity/forms/activityForm';
 
 // const SubmitForm = () => {
 //   const { activityDetails } = useAddAgent();

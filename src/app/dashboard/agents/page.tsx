@@ -6,13 +6,19 @@ import { DataTable } from "~/components/bookings/home/dataTable";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
-import { getAgentData } from "~/lib/api";
-import { Agent, agentColumns } from "~/lib/types/agent/type";
+import { agentColumns } from "~/lib/types/agent/type";
+import { getAllAgents } from "~/server/db/queries/agents";
+import { SelectAgent, SelectCountry } from "~/server/db/schemaTypes";
+
+export type AgentVendorData = SelectAgent & {
+    city: SelectCountry
+}
 
 const AgentHome = () => {
+    
     const pathname = usePathname();
 
-    const [data, setData] = useState<Agent[]>([]);
+    const [data, setData] = useState<SelectAgent[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +28,7 @@ const AgentHome = () => {
             async function fetchData() {
                 try {
                     setLoading(true);
-                    const result = await getAgentData();
+                    const result = await getAllAgents();
                     setData(result);
                 } catch (error) {
                     console.error("Failed to fetch activity data:", error);

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAddRestaurant } from "~/app/dashboard/restaurants/add/context";
 import { Button } from "~/components/ui/button";
+import { useToast } from "~/hooks/use-toast";
 import { saveRestaurant } from "~/server/db/queries/restaurants";
 
 const SubmitForm = () => {
@@ -10,6 +11,8 @@ const SubmitForm = () => {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { toast } = useToast()
+
     
 
     const handleSubmit = async () => {
@@ -31,8 +34,21 @@ const SubmitForm = () => {
             };
 
             // Call the server-side function to save the restaurant data
-            await saveRestaurant(restaurantData);
+            const response = await saveRestaurant(restaurantData);
             console.log("Restaurant saved successfully!");
+
+            if (!response) {
+                throw new Error(`Error: Inserting Activity Vendor`);
+              }
+          
+              console.log("Success:", response);
+          
+              setLoading(false);
+              // Handle successful response (e.g., show a success message)
+              toast({
+                title: "Success",
+                description: "Restaurant added successfully",
+              });
 
         } catch (err) {
             console.error("Failed to save restaurant:", err);

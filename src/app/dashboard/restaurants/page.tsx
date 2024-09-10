@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
+import LoadingLayout from "~/components/common/dashboardLoading";
 import DataTableDropDown from "~/components/common/dataTableDropdown";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
@@ -42,8 +43,19 @@ const RestaurantHome = () => {
 
     
         if (loading) {
-            return <div>Loading...</div>;
-        }
+            return (
+                <div>
+                  <div className="flex w-full flex-row justify-between gap-1">
+                    <TitleBar title="Activity Vendors" link="toAddHotel" />
+                    <div>
+                      <Link href={`${pathname}/add`}>
+                        <Button variant="primaryGreen">Add Activity</Button>
+                      </Link>
+                    </div>
+                  </div>
+                    <LoadingLayout />
+                </div>
+              );        }
     
         if (error) {
             return <div>Error: {error}</div>;
@@ -53,7 +65,7 @@ const RestaurantHome = () => {
         <div className="flex">
             <div className="flex-1">
                 <div className="flex flex-col gap-3">
-                    <div className="flex flex-row gap-1 w-full justify-between">
+                <div className="flex w-full flex-row justify-between gap-1">
                         <TitleBar title="Restaurants" link="toAddRestaurant" />
                         <div>
                         <Link href={`${pathname}/add`}>
@@ -61,6 +73,7 @@ const RestaurantHome = () => {
                           </Link>           
                         </div>  
                     </div>
+                    
                     <div className='flex flex-row gap-3 justify-center'>
                         <div className='w-[90%]'>
                             <DataTable

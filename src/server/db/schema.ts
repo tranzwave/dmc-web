@@ -97,6 +97,9 @@ export const agent = createTable("agents", {
     .notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull(),
+  agency: varchar("agency", { length: 255 }).notNull(),
+  tripsCompleted: varchar("tripsCompleted", { length: 255 }).notNull(),
+  primaryContactNumber: varchar("primaryContactNumber", { length: 255 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });

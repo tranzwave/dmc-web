@@ -1,11 +1,11 @@
 "use client"
+import { useState } from "react";
 import { useAddActivity } from "~/app/dashboard/activities/add/context";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { Button } from "~/components/ui/button";
-import { columns } from "../activityForm/columns";
-import { insertActivityVendor } from "~/server/db/queries/activities";
-import { useState } from "react";
 import { useToast } from "~/hooks/use-toast";
+import { insertActivityVendor } from "~/server/db/queries/activities";
+import { columns } from "../activityForm/columns";
 
 const SubmitForm = () => {
     const { activityVendorDetails } = useAddActivity();

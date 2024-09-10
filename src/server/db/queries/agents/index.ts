@@ -1,9 +1,8 @@
 "use server"
 
-import { agent } from './../../schema';
-import { db } from "../.."
+import { db } from "../..";
 
 
-export const getAllAgents = ()=>{
+export const getAllAgents = () => {
     return db.query.agent.findMany()
 }

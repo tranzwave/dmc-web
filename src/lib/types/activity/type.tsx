@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import DataTableDropDown from "~/components/common/dataTableDropdown";
-import { SelectActivity, SelectActivityVendor } from "~/server/db/schemaTypes";
+import { SelectActivityVendor } from "~/server/db/schemaTypes";
 
 // Define the Address type
 type Address = {
