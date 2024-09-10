@@ -27,20 +27,22 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <ClerkProvider
-      appearance={{
-        variables: {
-          colorPrimary: "#287F71"
-        },
-      }}
-    >
-      <html lang="en" className={`${fontSans.variable}`}>
-        <body>
-          <div className="h-screen w-screen">{children}</div>
-          <Toaster />
-        </body>
-      </html>
-    </ClerkProvider>
+    <>
+      <ClerkProvider
+        appearance={{
+          variables: {
+            colorPrimary: "#287F71",
+          },
+        }}
+      >
+        <html lang="en" className={`${fontSans.variable}`}>
+          <body>
+            <div className="h-screen w-screen">{children}</div>
+            <Toaster />
+          </body>
+        </html>
+      </ClerkProvider>
+    </>
     // <html lang="en" className={`${fontSans.variable}`}>
     //   <body>
     //     <div>{children}</div>

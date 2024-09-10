@@ -1,12 +1,21 @@
 import { ColumnDef } from "@tanstack/react-table";
-import HotelsForm from "./voucherForm/index";
+import HotelsVoucherForm from "./voucherForm/index";
 import { formatDate } from "~/lib/utils/index";
-import { SelectHotelVoucher, SelectHotelVoucherLine } from "~/server/db/schemaTypes";
+import { SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine } from "~/server/db/schemaTypes";
 import TasksTab from "~/components/common/tasksTab";
-import { HotelVoucherData } from "../hotels";
 import { bulkUpdateHotelVoucherRates, updateHotelVoucherStatus } from "~/server/db/queries/booking/hotelVouchers";
 import { useToast } from "~/hooks/use-toast";
 
+export type HotelVoucherData = {
+  bookingLineId: string;
+  id: string;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  coordinatorId: string;
+  hotelId: string;
+  hotel: SelectHotel;
+  voucherLine: SelectHotelVoucherLine[];
+};
 // Define specific columns for hotels
 const hotelColumns: ColumnDef<HotelVoucherData>[] = [
   {
@@ -106,7 +115,7 @@ const HotelsTasksTab = ({
     columns={hotelColumns}
     voucherColumns={hotelVoucherLineColumns}
     vouchers={vouchers} // Pass vouchers directly to TasksTab
-    formComponent={HotelsForm}
+    formComponent={HotelsVoucherForm}
     updateVoucherLine={updateVoucherLine}
     updateVoucherStatus={updateVoucherStatus}
   />

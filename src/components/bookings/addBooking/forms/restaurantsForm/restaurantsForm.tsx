@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getMeals } from "~/server/db/queries/booking/restaurantVouchers";
 import { RestaurantData } from ".";
 import { RestaurantVoucher } from "~/app/dashboard/bookings/add/context";

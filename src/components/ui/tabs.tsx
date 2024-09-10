@@ -58,14 +58,14 @@ const TabsTrigger = React.forwardRef<
           }
         }}
         className={cn(
-          "relative flex h-[64px] w-full flex-col items-start justify-center px-4 py-2 text-sm font-medium",
+          "relative flex w-full flex-col items-start justify-center px-4 py-2 text-sm font-medium",
           "border border-gray-300",
           "data-[state=active]:bg-secondary-green/60 data-[state=active]:text-green-700",
           className,
         )}
         {...props}
       >
-        <div className="flex items-center">
+        <div className="flex items-start">
           {isCompleted ? (
             inProgress ? (
               <LoaderCircle className="mr-2 text-primary-green" size={16} />
@@ -83,9 +83,12 @@ const TabsTrigger = React.forwardRef<
           ) : (
             <ClipboardType className="mr-2 text-primary-green" size={16} />
           )}
-          <span>{children}</span>
+          <div className=" flex flex-col items-start">
+            <div>{children}</div>
+            <p className="text-xs text-gray-500">{statusLabel}</p>
+          </div>
         </div>
-        <p className="ml-6 text-xs text-gray-500">{statusLabel}</p>
+        
       </TabsPrimitive.Trigger>
     );
   },

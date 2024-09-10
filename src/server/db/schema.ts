@@ -137,6 +137,8 @@ export const bookingLine = createTable("booking_lines", {
     .references(() => booking.id),
   includes: jsonb("includes").$type<{
     hotels: boolean;
+    restaurants: boolean;
+    shops:boolean;
     transport: boolean;
     activities: boolean;
   }>(), // e.g., { hotels: true, transport: true, activities: false }

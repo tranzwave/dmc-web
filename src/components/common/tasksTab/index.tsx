@@ -15,7 +15,7 @@ interface TasksTabProps<T, L> {
   columns: ColumnDef<T>[]; // Columns for the main vouchers
   voucherColumns: ColumnDef<L>[]; // Columns for the voucher lines
   vouchers: T[]; // Directly pass the voucher array
-  formComponent: React.FC<{ selectedItem: T | undefined; onSave: () => void }>; // Form component for editing/creating vouchers
+  formComponent: React.FC<{ selectedItem: L | undefined; onSave: () => void }>; // Form component for editing/creating vouchers
   updateVoucherLine: (data: any) => Promise<void>;
   updateVoucherStatus: (data: any) => Promise<boolean>;
 }
@@ -37,7 +37,7 @@ const TasksTab = <
   updateVoucherStatus,
 }: TasksTabProps<T, L>) => {
   const [selectedVoucher, setSelectedVoucher] = useState<T | any>();
-  const [selectedVoucherLine, setSelectedVoucherLine] = useState<L | T>();
+  const [selectedVoucherLine, setSelectedVoucherLine] = useState<L | any>();
   const [rate, setRate] = useState<number | "">(0);
 
   const { toast } = useToast();
@@ -106,13 +106,11 @@ const TasksTab = <
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">
-      <div className="flex w-full flex-row justify-center gap-2">
-        <div className="w-[25%]">
-          <div className="card">
-            <Calendar />
-          </div>
+      <div className="flex w-full flex-row justify-center gap-3">
+        <div>
+          <Calendar />
         </div>
-        <div className="card w-[70%] space-y-6">
+        <div className="card w-full space-y-6">
           <div className="card-title">Voucher Information</div>
           <DataTableWithActions
             columns={columns}
@@ -166,7 +164,7 @@ const TasksTab = <
                   updateVoucherLine,
                   updateVoucherStatus,
                   rate,
-                  setRate
+                  setRate,
                 )}
                 size="large"
               />
@@ -176,7 +174,7 @@ const TasksTab = <
             columns={voucherColumns}
             data={
               selectedVoucher
-                ? selectedVoucher.voucherLine ?? [selectedVoucher]
+                ? (selectedVoucher.voucherLine ?? [selectedVoucher])
                 : []
             }
             onRowClick={onVoucherLineRowClick}
@@ -195,7 +193,7 @@ const TasksTab = <
             </div>
           </div>
           <FormComponent
-            selectedItem={selectedVoucher}
+            selectedItem={selectedVoucherLine}
             onSave={() => console.log("Saved")}
           />
         </div>
@@ -206,12 +204,15 @@ const TasksTab = <
 
 export default TasksTab;
 
-const CreateRateColumn = <T extends object>(rate:number | string,setRate:any): ColumnDef<T> => ({
+const CreateRateColumn = <T extends object>(
+  rate: number | string,
+  setRate: any,
+): ColumnDef<T> => ({
   accessorKey: "rate",
   header: "Rate - USD",
   cell: ({ getValue, row, column }) => {
     const initialRate = getValue() as number;
-    setRate(initialRate)
+    setRate(initialRate);
     // const [rate, setRate] = useState<number | "">(initialRate);
 
     const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -249,10 +250,10 @@ const ProceedContent = (
   onVoucherLineRowClick: any,
   updateVoucherLine: any,
   updateVoucherStatus: any,
-  rate:number|string,
-  setRate:any
+  rate: number | string,
+  setRate: any,
 ) => {
-  const rateColumn = CreateRateColumn<typeof voucherColumns>(rate,setRate);
+  const rateColumn = CreateRateColumn<typeof voucherColumns>(rate, setRate);
   const VoucherLineColumnsWithRate = [...voucherColumns, rateColumn];
 
   const [ratesConfirmedBy, setRatesConfirmedBy] = useState("");
@@ -323,7 +324,7 @@ const ProceedContent = (
         columns={VoucherLineColumnsWithRate}
         data={
           selectedVoucher
-            ? selectedVoucher.voucherLine ?? [selectedVoucher]
+            ? (selectedVoucher.voucherLine ?? [selectedVoucher])
             : []
         }
         onRowClick={onVoucherLineRowClick}
@@ -380,7 +381,10 @@ const confirmationContent = (
   if (selectedVoucher?.status === "sentToVendor") {
     return (
       <div className="space-y-6">
-        <ConfirmationForm selectedVoucher={selectedVoucher} updateVoucherStatus={updateVoucherStatus}/>
+        <ConfirmationForm
+          selectedVoucher={selectedVoucher}
+          updateVoucherStatus={updateVoucherStatus}
+        />
       </div>
     );
   }

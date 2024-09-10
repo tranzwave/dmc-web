@@ -15,7 +15,9 @@ export type General = {
   tourType: string;
   includes: {
     hotels: boolean;
-    transport: boolean;
+    restaurants: boolean,
     activities: boolean;
+    transport: boolean;
+    shops:boolean,
   };
 };

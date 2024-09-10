@@ -76,6 +76,10 @@ const HotelsTab = () => {
   };
 
   useEffect(() => {
+    if(!bookingDetails.general.includes.hotels){
+      setActiveTab("restaurants")
+      return ()=>{console.log("Return")};
+    }
     console.log("rerenderinggg")
     getHotels();
   }, []);
@@ -98,17 +102,13 @@ const HotelsTab = () => {
   
   return (
     <div className="flex flex-col items-center justify-center gap-3">
-      <div className="flex w-full flex-row justify-center gap-2">
-        <div className="w-[25%]">
-          <div className="card w-[85%]">
-          <Calendar
+      <div className="flex w-full flex-row justify-center gap-3">
+      <Calendar
             mode="range"
             selected={{from: new Date(bookingDetails.general.startDate), to:new Date(bookingDetails.general.endDate)}}
             className="rounded-md"
           />
-          </div>
-        </div>
-        <div className="card w-[70%] space-y-6">
+        <div className="card space-y-6 w-full">
           <div className="card-title">Hotel Information</div>
           {hotels && (
             <HotelsForm
@@ -130,7 +130,7 @@ const HotelsTab = () => {
           )}
         </div>
       </div>
-      <div className="flex w-[95%] flex-col items-center justify-center gap-2">
+      <div className="flex w-full flex-col items-center justify-center gap-2">
         <div className="w-full">
           <DataTable columns={voucherColumns} data={bookingDetails.vouchers} />
         </div>
