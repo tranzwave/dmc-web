@@ -82,7 +82,7 @@ interface AddBookingContextProps {
 }
 
 // Provide default values
-const defaultGeneral: General = {
+export const defaultGeneral: General = {
   clientName: "",
   country: "",
   primaryEmail: "",

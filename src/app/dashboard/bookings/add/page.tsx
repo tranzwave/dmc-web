@@ -48,7 +48,7 @@ const AddBooking = () => {
           <div className="w-full">
             <Tabs
               defaultValue="general"
-              className="w-full border"
+              className="w-full"
               value={activeTab}
             >
               <TabsList className="flex w-full justify-evenly">

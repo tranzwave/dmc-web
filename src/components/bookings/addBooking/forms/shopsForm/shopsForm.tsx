@@ -111,7 +111,6 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
   }
 
   const fetchShops = async () => {
-    alert(`${selectedShopType?.name} city - ${selectedCity?.name}`);
     try {
       if (selectedShopType && selectedCity) {
         setShopsLoading(true);
@@ -142,7 +141,6 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
     setShops([]);
     setShopsLoading(false);
     const city = cities.find((city) => city.name === name);
-    alert(city?.name);
     setSelectedCity(city);
   };
 
@@ -151,14 +149,12 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
     setShops([]);
     setShopsLoading(false);
     const type = shopTypes.find((type) => type.name === name);
-    alert(type?.name);
     setSelectedShopType(type);
   };
 
   const getShopId = (name: string) => {
     const shop = shops.find((shop) => shop.name === name);
 
-    alert(shop?.name);
     setSelectedShop(shop);
   };
 

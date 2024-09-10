@@ -106,17 +106,16 @@ const ShopsTab = () => {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="mx-9 flex flex-row justify-center gap-2">
-        <div className="w-[25%]">
-          <div className="card w-[85%]">
-          <Calendar
+      <div className=" flex flex-row justify-center gap-3">
+        <div>
+        <Calendar
             mode="range"
             selected={{from: new Date(bookingDetails.general.startDate), to:new Date(bookingDetails.general.endDate)}}
             className="rounded-md"
           />
-          </div>
         </div>
-        <div className="card w-[70%] space-y-6">
+
+        <div className="card w-full space-y-6">
           <div className="card-title">Shop Information</div>
           <ShopsForm
             onAddShop={updateShopVouchers}

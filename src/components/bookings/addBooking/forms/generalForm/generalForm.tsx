@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useEffect, useState } from "react";
-import { StatusKey, StatusLabels, useAddBooking } from "~/app/dashboard/bookings/add/context";
+import { defaultGeneral, StatusKey, StatusLabels, useAddBooking } from "~/app/dashboard/bookings/add/context";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import {
@@ -86,7 +86,7 @@ const GeneralForm = () => {
 
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
-    defaultValues: bookingDetails.general,
+    defaultValues: defaultGeneral,
   });
 
   const startDate = form.watch("startDate");

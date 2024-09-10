@@ -5,9 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import {
-  getBookingLineWithAllData,
-} from "~/server/db/queries/booking";
+import { getBookingLineWithAllData } from "~/server/db/queries/booking";
 import { SelectBookingLine } from "~/server/db/schemaTypes";
 import HotelsTasksTab from "~/components/bookings/tasks/hotelsTaskTab";
 import RestaurantsTasksTab from "~/components/bookings/tasks/restaurants";
@@ -21,24 +19,24 @@ const Page = ({ params }: { params: { id: string } }) => {
   const [booking, setBooking] = useState<SelectBookingLine>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [bookingLine, setBookingLine] = useState<BookingLineWithAllData>()
+  const [bookingLine, setBookingLine] = useState<BookingLineWithAllData>();
   const searchParams = useSearchParams();
-  const tab = searchParams.get('tab');
+  const tab = searchParams.get("tab");
 
   // Fetch the booking details when the component mounts
   const fetchBooking = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const bookingLineData = await getBookingLineWithAllData(params.id)
-      console.log(bookingLineData)
+      const bookingLineData = await getBookingLineWithAllData(params.id);
+      console.log(bookingLineData);
       if (!bookingLineData) {
         setError("Booking not found");
       }
-      setBookingLine(bookingLineData)
-      setLoading(false)
+      setBookingLine(bookingLineData);
+      setLoading(false);
     } catch (error) {
       console.error(error);
-      setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -58,7 +56,6 @@ const Page = ({ params }: { params: { id: string } }) => {
     return <div>No booking details available</div>;
   }
 
-
   return (
     <div className="flex">
       <div className="flex-1">
@@ -75,35 +72,98 @@ const Page = ({ params }: { params: { id: string } }) => {
             <Tabs defaultValue={tab ?? "hotels"} className="w-full border">
               <TabsList className="flex w-full justify-evenly">
                 {/* <TabsTrigger value="general">General</TabsTrigger> */}
-                <TabsTrigger value="hotels">Hotels</TabsTrigger>
-                <TabsTrigger value="restaurants">Restaurants</TabsTrigger>
-                <TabsTrigger value="activities">Activities</TabsTrigger>
-                <TabsTrigger value="transport">Transport</TabsTrigger>
-                <TabsTrigger value="shops">Shops</TabsTrigger>
+                <TabsTrigger
+                  value="hotels"
+                  statusLabel={
+                    bookingLine.includes?.hotels ? "Mandatory" : "Locked"
+                  }
+                  disabled={!bookingLine.includes?.hotels}
+                  isCompleted={bookingLine.includes?.hotels}
+
+                >
+                  Hotels
+                </TabsTrigger>
+                <TabsTrigger
+                  value="restaurants"
+                  statusLabel={
+                    bookingLine.includes?.restaurants ? "Mandatory" : "Locked"
+                  }
+                  disabled={!bookingLine.includes?.restaurants}
+                  isCompleted={bookingLine.includes?.restaurants}
+
+                >
+                  Restaurants
+                </TabsTrigger>
+                <TabsTrigger
+                  value="activities"
+                  statusLabel={
+                    bookingLine.includes?.activities ? "Mandatory" : "Locked"
+                  }
+                  disabled={!bookingLine.includes?.activities}
+                  isCompleted={bookingLine.includes?.activities}
+                >
+                  Activities
+                </TabsTrigger>
+                <TabsTrigger
+                  value="transport"
+                  statusLabel={
+                    bookingLine.includes?.transport ? "Mandatory" : "Locked"
+                  }
+                  isCompleted={bookingLine.includes?.transport}
+                  disabled={!bookingLine.includes?.transport}
+                >
+                  Transport
+                </TabsTrigger>
+                <TabsTrigger
+                  value="shops"
+                  statusLabel={
+                    bookingLine.includes?.shops ? "Mandatory" : "Locked"
+                  }
+                  disabled ={!bookingLine.includes?.shops}
+                  isCompleted ={bookingLine.includes?.shops}
+
+                >
+                  Shops
+                </TabsTrigger>
               </TabsList>
               {/* <TabsContent value="general"> */}
-                {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
-                {/* General Task View */}
+              {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
+              {/* General Task View */}
               {/* </TabsContent> */}
               <TabsContent value="hotels">
                 {/* <HotelsTab onAddHotel={addHotel} /> */}
-                <HotelsTasksTab bookingLineId={params.id} vouchers={bookingLine?.hotelVouchers ?? []}/>
+                <HotelsTasksTab
+                  bookingLineId={params.id}
+                  vouchers={bookingLine?.hotelVouchers ?? []}
+                />
                 {/* <HotelsTasksTab bookingLineId={params.id}/> */}
               </TabsContent>
               <TabsContent value="restaurants">
                 {/* <RestaurantsTab onAddRestaurant={addRestaurant} /> */}
-                <RestaurantsTasksTab bookingLineId={params.id} vouchers={bookingLine?.restaurantVouchers ?? []}/>
+                <RestaurantsTasksTab
+                  bookingLineId={params.id}
+                  vouchers={bookingLine?.restaurantVouchers ?? []}
+                />
               </TabsContent>
               <TabsContent value="activities">
                 {/* <ActivitiesTab onAddActivity={addActivity} /> */}
-                <ActivitiesTasksTab bookingLineId={params.id} vouchers={bookingLine?.activityVouchers ?? []}/>
+                <ActivitiesTasksTab
+                  bookingLineId={params.id}
+                  vouchers={bookingLine?.activityVouchers ?? []}
+                />
               </TabsContent>
               <TabsContent value="transport">
                 {/* <TransportTab onAddTransport={addTransport} /> */}
-                <TransportTasksTab bookingLineId={params.id} vouchers={bookingLine?.transportVouchers ?? []}/>
+                <TransportTasksTab
+                  bookingLineId={params.id}
+                  vouchers={bookingLine?.transportVouchers ?? []}
+                />
               </TabsContent>
               <TabsContent value="shops">
-                <ShopsTasksTab bookingLineId={params.id} vouchers = {bookingLine?.shopsVouchers ?? []}/>
+                <ShopsTasksTab
+                  bookingLineId={params.id}
+                  vouchers={bookingLine?.shopsVouchers ?? []}
+                />
               </TabsContent>
             </Tabs>
           </div>

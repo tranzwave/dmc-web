@@ -31,7 +31,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ summary }) => {
             <div className="text-base font-bold bg-primary-green text-white px-1 rounded-t-lg text-center">
               Day {day}
             </div>
-            <div className="items-start text-[13px] text-zinc-800">
+            <div className="items-start text-xs text-zinc-800">
                 {formatDateToWeekdayMonth(date)}
             </div>
           </div>

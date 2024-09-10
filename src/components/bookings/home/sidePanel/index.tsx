@@ -10,13 +10,13 @@ import { Progress } from "~/components/ui/progress";
 import { Lock } from "lucide-react"; // Import the lock icon
 import { useEffect, useState } from "react";
 import { getHotelVouchers } from "~/server/db/queries/booking/hotelVouchers";
-import { HotelVoucherData } from "../../tasks/hotels";
 import { getTransportVouchers } from "~/server/db/queries/booking/transportVouchers";
 import { getActivityVouchers } from "~/server/db/queries/booking/activityVouchers";
 import { getShopsVouchers } from "~/server/db/queries/booking/shopsVouchers";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getRestaurantVouchers } from "~/server/db/queries/booking/restaurantVouchers";
+import { HotelVoucherData } from "../../tasks/hotelsTaskTab";
 
 interface SidePanelProps {
   booking: BookingDTO | null;

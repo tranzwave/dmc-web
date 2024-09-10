@@ -108,9 +108,9 @@ const Overview = () => {
       <div className="h-[3%]">
         <TitleBar title="Overview" link="toReadMe"/>
       </div>
-      <div className="flex w-full h-[20%] flex-col gap-2 justify-center items-center rounded-lg bg-welcome-bg bg-cover">
-        <div className="text-5xl font-semibold text-[#235026]">WELCOME</div>
-        <div className="text-5xl font-semibold text-[#235026]">{user ? user.fullName?.toUpperCase() : "To Tranzwave"}</div>
+      <div className="flex w-full h-[20%] py-3 flex-col gap-2 justify-center items-center rounded-lg bg-welcome-bg bg-cover">
+        <div className="text-3xl font-semibold text-[#235026]">WELCOME</div>
+        <div className="text-3xl font-semibold text-[#235026]">{user ? user.fullName?.toUpperCase() : "To Tranzwave"}</div>
       </div>
       <div className="h-[14%]">
         <StatCards stats={data.stats ?? []}/>

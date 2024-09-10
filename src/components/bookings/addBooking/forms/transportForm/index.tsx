@@ -23,6 +23,7 @@ import {
 import { useToast } from "~/hooks/use-toast";
 import { Calendar } from "~/components/ui/calendar";
 import { ColumnDef } from "@tanstack/react-table";
+import ContactBox from "~/components/ui/content-box";
 
 type DriverWithoutVehiclesAndLanguages = Omit<
   DriverData,
@@ -165,21 +166,19 @@ const TransportTab = () => {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="mx-9 flex flex-row justify-center gap-2">
-        <div className="w-[25%]">
-          <div className="card w-[85%]">
-            <Calendar
-              mode="range"
-              selected={{
-                from: new Date(bookingDetails.general.startDate),
-                to: new Date(bookingDetails.general.endDate),
-              }}
-              className="rounded-md"
-            />
-          </div>
-          <div className="card">Profile</div>
+      <div className="mx-9 flex flex-row justify-center gap-3">
+        <div className="flex flex-col gap-3">
+        <Calendar
+          mode="range"
+          selected={{
+            from: new Date(bookingDetails.general.startDate),
+            to: new Date(bookingDetails.general.endDate),
+          }}
+          className="rounded-md"
+        />
+        {/* <div className="border card"></div> */}
         </div>
-        <div className="card w-[70%] space-y-6">
+        <div className="card w-full space-y-6">
           <div className="card-title">Transport Information</div>
           <TransportForm
             onSearchTransport={updateSearchData}
