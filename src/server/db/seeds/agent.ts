@@ -61,7 +61,9 @@ export default async function seed(db:DB) {
             "tenantId": tenant.id,
             "country" : currentAgent.country,
             "name" : currentAgent.name,
-            "email" :currentAgent.email
+            "email" :currentAgent.email,
+            "agency": currentAgent.agency,
+            "primaryContactNumber":currentAgent.primaryContactNumber
           });
         }
       })
