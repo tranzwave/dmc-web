@@ -12,50 +12,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from "~/components/ui/dialog";
-import {
-  createNewBooking,
-} from "~/server/db/queries/booking";
-
-const SummaryCard = ({ day }: { day: number }) => {
-  return (
-    <div className="space-y-0">
-      <div className="flex w-24 items-center justify-center rounded-t-xl bg-primary-green p-1 text-sm font-bold text-white">
-        <div>Day {day}</div>
-      </div>
-      <div className="mb-2 grid grid-cols-3 rounded-lg border shadow-md">
-        <div className="border-r p-2">
-          <div className="text-sm font-bold text-primary-green">Hotel Name</div>
-          <div className="text-xs font-normal">
-            <div>20 Guests</div>
-            <div>5 Double beds | 2 Kings bed | 4 single beds</div>
-            <div>Dinner at plates restaurant</div>
-          </div>
-        </div>
-        <div className="border-r p-2">
-          <div className="text-sm font-bold text-primary-green">
-            Activity Name
-          </div>
-          <div className="text-xs font-normal">
-            <div>20 Guests</div>
-            <div>5</div>
-            <div>D</div>
-          </div>
-        </div>
-        <div className="border-r p-2">
-          <div className="text-sm font-bold text-primary-green">Shop Name</div>
-          <div className="text-xs font-normal">
-            <div>20 Guests</div>
-            <div>5</div>
-            <div>D</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+import { createNewBooking } from "~/server/db/queries/booking";
+import SummaryCard, { formatDateToWeekdayMonth } from "./summaryCard";
+import ContactBox from "~/components/ui/content-box";
 
 const AddBookingSubmitTab = () => {
-  const { bookingDetails } = useAddBooking();
+  const { bookingDetails, getBookingSummary } = useAddBooking();
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -64,7 +26,7 @@ const AddBookingSubmitTab = () => {
   const router = useRouter();
 
   const handleSubmit = async () => {
-    console.log(bookingDetails)
+    console.log(bookingDetails);
     setLoading(true);
     try {
       // Prepare the data to pass to the createNewBooking function
@@ -82,7 +44,7 @@ const AddBookingSubmitTab = () => {
         setMessage(
           "Booking Added! Do you want to continue finalizing the tasks for this booking?",
         );
-        setId(createdBooking)
+        setId(createdBooking);
         setShowModal(true);
       }
     } catch (error) {
@@ -106,38 +68,53 @@ const AddBookingSubmitTab = () => {
   };
 
   const numberOfDays = bookingDetails.general?.numberOfDays ?? 0;
+  const summary = getBookingSummary();
 
   return (
-    <div className="mt-4 flex h-full flex-col items-center justify-center gap-3">
-      <div className="card-title flex w-[80%] justify-start">
-        Booking Summary
-      </div>
-      <div
-        className="card flex w-[80%] flex-col gap-2 overflow-y-auto"
-        style={{ maxHeight: "calc(100vh - 300px)" }}
-      >
-        {Array.from({ length: numberOfDays }, (_, index) => (
-          <SummaryCard key={index} day={index + 1} />
-        ))}
-      </div>
-      <div className="flex w-[80%] justify-end">
-        <Button
-          variant="primaryGreen"
-          onClick={handleSubmit}
-          disabled={loading}
+    <div className="mt-4 flex h-full flex-col gap-3">
+      <div className="flex flex-row gap-2">
+        <div>
+          <ContactBox
+            title={`Client - ${bookingDetails.general.clientName}`}
+            description={`A ${bookingDetails.general.numberOfDays} day ${bookingDetails.general.tourType} trip from ${formatDateToWeekdayMonth(bookingDetails.general.startDate)} to ${formatDateToWeekdayMonth(bookingDetails.general.endDate)}`}
+            location={bookingDetails.general.country}
+            address={`Expecting ${bookingDetails.general.adultsCount} Adults and ${bookingDetails.general.kidsCount} Kids`}
+            phone={"No contact number provided"}
+            email={`Client - ${bookingDetails.general.primaryEmail}`}
+          />
+        </div>
+
+        <div
+          className="card flex w-[80%] flex-row gap-2 overflow-y-auto"
+          style={{ maxHeight: "calc(100vh - 300px)" }}
         >
-          {loading ? (
-            <div className="flex flex-row gap-2">
-              <div>
-                <Loader2Icon className="animate-spin" />
-              </div>{" "}
-              <div> Saving </div>
-            </div>
-          ) : (
-            "Submit"
-          )}
-        </Button>
+          <div className="card-title flex w-full flex-row justify-between">
+            <div>Booking Summary</div>
+            <Button
+              variant="primaryGreen"
+              onClick={handleSubmit}
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="flex flex-row gap-2">
+                  <div>
+                    <Loader2Icon className="animate-spin" />
+                  </div>{" "}
+                  <div> Saving </div>
+                </div>
+              ) : (
+                "Submit Booking"
+              )}
+            </Button>
+          </div>
+          <div>
+            {summary.map((sum, index) => {
+              return <SummaryCard summary={sum} key={index} />;
+            })}
+          </div>
+        </div>
       </div>
+      <div className="flex w-[80%] justify-end"></div>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>

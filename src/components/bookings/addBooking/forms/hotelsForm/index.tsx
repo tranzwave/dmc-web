@@ -76,6 +76,10 @@ const HotelsTab = () => {
   };
 
   useEffect(() => {
+    if(!bookingDetails.general.includes.hotels){
+      setActiveTab("restaurants")
+      return ()=>{console.log("Return")};
+    }
     console.log("rerenderinggg")
     getHotels();
   }, []);

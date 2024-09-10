@@ -86,6 +86,10 @@ const TransportTab = () => {
   };
 
   useEffect(() => {
+    if(!bookingDetails.general.includes.transport){
+      setActiveTab("shops")
+      return ()=>{console.log("Return")};
+    }
     fetchData();
   }, []);
 

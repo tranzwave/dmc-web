@@ -79,6 +79,10 @@ const RestaurantsTab = () => {
   };
 
   useEffect(() => {
+    if(!bookingDetails.general.includes.restaurants){
+      setActiveTab("activities")
+      return ()=>{console.log("Return")};
+    }
     getRestaurants();
   }, []);
 

@@ -20,8 +20,8 @@ const ContactBox: React.FC<ContactBoxProps> = ({
 }) => {
   return (
     <div className="max-w-[400px] overflow-hidden rounded border border-gray-200 shadow-lg">
-      <div className="flex h-60 items-center justify-center bg-gray-200">
-        <span className="text-lg text-gray-500">Image Placeholder</span>
+      <div className="flex h-60 items-center justify-center bg-gray-200 bg-welcome-bg">
+        {/* <span className="text-lg text-gray-500">Image Placeholder</span> */}
       </div>
       <div className="px-6 py-4">
         <div className="mb-2 text-xl font-bold">{title}</div>

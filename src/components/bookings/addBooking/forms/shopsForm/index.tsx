@@ -97,6 +97,10 @@ const ShopsTab = () => {
   };
 
   useEffect(() => {
+    if(!bookingDetails.general.includes.shops){
+      setActiveTab("submit")
+      return ()=>{console.log("Return")};
+    }
     fetchData();
   }, []);
 

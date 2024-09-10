@@ -14,30 +14,30 @@ export interface TransportWithDriver {
 }
 
 export type HotelVoucher = {
-  hotel:SelectHotel,
-  voucher:InsertHotelVoucher
-  voucherLines:InsertHotelVoucherLine[]
+  hotel: SelectHotel;
+  voucher: InsertHotelVoucher;
+  voucherLines: InsertHotelVoucherLine[];
 }
 
 export type RestaurantVoucher = {
-  restaurant: RestaurantData,
-  voucher: InsertRestaurantVoucher
-  voucherLines: InsertRestaurantVoucherLine[]
+  restaurant: RestaurantData;
+  voucher: InsertRestaurantVoucher;
+  voucherLines: InsertRestaurantVoucherLine[];
 }
 
 export type ActivityVoucher = {
-  vendor: SelectActivityVendor,
-  voucher: InsertActivityVoucher
+  vendor: SelectActivityVendor;
+  voucher: InsertActivityVoucher;
 }
 
 export type ShopVoucher = {
-  shop: SelectShop,
-  voucher: InsertShopVoucher
+  shop: SelectShop;
+  voucher: InsertShopVoucher;
 }
 
 export type TransportVoucher = {
-  driver: SelectDriver,
-  voucher: InsertTransportVoucher
+  driver: SelectDriver;
+  voucher: InsertTransportVoucher;
 }
 
 export interface BookingDetails {
@@ -55,6 +55,16 @@ export type StatusValue = "Mandatory" | "Locked";
 // Define the type for the status labels map
 export type StatusLabels = Record<StatusKey, StatusValue>;
 
+export interface BookingSummary {
+  day: number;
+  date: string;
+  hotel: HotelVoucher | null;
+  restaurants: RestaurantVoucher[];
+  activities: ActivityVoucher[];
+  transport: TransportVoucher[];
+  shops: ShopVoucher[];
+}
+
 // Define context properties
 interface AddBookingContextProps {
   bookingDetails: BookingDetails;
@@ -64,16 +74,17 @@ interface AddBookingContextProps {
   addActivity: (activity: ActivityVoucher) => void;
   addTransport: (transport: TransportVoucher) => void;
   addShop: (shop: ShopVoucher) => void;
-  activeTab: string,
-  setActiveTab: (tab:string) => void,
-  statusLabels: StatusLabels,
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  statusLabels: StatusLabels;
   setStatusLabels: React.Dispatch<React.SetStateAction<StatusLabels>>;
+  getBookingSummary: () => BookingSummary[];
 }
 
 // Provide default values
 const defaultGeneral: General = {
   clientName: "",
-  country:"",
+  country: "",
   primaryEmail: "",
   adultsCount: 0,
   kidsCount: 0,
@@ -84,9 +95,11 @@ const defaultGeneral: General = {
   agent: "",
   tourType: "",
   includes: {
-    hotels: false,
+    hotels: true,
+    restaurants: false,
     transport: false,
     activities: false,
+    shops: false
   },
 };
 
@@ -112,15 +125,13 @@ const defaultBookingDetails: BookingDetails = {
   shops: []
 };
 
-
-
 const AddBookingContext = createContext<AddBookingContextProps | undefined>(undefined);
 
 export const AddBookingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [bookingDetails, setBookingDetails] = useState<BookingDetails>(defaultBookingDetails);
   const [activeTab, setActiveTab] = useState<string>("general");
   const [statusLabels, setStatusLabels] = useState<StatusLabels>({
-    hotels: "Locked",
+    hotels: "Mandatory",
     restaurants: "Locked",
     transport: "Locked",
     activities: "Locked",
@@ -136,7 +147,6 @@ export const AddBookingProvider: React.FC<{ children: ReactNode }> = ({ children
   };
 
   const addRestaurantVoucher = (restaurantVoucher: RestaurantVoucher) => {
-    console.log(`Restaurant ID-${restaurantVoucher.restaurant.id}`)
     setBookingDetails(prev => ({ ...prev, restaurants: [...prev.restaurants, restaurantVoucher] }));
   };
 
@@ -152,6 +162,40 @@ export const AddBookingProvider: React.FC<{ children: ReactNode }> = ({ children
     setBookingDetails(prev => ({ ...prev, shops: [...prev.shops, shop] }));
   };
 
+  const getBookingSummary = (): BookingSummary[] => {
+    const { general, vouchers, restaurants, activities, transport, shops } = bookingDetails;
+    const { startDate, numberOfDays } = general;
+    const bookingSummary: BookingSummary[] = [];
+    const startDateObj = new Date(startDate);
+
+    for (let day = 1; day <= numberOfDays; day++) {
+      const currentDate = new Date(startDateObj);
+      currentDate.setDate(startDateObj.getDate() + day - 1);
+
+      const summaryForDay: BookingSummary = {
+        day,
+        date: currentDate.toISOString().split('T')[0] ?? "", // Format as YYYY-MM-DD
+        hotel: vouchers.find(voucher => {
+          const checkInDate = new Date(voucher.voucherLines[0]?.checkInDate ?? "1999-09-09");
+          const checkOutDate = new Date(voucher.voucherLines[0]?.checkOutDate ?? "1999-09-09");
+          return checkInDate <= currentDate && currentDate <= checkOutDate;
+        }) || null,
+        restaurants: restaurants.filter(restaurant => new Date(restaurant.voucherLines[0]?.date ?? "1999-09-09").toISOString().split('T')[0] === currentDate.toISOString().split('T')[0]),
+        activities: activities.filter(activity => new Date(activity.voucher.date).toISOString().split('T')[0] === currentDate.toISOString().split('T')[0]),
+        transport: transport.filter(t => {
+          const startDate = new Date(t.voucher.startDate);
+          const endDate = new Date(t.voucher.endDate ?? t.voucher.startDate);
+          return startDate <= currentDate && currentDate <= endDate;
+        }),
+        shops: shops.filter(shop => new Date(shop.voucher.date).toISOString().split('T')[0] === currentDate.toISOString().split('T')[0]),
+      };
+
+      bookingSummary.push(summaryForDay);
+    }
+
+    return bookingSummary;
+  };
+
   return (
     <AddBookingContext.Provider
       value={{
@@ -165,7 +209,8 @@ export const AddBookingProvider: React.FC<{ children: ReactNode }> = ({ children
         activeTab,
         setActiveTab,
         statusLabels,
-        setStatusLabels
+        setStatusLabels,
+        getBookingSummary
       }}
     >
       {children}
