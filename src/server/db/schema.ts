@@ -92,14 +92,15 @@ export const agent = createTable("agents", {
   tenantId: varchar("tenant_id", { length: 255 })
     .references(() => tenant.id)
     .notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
   country: varchar("country_code", { length: 3 })
     .references(() => country.code)
     .notNull(),
-  name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull(),
+  primaryContactNumber: varchar("primary_contact_number", {
+    length: 20,
+  }).notNull(),
   agency: varchar("agency", { length: 255 }).notNull(),
-  tripsCompleted: varchar("tripsCompleted", { length: 255 }).notNull(),
-  primaryContactNumber: varchar("primaryContactNumber", { length: 255 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
@@ -138,7 +139,7 @@ export const bookingLine = createTable("booking_lines", {
   includes: jsonb("includes").$type<{
     hotels: boolean;
     restaurants: boolean;
-    shops:boolean;
+    shops: boolean;
     transport: boolean;
     activities: boolean;
   }>(), // e.g., { hotels: true, transport: true, activities: false }
