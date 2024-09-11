@@ -161,3 +161,28 @@ export const insertRestaurant = async (
         throw error;
     }
 };
+
+export async function deleteRestaurantCascade(restaurantId: string) {
+    try {
+        // Start the transaction
+        const deletedRestaurantId = await db.transaction(async (trx) => {
+            // Delete related restaurant-meal relationships
+            await trx
+                .delete(restaurantMeal)
+                .where(eq(restaurantMeal.restaurantId, restaurantId));
+
+            // Finally, delete the restaurant
+            const deletedRestaurant = await trx
+                .delete(restaurant)
+                .where(eq(restaurant.id, restaurantId)).returning({ id: restaurant.id });
+
+            return deletedRestaurant;
+        });
+
+        console.log("Restaurant and related data deleted successfully");
+        return deletedRestaurantId;
+    } catch (error) {
+        console.error("Error deleting restaurant and related data:", error);
+        throw error; // Re-throw the error to handle it elsewhere if needed
+    }
+}

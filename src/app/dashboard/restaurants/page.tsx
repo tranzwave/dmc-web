@@ -123,7 +123,7 @@ const restaurantColumns: ColumnDef<RestaurantData>[] = [
             <DataTableDropDown data={restaurant} routeBase="/restaurants/" 
             onViewPath={(data) => `/dashboard/restaurants/${data.id}`}
             onEditPath={(data) => `/dashboard/restaurants/${data.id}/edit`}
-            onDeletePath={(data) => `/dashboard/restaurants/${data.id}`}
+            onDeletePath={(data) => `/dashboard/restaurants/${data.id}/delete`}
             // onDeleted={() => window.location.reload()}  // Refresh page after delete
 
   />
