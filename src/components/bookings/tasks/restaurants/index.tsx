@@ -1,15 +1,24 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDate } from "~/lib/utils/index";
-import { SelectBookingLine, SelectRestaurant, SelectRestaurantVoucher, SelectRestaurantVoucherLine } from "~/server/db/schemaTypes"; // Adjust this import based on your schema
+import {
+  SelectBookingLine,
+  SelectRestaurant,
+  SelectRestaurantVoucher,
+  SelectRestaurantVoucherLine,
+} from "~/server/db/schemaTypes"; // Adjust this import based on your schema
 // import { RestaurantVoucherData } from "../restaurants"; // Adjust this import based on your data type
-import { bulkUpdateRestaurantVoucherRates, getRestaurantVouchers, updateRestaurantVoucherStatus } from "~/server/db/queries/booking/restaurantVouchers";
+import {
+  bulkUpdateRestaurantVoucherRates,
+  getRestaurantVouchers,
+  updateRestaurantVoucherStatus,
+} from "~/server/db/queries/booking/restaurantVouchers";
 import TasksTab from "~/components/common/tasksTab";
-import RestaurantsForm from "./form"; // Adjust path if needed
+import RestaurantsVoucherForm from "./form";
 
 export type RestaurantVoucherData = SelectRestaurantVoucher & {
-    restaurant: SelectRestaurant;
-    voucherLine: SelectRestaurantVoucherLine[];
-  };
+  restaurant: SelectRestaurant;
+  voucherLine: SelectRestaurantVoucherLine[];
+};
 // Define specific columns for restaurant vouchers
 const restaurantColumns: ColumnDef<RestaurantVoucherData>[] = [
   {
@@ -24,12 +33,12 @@ const restaurantColumns: ColumnDef<RestaurantVoucherData>[] = [
   {
     accessorKey: "voucherLine",
     header: "Voucher Lines",
-    accessorFn: (row) => row.voucherLine?.length || "Not found",
+    accessorFn: (row) => row.voucherLine?.length ?? "Not found",
   },
   {
     accessorKey: "voucherLine",
     header: "Progress",
-    accessorFn: (row) => row.voucherLine?.length || "Not found",
+    accessorFn: (row) => row.voucherLine?.length ?? "Not found",
   },
 ];
 
@@ -54,47 +63,50 @@ const restaurantVoucherLineColumns: ColumnDef<SelectRestaurantVoucherLine>[] = [
 
 const updateVoucherLine = async (voucherLines: any[]) => {
   alert("Updating voucher line:");
-  try{
-    const bulkUpdateResponse = bulkUpdateRestaurantVoucherRates(voucherLines)
+  try {
+    const bulkUpdateResponse = bulkUpdateRestaurantVoucherRates(voucherLines);
 
-    if(!bulkUpdateResponse){
-      throw new Error("Failed")
+    if (!bulkUpdateResponse) {
+      throw new Error("Failed");
     }
-  } catch(error){
+  } catch (error) {
     console.error("Error updating voucher line:", error);
     alert("Failed to update voucher line. Please try again.");
   }
 };
 
-const updateVoucherStatus = async (voucher: SelectRestaurantVoucher)=>{
+const updateVoucherStatus = async (voucher: SelectRestaurantVoucher) => {
   alert("Updating voucher status:");
-  try{
-    const bulkUpdateResponse = updateRestaurantVoucherStatus(voucher)
+  try {
+    const bulkUpdateResponse = updateRestaurantVoucherStatus(voucher);
 
-    if(!bulkUpdateResponse){
-      throw new Error("Failed")
+    if (!bulkUpdateResponse) {
+      throw new Error("Failed");
     }
-    return true
-  } catch(error){
+    return true;
+  } catch (error) {
     console.error("Error updating voucher line:", error);
     alert("Failed to update voucher line. Please try again.");
-    return false
+    return false;
   }
-}
+};
 
+const RestaurantsTasksTab = ({
+  bookingLineId,
+  vouchers,
+}: {
+  bookingLineId: string;
+  vouchers: RestaurantVoucherData[];
+}) => (
+  <TasksTab
+    bookingLineId={bookingLineId}
+    columns={restaurantColumns}
+    voucherColumns={restaurantVoucherLineColumns}
+    vouchers={vouchers}
+    formComponent={RestaurantsVoucherForm}
+    updateVoucherLine={updateVoucherLine}
+    updateVoucherStatus={updateVoucherStatus}
+  />
+);
 
-const RestaurantsTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string; vouchers: RestaurantVoucherData[] }) => (
-    <TasksTab
-      bookingLineId={bookingLineId}
-      columns={restaurantColumns}
-      voucherColumns={restaurantVoucherLineColumns}
-      vouchers={vouchers}
-      formComponent={RestaurantsForm}
-      updateVoucherLine={updateVoucherLine}
-      updateVoucherStatus={updateVoucherStatus}
-    />
-  );
-  
-  export default RestaurantsTasksTab;
-
-
+export default RestaurantsTasksTab;

@@ -41,7 +41,7 @@ const ActivitiesTab = () => {
       //TODO: Dynamic country code
       const [activityResponse, cityResponse] = await Promise.all([
         getAllActivityTypes(),
-        getAllCities("LKA"),
+        getAllCities("LK"),
       ]);
 
       // Check for errors in the responses
@@ -72,6 +72,10 @@ const ActivitiesTab = () => {
   };
 
   useEffect(() => {
+    if(!bookingDetails.general.includes.activities){
+      setActiveTab("transport")
+      return ()=>{console.log("Return")};
+    }
     fetchData();
   }, []);
 
@@ -92,10 +96,8 @@ const ActivitiesTab = () => {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="mx-9 flex flex-row justify-center gap-2">
-        <div className="w-[25%]">
-          <div className="card w-[85%]">
-          <Calendar
+      <div className="flex flex-row justify-center gap-3">
+      <Calendar
             mode="range"
             selected={{
               from: new Date(bookingDetails.general.startDate),
@@ -103,9 +105,7 @@ const ActivitiesTab = () => {
             }}
             className="rounded-md"
           />
-          </div>
-        </div>
-        <div className="card w-[70%] space-y-6">
+        <div className="card w-full space-y-3">
           <div className="card-title">Activities Information</div>
           <ActivitiesForm
             onAddActivity={updateActivities}
@@ -114,7 +114,7 @@ const ActivitiesTab = () => {
           />
         </div>
       </div>
-      <div className="mx-9 flex flex-row justify-center gap-2">
+      <div className=" flex flex-row justify-center gap-2">
         <div className="w-full">
           <DataTable columns={columns} data={bookingDetails.activities} />
         </div>

@@ -160,7 +160,7 @@ export const getBookingLineWithAllData = (id:string) => {
 
 //     // Now we know parentBooking is an array with at least one item
 //     const parentBookingIdToUse = Array.isArray(parentBooking)
-//       ? parentBooking[0]?.id || ""
+//       ? parentBooking[0]?.id ?? ""
 //       : parentBooking.id;
 
 //     // Create a new booking line
@@ -229,7 +229,7 @@ export const getBookingLineWithAllData = (id:string) => {
 //   if (!existingClient) {
 //     const newClient = await db.insert(client).values(data).returning();
 
-//     if (!newClient || !newClient[0]) {
+//     if (!newClient ?? !newClient[0]) {
 //       throw new Error("Couldn't create client");
 //     }
 
@@ -246,7 +246,7 @@ export const getBookingLineWithAllData = (id:string) => {
 // ): Promise<string> => {
 //   const newBookingLine = await db.insert(bookingLine).values(data).returning();
 
-//   if (!newBookingLine || !newBookingLine[0]?.id) {
+//   if (!newBookingLine ?? !newBookingLine[0]?.id) {
 //     throw new Error("Couldn't add booking line");
 //   }
 //   return newBookingLine[0].id;
@@ -314,20 +314,22 @@ export const createNewBooking = async (
 
       // Now we know parentBooking is an array with at least one item
       const parentBookingIdToUse = Array.isArray(parentBooking)
-        ? parentBooking[0]?.id || ""
+        ? parentBooking[0]?.id ?? ""
         : parentBooking.id;
 
       // Create a new booking line within the transaction
       const newBookingLineGeneral: InsertBookingLine = {
         bookingId: parentBookingIdToUse,
-        adultsCount: 2,
-        kidsCount: 2,
+        adultsCount: bookingDetails.general.adultsCount,
+        kidsCount: bookingDetails.general.kidsCount,
         startDate: new Date(bookingDetails.general.startDate),
         endDate: new Date(bookingDetails.general.endDate),
         includes: {
-          hotels: true,
-          transport: true,
-          activities: true,
+          hotels: bookingDetails.general.includes.hotels,
+          restaurants: bookingDetails.general.includes.restaurants,
+          transport: bookingDetails.general.includes.transport,
+          activities: bookingDetails.general.includes.activities,
+          shops:bookingDetails.general.includes.shops
         },
       };
 
@@ -348,7 +350,7 @@ export const createNewBooking = async (
       }
 
       // Handle restaurant vouchers within the transaction
-      if (bookingDetails.general.includes.hotels) {
+      if (bookingDetails.general.includes.restaurants) {
         await insertRestaurantVouchersTx(
           tx,
           bookingDetails.restaurants,
@@ -368,7 +370,7 @@ export const createNewBooking = async (
       }
 
       // Handle shop vouchers within the transaction
-      if (bookingDetails.general.includes.transport) {
+      if (bookingDetails.general.includes.shops) {
         await insertShopVouchersTx(
           tx,
           bookingDetails.shops,

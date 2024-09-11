@@ -4,13 +4,11 @@ import { ColumnDef } from "@tanstack/react-table";
 
 export type General = {
   name: string;
-  activity: string;
   primaryEmail: string;
   primaryContactNumber: string;
   streetName: string;
   city: string;
   province: string;
-  capacity: string;
 };
 
 export const generalColumns: ColumnDef<General>[] = [

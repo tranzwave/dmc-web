@@ -22,7 +22,7 @@ export const columns: ColumnDef<HotelStaffType>[] = [
     header: 'Actions',
     accessorKey: 'id', // Assuming you have an ID to perform actions
     cell: ({ getValue }) => (
-      <button onClick={() => console.log(`Edit staff with ID: ${getValue()}`)}>
+      <button onClick={() => console.log(`Edit staff with ID:`)}>
         Edit
       </button>
     ),

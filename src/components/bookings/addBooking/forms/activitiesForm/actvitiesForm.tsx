@@ -114,7 +114,6 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
     setActivities([]);
     setActivityLoading(false);
     const act = activityTypes.find((act) => act.name === name);
-    alert(act?.name);
     setSelectedActivityType(act);
   };
 
@@ -123,19 +122,16 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
     setActivities([]);
     setActivityLoading(false);
     const city = cities.find((city) => city.name === name);
-    alert(city?.name);
     setSelectedCity(city);
   };
 
   const getVendorId = (name: string) => {
     const activity = activities.find((act) => act.activityVendor.name === name);
 
-    alert(activity?.activityVendor.id);
     setSelectedActivity(activity);
   };
 
   const fetchActivities = async () => {
-    alert(`${selectedActivityType?.name} city - ${selectedCity?.name}`);
     try {
       if (selectedActivityType && selectedCity) {
         setActivityLoading(true);
@@ -347,7 +343,7 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
                 <FormControl>
                   <Input
                     type="number"
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>
@@ -364,7 +360,7 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
                 <FormControl>
                   <Input
                     type="number"
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>

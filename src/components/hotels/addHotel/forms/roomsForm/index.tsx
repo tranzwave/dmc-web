@@ -10,7 +10,7 @@ import { HotelRoomType } from "../generalForm/columns";
 
 const RoomsTab = () => {
     const [addedRooms, setAddedRooms] = useState<HotelRoomType[]>([]); // State to handle added rooms
-    const { addHotelRoom, hotelRooms } = useAddHotel(); // Assuming similar context structure
+    const { addHotelRoom, hotelRooms,setActiveTab } = useAddHotel(); // Assuming similar context structure
 
     const updateRooms = (room: HotelRoomType) => {
         console.log("Hereeee");
@@ -31,7 +31,7 @@ const RoomsTab = () => {
                     <DataTable columns={columns} data={hotelRooms} />
                 </div>
                 <div className="w-full flex justify-end">
-                    <Button variant={"primaryGreen"}>Next</Button>
+                    <Button variant={"primaryGreen"} onClick={()=>{hotelRooms.length > 0 ? setActiveTab("staff"): alert("Please add rooms")}}>Next</Button>
                 </div>
             </div>
         </div>

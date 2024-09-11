@@ -92,11 +92,15 @@ export const agent = createTable("agents", {
   tenantId: varchar("tenant_id", { length: 255 })
     .references(() => tenant.id)
     .notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
   country: varchar("country_code", { length: 3 })
     .references(() => country.code)
     .notNull(),
-  name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull(),
+  primaryContactNumber: varchar("primary_contact_number", {
+    length: 20,
+  }).notNull(),
+  agency: varchar("agency", { length: 255 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
@@ -134,6 +138,8 @@ export const bookingLine = createTable("booking_lines", {
     .references(() => booking.id),
   includes: jsonb("includes").$type<{
     hotels: boolean;
+    restaurants: boolean;
+    shops:boolean;
     transport: boolean;
     activities: boolean;
   }>(), // e.g., { hotels: true, transport: true, activities: false }
@@ -665,6 +671,22 @@ export const hotelRelations = relations(hotel, ({ one, many }) => ({
     references: [city.id],
   }),
   hotelVoucher: many(hotelVoucher),
+  hotelStaff:many(hotelStaff),
+  hotelRoom:many(hotelRoom)
+}));
+
+export const hotelStaffRelation = relations(hotelStaff, ({ one, many }) => ({
+  hotel: one(hotel, {
+    fields: [hotelStaff.hotelId],
+    references: [hotel.id],
+  })
+}));
+
+export const hotelRoomRelation = relations(hotelRoom, ({ one, many }) => ({
+  hotel: one(hotel, {
+    fields: [hotelRoom.hotelId],
+    references: [hotel.id],
+  })
 }));
 
 export const hotelVouchersRelations = relations(

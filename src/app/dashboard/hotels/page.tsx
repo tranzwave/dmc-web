@@ -1,16 +1,55 @@
 'use client';
+import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { columns } from "~/components/bookings/addBooking/forms/hotelsForm/columns";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
-import { getHotelData } from "~/lib/api";
 import { HotelDTO } from "~/lib/types/hotel";
 import { getAllHotels } from "~/server/db/queries/hotel";
+import { SelectHotel } from "~/server/db/schemaTypes";
+import DataTableDropDown from "~/components/common/dataTableDropdown";
+import LoadingLayout from "~/components/common/dashboardLoading";
 
 const HotelsHome = () => {
+    const columns: ColumnDef<HotelDTO>[] = [
+        {
+          accessorKey: "name",
+          header: "Hotel Name",
+        },
+        {
+          accessorKey: "city.name",
+          header: "City",
+        },
+        {
+          accessorKey: "stars",
+          header: "Stars",
+        },
+        {
+          accessorKey: "primaryContactNumber",
+          header: "Contact Number",
+        },
+        {
+          accessorKey: "primaryEmail",
+          header: "Email",
+        },
+        {
+            accessorKey: 'id',
+            header: '',
+            cell: ({ getValue, row }) => {
+              const hotel = row.original;
+        
+              return (
+                  <DataTableDropDown data={hotel} routeBase="/hotels" 
+                  onViewPath={(data) => `/dashboard/hotels/${data.id}`} 
+                  onEditPath={(data) => `/dashboard/hotels/${data.id}/edit`}
+                  onDeletePath={(data) => `/dashboard/hotels/${data.id}/delete`}/>
+              );
+            }
+          },
+        
+      ];
     const [data, setData] = useState<HotelDTO[]>([]);
     const [selectedHotel, setSelectedHotel] = useState<HotelDTO | null>(null);
     const [loading, setLoading] = useState<boolean>(true);  
@@ -46,8 +85,20 @@ const HotelsHome = () => {
     };
 
     if (loading) {
-        return <div>Loading...</div>;
-    }
+        return (
+          <div>
+            <div className="flex w-full flex-row justify-between gap-1">
+              <TitleBar title="Hotels" link="toAddHotel" />
+              <div>
+                <Link href={`${pathname}/add`}>
+                  <Button variant="primaryGreen">Add Hotels</Button>
+                </Link>
+              </div>
+            </div>
+              <LoadingLayout />
+          </div>
+        );
+      }
 
     if (error) {
         return <div>Error: {error}</div>;
@@ -75,3 +126,4 @@ const HotelsHome = () => {
 }
 
 export default HotelsHome;
+

@@ -31,15 +31,22 @@ export const generalSchema = z.object({
 type GeneralFormValues = z.infer<typeof generalSchema>;
 
 const GeneralForm = () => {
-  const { setGeneralDetails, activityDetails } = useAddActivity();
+  const { setGeneralDetails, activityVendorDetails } = useAddActivity();
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
-    defaultValues: activityDetails.general,
+    defaultValues: activityVendorDetails.general,
   });
 
   const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
     console.log(data);
-    setGeneralDetails(data);
+    setGeneralDetails({
+      ...activityVendorDetails.general,
+      contactNumber:data.primaryContactNumber,
+      name:data.name,
+      province:data.province,
+      streetName:data.streetName,
+
+    });
   };
 
   return (

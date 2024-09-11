@@ -27,7 +27,7 @@ export const restaurantVoucherColumns: ColumnDef<RestaurantVoucher>[] = [
   },
   {
     header: "Kids",
-    accessorFn: (row) => row.voucherLines[0]?.kidsCount || 0
+    accessorFn: (row) => row.voucherLines[0]?.kidsCount ?? 0
   },
   {
     header: "Date",

@@ -9,7 +9,7 @@ export type General = {
   streetName: string;
   city: string;
   province: string;
-  guid: string;
+  guide: boolean;
   includes: {
     vehicles: boolean,
     charges: boolean,

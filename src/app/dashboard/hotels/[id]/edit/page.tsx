@@ -1,0 +1,161 @@
+"use client";
+import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import TitleBar from "~/components/common/titleBar";
+import HotelGeneralTab from "~/components/hotels/addHotel/forms/generalForm";
+import { Button } from "~/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import RoomsTab from "~/components/hotels/addHotel/forms/roomsForm";
+import StaffTab from "~/components/hotels/addHotel/forms/staffForm";
+import AddHotelSubmitView from "~/components/hotels/addHotel/forms/submitForm";
+import { AddHotelProvider, useAddHotel } from "../../add/context";
+import { SelectHotel } from "~/server/db/schemaTypes";
+import { CompleteHotel, getHotelByIdQuery, getRawHotelById } from "~/server/db/queries/hotel";
+import LoadingLayout from "~/components/common/dashboardLoading";
+import EditHotelSubmitView from "~/components/hotels/addHotel/forms/submitForm/editHotelSubmit";
+
+
+
+const EditHotel = ({ id }: { id: string }) => {
+  const pathname = usePathname();
+  const { hotelGeneral, hotelRooms, hotelStaff, setActiveTab, activeTab, setHotelGeneral,addHotelRoom, addHotelStaff } =
+    useAddHotel();
+    const searchParams = useSearchParams();
+  const [hotel, setHotel] = useState<CompleteHotel>();
+  const [loading, setLoading] = useState<boolean>(true);  
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      try {
+        // const result = await getHotelData();
+        const result = await getRawHotelById(id);
+
+        if(!result){
+            throw new Error("Couldn't fetch hotel")
+        }
+        const { hotelRoom, hotelStaff, ...restOfHotel } = result;
+
+        setHotel({
+            hotel: restOfHotel,
+            hotelRooms:hotelRoom,
+            hotelStaffs:hotelStaff
+        });
+        setHotelGeneral({
+            name: restOfHotel.name,
+            stars: restOfHotel.stars,
+            primaryEmail: restOfHotel.primaryEmail,
+            primaryContactNumber: restOfHotel.primaryContactNumber,
+            streetName: restOfHotel.streetName,
+            cityId: Number(restOfHotel.cityId),
+            tenantId: restOfHotel.tenantId,
+            province: restOfHotel.province,
+            hasRestaurant: restOfHotel.hasRestaurant,
+          });
+        hotelRoom.forEach(room =>{
+            addHotelRoom(room)
+            console.log(room.id)
+        })
+        hotelStaff.forEach(staff=>{
+            addHotelStaff(staff)
+            console.log(staff.id)
+        })
+
+      } catch (error) {
+        console.error("Failed to fetch hotel data:", error);
+        setError("Failed to load data.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  if(loading){
+    <div><LoadingLayout/></div>
+  }
+
+  return (
+    <div className="flex">
+      <div className="flex-1">
+        <div className="flex flex-col gap-3">
+          <div className="flex w-full flex-row justify-between gap-1">
+            <TitleBar title={`Edit Hotel - ${hotel?.hotel.name}`} link="toAddBooking" />
+            <div>
+              <Link href={`${pathname}`}>
+                <Button variant="link">Finish Later</Button>
+              </Link>
+            </div>
+          </div>
+          <div className="w-full">
+            <Tabs
+              defaultValue="general"
+              className="w-full border"
+              value={activeTab}
+            >
+              <TabsList className="flex w-full justify-evenly">
+                <TabsTrigger
+                  value="general"
+                  isCompleted={false}
+                  onClick={() => setActiveTab("general")}
+                  inProgress={activeTab == "general"}
+                >
+                  General
+                </TabsTrigger>
+                <TabsTrigger
+                  value="rooms"
+                  statusLabel={"Mandatory"}
+                  isCompleted={hotelRooms.length > 0}
+                  inProgress={activeTab == "rooms"}
+                  disabled={!hotelGeneral.province}
+                >
+                  Rooms
+                </TabsTrigger>
+                <TabsTrigger
+                  value="staff"
+                  statusLabel={"Mandatory"}
+                  isCompleted={hotelStaff.length > 0}
+                  inProgress={activeTab == "staff"}
+                  disabled={hotelRooms.length == 0}
+                >
+                  Staff
+                </TabsTrigger>
+                <TabsTrigger
+                  value="submit"
+                  inProgress={activeTab == "submit"}
+                  disabled={hotelStaff.length == 0}
+                >
+                  Submit
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="general">
+                <HotelGeneralTab />
+              </TabsContent>
+              <TabsContent value="rooms">
+                <RoomsTab />
+              </TabsContent>
+              <TabsContent value="staff">
+                <StaffTab />
+              </TabsContent>
+              <TabsContent value="submit">
+                <EditHotelSubmitView originalHotel={hotel ?? null} />
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default function WrappedAddBooking({ params }: { params: { id: string } }) {
+    
+  return (
+    <AddHotelProvider>
+      <EditHotel id={params.id}/>
+    </AddHotelProvider>
+  );
+}

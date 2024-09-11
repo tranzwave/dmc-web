@@ -48,7 +48,7 @@ const AddBooking = () => {
           <div className="w-full">
             <Tabs
               defaultValue="general"
-              className="w-full border"
+              className="w-full"
               value={activeTab}
             >
               <TabsList className="flex w-full justify-evenly">
@@ -63,8 +63,8 @@ const AddBooking = () => {
                 <TabsTrigger
                   value="hotels"
                   onClick={() => setActiveTab("hotels")}
-                  disabled={bookingDetails.vouchers.length == 0}
-                  statusLabel={statusLabels["hotels"]}
+                  disabled={bookingDetails.vouchers.length == 0 || !bookingDetails.general.includes.hotels}
+                  statusLabel={statusLabels.hotels}
                   isCompleted = {bookingDetails.vouchers.length > 0}
                   inProgress = {activeTab == "hotels"}
                 >
@@ -73,8 +73,8 @@ const AddBooking = () => {
                 <TabsTrigger
                   value="restaurants"
                   onClick={() => setActiveTab("restaurants")}
-                  disabled={bookingDetails.restaurants.length == 0}
-                  statusLabel={statusLabels["restaurants"]}
+                  disabled={bookingDetails.restaurants.length == 0 || !bookingDetails.general.includes.hotels}
+                  statusLabel={statusLabels.restaurants}
                   isCompleted = {bookingDetails.restaurants.length > 0}
                   inProgress = {activeTab == "restaurants"}
                 >
@@ -83,8 +83,8 @@ const AddBooking = () => {
                 <TabsTrigger
                   value="activities"
                   onClick={() => setActiveTab("activities")}
-                  disabled={bookingDetails.activities.length == 0}
-                  statusLabel={statusLabels["activities"]}
+                  disabled={bookingDetails.activities.length == 0 || !bookingDetails.general.includes.activities}
+                  statusLabel={statusLabels.activities}
                   isCompleted = {bookingDetails.activities.length > 0}
                   inProgress = {activeTab == "activities"}
                 >
@@ -93,8 +93,8 @@ const AddBooking = () => {
                 <TabsTrigger
                   value="transport"
                   onClick={() => setActiveTab("transport")}
-                  disabled={bookingDetails.transport.length == 0}
-                  statusLabel={statusLabels["transport"]}
+                  disabled={bookingDetails.transport.length == 0 || !bookingDetails.general.includes.transport}
+                  statusLabel={statusLabels.transport}
                   isCompleted = {bookingDetails.transport.length > 0}
                   inProgress = {activeTab == "transport"}
                 >
@@ -103,8 +103,8 @@ const AddBooking = () => {
                 <TabsTrigger
                   value="shops"
                   onClick={() => setActiveTab("shops")}
-                  disabled={bookingDetails.shops.length == 0}
-                  statusLabel={statusLabels["shops"]}
+                  disabled={bookingDetails.shops.length == 0 || !bookingDetails.general.includes.shops}
+                  statusLabel={statusLabels.shops}
                   isCompleted = {bookingDetails.shops.length > 0}
                   inProgress = {activeTab == "shops"}
                 >
@@ -113,6 +113,7 @@ const AddBooking = () => {
                 <TabsTrigger
                   value="submit"
                   onClick={() => setActiveTab("submit")}
+                  disabled={!bookingDetails.general.clientName}
                   isCompleted = {false}
                   inProgress = {activeTab == "submit"}
                 >

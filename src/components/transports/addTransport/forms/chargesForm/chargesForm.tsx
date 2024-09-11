@@ -28,7 +28,7 @@ export const ChargesSchema = z.object({
 type ChargesFormValues = z.infer<typeof ChargesSchema>;
 
 const ChargesForm = () => {
-  const { setChargesDetails, transportDetails } = useAddTransport();
+  const { setChargesDetails, transportDetails, setActiveTab } = useAddTransport();
 
   const form = useForm<ChargesFormValues>({
     resolver: zodResolver(ChargesSchema),
@@ -38,7 +38,7 @@ const ChargesForm = () => {
   const onSubmit: SubmitHandler<ChargesFormValues> = (data) => {
     setChargesDetails(data);
     console.log(data);
-    form.reset();
+    setActiveTab("documents")
   };
 
   return (
@@ -53,7 +53,7 @@ const ChargesForm = () => {
                   <FormLabel>Fee Per km</FormLabel>
                   <FormControl>
                     <Input type="number" placeholder="Enter fee per km" 
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)} />
                   </FormControl>
                   <FormMessage />
@@ -71,7 +71,7 @@ const ChargesForm = () => {
                   <Input
                     type="number"
                     placeholder="Enter fuel allowance"
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                   onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>
@@ -91,7 +91,7 @@ const ChargesForm = () => {
                   <Input
                     type="number"
                     placeholder="Enter accommodation allowance"
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                   onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>
@@ -107,7 +107,7 @@ const ChargesForm = () => {
                   <FormLabel>Meal ALlowance</FormLabel>
                   <FormControl>
                     <Input type="number" placeholder="Enter meal allowance"
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                   onChange={(e) => field.onChange(e.target.valueAsNumber)}/>
                   </FormControl>
                   <FormMessage />

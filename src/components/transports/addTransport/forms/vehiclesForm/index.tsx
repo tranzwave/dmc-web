@@ -4,33 +4,82 @@ import { DataTable } from "~/components/bookings/home/dataTable";
 import { Button } from "~/components/ui/button";
 import { columns, Vehicles } from "./columns";
 import VehiclesForm from "./vehiclesForm";
+import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 
-const vehiclesTab = ()=>{
-    const [addedVehicle, setAddedVehicle] =useState<Vehicles[]>([])
+const VehiclesTab = () => {
+  const [addedVehicle, setAddedVehicle] = useState<Vehicles[]>([]);
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicles>({
+    vehicle: "",
+    numberPlate: "",
+    seats: 1,
+    make: "",
+    model: "",
+    year: "",
+    vrl: "",
+  });
 
-    const { addVehicles,transportDetails } = useAddTransport();
+  const { addVehicles, transportDetails, setActiveTab, deleteVehicle } =
+    useAddTransport();
 
-    const updateVehicles = (vehicles:Vehicles)=>{
-        console.log(vehicles);
-        addVehicles(vehicles);
-    }
+  const updateVehicles = (vehicles: Vehicles) => {
+    console.log(vehicles);
+    addVehicles(vehicles);
+    setSelectedVehicle({
+      vehicle: "",
+      numberPlate: "",
+      seats: 1,
+      make: "",
+      model: "",
+      year: "",
+      vrl: "",
+    });
+  };
 
-    return(
-        <div className='flex flex-col gap-3 justify-center mx-9'>
-            <div className='card w-[100%] space-y-6'>
-                <div className='card-title'>Vehicle Information</div>
-                <VehiclesForm onAddVehicles={updateVehicles}/>
-            </div>
-            <div className='flex flex-col gap-2 items-center justify-center w-[100%]'>
-                <div className='w-full'>
-                    <DataTable columns={columns} data={transportDetails.vehicles}/>
-                </div>
-                <div className="w-full flex justify-end">
-                <Button variant={"primaryGreen"}>Next</Button>
-            </div>
+  const onRowEdit = (row: Vehicles) => {
+    console.log(row);
+    setSelectedVehicle(row);
+  };
+
+  const onRowDelete = (row: Vehicles) => {
+    alert(row.make);
+    deleteVehicle(row.numberPlate);
+  };
+
+  return (
+    <div className="mx-9 flex flex-col justify-center gap-3">
+      <div className="card w-[100%] space-y-6">
+        <div className="card-title">Vehicle Information</div>
+        <VehiclesForm
+          onAddVehicles={updateVehicles}
+          selectedVehicle={selectedVehicle}
+        />
+      </div>
+      <div className="flex w-[100%] flex-col items-center justify-center gap-2">
+        <div className="w-full">
+          <DataTableWithActions
+            columns={columns}
+            data={transportDetails.vehicles}
+            onDelete={onRowDelete}
+            onEdit={onRowEdit}
+            onRowClick={onRowEdit}
+            onDuplicate={onRowEdit}
+          />
         </div>
+        <div className="flex w-full justify-end">
+          <Button
+            variant={"primaryGreen"}
+            onClick={() => {
+              transportDetails.vehicles.length > 0
+                ? setActiveTab("charges")
+                : alert("Please add a vehicle");
+            }}
+          >
+            Next
+          </Button>
         </div>
-    );
-}
+      </div>
+    </div>
+  );
+};
 
-export default vehiclesTab;
+export default VehiclesTab;

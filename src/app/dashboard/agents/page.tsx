@@ -3,12 +3,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
+import LoadingLayout from "~/components/common/dashboardLoading";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
 import { getAgentData } from "~/lib/api";
 import { Agent, agentColumns } from "~/lib/types/agent/type";
 
-const ActivityHome = () => {
+const AgentHome = () => {
     const pathname = usePathname();
 
     const [data, setData] = useState<Agent[]>([]);
@@ -36,8 +37,20 @@ const ActivityHome = () => {
 
     
         if (loading) {
-            return <div>Loading...</div>;
-        }
+            return (
+              <div>
+                <div className="flex w-full flex-row justify-between gap-1">
+                  <TitleBar title="Agents" link="toAddHotel" />
+                  <div>
+                    <Link href={`${pathname}/add`}>
+                      <Button variant="primaryGreen">Add Agent</Button>
+                    </Link>
+                  </div>
+                </div>
+                  <LoadingLayout />
+              </div>
+            );
+          }
     
         if (error) {
             return <div>Error: {error}</div>;
@@ -48,7 +61,7 @@ const ActivityHome = () => {
             <div className="flex-1">
                 <div className="flex flex-col gap-3">
                     <div className="flex flex-row gap-1 w-full justify-between">
-                        <TitleBar title="Activity" link="toAddBooking" />
+                        <TitleBar title="Agents" link="toAddBooking" />
                         <div>
                         <Link href={`${pathname}/add`}>
                              <Button variant="primaryGreen">Add Agent</Button>
@@ -69,4 +82,4 @@ const ActivityHome = () => {
     );
 }
 
-export default ActivityHome;
+export default AgentHome;

@@ -81,7 +81,7 @@ export default async function seed(db: DB) {
         await db.insert(restaurantMeal).values(
           restaurantMeals.map((meal) => ({
             ...meal,
-            restaurantId: newRestaurantId[0]?.id || meal.restaurantId
+            restaurantId: newRestaurantId[0]?.id ?? meal.restaurantId
           }))
         );
       }

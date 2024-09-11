@@ -1,30 +1,33 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
-import { HotelGeneralType, HotelRoomType, HotelStaffType, Restaurant, RestaurantMealType, RestaurantType } from '~/components/hotels/addHotel/forms/generalForm/columns';
+import { InsertHotel, InsertHotelRoom, InsertHotelStaff, InsertMeal, InsertRestaurant } from '~/server/db/schemaTypes';
 
 
 
 // Define the shape of the context
 interface AddHotelContextProps {
-  hotelGeneral: HotelGeneralType;
-  hotelRooms: HotelRoomType[];
-  hotelStaff: HotelStaffType[];
-  restaurants: Restaurant[];
-  restaurantMeals: RestaurantMealType[];
-  setHotelGeneral: (hotel: HotelGeneralType) => void;
-  addHotelRoom: (room: HotelRoomType) => void;
-  addHotelStaff: (staff: HotelStaffType) => void;
-  addRestaurant: (restaurant: Restaurant) => void;
-  addRestaurantMeal: (meal: RestaurantMealType, restaurantName:string) => void;
+  hotelGeneral: InsertHotel;
+  hotelRooms: InsertHotelRoom[];
+  hotelStaff: InsertHotelStaff[];
+  restaurants: InsertRestaurant[];
+  restaurantMeals: InsertMeal[];
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  setHotelGeneral: (hotel: InsertHotel) => void;
+  addHotelRoom: (room: InsertHotelRoom) => void;
+  addHotelStaff: (staff: InsertHotelStaff) => void;
+  addRestaurant: (restaurant: InsertRestaurant) => void;
+  addRestaurantMeal: (meal: InsertMeal, restaurantName:string) => void;
 }
 
 // Provide default values
-const defaultHotelGeneral: HotelGeneralType = {
+const defaultHotelGeneral: InsertHotel = {
   name: "",
   stars: 0,
   primaryEmail: "",
   primaryContactNumber: "",
   streetName: "",
-  city: "",
+  cityId:0,
+  tenantId:"",
   province: "",
   id: undefined,
   hasRestaurant: undefined,
@@ -32,7 +35,7 @@ const defaultHotelGeneral: HotelGeneralType = {
   updatedAt: undefined,
 };
 
-export const defaultHotelRoom: HotelRoomType = {
+export const defaultHotelRoom: InsertHotelRoom = {
   hotelId: "",
   roomType: "",
   typeName: "",
@@ -46,39 +49,40 @@ export const defaultHotelRoom: HotelRoomType = {
   id: undefined, 
 };
 
-const defaultHotelRooms: HotelRoomType[] = [];
-const defaultHotelStaff: HotelStaffType[] = [];
-const defaultRestaurants: Restaurant[] = [];
-const defaultRestaurantMeals: RestaurantMealType[] = [];
+const defaultHotelRooms: InsertHotelRoom[] = [];
+const defaultHotelStaff: InsertHotelStaff[] = [];
+const defaultRestaurants: InsertRestaurant[] = [];
+const defaultRestaurantMeals: InsertMeal[] = [];
 
 // Create context
 const AddHotelContext = createContext<AddHotelContextProps | undefined>(undefined);
 
 export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [hotelGeneral, setHotelGeneral] = useState<HotelGeneralType>(defaultHotelGeneral);
-  const [hotelRooms, setHotelRooms] = useState<HotelRoomType[]>(defaultHotelRooms);
-  const [hotelStaff, setHotelStaff] = useState<HotelStaffType[]>(defaultHotelStaff);
-  const [restaurants, setRestaurants] = useState<Restaurant[]>(defaultRestaurants);
-  const [restaurantMeals, setRestaurantMeals] = useState<RestaurantMealType[]>(defaultRestaurantMeals);
+  const [hotelGeneral, setHotelGeneral] = useState<InsertHotel>(defaultHotelGeneral);
+  const [hotelRooms, setHotelRooms] = useState<InsertHotelRoom[]>(defaultHotelRooms);
+  const [hotelStaff, setHotelStaff] = useState<InsertHotelStaff[]>(defaultHotelStaff);
+  const [restaurants, setRestaurants] = useState<InsertRestaurant[]>(defaultRestaurants);
+  const [restaurantMeals, setRestaurantMeals] = useState<InsertMeal[]>(defaultRestaurantMeals);
+  const [activeTab, setActiveTab] = useState<string>("general");
 
-  const addHotelRoom = (room: HotelRoomType) => {
+  const addHotelRoom = (room: InsertHotelRoom) => {
     setHotelRooms(prev => [...prev, room]);
   };
 
-  const addHotelStaff = (staff: HotelStaffType) => {
+  const addHotelStaff = (staff: InsertHotelStaff) => {
     setHotelStaff(prev => [...prev, staff]);
   };
 
-  const addRestaurant = (restaurant: Restaurant) => {
+  const addRestaurant = (restaurant: InsertRestaurant) => {
     setRestaurants(prev => [...prev, restaurant]);
   };
 
-  const addRestaurantMeal = (meal: RestaurantMealType, restaurantName:string) => {
+  const addRestaurantMeal = (meal: InsertMeal, restaurantName:string) => {
     setRestaurantMeals(prev => [...prev, meal]);
     setRestaurants((prev) =>
     prev.map((res) =>
-      res.restaurant?.name === restaurantName
-        ? { ...res, meals: [...res.meals, meal] }
+      res.name === restaurantName
+        ? { ...res}
         : res
     )
   );
@@ -92,6 +96,8 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
         hotelStaff,
         restaurants,
         restaurantMeals,
+        activeTab,
+        setActiveTab,
         setHotelGeneral,
         addHotelRoom,
         addHotelStaff,

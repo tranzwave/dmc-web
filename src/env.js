@@ -11,7 +11,7 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    DATABASE_URL: z.string().url(),
+    POSTGRES_URL:z.string().url(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -28,7 +28,10 @@ export const env = createEnv({
     ),
     DISCORD_CLIENT_ID: z.string(),
     DISCORD_CLIENT_SECRET: z.string(),
-    DB_SEEDING:stringBoolean
+    
+    CLERK_SECRET_KEY:z.string(),
+    DB_SEEDING:stringBoolean,
+    DB_MIGRATING:stringBoolean
   },
 
   /**
@@ -37,6 +40,9 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:z.string(),
+    NEXT_PUBLIC_CLERK_SIGN_IN_URL:z.string(),
+    NEXT_PUBLIC_CLERK_SIGN_UP_URL:z.string(),
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
   },
 
@@ -45,13 +51,19 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
-    DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
-    DB_SEEDING:process.env.DB_SEEDING
+    DB_SEEDING:process.env.DB_SEEDING,
+    DB_MIGRATING:process.env.DB_MIGRATING,
+    POSTGRES_URL: process.env.POSTGRES_URL,
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+    CLERK_SECRET_KEY:process.env.CLERK_SECRET_KEY,
+    NEXT_PUBLIC_CLERK_SIGN_IN_URL:process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL,
+    NEXT_PUBLIC_CLERK_SIGN_UP_URL:process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL
+
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

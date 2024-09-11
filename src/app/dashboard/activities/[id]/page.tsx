@@ -1,28 +1,47 @@
 "use client";
+import { ColumnDef } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
-import { Booking, columns } from "~/components/bookings/home/columns";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
 import { StatsCard } from "~/components/ui/stats-card";
-import { Activity, getActivityData, getData } from "~/lib/api";
+import { getActivityVendorById, getActivityVouchersForVendor } from "~/server/db/queries/activities";
+import { SelectActivityVoucher } from "~/server/db/schemaTypes";
+import { ActivityVendorData } from "../page";
 
 const Page = ({ params }: { params: { id: string } }) => {
-  const [activity, setActivity] = useState<Activity | null>(null);
-  const [data, setData] = useState<Booking[]>([]);
+
+  const activityVoucherColumns: ColumnDef<SelectActivityVoucher>[] = [
+    {
+      header: "Activity",
+      accessorFn: (row) => row.activityName,
+    },
+    {
+      header: "Date",
+      accessorFn: (row) => row.date,
+    },
+    {
+      header: "Time",
+      accessorFn: (row) => row.time,
+    },
+    {
+      header: "Participant Count",
+      accessorFn: (row) => row.participantsCount
+    },
+  
+  ];
+  const [activityVendor, setActivityVendor] = useState<ActivityVendorData | null>(null);
+  const [data, setData] = useState<SelectActivityVoucher[]>([]);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>();
 
   useEffect(() => {
-    async function fetchActivityDetails() {
+    async function fetchActivityVoucherDetails() {
       try {
         setLoading(true);
-        const activities = await getActivityData();
-        const selectedActivity = activities.find(
-          (activity) => activity.id.toString() === params.id,
-        );
-        setActivity(selectedActivity ?? null);
+        const vouchers = await getActivityVouchersForVendor(params.id);
+        setData(vouchers)
       } catch (error) {
         console.error("Failed to fetch activity details:", error);
         setError("Failed to load activity details.");
@@ -31,15 +50,15 @@ const Page = ({ params }: { params: { id: string } }) => {
       }
     }
 
-    fetchActivityDetails();
+    fetchActivityVoucherDetails();
   }, [params.id]);
 
   useEffect(() => {
-    async function fetchData() {
+    async function fetchVendorData() {
       try {
         setLoading(true);
-        const result = await getData();
-        setData(result);
+        const result = await getActivityVendorById(params.id);
+        setActivityVendor(result ?? null);
       } catch (error) {
         console.error("Failed to fetch activity data:", error);
         setError("Failed to load data.");
@@ -48,7 +67,7 @@ const Page = ({ params }: { params: { id: string } }) => {
       }
     }
 
-    fetchData();
+    fetchVendorData();
   }, []);
 
   if (loading) {
@@ -59,34 +78,36 @@ const Page = ({ params }: { params: { id: string } }) => {
     return <div>Error: {error}</div>;
   }
 
-  if (!activity) {
-    return <div>No activity found with the given ID.</div>;
+  // if (!activityVouchers) {
+  //   return <div>No activity found with the given ID.</div>;
+  // }
+  if (!activityVendor) {
+    return <div>No vendor found with the given ID.</div>;
   }
-
   return (
     <div className="flex flex-col gap-3 w-full justify-between">
 
-      <TitleBar title={`Activity  ${params.id}`} link="toAddActivity" />
+      <TitleBar title={`Activity Vendor - ${activityVendor.name}`} link="toAddActivity" />
       <div className="mx-9 flex flex-row justify-between">
         <div className="w-[30%]">
           <div className="w-full">
             <ContactBox
-              title={activity.general.activity}
+              title={activityVendor.name }
               description="Egestas elit dui scelerisque ut eu purus aliquam vitae habitasse."
-              location={activity.general.address.city}
+              location={activityVendor.city.name}
               address={
-                activity.general.address.streetName +
+                activityVendor.streetName +
                 ", " +
-                activity.general.address.city
+                activityVendor.city.name + ", " + activityVendor.province
               }
-              phone={activity.general.primaryContactNumber}
-              email={activity.general.primaryEmail}
+              phone={activityVendor.contactNumber}
+              email={"No email"}
             />{" "}
           </div>
         </div>
         <div className="card w-[70%] space-y-6">
           <div>Current Booking</div>
-          <DataTable columns={columns} data={data} />
+          <DataTable columns={activityVoucherColumns} data={data} />
 
           <div>Booking History</div>
           <div className="col-span-3 flex justify-between gap-6">
@@ -96,11 +117,12 @@ const Page = ({ params }: { params: { id: string } }) => {
           </div>
 
           <div>Trip History</div>
-          <DataTable columns={columns} data={data} />
+          <DataTable columns={activityVoucherColumns} data={data} />
         </div>
       </div>
     </div>
   );
 };
+ export default Page;
 
-export default Page;
+

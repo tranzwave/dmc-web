@@ -30,14 +30,13 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom }) => {
   });
 
   const onSubmit: SubmitHandler<HotelRoomType> = (data) => {
-    alert("Form submitted");
     onAddRoom({
       ...data,
       count: Number(data.count), 
       floor: Number(data.floor),
       bedCount: Number(data.bedCount)
     });
-    roomsForm.reset(); // Reset the form after submission
+    roomsForm.reset();
   }
 
   return (
@@ -69,7 +68,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom }) => {
               <FormControl>
                 <Input
                   type="number"
-                  value={field.value || ""}
+                  value={field.value ?? ""}
                   onChange={(e) => field.onChange(e.target.valueAsNumber)}
                 />
               </FormControl>
@@ -93,7 +92,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom }) => {
               <FormControl>
                 <Input
                   type="number"
-                  value={field.value || ""}
+                  value={field.value ?? ""}
                   onChange={(e) => field.onChange(e.target.valueAsNumber)}
                 />
               </FormControl>
@@ -106,7 +105,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom }) => {
               <FormControl>
                 <Input
                   type="number"
-                  value={field.value || ""}
+                  value={field.value ?? ""}
                   onChange={(e) => field.onChange(e.target.valueAsNumber)}
                 />
               </FormControl>

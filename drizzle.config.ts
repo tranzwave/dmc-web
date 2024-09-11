@@ -7,7 +7,7 @@ export default {
   out:"./src/server/db/migrations",
   dialect: "postgresql",
   dbCredentials: {
-    url: env.DATABASE_URL,
+    url: env.POSTGRES_URL!,
   },
   verbose:true,
   tablesFilter: ["dmc-web_*"],

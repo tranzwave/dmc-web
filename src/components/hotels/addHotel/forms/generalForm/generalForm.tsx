@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAddHotel } from "~/app/dashboard/hotels/add/context";
 import { Button } from "~/components/ui/button";
 import {
@@ -23,6 +23,8 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { ArrowRightSquareIcon } from "lucide-react";
+import { InsertHotel, SelectCity } from "~/server/db/schemaTypes";
+import { getAllCities } from "~/server/db/queries/activities";
 
 // Define the schema for form validation
 export const hotelGeneralSchema = z.object({
@@ -33,7 +35,7 @@ export const hotelGeneralSchema = z.object({
   streetName: z.string().min(1, "Street name is required"),
   city: z.string().min(1, "City is required"),
   province: z.string().min(1, "Province is required"),
-  hasRestaurant: z.boolean().optional(),
+  hasRestaurant: z.boolean().default(true),
 });
 
 export const restaurantSchema = z.object({
@@ -50,11 +52,16 @@ export const restaurantMealSchema = z.object({
   endTime: z.string().min(1, "End time is required"),
 });
 
-type HotelGeneralType = z.infer<typeof hotelGeneralSchema>;
+// type HotelGeneralType = z.infer<typeof hotelGeneralSchema>;
 type RestaurantType = z.infer<typeof restaurantSchema>;
 type RestaurantMealType = z.infer<typeof restaurantMealSchema>;
+type HotelGeneralFormData = z.infer<typeof hotelGeneralSchema>;
 
-const HotelGeneralForm = () => {
+const HotelGeneralForm = ({defaultValues}:{defaultValues:InsertHotel}) => {
+  const [error, setError] = useState<string>();
+  const [loading, setLoading] = useState(false);
+  const [cities, setCities] = useState<SelectCity[]>([]);
+
   const {
     setHotelGeneral,
     hotelGeneral,
@@ -62,73 +69,115 @@ const HotelGeneralForm = () => {
     addRestaurantMeal,
     restaurants,
     restaurantMeals,
+    setActiveTab
   } = useAddHotel(); // Adjusted context hook
-  const [showRestaurantForm, setShowRestaurantForm] = useState<boolean>(
-    hotelGeneral.hasRestaurant ?? false,
-  );
-  const [showMealForm, setShowMealForm] = useState<boolean>(false)
+  // const [showRestaurantForm, setShowRestaurantForm] = useState<boolean>(
+  //   hotelGeneral.hasRestaurant ?? false,
+  // );
+  // const [showMealForm, setShowMealForm] = useState<boolean>(false)
 
-  const generalForm = useForm<HotelGeneralType>({
+  const generalForm = useForm<HotelGeneralFormData>({
     resolver: zodResolver(hotelGeneralSchema),
-    defaultValues: hotelGeneral, // Adjusted to hotelDetails
-  });
-  const restaurantForm = useForm<RestaurantType>({
-    resolver: zodResolver(restaurantSchema),
+    defaultValues: defaultValues
   });
 
-  const restaurantMealForm = useForm<RestaurantMealType>({
-    resolver: zodResolver(restaurantMealSchema),
-  });
+  const { reset } = generalForm; // Destructure the reset method
+  // const restaurantForm = useForm<typeof restaurantSchema>({
+  //   resolver: zodResolver(restaurantSchema),
+  // });
 
-  const onGeneralSubmit: SubmitHandler<HotelGeneralType> = (data) => {
-    console.log(data);
-    setHotelGeneral(data);
-    // restaurantForm.setValue("streetName",data.streetName);
-    // restaurantForm.setValue("city",data.city);
-    // restaurantForm.setValue("province",data.province);
-    // restaurantForm.setValue("contactNumber",data.primaryContactNumber)
-    // setShowRestaurantForm(data.hasRestaurant ?? false);
+  // const restaurantMealForm = useForm<typeof restaurantMealSchema>({
+  //   resolver: zodResolver(restaurantMealSchema),
+  // });
 
+  const onGeneralSubmit: SubmitHandler<HotelGeneralFormData> = (values) => {
+    console.log(values);
+    setHotelGeneral({
+      name: values.name,
+      stars: values.stars,
+      primaryEmail: values.primaryEmail,
+      primaryContactNumber: values.primaryContactNumber,
+      streetName: values.streetName,
+      cityId: Number(values.city),
+      tenantId: hotelGeneral.tenantId ?? "",
+      province: values.province,
+      hasRestaurant: values.hasRestaurant,
+    });
+
+    setActiveTab("rooms")
   };
 
-  const onRestaurantNameSubmit: SubmitHandler<RestaurantType> = (data) => {
-    console.log(restaurants)
-    console.log(data)
-    const existingRestaurant = restaurants.find(
-      (res) => res.restaurant?.name === data.name
-    );
-  
-    if (existingRestaurant) {
-      console.log("Existing restaurant")
-    } else {
-      // Add a new restaurant
-      addRestaurant({
-        restaurant: data,
-        meals: [],
-      });
-    }
-  
-    setShowMealForm(true);
-  };
+  // const onRestaurantNameSubmit: SubmitHandler<RestaurantType> = (data) => {
+  //   console.log(restaurants)
+  //   console.log(data)
+  //   const existingRestaurant = restaurants.find(
+  //     (res) => res.restaurant?.name === data.name
+  //   );
 
-  const onRestaurantMealSubmit: SubmitHandler<RestaurantMealType> = (data) => {
-    console.log(data);
-    const existingRestaurant = restaurants.find(
-      (res) => res.restaurant?.name === restaurantForm.getValues("name")
-    );
-    if(existingRestaurant){
-      addRestaurantMeal(data,existingRestaurant.restaurant.name);
-    }
-    setShowMealForm(false)
-    restaurantMealForm.reset();
-    // Optionally handle restaurant submission here if needed
-    console.log(restaurants)
-  };
+  //   if (existingRestaurant) {
+  //     console.log("Existing restaurant")
+  //   } else {
+  //     // Add a new restaurant
+  //     addRestaurant({
+  //       restaurant: data,
+  //       meals: [],
+  //     });
+  //   }
+
+  //   setShowMealForm(true);
+  // };
+
+  // const onRestaurantMealSubmit: SubmitHandler<RestaurantMealType> = (data) => {
+  //   console.log(data);
+  //   const existingRestaurant = restaurants.find(
+  //     (res) => res.restaurant?.name === restaurantForm.getValues("name")
+  //   );
+  //   if(existingRestaurant){
+  //     addRestaurantMeal(data,existingRestaurant.restaurant.name);
+  //   }
+  //   setShowMealForm(false)
+  //   restaurantMealForm.reset();
+  //   // Optionally handle restaurant submission here if needed
+  //   console.log(restaurants)
+  // };
 
   const handleHasRestaurantChange = (value: string) => {
-    const hasRestaurant = value === "true";
-    generalForm.setValue("hasRestaurant", hasRestaurant);
+    if (value === "true") {
+      generalForm.setValue("hasRestaurant", true);
+    }
   };
+
+  const fetchData = async () => {
+    try {
+      // Run both requests in parallel
+      setLoading(true);
+      const [citiesResponse] =
+        await Promise.all([getAllCities("LK")]);
+
+
+      if (!citiesResponse) {
+        throw new Error("Error fetching countries");
+      }
+
+      console.log("Fetched Users:", citiesResponse);
+
+      setCities(citiesResponse);
+
+      setLoading(false);
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+    reset(defaultValues);
+  }, [hotelGeneral]);
 
   return (
     <div>
@@ -160,7 +209,7 @@ const HotelGeneralForm = () => {
                   <FormControl>
                     <Input
                       type="number"
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                       onChange={(e) => field.onChange(e.target.valueAsNumber)}
                       placeholder="Enter star rating"
                     />
@@ -225,7 +274,28 @@ const HotelGeneralForm = () => {
                 <FormItem>
                   <FormLabel>City</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter city" {...field} />
+                    {/* <Input placeholder="Enter city" {...field} /> */}
+                    <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                    }}
+                    value={field.value || cities.find(city => city.id === defaultValues.cityId)?.id?.toString()} // Ensure initial value is set correctly
+                    defaultValue={cities.find(city => city.id === defaultValues.cityId)?.id?.toString()} // Set the initial default value
+                  >
+                    <SelectTrigger className="bg-slate-100 shadow-md">
+                      <SelectValue placeholder="Select city" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cities.map((city) => (
+                        <SelectItem
+                          key={city.id}
+                          value={String(city.id ?? 0) ?? "0"}
+                        >
+                          {city.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

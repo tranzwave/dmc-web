@@ -1,13 +1,20 @@
+"use client";
 // HotelsForm.tsx
-import React from 'react';
-import { HotelVoucherData } from '../../hotels';
+
+import React, { useEffect } from "react";
+import { HotelVoucherData } from "..";
+import HotelsForm from "~/components/bookings/addBooking/forms/hotelsForm/hotelsForm";
+import { SelectHotelVoucherLine } from "~/server/db/schemaTypes";
 
 interface HotelsFormProps {
-  selectedItem: HotelVoucherData | undefined; // Ensures it matches the expected type
+  selectedItem: SelectHotelVoucherLine | undefined; // Ensures it matches the expected type
   onSave: () => void; // Ensures it matches the expected type
 }
 
-const HotelsForm: React.FC<HotelsFormProps> = ({ selectedItem, onSave }) => {
+const HotelsVoucherForm: React.FC<HotelsFormProps> = ({
+  selectedItem,
+  onSave,
+}) => {
   // Form logic and UI here
 
   const handleSubmit = () => {
@@ -15,12 +22,19 @@ const HotelsForm: React.FC<HotelsFormProps> = ({ selectedItem, onSave }) => {
     onSave();
   };
 
+  useEffect(() => {
+    console.log("Hotel voucher");
+  }, [selectedItem]);
+
   return (
-    <form>
-      {/* Form fields that use selectedItem */}
-      <button type="button" onClick={handleSubmit}>Save</button>
-    </form>
+    <HotelsForm
+      defaultValues={selectedItem ?? null}
+      hotels={[]}
+      onAddHotel={() => {
+        console.log("cant add here");
+      }}
+    />
   );
 };
 
-export default HotelsForm;
+export default HotelsVoucherForm;

@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useEffect, useState } from "react";
-import { StatusKey, StatusLabels, useAddBooking } from "~/app/dashboard/bookings/add/context";
+import { defaultGeneral, StatusKey, StatusLabels, useAddBooking } from "~/app/dashboard/bookings/add/context";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import {
@@ -49,8 +49,10 @@ export const generalSchema = z
     tourType: z.string().min(1, "Tour type is required"),
     includes: z.object({
       hotels: z.boolean(),
+      restaurants: z.boolean(),
       transport: z.boolean(),
       activities: z.boolean(),
+      shops: z.boolean(),
     }),
   })
   .refine((data) => new Date(data.endDate) >= new Date(data.startDate), {
@@ -84,51 +86,11 @@ const GeneralForm = () => {
 
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
-    defaultValues: bookingDetails.general,
+    defaultValues: defaultGeneral,
   });
 
   const startDate = form.watch("startDate");
   const numberOfDays = form.watch("numberOfDays");
-
-  // const getAgents = async () => {
-  //   try {
-  //     const response = await getAllAgents();
-
-  //     if (!response) {
-  //       throw new Error(`Error: ${response}`);
-  //     }
-  //     console.log("Fetched Agents:", response);
-
-  //     setAgents(response);
-  //   } catch (error) {
-  //     if (error instanceof Error) {
-  //       setError(error.message);
-  //     } else {
-  //       setError("An unknown error occurred");
-  //     }
-  //     console.error("Error:", error);
-  //   }
-  // };
-
-  // const getUsers = async () => {
-  //   try {
-  //     const response = await getAllUsers();
-
-  //     if (!response) {
-  //       throw new Error(`Error: ${response}`);
-  //     }
-  //     console.log("Fetched Agents:", response);
-
-  //     setUsers(response);
-  //   } catch (error) {
-  //     if (error instanceof Error) {
-  //       setError(error.message);
-  //     } else {
-  //       setError("An unknown error occurred");
-  //     }
-  //     console.error("Error:", error);
-  //   }
-  // };
 
   const fetchData = async () => {
     try {
@@ -174,13 +136,13 @@ const GeneralForm = () => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    // if (startDate && numberOfDays) {
-    //   const endDate = new Date(startDate);
-    //   endDate.setDate(endDate.getDate());
-    //   form.setValue("endDate", endDate.toISOString().split("T")[0] ?? "");
-    // }
-  }, [startDate, numberOfDays, form]);
+  // useEffect(() => {
+  //   // if (startDate && numberOfDays) {
+  //   //   const endDate = new Date(startDate);
+  //   //   endDate.setDate(endDate.getDate());
+  //   //   form.setValue("endDate", endDate.toISOString().split("T")[0] ?? "");
+  //   // }
+  // }, [startDate, numberOfDays, form]);
 
   const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
     const sd = new Date(data.startDate);
@@ -190,7 +152,6 @@ const GeneralForm = () => {
     
     const diffInDays = Math.ceil(diffInMilliseconds / (1000 * 60 * 60 * 24));
     
-    alert(`Number of days between the dates: ${diffInDays}`);
     data.numberOfDays = diffInDays
     console.log(data);
     setGeneralDetails(data);
@@ -200,14 +161,12 @@ const GeneralForm = () => {
   function getAgentId(agentName: string) {
     const agent = agents.find((agent) => agent.name === agentName);
     const id = agent?.id;
-    alert(id);
     setSelectedAgent(agent);
   }
 
   function getManagerId(managerName: string) {
     const manager = users.find((manager) => manager.name === managerName);
     const id = manager?.id;
-    alert(id);
     setSelectedManager(manager);
   }
 
@@ -243,7 +202,6 @@ const GeneralForm = () => {
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value);
-                      alert(value);
                     }}
                     value={field.value}
                   >
@@ -254,7 +212,7 @@ const GeneralForm = () => {
                       {countries.map((country) => (
                         <SelectItem
                           key={country.id}
-                          value={country?.code || ""}
+                          value={country?.code ?? ""}
                         >
                           {country.name}
                         </SelectItem>
@@ -296,7 +254,7 @@ const GeneralForm = () => {
                   <FormControl>
                     <Input
                       type="number"
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                       onChange={(e) => field.onChange(e.target.valueAsNumber)}
                     />
                   </FormControl>
@@ -314,7 +272,7 @@ const GeneralForm = () => {
                   <FormControl>
                     <Input
                       type="number"
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                       onChange={(e) => field.onChange(e.target.valueAsNumber)}
                     />
                   </FormControl>
@@ -345,7 +303,7 @@ const GeneralForm = () => {
                 <FormControl>
                   <Input
                     type="number"
-                    value={field.value || ""}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>
@@ -363,7 +321,7 @@ const GeneralForm = () => {
                   <Input
                     type="date"
                     {...field}
-                    min={form.watch("startDate") || ""}
+                    min={form.watch("startDate") ?? ""}
                   />
                 </FormControl>
                 <FormMessage />
@@ -384,7 +342,6 @@ const GeneralForm = () => {
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value);
-                      alert(value);
                     }}
                     value={field.value}
                   >
@@ -394,7 +351,7 @@ const GeneralForm = () => {
                     <SelectContent>
                       {users.map((user) =>
                         user.role === "manager" ? (
-                          <SelectItem key={user.id} value={user?.id || ""}>
+                          <SelectItem key={user.id} value={user?.id ?? ""}>
                             {user.name}
                           </SelectItem>
                         ) : null,
@@ -417,7 +374,6 @@ const GeneralForm = () => {
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value);
-                      alert(value);
                     }}
                     value={field.value}
                   >
@@ -426,7 +382,7 @@ const GeneralForm = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {agents.map((agent) => (
-                        <SelectItem key={agent.id} value={agent?.id || ""}>
+                        <SelectItem key={agent.id} value={agent?.id ?? ""}>
                           {agent.name}
                         </SelectItem>
                       ))}

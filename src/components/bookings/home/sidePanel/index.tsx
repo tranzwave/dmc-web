@@ -10,13 +10,13 @@ import { Progress } from "~/components/ui/progress";
 import { Lock } from "lucide-react"; // Import the lock icon
 import { useEffect, useState } from "react";
 import { getHotelVouchers } from "~/server/db/queries/booking/hotelVouchers";
-import { HotelVoucherData } from "../../tasks/hotels";
 import { getTransportVouchers } from "~/server/db/queries/booking/transportVouchers";
 import { getActivityVouchers } from "~/server/db/queries/booking/activityVouchers";
 import { getShopsVouchers } from "~/server/db/queries/booking/shopsVouchers";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getRestaurantVouchers } from "~/server/db/queries/booking/restaurantVouchers";
+import { HotelVoucherData } from "../../tasks/hotelsTaskTab";
 
 interface SidePanelProps {
   booking: BookingDTO | null;
@@ -177,38 +177,38 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
       </div>
       {renderCard({
         title: "Hotels",
-        totalVouchers: hotelVouchers?.length || 0,
+        totalVouchers: hotelVouchers?.length ?? 0,
         done: 0,
         locked: false,
-        vouchersToFinalize: hotelVouchers?.length || 0,
+        vouchersToFinalize: hotelVouchers?.length ?? 0,
       })}
       {renderCard({
         title: "Restaurants",
-        totalVouchers: restaurantVouchers?.length || 0,
+        totalVouchers: restaurantVouchers?.length ?? 0,
         done: 0,
-        locked: restaurantVouchers?.length || 0 > 0 ? false : true,
-        vouchersToFinalize: restaurantVouchers?.length || 0,
+        locked: restaurantVouchers?.length ?? 0 > 0 ? false : true,
+        vouchersToFinalize: restaurantVouchers?.length ?? 0,
       })}
       {renderCard({
         title: "Transport",
-        totalVouchers: transportVouchers?.length || 0,
+        totalVouchers: transportVouchers?.length ?? 0,
         done: 0,
-        locked: transportVouchers?.length || 0 > 0 ? false : true,
-        vouchersToFinalize: transportVouchers?.length || 0,
+        locked: transportVouchers?.length ?? 0 > 0 ? false : true,
+        vouchersToFinalize: transportVouchers?.length ?? 0,
       })}
       {renderCard({
         title: "Activities",
-        totalVouchers: activityVouchers?.length || 0,
+        totalVouchers: activityVouchers?.length ?? 0,
         done: 0,
-        locked: activityVouchers?.length || 0 > 0 ? false : true,
-        vouchersToFinalize: activityVouchers?.length || 0,
+        locked: activityVouchers?.length ?? 0 > 0 ? false : true,
+        vouchersToFinalize: activityVouchers?.length ?? 0,
       })}
       {renderCard({
         title: "Shops",
-        totalVouchers: shopVouchers?.length || 0,
+        totalVouchers: shopVouchers?.length ?? 0,
         done: 0,
-        locked: shopVouchers?.length || 0 > 0 ? false : true,
-        vouchersToFinalize: shopVouchers?.length || 0,
+        locked: shopVouchers?.length ?? 0 > 0 ? false : true,
+        vouchersToFinalize: shopVouchers?.length ?? 0,
       })}
       {/* {renderCard(booking.details.transport)}
       {renderCard(booking.details.activities)}

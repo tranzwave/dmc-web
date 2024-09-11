@@ -3,9 +3,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
+import LoadingLayout from "~/components/common/dashboardLoading";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
-import { getTransportData } from "~/lib/api";
 import { Driver, driverColumns, DriverDTO } from "~/lib/types/driver/type";
 import { getAllDrivers } from "~/server/db/queries/transport";
 
@@ -37,8 +37,20 @@ const TransportHome = () => {
     }, []);
 
     if (loading) {
-        return <div>Loading...</div>;  // Render loading state
-    }
+        return (
+          <div>
+            <div className="flex w-full flex-row justify-between gap-1">
+              <TitleBar title="Transport" link="toAddTransport" />
+              <div>
+                <Link href={`${pathname}/add`}>
+                  <Button variant="primaryGreen">Add Driver</Button>
+                </Link>
+              </div>
+            </div>
+              <LoadingLayout />
+          </div>
+        );
+      }
 
     if (error) {
         return <div>Error: {error}</div>;  // Render error message if there's an error
