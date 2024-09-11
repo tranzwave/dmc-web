@@ -69,7 +69,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
     resolver: zodResolver(hotelsSchema),
     defaultValues: {
       ...defaultValues,
-      remarks: "No Remarks",
+      remarks: defaultValues?.remarks ?? "No Remarks",
     },
     values: {
       adultsCount: defaultValues?.adultsCount ?? 0,

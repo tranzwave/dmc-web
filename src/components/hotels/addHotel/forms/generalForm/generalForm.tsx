@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { ArrowRightSquareIcon } from "lucide-react";
-import { SelectCity } from "~/server/db/schemaTypes";
+import { InsertHotel, SelectCity } from "~/server/db/schemaTypes";
 import { getAllCities } from "~/server/db/queries/activities";
 
 // Define the schema for form validation
@@ -57,7 +57,7 @@ type RestaurantType = z.infer<typeof restaurantSchema>;
 type RestaurantMealType = z.infer<typeof restaurantMealSchema>;
 type HotelGeneralFormData = z.infer<typeof hotelGeneralSchema>;
 
-const HotelGeneralForm = () => {
+const HotelGeneralForm = ({defaultValues}:{defaultValues:InsertHotel}) => {
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState<SelectCity[]>([]);
@@ -69,6 +69,7 @@ const HotelGeneralForm = () => {
     addRestaurantMeal,
     restaurants,
     restaurantMeals,
+    setActiveTab
   } = useAddHotel(); // Adjusted context hook
   // const [showRestaurantForm, setShowRestaurantForm] = useState<boolean>(
   //   hotelGeneral.hasRestaurant ?? false,
@@ -77,7 +78,10 @@ const HotelGeneralForm = () => {
 
   const generalForm = useForm<HotelGeneralFormData>({
     resolver: zodResolver(hotelGeneralSchema),
+    defaultValues: defaultValues
   });
+
+  const { reset } = generalForm; // Destructure the reset method
   // const restaurantForm = useForm<typeof restaurantSchema>({
   //   resolver: zodResolver(restaurantSchema),
   // });
@@ -95,10 +99,12 @@ const HotelGeneralForm = () => {
       primaryContactNumber: values.primaryContactNumber,
       streetName: values.streetName,
       cityId: Number(values.city),
-      tenantId: "",
+      tenantId: hotelGeneral.tenantId ?? "",
       province: values.province,
       hasRestaurant: values.hasRestaurant,
     });
+
+    setActiveTab("rooms")
   };
 
   // const onRestaurantNameSubmit: SubmitHandler<RestaurantType> = (data) => {
@@ -170,7 +176,8 @@ const HotelGeneralForm = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+    reset(defaultValues);
+  }, [hotelGeneral]);
 
   return (
     <div>
@@ -271,9 +278,9 @@ const HotelGeneralForm = () => {
                     <Select
                     onValueChange={(value) => {
                       field.onChange(value);
-                      alert(value);
                     }}
-                    value={field.value}
+                    value={field.value || cities.find(city => city.id === defaultValues.cityId)?.id?.toString()} // Ensure initial value is set correctly
+                    defaultValue={cities.find(city => city.id === defaultValues.cityId)?.id?.toString()} // Set the initial default value
                   >
                     <SelectTrigger className="bg-slate-100 shadow-md">
                       <SelectValue placeholder="Select city" />

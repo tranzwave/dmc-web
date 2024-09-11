@@ -28,7 +28,7 @@ export const ChargesSchema = z.object({
 type ChargesFormValues = z.infer<typeof ChargesSchema>;
 
 const ChargesForm = () => {
-  const { setChargesDetails, transportDetails } = useAddTransport();
+  const { setChargesDetails, transportDetails, setActiveTab } = useAddTransport();
 
   const form = useForm<ChargesFormValues>({
     resolver: zodResolver(ChargesSchema),
@@ -38,7 +38,7 @@ const ChargesForm = () => {
   const onSubmit: SubmitHandler<ChargesFormValues> = (data) => {
     setChargesDetails(data);
     console.log(data);
-    form.reset();
+    setActiveTab("documents")
   };
 
   return (

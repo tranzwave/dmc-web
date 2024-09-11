@@ -180,8 +180,8 @@ export const insertDriver = async (
       }
     });
     return newDriver
-  } catch (error) {
-    console.error("Error in insertDriver:", error);
+  } catch (error:any) {
+    console.error("Error in insertDriver:", error?.detail ?? error);
     throw error;
   }
 };

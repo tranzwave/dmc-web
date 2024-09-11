@@ -1,66 +1,29 @@
-'use client'
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useEffect } from 'react';
-import TitleBar from '~/components/common/titleBar';
-import HotelGeneralTab from '~/components/hotels/addHotel/forms/generalForm';
-import { Button } from '~/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
-import { AddHotelProvider } from './context';
-import RoomsTab from '~/components/hotels/addHotel/forms/roomsForm';
-import StaffTab from '~/components/hotels/addHotel/forms/staffForm';
-import AddHotelSubmitView from '~/components/hotels/addHotel/forms/submitForm';
+"use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+import TitleBar from "~/components/common/titleBar";
+import HotelGeneralTab from "~/components/hotels/addHotel/forms/generalForm";
+import { Button } from "~/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { AddHotelProvider, useAddHotel } from "./context";
+import RoomsTab from "~/components/hotels/addHotel/forms/roomsForm";
+import StaffTab from "~/components/hotels/addHotel/forms/staffForm";
+import AddHotelSubmitView from "~/components/hotels/addHotel/forms/submitForm";
 
 const AddHotel = () => {
   const pathname = usePathname();
+  const { hotelGeneral, hotelRooms, hotelStaff, setActiveTab,activeTab } = useAddHotel();
 
   useEffect(() => {
-    console.log('Add Booking Component');
+    console.log("Add Booking Component");
   }, []);
-
-  const handleAddHotel = async () => {
-
-    // try {
-    //     const response = await fetch('/api/hotels', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({
-    //             name: 'Test Hotel',
-    //             stars: 5,
-    //             primaryEmail: 'info@hotel.com',
-    //             primaryContactNumber: '123456789',
-    //             streetName: 'Main St',
-    //             city: 'City Name',
-    //             province: 'Province',
-    //             hasRestaurant: true,
-    //             restaurants: [{ restaurantName: 'Restaurant 1', mealType: 'Breakfast', startTime: '07:00', endTime: '10:00' }],
-    //         }),
-    //     });
-
-    //     if (!response.ok) {
-    //         const text = await response.text();
-    //         console.error('Server Error:', text);
-    //         setError('Failed to add hotel.');
-    //         return;
-    //     }
-
-    //     const data = await response.json();
-    //     console.log('Hotel added successfully:', data.hotel);
-    //     // Optionally refresh data
-    //     // await fetchData();
-    // } catch (error) {
-    //     console.error('Error adding hotel:', error);
-    //     setError('An unexpected error occurred.');
-    // }
-};
 
   return (
     <div className="flex">
       <div className="flex-1">
         <div className="flex flex-col gap-3">
-          <div className="flex flex-row gap-1 w-full justify-between">
+          <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title="Add Hotel" link="toAddBooking" />
             <div>
               <Link href={`${pathname}`}>
@@ -68,25 +31,33 @@ const AddHotel = () => {
               </Link>
             </div>
           </div>
-          <div className='w-full'>
-            <Tabs defaultValue="general" className="w-full border">
-              <TabsList className='flex justify-evenly w-full'>
-                <TabsTrigger value="general">General</TabsTrigger>
-                <TabsTrigger value="rooms">Rooms</TabsTrigger>
-                <TabsTrigger value="staff">Staff</TabsTrigger>
-                <TabsTrigger value="submit">Submit</TabsTrigger>
+          <div className="w-full">
+            <Tabs defaultValue="general" className="w-full border" value={activeTab}>
+              <TabsList className="flex w-full justify-evenly">
+                <TabsTrigger value="general" isCompleted = {false} onClick={() => setActiveTab("general")} inProgress = {activeTab == "general"}>
+                  General
+                </TabsTrigger>
+                <TabsTrigger value="rooms" statusLabel={"Mandatory"} isCompleted={hotelRooms.length > 0} inProgress = {activeTab == "rooms"} disabled={!hotelGeneral.province}>
+                  Rooms
+                </TabsTrigger>
+                <TabsTrigger value="staff" statusLabel={"Mandatory"} isCompleted={hotelStaff.length > 0} inProgress = {activeTab == "staff"} disabled={hotelRooms.length == 0}>
+                  Staff
+                </TabsTrigger>
+                <TabsTrigger value="submit" inProgress = {activeTab == "submit"} disabled={hotelStaff.length == 0}>
+                  Submit
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="general">
-                <HotelGeneralTab/>
+                <HotelGeneralTab />
               </TabsContent>
               <TabsContent value="rooms">
-                <RoomsTab/>
+                <RoomsTab />
               </TabsContent>
               <TabsContent value="staff">
-                <StaffTab/>
+                <StaffTab />
               </TabsContent>
               <TabsContent value="submit">
-                <AddHotelSubmitView/>
+                <AddHotelSubmitView />
               </TabsContent>
             </Tabs>
           </div>
@@ -99,7 +70,7 @@ const AddHotel = () => {
 export default function WrappedAddBooking() {
   return (
     <AddHotelProvider>
-      <AddHotel/>
+      <AddHotel />
     </AddHotelProvider>
   );
 }

@@ -118,6 +118,7 @@ const RestaurantsTab = () => {
             <RestaurantForm
               onAddRestaurant={updateRestaurants}
               restaurants={restaurants}
+              defaultValues={null}
             />
           )}
         </div>

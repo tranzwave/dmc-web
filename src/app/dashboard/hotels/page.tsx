@@ -46,7 +46,7 @@ const HotelsHome = () => {
                   onEditPath={(data) => `/dashboard/hotels/${data.id}/edit`}
                   onDeletePath={(data) => `/dashboard/hotels/${data.id}/delete`}/>
               );
-            },
+            }
           },
         
       ];

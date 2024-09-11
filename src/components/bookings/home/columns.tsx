@@ -1,8 +1,8 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import { formatDate } from "~/lib/utils/index";
 import { SelectBooking, SelectBookingLine, SelectClient } from "~/server/db/schemaTypes";
-import { formatDate } from "../tasks/hotels";
 
 export type CategoryDetails = {
     title: string;

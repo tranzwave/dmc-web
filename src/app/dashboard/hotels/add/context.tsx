@@ -10,6 +10,8 @@ interface AddHotelContextProps {
   hotelStaff: InsertHotelStaff[];
   restaurants: InsertRestaurant[];
   restaurantMeals: InsertMeal[];
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
   setHotelGeneral: (hotel: InsertHotel) => void;
   addHotelRoom: (room: InsertHotelRoom) => void;
   addHotelStaff: (staff: InsertHotelStaff) => void;
@@ -61,6 +63,7 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [hotelStaff, setHotelStaff] = useState<InsertHotelStaff[]>(defaultHotelStaff);
   const [restaurants, setRestaurants] = useState<InsertRestaurant[]>(defaultRestaurants);
   const [restaurantMeals, setRestaurantMeals] = useState<InsertMeal[]>(defaultRestaurantMeals);
+  const [activeTab, setActiveTab] = useState<string>("general");
 
   const addHotelRoom = (room: InsertHotelRoom) => {
     setHotelRooms(prev => [...prev, room]);
@@ -93,6 +96,8 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
         hotelStaff,
         restaurants,
         restaurantMeals,
+        activeTab,
+        setActiveTab,
         setHotelGeneral,
         addHotelRoom,
         addHotelStaff,

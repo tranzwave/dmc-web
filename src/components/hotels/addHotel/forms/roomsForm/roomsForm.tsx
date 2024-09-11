@@ -30,7 +30,6 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom }) => {
   });
 
   const onSubmit: SubmitHandler<HotelRoomType> = (data) => {
-    alert("Form submitted");
     onAddRoom({
       ...data,
       count: Number(data.count), 

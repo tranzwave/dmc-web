@@ -3,7 +3,7 @@ import { getActivityVouchers } from "~/server/db/queries/booking/activityVoucher
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDate } from "~/lib/utils/index";
 import TasksTab from "~/components/common/tasksTab";
-import ActivityForm from './form';
+import ActivityVoucherForm from './form';
 import { SelectActivity, SelectActivityVendor, SelectActivityVoucher } from '~/server/db/schemaTypes';
 
 export type ActivityVoucherData = SelectActivityVoucher & {
@@ -76,7 +76,7 @@ const ActivitiesTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string
     columns={activityColumns}
     voucherColumns={activityVoucherLineColumns}
     vouchers={vouchers}
-    formComponent={ActivityForm}
+    formComponent={ActivityVoucherForm}
     updateVoucherLine={updateVoucherLine}
     updateVoucherStatus={updateVoucherStatus}
   />

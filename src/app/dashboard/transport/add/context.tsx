@@ -14,6 +14,8 @@ interface TransportDetails {
 // Define context properties
 interface AddTransportContextProps {
   transportDetails: TransportDetails;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
   setGeneralDetails: (details: General) => void;
   addVehicles: (vehicles: Vehicles) => void;
   setChargesDetails: (charges: Charges) => void;
@@ -64,7 +66,7 @@ const AddTransportContext = createContext<AddTransportContextProps | undefined>(
 
 export const AddTransportProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [transportDetails, setTransportDetails] = useState<TransportDetails>(defaultTransportDetails);
-
+  const [activeTab, setActiveTab] = useState<string>("general");
   const setGeneralDetails = (details: General) => {
     setTransportDetails(prev => ({ ...prev, general: details }));
   };
@@ -90,6 +92,8 @@ export const AddTransportProvider: React.FC<{ children: ReactNode }> = ({ childr
         addVehicles,
         setChargesDetails,
         setDocumetsDetails,
+        activeTab,
+        setActiveTab,
       
       }}
     >
