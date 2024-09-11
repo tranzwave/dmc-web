@@ -3,6 +3,31 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    @apply text-base; /* 1rem = 16px */
+  }
+
+  /* Small devices (phones, 600px and below) */
+  @media (max-width: 600px) {
+    html {
+      @apply text-sm; /* 1rem = 14px */
+    }
+  }
+
+  /* Medium devices (tablets, 600px to 900px) */
+  @media (min-width: 601px) and (max-width: 1366px) {
+    html {
+      @apply text-[12px]; /* 1rem = 15px */
+    }
+  }
+
+  /* Large devices (desktops, 900px to 1200px) */
+  @media (min-width: 1367px){
+    html {
+      @apply text-base; /* 1rem = 16px */
+    }
+  }
+
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
@@ -59,25 +84,47 @@
   }
 }
 
+
+/* Grid container to handle the layout */
+.layout {
+  display: grid;
+  grid-template-areas: 
+    "sidebar topbar"
+    "sidebar content";
+  grid-template-columns: 16% 84%; /* Sidebar takes 25% of the width, content takes 75% */
+  grid-template-rows: 8% 92%; /* Top bar takes 10% of the height, content takes 90% */
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Ensure that the sidebar and top bar stay in place */
 .side-nav {
-  @apply h-full w-[245px] bg-primary-green p-4 2xl:w-[300px];
+  @apply bg-primary-green p-4;
+  grid-area: sidebar;
+  height: 100%; /* Full height of its grid area */
 }
 
 .top-bar {
-  @apply flex h-[73px] w-full items-center px-4 py-2;
+  @apply w-full px-4 py-2 bg-background;
+  grid-area: topbar;
 }
 
 .dashboard-content {
-  @apply w-full border-t px-4 py-3;
+  @apply p-4 pb-0 overflow-y-scroll border-t;
+  grid-area: content;
+  height: 100%; /* Full height of its grid area */
 }
+
+
 
 @layer base {
   * {
     @apply border-border;
   }
-  body {
-    @apply base-text flex h-dvh overflow-x-hidden bg-background text-foreground;
-  }
+}
+
+body {
+  @apply base-text flex max-h-screen overflow-hidden bg-background text-foreground;
 }
 
 .card {
@@ -85,10 +132,10 @@
 }
 
 .card-title {
-  @apply text-xl font-semibold text-primary-black;
+  @apply text-lg font-semibold text-primary-black;
 }
 
-/* Webkit browsers */
+/* Customize Scrollbar for Webkit Browsers */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -102,10 +149,6 @@
   border-radius: 6px;
 }
 
-/* ::-webkit-scrollbar-thumb:hover {
-  background: #555;
-} */
-
 /* Firefox */
 * {
   scrollbar-width: thin;
@@ -113,9 +156,9 @@
 }
 
 .base-text {
-  @apply text-sm 2xl:text-base;
+  @apply text-sm md:text-base lg:text-lg 2xl:text-xl;
 }
 
 .icon-size {
-  @apply w-[20px] 2xl:w-[24px];
+  @apply w-5 md:w-6 lg:w-7 2xl:w-8;
 }

@@ -4,13 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
+import LoadingLayout from "~/components/common/dashboardLoading";
+import DataTableDropDown from "~/components/common/dataTableDropdown";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
 import { HotelDTO } from "~/lib/types/hotel";
 import { getAllHotels } from "~/server/db/queries/hotel";
-import { SelectHotel } from "~/server/db/schemaTypes";
-import DataTableDropDown from "~/components/common/dataTableDropdown";
-import LoadingLayout from "~/components/common/dashboardLoading";
 
 const HotelsHome = () => {
     const columns: ColumnDef<HotelDTO>[] = [
@@ -46,7 +45,7 @@ const HotelsHome = () => {
                   onEditPath={(data) => `/dashboard/hotels/${data.id}/edit`}
                   onDeletePath={(data) => `/dashboard/hotels/${data.id}/delete`}/>
               );
-            },
+            }
           },
         
       ];

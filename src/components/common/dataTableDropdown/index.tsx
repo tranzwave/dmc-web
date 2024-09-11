@@ -1,4 +1,5 @@
-import { MoreHorizontal, MoreVertical } from "lucide-react";
+"use client"
+import { MoreVertical } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -38,6 +39,8 @@ const DataTableDropDwn = <T,>({
 
   const onDelete = () => {
     console.log("Delete action triggered");
+    const path = onDeletePath(data)
+    window.location.href = path
   };
 
   return (

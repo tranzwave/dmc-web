@@ -1,5 +1,6 @@
 "use client";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAddHotel } from "~/app/dashboard/hotels/add/context";
 import { Button } from "~/components/ui/button";
@@ -11,6 +12,7 @@ const AddHotelSubmitView = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const router = useRouter()
 
   const addHotel = async () => {
     console.log({
@@ -21,6 +23,7 @@ const AddHotelSubmitView = () => {
     });
 
     try {
+      setLoading(true)
       const response = await insertHotel([
         {
           hotel: hotelGeneral,
@@ -41,6 +44,8 @@ const AddHotelSubmitView = () => {
         title: "Success",
         description: "Hotel added successfully",
       });
+      router.push("/dashboard/hotels")
+      
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -218,7 +223,7 @@ const AddHotelSubmitView = () => {
       {/* Submit Button */}
       <div className="flex justify-center">
         <Button variant={"primaryGreen"} onClick={addHotel}>
-          {loading ? <Loader2 size={20} /> : <div>Submit Now</div>}
+          {loading ? <Loader2 size={20} className="animate-spin"/> : <div>Submit Now</div>}
         </Button>
       </div>
     </div>
@@ -226,7 +231,3 @@ const AddHotelSubmitView = () => {
 };
 
 export default AddHotelSubmitView;
-
-{
-  /*  */
-}

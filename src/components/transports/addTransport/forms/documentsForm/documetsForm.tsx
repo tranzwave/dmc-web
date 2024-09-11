@@ -28,7 +28,7 @@ export const DocumentsSchema = z.object({
 type DocumentsFormValues = z.infer<typeof DocumentsSchema>;
 
 const DocumentsForm = () => {
-  const { setDocumetsDetails, transportDetails } = useAddTransport();
+  const { setDocumetsDetails, transportDetails, setActiveTab } = useAddTransport();
   
   const form = useForm<DocumentsFormValues>({
     resolver: zodResolver(DocumentsSchema),
@@ -40,7 +40,7 @@ const DocumentsForm = () => {
   const onSubmit: SubmitHandler<DocumentsFormValues> = (data) => {
     setDocumetsDetails(data);
     console.log(data);
-    form.reset();
+    setActiveTab("submit")
   };
 
   return (

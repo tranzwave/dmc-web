@@ -1,7 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { DriverData } from "~/components/bookings/addBooking/forms/transportForm";
 import DataTableDropDown from "~/components/common/dataTableDropdown";
-import { InsertCity, InsertDriver, SelectDriver } from "~/server/db/schemaTypes";
+import { InsertCity, InsertDriver, SelectDriver, SelectLanguage } from "~/server/db/schemaTypes";
 
 // Define the Address type
 type Address = {
@@ -61,6 +61,7 @@ type Driver = {
   vehicles: Vehicle[];
   charges: Charges;
   documents: Documents;
+  languages?:SelectLanguage[]
 };
 
 export type DriverDTO = {

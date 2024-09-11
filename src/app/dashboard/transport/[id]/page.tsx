@@ -1,4 +1,5 @@
 "use client";
+import { ColumnDef } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 import { columns } from "~/components/bookings/home/columns";
 import { DataTable } from "~/components/bookings/home/dataTable";
@@ -6,11 +7,13 @@ import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
 import { StatsCard } from "~/components/ui/stats-card";
 import { DriverDTO } from "~/lib/types/driver/type";
+import { formatDate } from "~/lib/utils/index";
 import { getDriverByIdQuery, getTransportVouchersForDriver } from "~/server/db/queries/transport";
+import { SelectTransportVoucher } from "~/server/db/schemaTypes";
 
 const Page = ({ params }: { params: { id: string } }) => {
   const [driver, setDriver] = useState<DriverDTO | null>(null);
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<SelectTransportVoucher[]>([]);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,6 +63,27 @@ const Page = ({ params }: { params: { id: string } }) => {
   if (!driver) {
     return <div>No driver found with the given ID.</div>;
   }
+  const driverVoucherColumns: ColumnDef<SelectTransportVoucher>[] = [
+    {
+      accessorKey: "startDate",
+      header: "Start Date",
+      accessorFn: (row) => formatDate(row.startDate.toString()),
+    },
+    {
+      accessorKey: "endDate",
+      header: "End Date",
+      accessorFn: (row) => formatDate(row.endDate.toString())
+    },
+    {
+      header: "Vehicle Type",
+      accessorFn: (row) => row.vehicleType
+    },
+    {
+      header: "Remarks",
+      accessorFn: (row) => row.remarks
+    }
+  
+  ];
 
   return (
     <div className="flex flex-col gap-3 w-full justify-between">
@@ -84,17 +108,17 @@ const Page = ({ params }: { params: { id: string } }) => {
         </div>
         <div className="card w-[70%] space-y-6">
           <div>Current Booking</div>
-          <DataTable columns={columns} data={data} />
+          <DataTable columns={driverVoucherColumns} data={data} />
 
           <div>Booking History</div>
           <div className="col-span-3 flex justify-between gap-6">
-            <StatsCard label="5 Star ratings" value="10" />
-            <StatsCard label="Bookings Completed" value="20" />
-            <StatsCard label="Upcoming Bookings" value="5" />
+            <StatsCard label="Fee Per KM (LKR)" value={driver.feePerKM ?? 0} />
+            <StatsCard label="Bookings Completed" value={data.length}/>
+            <StatsCard label="Upcoming Bookings" value={data.length} />
           </div>
 
           <div>Trip History</div>
-          <DataTable columns={columns} data={data} />
+          <DataTable columns={driverVoucherColumns} data={data} />
         </div>
       </div>
     </div>

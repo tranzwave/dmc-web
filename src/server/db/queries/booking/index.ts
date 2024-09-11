@@ -320,14 +320,16 @@ export const createNewBooking = async (
       // Create a new booking line within the transaction
       const newBookingLineGeneral: InsertBookingLine = {
         bookingId: parentBookingIdToUse,
-        adultsCount: 2,
-        kidsCount: 2,
+        adultsCount: bookingDetails.general.adultsCount,
+        kidsCount: bookingDetails.general.kidsCount,
         startDate: new Date(bookingDetails.general.startDate),
         endDate: new Date(bookingDetails.general.endDate),
         includes: {
-          hotels: true,
-          transport: true,
-          activities: true,
+          hotels: bookingDetails.general.includes.hotels,
+          restaurants: bookingDetails.general.includes.restaurants,
+          transport: bookingDetails.general.includes.transport,
+          activities: bookingDetails.general.includes.activities,
+          shops:bookingDetails.general.includes.shops
         },
       };
 
@@ -348,7 +350,7 @@ export const createNewBooking = async (
       }
 
       // Handle restaurant vouchers within the transaction
-      if (bookingDetails.general.includes.hotels) {
+      if (bookingDetails.general.includes.restaurants) {
         await insertRestaurantVouchersTx(
           tx,
           bookingDetails.restaurants,
@@ -368,7 +370,7 @@ export const createNewBooking = async (
       }
 
       // Handle shop vouchers within the transaction
-      if (bookingDetails.general.includes.transport) {
+      if (bookingDetails.general.includes.shops) {
         await insertShopVouchersTx(
           tx,
           bookingDetails.shops,

@@ -1,5 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import DataTableDropDown from "~/components/common/dataTableDropdown";
+import { SelectAgent } from "~/server/db/schemaTypes";
+
 
 // Define the Agent type
 type Agent = {
@@ -9,7 +11,7 @@ type Agent = {
     country: string;
     agency: string;
     primaryContactNumber: string;
-    primaryEmailAddress: string;
+    email: string;
     tripsCompleted: string;
   };
 };
@@ -17,7 +19,7 @@ type Agent = {
 export type { Agent };
 
 
-export const agentColumns: ColumnDef<Agent>[] = [
+export const agentColumns: ColumnDef<SelectAgent>[] = [
   {
     accessorKey: "general.name",
     header: "Name",

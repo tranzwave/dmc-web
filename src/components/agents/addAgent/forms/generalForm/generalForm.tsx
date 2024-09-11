@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useAddAgent } from "~/app/dashboard/agents/add/context";
@@ -14,24 +15,50 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+import { getAllCountries } from "~/server/db/queries/agents";
+import { SelectCountry } from "~/server/db/schemaTypes";
+
 
 // Define the schema for form validation
 export const generalSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  country: z.string().min(1, "Activity is required"),
-  primaryEmail: z.string().email("Invalid email address"),
+  countryCode: z.string().min(1, "Country is required"),
+  email: z.string().email("Invalid email address"),
   primaryContactNumber: z.string().min(1, "Contact number is required"),
   agency: z.string().min(1, "Street name is required"),
-  feild1: z.string().min(1, "City is required"),
-  feild2: z.string().min(1, "Province is required"),
-  feild3: z.string().min(1, "Capacity is required"),
+  tenantId: z.string().default("0e8ac304-6858-4bb5-9dec-bdafeb03408b"),
+  // feild1: z.string().min(1, "City is required"),
+  // feild2: z.string().min(1, "Province is required"),
+  // feild3: z.string().min(1, "Capacity is required"),
 });
 
 // Define the type of the form values
 type GeneralFormValues = z.infer<typeof generalSchema>;
 
 const GeneralForm = () => {
+  const [countries, setCountries] = useState<SelectCountry[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const { setGeneralDetails, agentDetails } = useAddAgent();
+
+  useEffect(() => {
+    async function fetchData() {
+        try {
+            setLoading(true);
+            const result = await getAllCountries();
+            setCountries(result);
+        } catch (error) {
+            console.error("Failed to fetch country data:", error);
+            setError("Failed to load data.");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    fetchData();
+}, []);
+
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
     defaultValues: agentDetails.general,
@@ -61,21 +88,45 @@ const GeneralForm = () => {
           />
 
           <FormField
-            name="country"
+            name="countryCode"
             control={form.control}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Country</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter country" {...field} />
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      alert(value);
+                    }}
+                    value={field.value}
+                  >
+                    <SelectTrigger className="bg-slate-100 shadow-md">
+                      <SelectValue placeholder="Select country" />
+                      
+                    </SelectTrigger>
+                    <SelectContent>
+                      {countries.map((countryCode) => (
+                        <SelectItem
+                          key={countryCode.id}
+                          value={String(countryCode.code)}
+                        >
+                          {countryCode.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormControl>
+                {/* <FormControl>
+                  <Input placeholder="Enter country" {...field} />
+                </FormControl> */}
                 <FormMessage />
               </FormItem>
             )}
           />
 
           <FormField
-            name="primaryEmail"
+            name="email"
             control={form.control}
             render={({ field }) => (
               <FormItem>
@@ -130,7 +181,7 @@ const GeneralForm = () => {
 
           <div className="col-span-2">
             <div className="grid grid-cols-3 gap-4">
-              <FormField
+              {/* <FormField
                 name="feild1"
                 control={form.control}
                 render={({ field }) => (
@@ -169,7 +220,7 @@ const GeneralForm = () => {
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
             </div>
           </div>
         </div>

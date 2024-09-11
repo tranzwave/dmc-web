@@ -1,5 +1,4 @@
 "use client";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import {
   Activity,
   BarChart2,
@@ -8,6 +7,7 @@ import {
   Car,
   Home,
   User,
+  Utensils,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -32,6 +32,8 @@ const SideNavBar = () => {
       path: "/hotels",
       icon: <Building className="icon-size" />,
     },
+    // { name: 'Restaurants', path: '/restaurants', icon: <Utensils className='icon-size'/> },
+
     {
       name: "Transport",
       path: "/transport",
@@ -51,7 +53,7 @@ const SideNavBar = () => {
   ];
 
   return (
-    <div className="flex h-screen flex-col gap-4 bg-primary-green text-white">
+    <div className="flex h-full flex-col gap-4 bg-primary-green text-white">
       {/* Logo Section */}
       <div className="mb-2 flex items-center justify-center p-4">
         <Image

@@ -56,12 +56,14 @@ export default async function seed(db:DB) {
         });
   
         if (!foundAgent) {
-          // Create a new tenant if it does not exist
           await db.insert(agent).values({
             "tenantId": tenant.id,
-            "country" : currentAgent.country,
+            "countryCode" : currentAgent.country,
             "name" : currentAgent.name,
-            "email" :currentAgent.email
+            "email" :currentAgent.email,
+            "agency": currentAgent.agency,
+            "primaryContactNumber":currentAgent.primaryContactNumber,
+
           });
         }
       })

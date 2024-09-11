@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray, sql, SQL } from "drizzle-orm";
 import { db } from "../..";
 import {
   driver,
@@ -101,6 +101,25 @@ export const getDriverByIdQuery = (id: string) => {
   });
 };
 
+export const getDriverDataById = (id:string) =>{
+  return db.query.driver.findFirst({
+    where: eq(driver.id, id),
+    with: {
+      city: true,
+      vehicles: {
+        with: {
+          vehicle:true
+        }
+      },
+      languages:{
+        with:{
+          language:true
+        }
+      }
+    },
+  });
+}
+
 export const getTransportVouchersForDriver = (id: string) => {
   return db.query.transportVoucher.findMany({
     where: eq(transportVoucher.driverId, id),
@@ -180,9 +199,217 @@ export const insertDriver = async (
       }
     });
     return newDriver
-  } catch (error) {
-    console.error("Error in insertDriver:", error);
+  } catch (error:any) {
+    console.error("Error in insertDriver:", error?.detail ?? error);
     throw error;
   }
 };
 
+export async function updateDriverAndRelatedData(
+  driverId: string,
+  updatedDriver: InsertDriver | null,
+  updatedVehicles: InsertVehicle[],
+  updatedLanguages: InsertLanguage[]
+) {
+  console.log(driverId);
+  console.log(updatedDriver);
+
+  // Begin a transaction
+  const updated = await db.transaction(async (trx) => {
+    // Update the driver
+    if(!updatedDriver){
+      throw new Error("Please provide updated data")
+    }
+    const updatedDriverResult = await trx
+      .update(driver)
+      .set({
+        name: updatedDriver.name,
+        primaryEmail: updatedDriver.primaryEmail,
+        primaryContactNumber: updatedDriver.primaryContactNumber,
+        streetName: updatedDriver.streetName,
+        province: updatedDriver.province,
+        isGuide: updatedDriver.isGuide,
+        feePerKM: updatedDriver.feePerKM,
+        fuelAllowance: updatedDriver.fuelAllowance,
+        accommodationAllowance: updatedDriver.accommodationAllowance,
+        mealAllowance: updatedDriver.mealAllowance,
+        driversLicense: updatedDriver.driversLicense,
+        guideLicense: updatedDriver.guideLicense,
+        insurance: updatedDriver.insurance,
+        contactNumber: updatedDriver.contactNumber,
+        cityId: updatedDriver.cityId,
+      })
+      .where(eq(driver.id, driverId))
+      .returning({ updatedId: driver.id });
+
+    if (updatedDriverResult.length === 0) {
+      throw new Error(`Driver with id ${driverId} not found.`);
+    }
+
+    // Update related vehicles
+    // const updatedVehiclesData = await updateDriverVehicles(trx, driverId, updatedVehicles);
+
+    // Update related languages
+    // const updatedLanguagesData = await updateDriverLanguages(trx, driverId, updatedLanguages);
+
+    return { updatedDriverResult };
+  });
+
+  console.log(updated);
+  return updated;
+}
+
+// Separate function to update vehicles associated with a driver
+
+// Function to update vehicles associated with a driver
+
+async function updateDriverVehicles(
+  trx: any,
+  driverId: string,
+  updatedVehicles: InsertVehicle[]
+) {
+  // If there are no vehicles to update, return early
+  if (updatedVehicles.length === 0) {
+    return [];
+  }
+
+  const vehicleSqlChunks: SQL[] = [];
+  const vehicleIds: string[] = [];
+
+  vehicleSqlChunks.push(sql`(case`);
+
+  for (const vehicleData of updatedVehicles) {
+    vehicleSqlChunks.push(
+      sql`when ${vehicle.id} = ${vehicleData.id} then json_build_object(
+        'tenantId', ${vehicleData.tenantId},
+        'vehicleType', ${vehicleData.vehicleType},
+        'numberPlate', ${vehicleData.numberPlate},
+        'seats', ${vehicleData.seats},
+        'make', ${vehicleData.make},
+        'model', ${vehicleData.model},
+        'year', ${vehicleData.year},
+        'revenueLicense', ${vehicleData.revenueLicense}
+      )`
+    );
+    vehicleIds.push(vehicleData.id ?? "");
+  }
+
+  vehicleSqlChunks.push(sql`end)`);
+  const finalVehicleSql: SQL = sql.join(vehicleSqlChunks, sql.raw(' '));
+
+  // Delete existing relationships
+  await trx.delete(driverVehicle).where(eq(driverVehicle.driverId, driverId));
+
+  // Update vehicle records
+  await trx
+    .update(vehicle)
+    .set({
+      // Set the fields individually
+      tenantId: finalVehicleSql,
+      vehicleType: finalVehicleSql,
+      numberPlate: finalVehicleSql,
+      seats: finalVehicleSql,
+      make: finalVehicleSql,
+      model: finalVehicleSql,
+      year: finalVehicleSql,
+      revenueLicense: finalVehicleSql,
+    })
+    .where(inArray(vehicle.id, vehicleIds));
+
+  // Reinsert driver-vehicle relationships
+  await trx.insert(driverVehicle).values(
+    updatedVehicles.map((vehicleData) => ({
+      vehicleId: vehicleData.id,
+      driverId,
+    }))
+  );
+
+  return vehicleIds;
+}
+
+
+
+
+// Separate function to update languages associated with a driver
+async function updateDriverLanguages(
+  trx: any,
+  driverId: string,
+  updatedLanguages: InsertLanguage[]
+) {
+  // If there are no languages to update, return early
+  if (updatedLanguages.length === 0) {
+    return [];
+  }
+
+  const languageSqlChunks: SQL[] = [];
+  const languageCodes: string[] = [];
+
+  languageSqlChunks.push(sql`(case`);
+
+  for (const language of updatedLanguages) {
+    languageSqlChunks.push(
+      sql`when ${driverLanguage.languageCode} = ${language.code} then ${language}`
+    );
+    languageCodes.push(language.code);
+  }
+
+  languageSqlChunks.push(sql`end)`);
+  const finalLanguageSql: SQL = sql.join(languageSqlChunks, sql.raw(' '));
+
+  // Remove existing language relationships
+  await trx.delete(driverLanguage).where(eq(driverLanguage.driverId, driverId));
+
+  // Update language records
+  await trx
+    .update(driverLanguage)
+    .set({
+      // Assuming language data can be updated as a JSON object
+      languageDetails: finalLanguageSql,
+    })
+    .where(inArray(driverLanguage.languageCode, languageCodes));
+
+  // Reinsert driver-language relationships
+  const addedLanguageLinks = await trx
+    .insert(driverLanguage)
+    .values(
+      languageCodes.map((code) => ({
+        driverId,
+        languageCode: code,
+      }))
+    );
+
+  return addedLanguageLinks;
+}
+
+
+
+
+export async function deleteDriverCascade(driverId: string) {
+  try {
+    // Start the transaction
+    const deletedDriverId = await db.transaction(async (trx) => {
+      // Delete related driver-vehicle relationships
+      await trx
+        .delete(driverVehicle)
+        .where(eq(driverVehicle.driverId, driverId));
+
+      // Delete related driver-language relationships
+      await trx
+        .delete(driverLanguage)
+        .where(eq(driverLanguage.driverId, driverId));
+
+      // Finally, delete the driver
+      const deletedDriver = await trx
+        .delete(driver)
+        .where(eq(driver.id, driverId)).returning({ id: driver.id });
+
+      return deletedDriver;
+    });
+
+    console.log("Driver and related data deleted successfully");
+    return deletedDriverId;
+  } catch (error) {
+    console.error("Error deleting driver and related data:", error);
+    throw error; // Re-throw the error to handle it elsewhere if needed
+  }
+}

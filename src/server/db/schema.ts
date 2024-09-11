@@ -4,16 +4,16 @@ import {
   index,
   integer,
   jsonb,
-  pgTableCreator,
-  primaryKey,
-  text,
-  varchar,
-  timestamp,
-  unique,
-  serial,
-  time,
   numeric,
   pgEnum,
+  pgTableCreator,
+  primaryKey,
+  serial,
+  text,
+  time,
+  timestamp,
+  unique,
+  varchar,
 } from "drizzle-orm/pg-core";
 import { AdapterAccount } from "next-auth/adapters";
 
@@ -92,11 +92,15 @@ export const agent = createTable("agents", {
   tenantId: varchar("tenant_id", { length: 255 })
     .references(() => tenant.id)
     .notNull(),
-  country: varchar("country_code", { length: 3 })
+  name: varchar("name", { length: 255 }).notNull(),
+  countryCode: varchar("country_code", { length: 3 })
     .references(() => country.code)
     .notNull(),
-  name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull(),
+  primaryContactNumber: varchar("primary_contact_number", {
+    length: 20,
+  }).notNull(),
+  agency: varchar("agency", { length: 255 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
@@ -134,6 +138,8 @@ export const bookingLine = createTable("booking_lines", {
     .references(() => booking.id),
   includes: jsonb("includes").$type<{
     hotels: boolean;
+    restaurants: boolean;
+    shops: boolean;
     transport: boolean;
     activities: boolean;
   }>(), // e.g., { hotels: true, transport: true, activities: false }
@@ -239,7 +245,7 @@ export const hotelStaff = createTable("hotel_staffs", {
     .$onUpdate(() => new Date()),
 });
 
-export const statusEnum = pgEnum('status', ['inprogress', 'sentToVendor','vendorConfirmed','sentToClient', 'confirmed', 'cancelled']);
+export const statusEnum = pgEnum('status', ['inprogress', 'sentToVendor', 'vendorConfirmed', 'sentToClient', 'confirmed', 'cancelled']);
 // Hotel Vouchers table
 export const hotelVoucher = createTable("hotel_vouchers", {
   id: varchar("id", { length: 255 })
@@ -332,7 +338,7 @@ export const restaurantVoucher = createTable("restaurant_vouchers", {
   coordinatorId: varchar("coordinator_id", { length: 255 })
     .references(() => user.id)
     .notNull(),
-    status: statusEnum('status').default('inprogress'),
+  status: statusEnum('status').default('inprogress'),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
@@ -346,7 +352,7 @@ export const restaurantVoucherLine = createTable("restaurant_voucher_lines", {
   restaurantVoucherId: varchar("restaurant_voucher_id", { length: 255 })
     .references(() => restaurantVoucher.id)
     .notNull(),
-    rate: numeric('rate', { precision: 4 }),
+  rate: numeric('rate', { precision: 4 }),
   mealType: varchar("meal_type", { length: 50 }).notNull(),
   date: varchar("date", { length: 100 }).notNull(),
   time: varchar("time", { length: 10 }).notNull(),
@@ -467,10 +473,10 @@ export const transportVoucher = createTable("transport_vouchers", {
   coordinatorId: varchar("coordinator_id", { length: 255 })
     .references(() => user.id)
     .notNull(),
-    status: statusEnum('status').default('inprogress'),
-    rate: numeric('rate', { precision: 4 }),
-  startDate: varchar("start_date", {length:100}).notNull(),
-  endDate: varchar("end_date", {length:100}).notNull(),
+  status: statusEnum('status').default('inprogress'),
+  rate: numeric('rate', { precision: 4 }),
+  startDate: varchar("start_date", { length: 100 }).notNull(),
+  endDate: varchar("end_date", { length: 100 }).notNull(),
   language: varchar("languages", { length: 255 }).notNull(),
   vehicleType: varchar("vehicle_type", { length: 255 }),
   remarks: varchar("remarks", { length: 255 }),
@@ -665,6 +671,22 @@ export const hotelRelations = relations(hotel, ({ one, many }) => ({
     references: [city.id],
   }),
   hotelVoucher: many(hotelVoucher),
+  hotelStaff: many(hotelStaff),
+  hotelRoom: many(hotelRoom)
+}));
+
+export const hotelStaffRelation = relations(hotelStaff, ({ one, many }) => ({
+  hotel: one(hotel, {
+    fields: [hotelStaff.hotelId],
+    references: [hotel.id],
+  })
+}));
+
+export const hotelRoomRelation = relations(hotelRoom, ({ one, many }) => ({
+  hotel: one(hotel, {
+    fields: [hotelRoom.hotelId],
+    references: [hotel.id],
+  })
 }));
 
 export const hotelVouchersRelations = relations(

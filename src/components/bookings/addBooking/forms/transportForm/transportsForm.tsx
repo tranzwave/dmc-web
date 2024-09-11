@@ -88,7 +88,6 @@ const TransportForm: React.FC<TransportFormProps> = ({
     setDrivers([]);
     setDriversLoading(false);
     const lan = languages.find((lan) => lan.code === code);
-    alert(lan?.code);
     setSelectedLanguage(lan);
   };
 

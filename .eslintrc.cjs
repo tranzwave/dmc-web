@@ -17,32 +17,33 @@ const config = {
     "@typescript-eslint/array-type": "off",
     "@typescript-eslint/consistent-type-definitions": "off",
     "@typescript-eslint/consistent-type-imports": [
-      "warn",
+      "off",
       {
         "prefer": "type-imports",
         "fixStyle": "inline-type-imports"
       }
     ],
     "@typescript-eslint/no-unused-vars": [
-      "warn",
+      "off",
       {
         "argsIgnorePattern": "^_"
       }
     ],
     "@typescript-eslint/require-await": "off",
-    "@typescript-eslint/no-unsafe-argument": "warn",
-    "@typescript-eslint/no-unsafe-member-access": "warn",
-    "@typescript-eslint/no-unsafe-call":"warn",
-    "@typescript-eslint/no-unsafe-assignment": "warn",
+    "@typescript-eslint/no-unsafe-argument": "off",
+    "@typescript-eslint/no-unsafe-member-access": "off",
+    "@typescript-eslint/no-unsafe-call":"off",
+    "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/no-unsafe-return": "off",
-    "@typescript-eslint/no-explicit-any": "warn",
-    "react/no-unescaped-entities": "warn",
-    "@typescript-eslint/prefer-optional-chain":"warn",
-    "@typescript-eslint/no-redundant-type-constituents": "warn",
-    "@typescript-eslint/ban-ts-comment":"warn",
+    "@typescript-eslint/no-unnecessary-type-assertion":"off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "react/no-unescaped-entities": "off",
+    "@typescript-eslint/prefer-optional-chain":"off",
+    "@typescript-eslint/no-redundant-type-constituents": "off",
+    "@typescript-eslint/ban-ts-comment":"off",
     "@typescript-eslint/no-floating-promises":"off",
     "@typescript-eslint/no-misused-promises": [
-      "warn",
+      "off",
       {
         "checksVoidReturn": {
           "attributes": false

@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getMeals } from "~/server/db/queries/booking/restaurantVouchers";
 import { RestaurantData } from ".";
 import { RestaurantVoucher } from "~/app/dashboard/bookings/add/context";
@@ -38,6 +38,8 @@ interface RestaurantFormProps {
     restaurant: RestaurantData,
   ) => void;
   restaurants: RestaurantData[];
+  defaultValues:InsertRestaurantVoucherLine | null;
+  lockedVendorId?:string
 }
 
 export const restaurantSchema = z.object({
@@ -55,12 +57,15 @@ export const restaurantSchema = z.object({
 const RestaurantForm: React.FC<RestaurantFormProps> = ({
   onAddRestaurant,
   restaurants,
+  defaultValues,
+  lockedVendorId
 }) => {
   const [selectedRestaurant, setSelectedRestaurant] =
     useState<RestaurantData | null>();
   const [meals, setMeals] = useState<SelectMeal[]>([]);
 
   const [selectedMeal, setSelectedMeal] = useState<SelectMeal>();
+  const [rests, setRests] = useState<RestaurantData[]>([])
 
   // const fetchMeals = async (restaurantId: string) => {
   //   const response = await getMeals;
@@ -68,15 +73,15 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
   const form = useForm<z.infer<typeof restaurantSchema>>({
     resolver: zodResolver(restaurantSchema),
     defaultValues: {
-      name: "",
-      quantity: {
-        adults: 1,
-        kids: 0,
+      date: defaultValues?.date,
+      mealType:defaultValues?.mealType,
+      name:defaultValues?.restaurantVoucherId,
+      quantity:{
+        adults:defaultValues?.adultsCount,
+        kids:defaultValues?.kidsCount,
       },
-      date: "",
-      time: "",
-      mealType: "",
-      remarks: "",
+      remarks:defaultValues?.remarks ?? "",
+      time:defaultValues?.time ?? ""
     },
   });
 
@@ -105,6 +110,24 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
     setSelectedRestaurant(restaurant);
   }
 
+  useEffect(()=>{
+    setRests(restaurants)
+    if(lockedVendorId){
+      const lockedRestaurant = restaurants.find((res)=> res.id === lockedVendorId)
+      if(lockedRestaurant){
+        setRests([lockedRestaurant])
+        setSelectedRestaurant(lockedRestaurant)
+        if(defaultValues?.mealType){
+          const meal = lockedRestaurant.restaurantMeal.find((m)=> m.mealType === defaultValues.mealType)
+          if(meal){
+            setSelectedMeal(meal)
+          }
+        }
+      }
+    }
+    console.log(restaurants);
+  }, [defaultValues])
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -128,7 +151,7 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
                       <SelectValue placeholder="Select restaurant" />
                     </SelectTrigger>
                     <SelectContent>
-                      {restaurants.map((restaurant) => (
+                      {rests.map((restaurant) => (
                         <SelectItem key={restaurant.id} value={restaurant.name}>
                           {restaurant.name}
                         </SelectItem>
