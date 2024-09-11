@@ -28,11 +28,8 @@ import { SelectCity } from "~/server/db/schemaTypes";
 // Define the schema for form validation
 export const generalSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  mealType: z.string().min(1, "End time is required"),
-  startTime: z.string().min(1, "Start time is required"),
-  endTime: z.string().min(1, "Contact number is required"),
   streetName: z.string().min(1, "Street name is required"),
-  cityId: z.string().min(1, "City is required"),
+  city: z.string().min(1, "City is required"),
   province: z.string().min(1, "Province is required"),
   primaryContactNumber: z.string().min(1, "Contact number is required"),
   tenantId: z.string().default("f7f856e0-5be1-4a62-bd6c-b3f0dd887ac0"),
@@ -42,37 +39,54 @@ export const generalSchema = z.object({
 type GeneralFormValues = z.infer<typeof generalSchema>;
 
 const GeneralForm = () => {
-  const { setGeneralDetails, restaurantDetails } = useAddRestaurant();
+  const [error, setError] = useState<string>();
+  const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState<SelectCity[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchData() {
-        try {
-            setLoading(true);
-            const result = await getAllCities();
-            setCities(result);
-        } catch (error) {
-            console.error("Failed to fetch restaurant data:", error);
-            setError("Failed to load data.");
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    fetchData();
-}, []);
-
+  const { setGeneralDetails, restaurantDetails } = useAddRestaurant();
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
-    defaultValues: restaurantDetails.general,
   });
 
   const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
     console.log(data);
-    setGeneralDetails(data);
+    setGeneralDetails({
+      cityId: Number(data.city),
+      name: data.name,
+      contactNumber: data.primaryContactNumber,
+      province: data.province,
+      streetName: data.streetName,
+      tenantId: "",
+    });
   };
+
+  const fetchData = async () => {
+    try {
+      // Run both requests in parallel
+      setLoading(true);
+      const [citiesResponse] = await Promise.all([getAllCities("LK")]);
+
+      if (!citiesResponse) {
+        throw new Error("Error fetching cities");
+      }
+
+      console.log("Fetched cities:", citiesResponse);
+
+      setCities(citiesResponse);
+
+      setLoading(false);
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <Form {...form}>
@@ -92,47 +106,7 @@ const GeneralForm = () => {
             )}
           />
 
-          <FormField
-            name="mealType"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Meal Type</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter meal type" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            name="startTime"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Start Time</FormLabel>
-                <FormControl>
-                  <Input placeholder="" type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            name="endTime"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>End Time</FormLabel>
-                <FormControl>
-                  <Input placeholder="" type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        
         </div>
 
         <div className="grid grid-cols-3 gap-4">
@@ -155,7 +129,7 @@ const GeneralForm = () => {
           <div className="col-span-2">
             <div className="grid grid-cols-3 gap-4">
             <FormField
-            name="cityId"
+            name="city"
             control={form.control}
             render={({ field }) => (
               <FormItem>

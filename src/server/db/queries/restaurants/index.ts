@@ -1,6 +1,7 @@
 "use server"
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import { RestaurantDetails } from "~/app/dashboard/restaurants/add/context";
 import { db } from "../..";
 import { city, restaurant, restaurantMeal, restaurantVoucher } from './../../schema';
 
@@ -9,10 +10,11 @@ export const getTenantId = () => {
     return db.query.tenant.findFirst()
 }
 
-
-export const getAllCities = () => {
-    return db.query.city.findMany()
-}
+export const getAllCities = (countryCode: string) => {
+    return db.query.city.findMany({
+        where: eq(city.country, countryCode),
+    });
+};
 
 export const getCityById = (id: string) => {
     return db.query.city.findFirst({
@@ -84,3 +86,78 @@ export const saveRestaurant = async (restaurantData: {
 };
 
 
+export const insertRestaurant = async (
+    restaurantDetails: RestaurantDetails[],
+) => {
+    try {
+        const newRestaurants = await db.transaction(async (tx) => {
+            const foundTenant = await tx.query.tenant.findFirst();
+
+            if (!foundTenant) {
+                throw new Error("Couldn't find any tenant");
+            }
+
+            const addedRestaurants = []
+
+            for (const resDetails of restaurantDetails) {
+                const { general, mealsOffered } = resDetails;
+                const { city, ...restaurantData } = general;
+
+                // Insert or find existing restaurant
+                const foundRestaurant = await tx.query.restaurant.findFirst({
+                    where: and(
+                        eq(restaurant.tenantId, foundTenant.id),
+                        eq(restaurant.name, restaurantData.name),
+                        eq(restaurant.streetName, restaurantData.streetName),
+                        eq(restaurant.cityId, general.cityId), // Adjust based on how city is referenced
+                    ),
+                });
+
+                let restaurantId: string;
+
+                if (!foundRestaurant) {
+                    const newRestaurants = await tx
+                        .insert(restaurant)
+                        .values({
+                            ...restaurantData,
+                            tenantId: foundTenant.id,
+                            cityId: general.cityId,
+                        })
+                        .returning({
+                            id: restaurant.id,
+                        });
+
+                    if (!newRestaurants[0]) {
+                        throw new Error(`Couldn't add restaurant: ${restaurantData.name}`);
+                    }
+
+                    restaurantId = newRestaurants[0].id;
+                } else {
+                    restaurantId = foundRestaurant.id;
+                }
+
+                // Process activities for this vendor
+                for (const mealsData of mealsOffered) {
+                    const { ...mealsOfferedDetails } = mealsData;
+
+                    // Insert restaurant with the found or new restaurantMeal type ID
+                    await tx.insert(restaurantMeal).values({
+                        ...mealsOfferedDetails,
+                        restaurantId: restaurantId,
+                    });
+
+                    addedRestaurants.push(restaurantId)
+                }
+            }
+
+            return addedRestaurants
+
+
+        });
+
+        return newRestaurants;
+    } catch (error) {
+        console.error("Error in insertrestaurantVendor:", error);
+        throw error;
+    }
+};

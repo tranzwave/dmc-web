@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from "react";
-import { DataTable } from "~/components/bookings/home/dataTable";
-import ActivityForm from "./activityForm"; // Updated to use the ActivityForm
 import { useAddActivity } from "~/app/dashboard/activities/add/context"; // Context for adding activities
+import { DataTable } from "~/components/bookings/home/dataTable";
 import { Button } from "~/components/ui/button";
 import { InsertActivity } from "~/server/db/schemaTypes";
 import VendorActivityForm from "./activityForm";

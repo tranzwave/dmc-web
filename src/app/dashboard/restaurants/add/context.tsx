@@ -1,32 +1,39 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
-import { General } from '~/components/restaurants/addRestaurant/forms/generalForm/columns';
+import { InsertMeal, InsertRestaurant } from '~/server/db/schemaTypes';
 
-interface RestaurantDetails {
-  general: General; 
+export type Restaurant = InsertRestaurant & {
+  city?: string;
+};
+
+export type MealType = InsertMeal & {
+  // typeName?: string;
+};
+
+// Interface for RestaurantDetails
+export interface RestaurantDetails {
+  general: Restaurant;
+  mealsOffered: MealType[];
 }
 
-// Define context properties
+// Interface for the context properties
 interface AddRestaurantContextProps {
   restaurantDetails: RestaurantDetails;
-  setGeneralDetails: (details: General) => void;
+  setGeneralDetails: (details: InsertRestaurant) => void;
+  addMeals: (meal: InsertMeal) => void;
 }
 
-// Provide default values
-const defaultGeneral: General = {
-  
+const defaultGeneral: InsertRestaurant = {
   name: "",
-  mealType: "",
-  startTime: "",
-  endTime: "",
   streetName: "",
-  cityId: "",
+  cityId: 0,
   province: "",
-  primaryContactNumber: "",
-  tenantId: "fa710f9d-1c0b-4176-90f8-560a0007e118"
+  contactNumber: "",
+  tenantId: ""
 };
 
 const defaultRestaurantDetails: RestaurantDetails = {
   general: defaultGeneral,
+  mealsOffered: []
 };
 
 const AddRestaurantContext = createContext<AddRestaurantContextProps | undefined>(undefined);
@@ -34,15 +41,23 @@ const AddRestaurantContext = createContext<AddRestaurantContextProps | undefined
 export const AddRestaurantProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [restaurantDetails, setRestaurantDetails] = useState<RestaurantDetails>(defaultRestaurantDetails);
 
-  const setGeneralDetails = (details: General) => {
+  const setGeneralDetails = (details: InsertRestaurant) => {
     setRestaurantDetails(prev => ({ ...prev, general: details }));
+  };
+
+  const addMeals = (meal: InsertMeal) => {
+    setRestaurantDetails(prev => ({
+      ...prev,
+      mealsOffered: [...prev.mealsOffered, meal],
+    }));
   };
 
   return (
     <AddRestaurantContext.Provider
       value={{
-        restaurantDetails: restaurantDetails,
-        setGeneralDetails
+        restaurantDetails,
+        setGeneralDetails,
+        addMeals
       }}
     >
       {children}
@@ -50,7 +65,6 @@ export const AddRestaurantProvider: React.FC<{ children: ReactNode }> = ({ child
   );
 };
 
-// Custom hook to use context
 export const useAddRestaurant = (): AddRestaurantContextProps => {
   const context = useContext(AddRestaurantContext);
   if (!context) {

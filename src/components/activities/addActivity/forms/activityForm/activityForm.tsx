@@ -1,11 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from 'zod';
+import { ActivityTypeDTO } from "~/app/dashboard/activities/add/context";
+import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
-import { InsertActivity } from "~/server/db/schemaTypes";
-import { ActivityTypeDTO } from "~/app/dashboard/activities/add/context";
 
 interface ActivityFormProps {
   onAddActivity: (activity: ActivityTypeDTO) => void;

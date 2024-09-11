@@ -8,7 +8,7 @@ export type General = {
   startTime: string;
   endTime: string;
   streetName: string;
-  cityId: string;
+  city: string;
   province: string;
   primaryContactNumber: string;
   tenantId: string
@@ -36,7 +36,7 @@ export const generalColumns: ColumnDef<General>[] = [
     header: "Street Name",
   },
   {
-    accessorKey: "cityId",
+    accessorKey: "city",
     header: "City",
   },
   {
