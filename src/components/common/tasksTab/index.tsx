@@ -15,7 +15,7 @@ interface TasksTabProps<T, L> {
   columns: ColumnDef<T>[]; // Columns for the main vouchers
   voucherColumns: ColumnDef<L>[]; // Columns for the voucher lines
   vouchers: T[]; // Directly pass the voucher array
-  formComponent: React.FC<{ selectedItem: L | undefined; onSave: () => void }>; // Form component for editing/creating vouchers
+  formComponent: React.FC<{ selectedItem: any | undefined; onSave: () => void; vendor:any }>; // Form component for editing/creating vouchers
   updateVoucherLine: (data: any) => Promise<void>;
   updateVoucherStatus: (data: any) => Promise<boolean>;
 }
@@ -36,8 +36,8 @@ const TasksTab = <
   updateVoucherLine,
   updateVoucherStatus,
 }: TasksTabProps<T, L>) => {
-  const [selectedVoucher, setSelectedVoucher] = useState<T | any>();
-  const [selectedVoucherLine, setSelectedVoucherLine] = useState<L | any>();
+  const [selectedVoucher, setSelectedVoucher] = useState<any>();
+  const [selectedVoucherLine, setSelectedVoucherLine] = useState<any>();
   const [rate, setRate] = useState<number | "">(0);
 
   const { toast } = useToast();
@@ -47,7 +47,10 @@ const TasksTab = <
   };
 
   const onVoucherLineRowClick = (row: L) => {
+    console.log(row);
     setSelectedVoucherLine(row);
+    console.log("Updating")
+    console.log(selectedVoucherLine)
   };
 
   const getFirstObjectName = (obj: any): string => {
@@ -195,6 +198,7 @@ const TasksTab = <
           <FormComponent
             selectedItem={selectedVoucherLine}
             onSave={() => console.log("Saved")}
+            vendor={selectedVoucher}
           />
         </div>
       </div>

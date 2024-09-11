@@ -2,8 +2,8 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { HotelVoucher } from "~/app/dashboard/bookings/add/context";
-import { formatDate } from "~/components/bookings/tasks/hotels";
 import { HotelDTO } from "~/lib/types/hotel";
+import { formatDate } from "~/lib/utils/index";
 
 
   

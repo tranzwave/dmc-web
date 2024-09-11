@@ -1,4 +1,6 @@
 "use client"
+import { LoaderCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useAddTransport } from "~/app/dashboard/transport/add/context";
 import { Button } from "~/components/ui/button";
@@ -12,6 +14,7 @@ const SubmitForm = () => {
     const [loading, setLoading] = useState(false);
     const { toast } = useToast()
     const { general, vehicles, charges, documents } = transportDetails;
+    const router = useRouter()
 
     const addDriver = async () => {
         console.log({
@@ -79,6 +82,7 @@ const SubmitForm = () => {
             title: "Success",
             description: "Driver added successfully",
           });
+          router.push("dashboard/transport")
         } catch (error) {
           if (error instanceof Error) {
             setError(error.message);
@@ -86,6 +90,7 @@ const SubmitForm = () => {
             setError("An unknown error occurred");
           }
           console.error("Error:", error);
+          alert(error)
           setLoading(false);
           toast({
             title: "Uh Oh!",
@@ -246,8 +251,8 @@ const SubmitForm = () => {
 
             {/* Submit Button */}
             <div className="flex w-full justify-center mt-4">
-                <Button variant="primaryGreen" onClick={addDriver}>
-                    Submit
+                <Button variant="primaryGreen" onClick={addDriver} disabled={loading}>
+                    {loading ? <LoaderCircle className="animate-spin"/> : 'Submit'}
                 </Button>
             </div>
         </div>

@@ -1,23 +1,26 @@
+"use client";
 // RestaurantsForm.tsx
-import React, { useState } from 'react'; // Adjust import based on your project structure
-import { RestaurantVoucherData } from '.';
+import React, { useEffect, useState } from "react"; // Adjust import based on your project structure
+import { RestaurantVoucherData } from ".";
+import RestaurantForm from "../../addBooking/forms/restaurantsForm/restaurantsForm";
+import { SelectRestaurant, SelectRestaurantVoucherLine } from "~/server/db/schemaTypes";
+import { getAllRestaurants } from "~/server/db/queries/booking/restaurantVouchers";
+import { RestaurantData } from "../../addBooking/forms/restaurantsForm";
 
 interface RestaurantsFormProps {
-  selectedItem: RestaurantVoucherData | undefined; // Ensures it matches the expected type
+  selectedItem: SelectRestaurantVoucherLine | undefined; // Ensures it matches the expected type
   onSave: () => void; // Callback for when saving
+  vendor : RestaurantVoucherData
 }
 
-const RestaurantsForm: React.FC<RestaurantsFormProps> = ({ selectedItem, onSave }) => {
-  const [restaurantData, setRestaurantData] = useState<RestaurantVoucherData | undefined>(selectedItem);
-
-  // Handle form field changes
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setRestaurantData(prevData => ({
-      ...prevData!,
-      [name]: value
-    }));
-  };
+const RestaurantsVoucherForm: React.FC<RestaurantsFormProps> = ({
+  selectedItem,
+  onSave,
+  vendor
+}) => {
+  const [loading, setLoading] = useState(false);
+  const [restaurants, setRestaurants] = useState<RestaurantData[]>([]);
+  const [error, setError] = useState<string | null>();
 
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
@@ -26,42 +29,67 @@ const RestaurantsForm: React.FC<RestaurantsFormProps> = ({ selectedItem, onSave 
     onSave();
   };
 
+  const getRestaurants = async () => {
+    setLoading(true);
+
+    try {
+      const response = await getAllRestaurants();
+
+      if (!response) {
+        throw new Error(`Error: Couldn't get hotels`);
+      }
+      console.log("Fetched Restaurants:", response);
+
+      setRestaurants(response);
+      setLoading(false);
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+      console.error("Error:", error);
+    }
+  };
+
+  useEffect(() => {
+    console.log(selectedItem);
+    if(selectedItem){
+      getRestaurants()
+    }
+  }, [selectedItem]);
+
+  if(!selectedItem){
+    return (
+      <div>Select a voucher line</div>
+    )
+  }
+
+  if(loading){
+    return (
+      <div>Fetching Restaurants</div>
+    )
+  }
+
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="restaurantName">Restaurant Name</label>
-        <input
-          type="text"
-          id="restaurantName"
-          name="restaurantName"
-          value={restaurantData?.restaurant.name ?? ''}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="contactNumber">Contact Number</label>
-        <input
-          type="tel"
-          id="contactNumber"
-          name="contactNumber"
-          value={restaurantData?.restaurant.contactNumber ?? ''}
-          onChange={handleChange}
-        />
-      </div>
-      <div>
-        <label htmlFor="address">Address</label>
-        <input
-          type="text"
-          id="address"
-          name="address"
-          value={restaurantData?.restaurant.cityId ?? ''}
-          onChange={handleChange}
-        />
-      </div>
-      <button type="submit">Save</button>
-    </form>
+    <RestaurantForm
+      defaultValues={
+        {
+          adultsCount:selectedItem?.adultsCount ?? 0,
+          date:selectedItem?.date ?? "",
+          kidsCount:selectedItem?.kidsCount ?? 0,
+          mealType:selectedItem?.mealType ?? "",
+          restaurantVoucherId:selectedItem?.restaurantVoucherId ?? "",
+          time:selectedItem?.time ?? "",
+          remarks:selectedItem?.remarks ?? "",
+
+        }
+      }
+      restaurants={restaurants}
+      onAddRestaurant={() => {console.log("cant add here")}}
+      lockedVendorId={vendor.restaurant.id}
+    />
   );
 };
 
-export default RestaurantsForm;
+export default RestaurantsVoucherForm;

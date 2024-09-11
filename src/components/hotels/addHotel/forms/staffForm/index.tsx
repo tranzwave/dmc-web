@@ -9,7 +9,7 @@ import { HotelStaffType } from "../generalForm/columns";
 
 const StaffTab = () => {
   const [addedStaff, setAddedStaff] = useState<HotelStaffType[]>([]);
-  const { addHotelStaff, hotelStaff } = useAddHotel(); // Assuming useAddStaff context
+  const { addHotelStaff, hotelStaff, setActiveTab } = useAddHotel(); // Assuming useAddStaff context
 
   const handleAddStaff = (staff: HotelStaffType) => {
     setAddedStaff([...addedStaff, staff]);
@@ -29,7 +29,7 @@ const StaffTab = () => {
           <DataTable columns={columns} data={hotelStaff} />
         </div>
         <div className="w-full flex justify-end">
-          <Button variant={"primaryGreen"}>Next</Button>
+          <Button variant={"primaryGreen"} onClick={()=>{hotelStaff.length > 0 ? setActiveTab("submit") : alert("Please add staff members")}}>Next</Button>
         </div>
       </div>
     </div>

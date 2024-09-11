@@ -16,10 +16,7 @@ const ShopsForm: React.FC<ShopsFormProps> = ({ selectedItem, onSave }) => {
   };
 
   return (
-    <form>
-      {/* Form fields that use selectedItem */}
-      <button type="button" onClick={handleSubmit}>Save</button>
-    </form>
+    <div></div>
   );
 };
 

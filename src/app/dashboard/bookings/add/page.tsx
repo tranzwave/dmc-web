@@ -103,7 +103,7 @@ const AddBooking = () => {
                 <TabsTrigger
                   value="shops"
                   onClick={() => setActiveTab("shops")}
-                  disabled={bookingDetails.shops.length == 0 || !bookingDetails.general.includes.transport}
+                  disabled={bookingDetails.shops.length == 0 || !bookingDetails.general.includes.shops}
                   statusLabel={statusLabels.shops}
                   isCompleted = {bookingDetails.shops.length > 0}
                   inProgress = {activeTab == "shops"}

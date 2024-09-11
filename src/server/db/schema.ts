@@ -671,6 +671,22 @@ export const hotelRelations = relations(hotel, ({ one, many }) => ({
     references: [city.id],
   }),
   hotelVoucher: many(hotelVoucher),
+  hotelStaff: many(hotelStaff),
+  hotelRoom: many(hotelRoom)
+}));
+
+export const hotelStaffRelation = relations(hotelStaff, ({ one, many }) => ({
+  hotel: one(hotel, {
+    fields: [hotelStaff.hotelId],
+    references: [hotel.id],
+  })
+}));
+
+export const hotelRoomRelation = relations(hotelRoom, ({ one, many }) => ({
+  hotel: one(hotel, {
+    fields: [hotelRoom.hotelId],
+    references: [hotel.id],
+  })
 }));
 
 export const hotelVouchersRelations = relations(
