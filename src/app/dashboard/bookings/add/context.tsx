@@ -179,7 +179,7 @@ export const AddBookingProvider: React.FC<{ children: ReactNode }> = ({ children
           const checkInDate = new Date(voucher.voucherLines[0]?.checkInDate ?? "1999-09-09");
           const checkOutDate = new Date(voucher.voucherLines[0]?.checkOutDate ?? "1999-09-09");
           return checkInDate <= currentDate && currentDate <= checkOutDate;
-        }) || null,
+        }) ?? null,
         restaurants: restaurants.filter(restaurant => new Date(restaurant.voucherLines[0]?.date ?? "1999-09-09").toISOString().split('T')[0] === currentDate.toISOString().split('T')[0]),
         activities: activities.filter(activity => new Date(activity.voucher.date).toISOString().split('T')[0] === currentDate.toISOString().split('T')[0]),
         transport: transport.filter(t => {

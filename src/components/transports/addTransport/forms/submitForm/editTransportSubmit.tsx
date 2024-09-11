@@ -75,7 +75,7 @@ const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriv
           );
       
           if (!response) {
-            throw new Error(`Error: ${response}`);
+            throw new Error(`Error: Failed to insert driver`);
           }
       
           console.log("Success:", response);

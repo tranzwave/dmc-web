@@ -63,6 +63,27 @@ const Page = ({ params }: { params: { id: string } }) => {
   if (!driver) {
     return <div>No driver found with the given ID.</div>;
   }
+  const driverVoucherColumns: ColumnDef<SelectTransportVoucher>[] = [
+    {
+      accessorKey: "startDate",
+      header: "Start Date",
+      accessorFn: (row) => formatDate(row.startDate.toString()),
+    },
+    {
+      accessorKey: "endDate",
+      header: "End Date",
+      accessorFn: (row) => formatDate(row.endDate.toString())
+    },
+    {
+      header: "Vehicle Type",
+      accessorFn: (row) => row.vehicleType
+    },
+    {
+      header: "Remarks",
+      accessorFn: (row) => row.remarks
+    }
+  
+  ];
 
   return (
     <div className="flex flex-col gap-3 w-full justify-between">
@@ -105,26 +126,3 @@ const Page = ({ params }: { params: { id: string } }) => {
 };
 
 export default Page;
-
-
-export const driverVoucherColumns: ColumnDef<SelectTransportVoucher>[] = [
-  {
-    accessorKey: "startDate",
-    header: "Start Date",
-    accessorFn: (row) => formatDate(row.startDate.toString()),
-  },
-  {
-    accessorKey: "endDate",
-    header: "End Date",
-    accessorFn: (row) => formatDate(row.endDate.toString())
-  },
-  {
-    header: "Vehicle Type",
-    accessorFn: (row) => row.vehicleType
-  },
-  {
-    header: "Remarks",
-    accessorFn: (row) => row.remarks
-  }
-
-];
