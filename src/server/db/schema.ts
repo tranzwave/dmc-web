@@ -93,7 +93,7 @@ export const agent = createTable("agents", {
     .references(() => tenant.id)
     .notNull(),
   name: varchar("name", { length: 255 }).notNull(),
-  country: varchar("country_code", { length: 3 })
+  countryCode: varchar("country_code", { length: 3 })
     .references(() => country.code)
     .notNull(),
   email: varchar("email", { length: 255 }).notNull(),
