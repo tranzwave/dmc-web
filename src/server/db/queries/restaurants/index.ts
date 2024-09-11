@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { db } from "../..";
 import { city, restaurant, restaurantMeal, restaurantVoucher } from './../../schema';
 
+
 export const getTenantId = () => {
     return db.query.tenant.findFirst()
 }
@@ -42,6 +43,11 @@ export const getRestaurantVouchersForVendor = (id: string) => {
     })
 }
 
+export async function deleteRestaurantById(id: string) {
+    await db.delete(restaurant)
+        .where(eq(restaurant.id, id));
+}
+
 export const saveRestaurant = async (restaurantData: {
     name: string;
     streetName: string;
@@ -76,3 +82,5 @@ export const saveRestaurant = async (restaurantData: {
         endTime: restaurantData.endTime,
     }).returning(); // Optionally return the inserted meal data
 };
+
+

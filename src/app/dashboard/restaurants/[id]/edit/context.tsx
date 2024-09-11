@@ -31,8 +31,29 @@ const defaultRestaurantDetails: RestaurantDetails = {
 
 const EditRestaurantContext = createContext<EditRestaurantContextProps | undefined>(undefined);
 
-export const EditRestaurantProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [restaurantDetails, setRestaurantDetails] = useState<RestaurantDetails>(defaultRestaurantDetails);
+// export const EditRestaurantProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+//   const [restaurantDetails, setRestaurantDetails] = useState<RestaurantDetails>(defaultRestaurantDetails);
+
+//   const setGeneralDetails = (details: General) => {
+//     setRestaurantDetails(prev => ({ ...prev, general: details }));
+//   };
+
+//   return (
+//     <EditRestaurantContext.Provider
+//       value={{
+//         restaurantDetails: restaurantDetails,
+//         setGeneralDetails
+//       }}
+//     >
+//       {children}
+//     </EditRestaurantContext.Provider>
+//   );
+// };
+
+// Custom hook to use context
+
+export const EditRestaurantProvider: React.FC<{ children: ReactNode; initialRestaurantDetails?: RestaurantDetails }> = ({ children, initialRestaurantDetails }) => {
+  const [restaurantDetails, setRestaurantDetails] = useState<RestaurantDetails>(initialRestaurantDetails || defaultRestaurantDetails);
 
   const setGeneralDetails = (details: General) => {
     setRestaurantDetails(prev => ({ ...prev, general: details }));
@@ -50,7 +71,6 @@ export const EditRestaurantProvider: React.FC<{ children: ReactNode }> = ({ chil
   );
 };
 
-// Custom hook to use context
 export const useEditRestaurant = (): EditRestaurantContextProps => {
   const context = useContext(EditRestaurantContext);
   if (!context) {
