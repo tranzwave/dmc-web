@@ -18,6 +18,7 @@ interface AddTransportContextProps {
   setActiveTab: (tab: string) => void;
   setGeneralDetails: (details: General) => void;
   addVehicles: (vehicles: Vehicles) => void;
+  deleteVehicle: (numberPlate: string) => void; // New deleteVehicle method
   setChargesDetails: (charges: Charges) => void;
   setDocumetsDetails: (documents: Documents) => void;
 }
@@ -60,28 +61,41 @@ const defaultTransportDetails: TransportDetails = {
   documents: defaultDocuments,
 };
 
-
-
 const AddTransportContext = createContext<AddTransportContextProps | undefined>(undefined);
 
 export const AddTransportProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [transportDetails, setTransportDetails] = useState<TransportDetails>(defaultTransportDetails);
   const [activeTab, setActiveTab] = useState<string>("general");
+  
   const setGeneralDetails = (details: General) => {
     setTransportDetails(prev => ({ ...prev, general: details }));
   };
 
   const addVehicles = (vehicles: Vehicles) => {
+    const foundVehicle = transportDetails.vehicles.find(v => v.numberPlate === vehicles.numberPlate)
+    if (foundVehicle) {
+      const prevVehicles = transportDetails.vehicles.filter(v => v.numberPlate !== vehicles.numberPlate);
+      prevVehicles.push(vehicles);
+      setTransportDetails(prev => ({ ...prev, vehicles: prevVehicles }));
+      return;
+    }
     setTransportDetails(prev => ({ ...prev, vehicles: [...prev.vehicles, vehicles] }));
   };
 
-  const setChargesDetails = (charges: Charges) => {
-    setTransportDetails(prev => ({ ...prev, charges:  charges }));
+  const deleteVehicle = (numberPlate: string) => {
+    alert(numberPlate)
+    setTransportDetails(prev => ({
+      ...prev,
+      vehicles: prev.vehicles.filter(vehicle => vehicle.numberPlate !== numberPlate)
+    }));
   };
 
+  const setChargesDetails = (charges: Charges) => {
+    setTransportDetails(prev => ({ ...prev, charges }));
+  };
 
   const setDocumetsDetails = (documents: Documents) => {
-    setTransportDetails(prev => ({ ...prev, documents: documents }));
+    setTransportDetails(prev => ({ ...prev, documents }));
   };
 
   return (
@@ -90,11 +104,11 @@ export const AddTransportProvider: React.FC<{ children: ReactNode }> = ({ childr
         transportDetails,
         setGeneralDetails,
         addVehicles,
+        deleteVehicle, // Include deleteVehicle in the context value
         setChargesDetails,
         setDocumetsDetails,
         activeTab,
         setActiveTab,
-      
       }}
     >
       {children}

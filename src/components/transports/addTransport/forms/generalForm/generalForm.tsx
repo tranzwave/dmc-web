@@ -133,6 +133,7 @@ const GeneralForm = () => {
                       field.onChange(value);
                     }}
                     value={field.value}
+                    defaultValue={form.getValues("language")}
                   >
                     <SelectTrigger className="bg-slate-100 shadow-md">
                       <SelectValue placeholder="Select language" />
@@ -223,9 +224,10 @@ const GeneralForm = () => {
                       field.onChange(value);
                     }}
                     value={field.value}
+                    defaultValue={form.getValues("city")}
                   >
                     <SelectTrigger className="bg-slate-100 shadow-md">
-                      <SelectValue placeholder="Select city" />
+                      <SelectValue placeholder="Select city"/>
                     </SelectTrigger>
                     <SelectContent>
                       {cities.map((city) => (

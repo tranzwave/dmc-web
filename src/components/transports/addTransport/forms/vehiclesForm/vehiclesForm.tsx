@@ -14,9 +14,11 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Vehicles } from "./columns";
+import { useEffect } from "react";
 
 interface VehiclesFormProps {
   onAddVehicles: (vehicles: Vehicles) => void;
+  selectedVehicle: Vehicles
 }
 
 // Define the schema for form validation
@@ -33,19 +35,21 @@ export const vehiclesSchema = z.object({
 // Define the type of the form values
 type VehiclesFormValues = z.infer<typeof vehiclesSchema>;
 
-const VehiclesForm: React.FC<VehiclesFormProps> = ({ onAddVehicles }) => {
+const VehiclesForm: React.FC<VehiclesFormProps> = ({ onAddVehicles,selectedVehicle }) => {
   const form = useForm<VehiclesFormValues>({
     resolver: zodResolver(vehiclesSchema),
     defaultValues: {
-      vehicle: "",
-      numberPlate: "",
-      seats: 1,
-      make: "",
-      model: "",
-      year: "",
-      vrl: "",
+      vehicle: selectedVehicle.vehicle,
+      numberPlate: selectedVehicle.numberPlate,
+      seats: selectedVehicle.seats,
+      make: selectedVehicle.make,
+      model: selectedVehicle.model,
+      year: selectedVehicle.year,
+      vrl: selectedVehicle.vrl,
     },
   });
+
+  const {reset} = form;
 
   function onSubmit(values: z.infer<typeof vehiclesSchema>) {
     onAddVehicles({
@@ -54,6 +58,11 @@ const VehiclesForm: React.FC<VehiclesFormProps> = ({ onAddVehicles }) => {
     });
     form.reset();
   }
+
+  useEffect(()=>{
+    reset(selectedVehicle)
+
+  }, [selectedVehicle,reset])
 
   return (
     <Form {...form}>

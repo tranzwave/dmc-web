@@ -16,9 +16,9 @@ interface DataTableWithActionsProps<T> {
   columns: ColumnDef<T>[];
   onRowClick: (row: T) => void;
   onEdit: (row:T) => void;
-  onDelete: () => void;
+  onDelete: (row:T) => void;
   onView?: () => void;
-  onDuplicate?: () => void;
+  onDuplicate?: (row:T) => void;
 }
 
 export const DataTableWithActions = <T extends object>({
@@ -46,29 +46,25 @@ export const DataTableWithActions = <T extends object>({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-              {onView ? (
+                {onView && (
                   <>
-                  <DropdownMenuSeparator/>
-                  <DropdownMenuItem onSelect={onView}>View</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={onView}>View</DropdownMenuItem>
                   </>
-                ) : (
-                  ""
                 )}
                 
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={()=>{onEdit}}>Edit</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => onEdit(row.original)}>Edit</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={onDelete}>Delete</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => onDelete(row.original)}>Delete</DropdownMenuItem>
 
-                {onDuplicate ? (
+                {onDuplicate && (
                   <>
-                  <DropdownMenuSeparator/>
-                    <DropdownMenuItem onSelect={onDuplicate}>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => onDuplicate(row.original)}>
                       Duplicate
                     </DropdownMenuItem>
                   </>
-                ) : (
-                  ""
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
@@ -80,3 +76,4 @@ export const DataTableWithActions = <T extends object>({
     onRowClick={onRowClick}
   />
 );
+
