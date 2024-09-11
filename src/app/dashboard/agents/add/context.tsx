@@ -14,13 +14,14 @@ interface AddAgentContextProps {
 // Provide default values
 const defaultGeneral: General = {
   name: "",
-  country: "",
-  primaryEmail: "",
+  countryCode: "",
+  email: "",
   primaryContactNumber: "",
   agency: "",
-  feild1: "",
-  feild2: "",
-  feild3: "",
+  tenantId: "0e8ac304-6858-4bb5-9dec-bdafeb03408b",
+  // feild1: "",
+  // feild2: "",
+  // feild3: "",
 };
 
 const defaultAgentDetails: AgentDetails = {

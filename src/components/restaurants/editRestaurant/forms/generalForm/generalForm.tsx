@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useAddAgent } from "~/app/dashboard/agents/add/context";
+import { useEditRestaurant } from "~/app/dashboard/restaurants/[id]/edit/context";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -15,41 +15,46 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
-import { getAllCountries } from "~/server/db/queries/agents";
-import { SelectCountry } from "~/server/db/schemaTypes";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { getAllCities } from "~/server/db/queries/restaurants";
+import { SelectCity } from "~/server/db/schemaTypes";
 
 // Define the schema for form validation
 export const generalSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  countryCode: z.string().min(1, "Country is required"),
-  email: z.string().email("Invalid email address"),
+  mealType: z.string().min(1, "End time is required"),
+  startTime: z.string().min(1, "Start time is required"),
+  endTime: z.string().min(1, "Contact number is required"),
+  streetName: z.string().min(1, "Street name is required"),
+  cityId: z.string().min(1, "City is required"),
+  province: z.string().min(1, "Province is required"),
   primaryContactNumber: z.string().min(1, "Contact number is required"),
-  agency: z.string().min(1, "Street name is required"),
-  tenantId: z.string().default("0e8ac304-6858-4bb5-9dec-bdafeb03408b"),
-  // feild1: z.string().min(1, "City is required"),
-  // feild2: z.string().min(1, "Province is required"),
-  // feild3: z.string().min(1, "Capacity is required"),
+  tenantId: z.string().default("f7f856e0-5be1-4a62-bd6c-b3f0dd887ac0"),
 });
 
 // Define the type of the form values
 type GeneralFormValues = z.infer<typeof generalSchema>;
 
 const GeneralForm = () => {
-  const [countries, setCountries] = useState<SelectCountry[]>([]);
+  const { setGeneralDetails, restaurantDetails } = useEditRestaurant();
+  const [cities, setCities] = useState<SelectCity[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const { setGeneralDetails, agentDetails } = useAddAgent();
 
   useEffect(() => {
     async function fetchData() {
         try {
             setLoading(true);
-            const result = await getAllCountries();
-            setCountries(result);
+            const result = await getAllCities();
+            setCities(result);
         } catch (error) {
-            console.error("Failed to fetch country data:", error);
+            console.error("Failed to fetch restaurant data:", error);
             setError("Failed to load data.");
         } finally {
             setLoading(false);
@@ -61,7 +66,7 @@ const GeneralForm = () => {
 
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
-    defaultValues: agentDetails.general,
+    defaultValues: restaurantDetails.general,
   });
 
   const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
@@ -88,55 +93,13 @@ const GeneralForm = () => {
           />
 
           <FormField
-            name="countryCode"
+            name="mealType"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Country</FormLabel>
+                <FormLabel>Meal Type</FormLabel>
                 <FormControl>
-                  <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      alert(value);
-                    }}
-                    value={field.value}
-                  >
-                    <SelectTrigger className="bg-slate-100 shadow-md">
-                      <SelectValue placeholder="Select country" />
-                      
-                    </SelectTrigger>
-                    <SelectContent>
-                      {countries.map((countryCode) => (
-                        <SelectItem
-                          key={countryCode.id}
-                          value={String(countryCode.code)}
-                        >
-                          {countryCode.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                {/* <FormControl>
-                  <Input placeholder="Enter country" {...field} />
-                </FormControl> */}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            name="email"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Primary Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="Enter primary email"
-                    {...field}
-                  />
+                  <Input placeholder="Enter meal type" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -144,17 +107,27 @@ const GeneralForm = () => {
           />
 
           <FormField
-            name="primaryContactNumber"
+            name="startTime"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Contact Number</FormLabel>
+                <FormLabel>Start Time</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="Enter contact number"
-                    {...field}
-                  />
+                  <Input placeholder="" type="date" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            name="endTime"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>End Time</FormLabel>
+                <FormControl>
+                  <Input placeholder="" type="date" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -165,13 +138,13 @@ const GeneralForm = () => {
         <div className="grid grid-cols-3 gap-4">
           <div className="col-span-1">
             <FormField
-              name="agency"
+              name="streetName"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Agency</FormLabel>
+                  <FormLabel>Street Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter Agency" {...field} />
+                    <Input placeholder="Enter Street Name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -181,27 +154,49 @@ const GeneralForm = () => {
 
           <div className="col-span-2">
             <div className="grid grid-cols-3 gap-4">
-              {/* <FormField
-                name="feild1"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Feild 1</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter feild 1" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+            name="cityId"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>City</FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      alert(value);
+                    }}
+                    value={field.value}
+                  >
+                    <SelectTrigger className="bg-slate-100 shadow-md">
+                      <SelectValue placeholder="Select city" />
+                      
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cities.map((city) => (
+                        <SelectItem
+                          key={city.id}
+                          value={String(city.id)}
+                        >
+                          {city.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
               <FormField
-                name="feild2"
+                name="province"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Feild 2</FormLabel>
+                    <FormLabel>Province</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter feild 2" {...field} />
+                      <Input placeholder="Enter province" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -209,18 +204,22 @@ const GeneralForm = () => {
               />
 
               <FormField
-                name="feild3"
+                name="primaryContactNumber"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Feild 3</FormLabel>
+                    <FormLabel>Contact Number</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter feild 3" {...field} />
+                      <Input
+                        type="number"
+                        placeholder="Enter contact number"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
-              /> */}
+              />
             </div>
           </div>
         </div>

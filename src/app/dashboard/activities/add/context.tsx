@@ -1,5 +1,4 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
-import { General } from '~/components/activities/addActivity/forms/generalForm/columns';
 import { InsertActivity, InsertActivityVendor } from '~/server/db/schemaTypes'; // Import the activity type definition
 
 export type ActivityVendorDTO = InsertActivityVendor & {

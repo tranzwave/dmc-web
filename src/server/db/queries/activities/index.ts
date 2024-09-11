@@ -1,15 +1,15 @@
 "use server";
 
-import {
-  activityVendor,
-  city,
-  activity,
-  activityVoucher,
-  activityType,
-} from "./../../schema";
-import { db } from "../..";
 import { and, eq } from "drizzle-orm";
 import { ActivityVendorDetails } from "~/app/dashboard/activities/add/context";
+import { db } from "../..";
+import {
+  activity,
+  activityType,
+  activityVendor,
+  activityVoucher,
+  city,
+} from "./../../schema";
 
 export const getAllCities = (countryCode: string) => {
   return db.query.city.findMany({
@@ -173,7 +173,7 @@ export const insertActivityVendor = async (
 
       return addedVendors
 
-      
+
     });
 
     return newActivityVendors;
