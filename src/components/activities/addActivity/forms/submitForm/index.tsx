@@ -1,11 +1,11 @@
 "use client"
+import { useState } from "react";
 import { useAddActivity } from "~/app/dashboard/activities/add/context";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { Button } from "~/components/ui/button";
-import { columns } from "../activityForm/columns";
-import { insertActivityVendor } from "~/server/db/queries/activities";
-import { useState } from "react";
 import { useToast } from "~/hooks/use-toast";
+import { insertActivityVendor } from "~/server/db/queries/activities";
+import { columns } from "../activityForm/columns";
 
 const SubmitForm = () => {
     const { activityVendorDetails } = useAddActivity();
@@ -19,7 +19,7 @@ const SubmitForm = () => {
         console.log('Submitting activity details:', activityVendorDetails);
 
         try {
-            // Replace insertDriver with your function to handle the insertion of driver details
+            // Replace insertActivity with your function to handle the insertion of activity details
             const response = await insertActivityVendor([activityVendorDetails]);
         
             if (!response) {
@@ -32,7 +32,7 @@ const SubmitForm = () => {
             // Handle successful response (e.g., show a success message)
             toast({
               title: "Success",
-              description: "Driver added successfully",
+              description: "Activity added successfully",
             });
           } catch (error) {
             if (error instanceof Error) {

@@ -4,13 +4,14 @@ import { ColumnDef } from "@tanstack/react-table";
 
 export type General = {
   name: string,
-  country: string,
-  primaryEmail: string,
+  countryCode: string,
+  email: string,
   primaryContactNumber: string,
   agency: string,
-  feild1: string,
-  feild2: string,
-  feild3: string,
+  tenantId: string
+  // feild1: string,
+  // feild2: string,
+  // feild3: string,
 };
 
 export const generalColumns: ColumnDef<General>[] = [
@@ -34,16 +35,16 @@ export const generalColumns: ColumnDef<General>[] = [
     accessorKey: "agency",
     header: "Agency",
   },
-  {
-    accessorKey: "feild1",
-    header: "Feild 1",
-  },
-  {
-    accessorKey: "feild2",
-    header: "Feild 2",
-  },
-  {
-    accessorKey: "feild3",
-    header: "Feild 3",
-  },
+  // {
+  //   accessorKey: "feild1",
+  //   header: "Feild 1",
+  // },
+  // {
+  //   accessorKey: "feild2",
+  //   header: "Feild 2",
+  // },
+  // {
+  //   accessorKey: "feild3",
+  //   header: "Feild 3",
+  // },
 ];

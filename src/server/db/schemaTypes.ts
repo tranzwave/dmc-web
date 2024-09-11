@@ -1,4 +1,4 @@
-import { hotel, driver, activityVendor, shop, booking, bookingLine, hotelVoucher, restaurantVoucher, transportVoucher, activityVoucher, shopVoucher, restaurant, restaurantMeal, hotelStaff, hotelRoom, hotelVoucherLine, tenant, city, client, agent, user, country, restaurantVoucherLine, activityType, activity, shopType, shopShopType, language, vehicle, driverVehicle, driverLanguage } from './schema'
+import { activity, activityType, activityVendor, activityVoucher, agent, booking, bookingLine, city, client, country, driver, driverLanguage, driverVehicle, hotel, hotelRoom, hotelStaff, hotelVoucher, hotelVoucherLine, language, restaurant, restaurantMeal, restaurantVoucher, restaurantVoucherLine, shop, shopShopType, shopType, shopVoucher, tenant, transportVoucher, user, vehicle } from './schema';
 
 //Country Types
 export type InsertCountry = typeof country.$inferInsert;

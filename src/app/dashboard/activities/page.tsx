@@ -4,12 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
+import LoadingLayout from "~/components/common/dashboardLoading";
+import DataTableDropDown from "~/components/common/dataTableDropdown";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
 import { getAllActivityVendors } from "~/server/db/queries/activities";
 import { SelectActivityVendor, SelectCity } from "~/server/db/schemaTypes";
-import DataTableDropDown from "~/components/common/dataTableDropdown";
-import LoadingLayout from "~/components/common/dashboardLoading";
 
 export type ActivityVendorData = SelectActivityVendor & {
     city: SelectCity
