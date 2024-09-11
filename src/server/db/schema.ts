@@ -152,7 +152,7 @@ export const bookingLine = createTable("booking_lines", {
 export const city = createTable(
   "cities",
   {
-    id: varchar("id").primaryKey(),
+    id: serial("id").primaryKey(),
     name: varchar("name", { length: 255 }).notNull(), // City name
     country: varchar("country_code", { length: 3 })
       .references(() => country.code)
