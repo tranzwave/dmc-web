@@ -118,6 +118,11 @@ const HotelsTasksTab = ({
     formComponent={HotelsVoucherForm}
     updateVoucherLine={updateVoucherLine}
     updateVoucherStatus={updateVoucherStatus}
+    contactDetails={
+      {
+        phone:vouchers[0]?.hotel.primaryContactNumber ?? "",
+        email:vouchers[0]?.hotel.primaryEmail ?? ""}
+    }
   />
 )};
 

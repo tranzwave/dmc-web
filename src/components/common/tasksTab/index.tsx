@@ -8,6 +8,11 @@ import Popup from "../popup";
 import { Input } from "~/components/ui/input";
 import { useToast } from "~/hooks/use-toast";
 import { ConfirmationForm } from "./confirmationForm";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
 
 // Define props type for the TasksTab component
 interface TasksTabProps<T, L> {
@@ -15,9 +20,14 @@ interface TasksTabProps<T, L> {
   columns: ColumnDef<T>[]; // Columns for the main vouchers
   voucherColumns: ColumnDef<L>[]; // Columns for the voucher lines
   vouchers: T[]; // Directly pass the voucher array
-  formComponent: React.FC<{ selectedItem: any | undefined; onSave: () => void; vendor:any }>; // Form component for editing/creating vouchers
+  formComponent: React.FC<{
+    selectedItem: any | undefined;
+    onSave: () => void;
+    vendor: any;
+  }>; // Form component for editing/creating vouchers
   updateVoucherLine: (data: any) => Promise<void>;
   updateVoucherStatus: (data: any) => Promise<boolean>;
+  contactDetails?: { phone: string; email: string };
 }
 
 interface WithOptionalVoucherLine<L, T> {
@@ -35,6 +45,7 @@ const TasksTab = <
   formComponent: FormComponent,
   updateVoucherLine,
   updateVoucherStatus,
+  contactDetails,
 }: TasksTabProps<T, L>) => {
   const [selectedVoucher, setSelectedVoucher] = useState<any>();
   const [selectedVoucherLine, setSelectedVoucherLine] = useState<any>();
@@ -49,8 +60,8 @@ const TasksTab = <
   const onVoucherLineRowClick = (row: L) => {
     console.log(row);
     setSelectedVoucherLine(row);
-    console.log("Updating")
-    console.log(selectedVoucherLine)
+    console.log("Updating");
+    console.log(selectedVoucherLine);
   };
 
   const getFirstObjectName = (obj: any): string => {
@@ -103,6 +114,12 @@ const TasksTab = <
 
   const addConfirmationButton = (
     <Button variant={"primaryGreen"}>Add Confirmation</Button>
+  );
+
+  const contactButton = (
+    <Button variant={"outline"} className="border-primary-green">
+      Contact
+    </Button>
   );
 
   const proceedButton = <Button variant={"primaryGreen"}>Proceed</Button>;
@@ -187,12 +204,21 @@ const TasksTab = <
           />
           <div className="flex w-full flex-row items-end justify-end">
             <div className="flex flex-row gap-2">
-              <Button variant={"outline"} className="border-primary-green">
-                Contact
-              </Button>
-              <Button variant={"outline"} className="border-primary-green">
+              <Popup
+                title="Contact"
+                description="Loading Contact Details"
+                trigger={contactButton}
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
+                dialogContent={ContactContent(
+                  contactDetails?.phone ?? "",
+                  contactDetails?.phone ?? "",
+                )}
+                size="small"
+              />
+              {/* <Button variant={"outline"} className="border-primary-green">
                 Add New Line
-              </Button>
+              </Button> */}
             </div>
           </div>
           <FormComponent
@@ -402,4 +428,19 @@ const confirmationContent = (
   } else {
     return <div>You have already confirmed the voucher</div>;
   }
+};
+
+const ContactContent = (phone: string, email: string) => {
+  return (
+    <div>
+      <div className="bg-slate-100 p-2">
+        <div className="text-base font-semibold">Email</div>
+        <div className="text-sm font-normal text-zinc-800">{email}</div>
+      </div>
+      <div className="bg-slate-100 p-2">
+        <div className="text-base font-semibold">Contact Number</div>
+        <div className="text-sm font-normal text-zinc-800">{phone}</div>
+      </div>
+    </div>
+  );
 };
