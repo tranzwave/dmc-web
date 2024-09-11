@@ -198,7 +198,7 @@ const Page = ({ params }: { params: { id: string } }) => {
             <ContactBox
               title={agent.name }
               description="Egestas elit dui scelerisque ut eu purus aliquam vitae habitasse."
-              location={agent.country}
+              location={agent.countryCode}
               address=""
               phone={agent.primaryContactNumber}
               email={"No email"}
@@ -227,7 +227,7 @@ const Page = ({ params }: { params: { id: string } }) => {
 export default Page;
 
 
-export const AgentVendorColumns: ColumnDef<SelectAgent>[] = [
+const AgentVendorColumns: ColumnDef<SelectAgent>[] = [
   {
     header: "Agent",
     accessorFn: (row) => row.name,

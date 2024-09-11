@@ -92,7 +92,7 @@ export default RestaurantHome;
 
 
 
-export const restaurantColumns: ColumnDef<RestaurantData>[] = [
+const restaurantColumns: ColumnDef<RestaurantData>[] = [
     {
       header: "Restaurant",
       accessorFn: row => row.name

@@ -772,7 +772,7 @@ export const getAgentData = async (): Promise<Agent[]> => {
         country: "US",
         agency: "Agency 1",
         primaryContactNumber: "123-456-7890",
-        primaryEmailAddress: "agent1@gmail.com",
+        email: "agent1@gmail.com",
         tripsCompleted: "50"
       }
     },
@@ -783,7 +783,7 @@ export const getAgentData = async (): Promise<Agent[]> => {
         country: "US",
         agency: "Agency 2",
         primaryContactNumber: "098-765-4321",
-        primaryEmailAddress: "agent1@gmail.com",
+        email: "agent1@gmail.com",
         tripsCompleted: "30"
       }
     }

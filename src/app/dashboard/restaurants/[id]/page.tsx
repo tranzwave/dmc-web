@@ -107,7 +107,7 @@ const Page = ({ params }: { params: { id: string } }) => {
 export default Page;
 
 
-export const RestaurantVoucherColumns: ColumnDef<SelectRestaurantVoucher>[] = [
+const RestaurantVoucherColumns: ColumnDef<SelectRestaurantVoucher>[] = [
   {
     header: "Restaurant",
     accessorFn: (row) => row.status,

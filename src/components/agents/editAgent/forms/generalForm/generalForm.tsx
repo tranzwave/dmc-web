@@ -229,7 +229,16 @@ const GeneralForm = () => {
 
   const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
     console.log("Form Data Submitted:", data);
-    setGeneralDetails(data);
+    setGeneralDetails({
+      agency:data.agency,
+      country:data.country,
+      feild1:data.field1,
+      feild2:data.field2,
+      feild3:data.field3,
+      name:data.name,
+      primaryContactNumber:data.primaryContactNumber,
+      primaryEmail:data.primaryEmail
+    });
   };
 
   return (

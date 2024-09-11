@@ -16,7 +16,7 @@ export const getAllCities = () => {
 
 export const getCityById = (id: string) => {
     return db.query.city.findFirst({
-        where: eq(city.id, id),
+        where: eq(city.id, Number(id)),
     });
 };
 
@@ -64,7 +64,7 @@ export const saveRestaurant = async (restaurantData: {
         streetName: restaurantData.streetName,
         province: restaurantData.province,
         contactNumber: restaurantData.primaryContactNumber,
-        cityId: restaurantData.cityId,
+        cityId: Number(restaurantData.cityId),
         tenantId: restaurantData.tenantId,
     }).returning();
 

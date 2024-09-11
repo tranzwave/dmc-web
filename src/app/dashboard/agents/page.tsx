@@ -11,8 +11,7 @@ import { Button } from "~/components/ui/button";
 import { getAllAgents } from "~/server/db/queries/agents";
 import { SelectAgent } from "~/server/db/schemaTypes";
 
-export type AgentVendorData = SelectAgent & {
-};
+export type AgentVendorData = SelectAgent & NonNullable<unknown>
 
 const AgentHome = () => {
   const agentVendorColumns: ColumnDef<AgentVendorData>[] = [
@@ -22,7 +21,7 @@ const AgentHome = () => {
     },
     {
       header: "Country",
-      accessorFn: (row) => row.country,
+      accessorFn: (row) => row.countryCode,
     },
     {
       header: "Agency",

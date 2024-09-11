@@ -305,7 +305,7 @@ export const restaurant = createTable("restaurants", {
   contactNumber: varchar("contact_number", { length: 50 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-  cityId: varchar("city_id")
+  cityId: integer("city_id")
     .references(() => city.id)
     .notNull(),
 });

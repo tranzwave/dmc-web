@@ -53,7 +53,7 @@ const EditRestaurantContext = createContext<EditRestaurantContextProps | undefin
 // Custom hook to use context
 
 export const EditRestaurantProvider: React.FC<{ children: ReactNode; initialRestaurantDetails?: RestaurantDetails }> = ({ children, initialRestaurantDetails }) => {
-  const [restaurantDetails, setRestaurantDetails] = useState<RestaurantDetails>(initialRestaurantDetails || defaultRestaurantDetails);
+  const [restaurantDetails, setRestaurantDetails] = useState<RestaurantDetails>(initialRestaurantDetails ?? defaultRestaurantDetails);
 
   const setGeneralDetails = (details: General) => {
     setRestaurantDetails(prev => ({ ...prev, general: details }));
