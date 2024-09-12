@@ -40,6 +40,23 @@ export const getActivityVouchersForVendor = (id: string) => {
   });
 };
 
+export const getActivityVendorDataById = (id: string) => {
+  return db.query.activityVendor.findFirst({
+    where: eq(activityVendor.id, id),
+    with: {
+      city: true,
+      activity:{
+        with:{
+          activityType:true
+        }
+      },
+      activityVoucher: true,
+    },
+  });
+};
+
+
+
 export const getActivitiesByTypeAndCity = async (
   typeId: number,
   cityId: number,
@@ -101,7 +118,7 @@ export const insertActivityVendor = async (
             eq(activityVendor.tenantId, foundTenant.id),
             eq(activityVendor.name, vendorData.name),
             eq(activityVendor.streetName, vendorData.streetName),
-            eq(activityVendor.cityId, general.cityId), // Adjust based on how city is referenced
+            eq(activityVendor.cityId, general.cityId),
           ),
         });
 
