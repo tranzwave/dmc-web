@@ -91,7 +91,7 @@ const GeneralForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <FormField
             name="name"
             control={form.control}
@@ -106,29 +106,41 @@ const GeneralForm = () => {
             )}
           />
 
-        
+          <FormField
+            name="primaryContactNumber"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Contact Number</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="Enter contact number"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-1">
-            <FormField
-              name="streetName"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Street Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter Street Name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField
+            name="streetName"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Street Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter Street Name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-          <div className="col-span-2">
-            <div className="grid grid-cols-3 gap-4">
-            <FormField
+          <FormField
             name="city"
             control={form.control}
             render={({ field }) => (
@@ -144,14 +156,10 @@ const GeneralForm = () => {
                   >
                     <SelectTrigger className="bg-slate-100 shadow-md">
                       <SelectValue placeholder="Select city" />
-                      
                     </SelectTrigger>
                     <SelectContent>
                       {cities.map((city) => (
-                        <SelectItem
-                          key={city.id}
-                          value={String(city.id)}
-                        >
+                        <SelectItem key={city.id} value={String(city.id)}>
                           {city.name}
                         </SelectItem>
                       ))}
@@ -163,39 +171,19 @@ const GeneralForm = () => {
             )}
           />
 
-              <FormField
-                name="province"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Province</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter province" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                name="primaryContactNumber"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contact Number</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Enter contact number"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
+          <FormField
+            name="province"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Province</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter province" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         <div className="flex w-full flex-row justify-end">
