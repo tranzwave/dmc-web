@@ -46,10 +46,10 @@ const RestaurantHome = () => {
             return (
                 <div>
                   <div className="flex w-full flex-row justify-between gap-1">
-                    <TitleBar title="Activity Vendors" link="toAddHotel" />
+                    <TitleBar title="Restaurants" link="toAddRestaurant" />
                     <div>
                       <Link href={`${pathname}/add`}>
-                        <Button variant="primaryGreen">Add Activity</Button>
+                        <Button variant="primaryGreen">Add Restaurant</Button>
                       </Link>
                     </div>
                   </div>
