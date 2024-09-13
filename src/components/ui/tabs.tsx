@@ -3,10 +3,9 @@
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import {
   Check,
-  Circle,
   ClipboardType,
   LoaderCircle,
-  LockIcon,
+  LockIcon
 } from "lucide-react"; // Importing icons
 import * as React from "react";
 import { cn } from "~/lib/utils";
@@ -112,3 +111,4 @@ const TabsContent = React.forwardRef<
 TabsContent.displayName = TabsPrimitive.Content.displayName;
 
 export { Tabs, TabsContent, TabsList, TabsTrigger };
+

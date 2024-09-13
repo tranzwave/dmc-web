@@ -1,8 +1,9 @@
 "use server"
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../..";
 import { agent } from "../../schema";
+import { InsertAgent } from "../../schemaTypes";
 
 export const getAllCountries = () => {
     return db.query.country.findMany({
@@ -45,4 +46,48 @@ export const saveAgent = async (agentData: {
 
     // Return the inserted agent or some result object
     return newAgent;
+};
+
+export const insertAgent = async (
+    agents: InsertAgent[],
+) => {
+    try {
+        const newAgennt = await db.transaction(async (tx) => {
+            const foundTenant = await tx.query.tenant.findFirst();
+
+            if (!foundTenant) {
+                throw new Error("Couldn't find any tenant");
+            }
+
+            for (const currentAgent of agents) {
+                const foundAgent = await tx.query.agent.findFirst({
+                    where: and(
+                        eq(agent.tenantId, foundTenant.id),
+                        eq(agent.primaryContactNumber, currentAgent.primaryContactNumber),
+                        eq(agent.email, currentAgent.email)
+                    ),
+                });
+
+                if (!foundAgent) {
+                    const newAgentId = await tx
+                        .insert(agent)
+                        .values({
+                            ...currentAgent,
+                            tenantId: foundTenant.id,
+                        })
+                        .returning({
+                            id: agent.id,
+                        });
+
+                    if (!newAgentId[0]) {
+                        throw new Error(`Couldn't add agent: ${currentAgent.name}`);
+                    }
+                }
+            }
+        });
+        return newAgennt
+    } catch (error: any) {
+        console.error("Error in insertAgent:", error?.detail ?? error);
+        throw error;
+    }
 };

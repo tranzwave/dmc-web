@@ -27,7 +27,6 @@ export const generalSchema = z.object({
   email: z.string().email("Invalid email address"),
   primaryContactNumber: z.string().min(1, "Contact number is required"),
   agency: z.string().min(1, "Street name is required"),
-  tenantId: z.string().default("0e8ac304-6858-4bb5-9dec-bdafeb03408b"),
   // feild1: z.string().min(1, "City is required"),
   // feild2: z.string().min(1, "Province is required"),
   // feild3: z.string().min(1, "Capacity is required"),
@@ -40,10 +39,20 @@ const GeneralForm = () => {
   const [countries, setCountries] = useState<SelectCountry[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const { setGeneralDetails, agentDetails } = useAddAgent();
+  const { setGeneralDetails, agentDetails, setActiveTab } = useAddAgent();
+  const form = useForm<GeneralFormValues>({
+    resolver: zodResolver(generalSchema),
+    defaultValues: agentDetails.general,
+  });
 
-  useEffect(() => {
-    async function fetchData() {
+  const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
+    console.log(data);
+    setGeneralDetails(data);
+    setActiveTab("submit")
+
+  };
+
+  const fetchData = async () => {
         try {
             setLoading(true);
             const result = await getAllCountries();
@@ -56,18 +65,10 @@ const GeneralForm = () => {
         }
     }
 
-    fetchData();
-}, []);
+    useEffect(() => {
+      fetchData();
+    }, []);
 
-  const form = useForm<GeneralFormValues>({
-    resolver: zodResolver(generalSchema),
-    defaultValues: agentDetails.general,
-  });
-
-  const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
-    console.log(data);
-    setGeneralDetails(data);
-  };
 
   return (
     <Form {...form}>
@@ -236,3 +237,4 @@ const GeneralForm = () => {
 };
 
 export default GeneralForm;
+
