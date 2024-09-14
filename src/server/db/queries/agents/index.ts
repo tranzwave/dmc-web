@@ -91,3 +91,23 @@ export const insertAgent = async (
         throw error;
     }
 };
+
+
+export async function deleteAgentCascade(agentId: string) {
+    try {
+        // Start the transaction
+        const deletedAgentId = await db.transaction(async (trx) => {
+            // Delete related driver-vehicle relationships
+            const deletedAgent = await trx
+                .delete(agent)
+                .where(eq(agent.id, agentId)).returning({ id: agent.id });
+            return deletedAgent;
+        });
+
+        console.log("Agent and related data deleted successfully");
+        return deletedAgentId;
+    } catch (error) {
+        console.error("Error deleting agent and related data:", error);
+        throw error; // Re-throw the error to handle it elsewhere if needed
+    }
+}

@@ -52,21 +52,18 @@ const AddAgent = () => {
             </div>
           </div>
           <div className='w-full'>
-            <Tabs defaultValue="general" className="w-full border">
+            <Tabs defaultValue="general" className="w-full border" value={activeTab}>
               <TabsList className='flex justify-evenly w-full'>
                 <TabsTrigger 
                 value="general"
-                  isCompleted={false}
-                  onClick={() => setActiveTab("general")}
-                  statusLabel="Mandatory"
-                  inProgress={activeTab == "general"}
+                isCompleted={false}
+                onClick={() => setActiveTab("general")}
+                inProgress={activeTab == "general"}
                   >
                     General
                     </TabsTrigger>
                 <TabsTrigger  
-                value="submit"
-                  isCompleted={agentDetails.general.name.length > 0}
-                  inProgress={activeTab == "submit"}
+                value="submit" inProgress = {activeTab == "submit"}
                   disabled={
                     !agentDetails.general.name ||
                     !agentDetails.general.email ||
