@@ -19,7 +19,7 @@ export const generalColumns: ColumnDef<General>[] = [
     header: "Name",
   },
   {
-    accessorKey: "country",
+    accessorKey: "countryCode",
     header: "Country",
   },
   {

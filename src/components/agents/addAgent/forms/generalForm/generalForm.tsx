@@ -98,7 +98,7 @@ const GeneralForm = () => {
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value);
-                      alert(value);
+                      // alert(value);
                     }}
                     value={field.value}
                   >

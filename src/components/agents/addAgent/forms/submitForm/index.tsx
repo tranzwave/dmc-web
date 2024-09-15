@@ -14,52 +14,6 @@ const SubmitForm = () => {
     const { toast } = useToast()
     const router = useRouter()
 
-
-    // const handleSubmit = async () => {
-    //     console.log('Submitting agent details:', agentDetails);
-
-    //         const agentData:InsertAgent[]= [{
-    //             name: general.name,
-    //             countryCode: general.countryCode,
-    //             email: general.email,
-    //             tenantId: general.tenantId,
-    //             agency: general.agency,
-    //             primaryContactNumber: general.primaryContactNumber,
-    //         }]
-            
-    //         try{
-    //             const response = await insertAgent(
-    //                 agentData
-    //             )
-
-    //             if(!response){
-    //                 throw new Error(`Error: ${response}`)
-    //             }
-    //             console.log("Success:", response)
-    //             setLoading(false)
-    //             toast({
-    //                 title: "Success",
-    //                 description: "Agent added successfully"
-    //             })
-    //             router.push("dashboard/agents")
-    //         }catch(error){
-    //             if(error instanceof Error){
-    //                 setError(error.message)
-    //             }else{
-    //                 setError("An unknown error occured")
-    //             }
-    //             console.error("Error:", error),
-    //             alert(error)
-    //             setLoading(false)
-    //             toast({
-    //                 title: "Uh Oh!",
-    //                 description: "Error while adding the agent",
-    //             })
-    //         }finally{
-    //             setLoading(false)
-    //         }
-    // };
-
     const handleSubmit = async () => {
         console.log('Submitting agent details:', agentDetails);
     
@@ -81,6 +35,8 @@ const SubmitForm = () => {
                 title: "Success",
                 description: "Agent added successfully",
             });
+            router.push("/dashboard/agents");
+
         } catch (error) {
             if (error instanceof Error) {
                 setError(error.message);

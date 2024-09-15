@@ -111,3 +111,43 @@ export async function deleteAgentCascade(agentId: string) {
         throw error; // Re-throw the error to handle it elsewhere if needed
     }
 }
+
+
+
+export async function updateAgent(
+    agentId: string,
+    updatedAgent: InsertAgent | null
+) {
+    console.log(agentId);
+    console.log(updatedAgent);
+
+    // Begin a transaction
+    const updated = await db.transaction(async (trx) => {
+        // Update the agent
+        if (!updatedAgent) {
+            throw new Error("Please provide updated agent data");
+        }
+
+        const updatedAgentResult = await trx
+            .update(agent)
+            .set({
+                name: updatedAgent.name,
+                countryCode: updatedAgent.countryCode,
+                email: updatedAgent.email,
+                primaryContactNumber: updatedAgent.primaryContactNumber,
+                agency: updatedAgent.agency,
+            })
+            .where(eq(agent.id, agentId))
+            .returning({ updatedId: agent.id });
+
+        if (updatedAgentResult.length === 0) {
+            throw new Error(`Agent with id ${agentId} not found.`);
+        }
+
+
+        return { updatedAgentResult };
+    });
+
+    console.log(updated);
+    return updated;
+}
