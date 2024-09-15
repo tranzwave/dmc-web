@@ -10,7 +10,7 @@ import { columns } from "./columns";
 
 const ActivityTab = () => {
     const [addedActivities, setAddedActivities] = useState<InsertActivity[]>([]); // State to handle added activities
-    const { addActivity, activityVendorDetails } = useAddActivity(); // Assuming similar context structure for activities
+    const { addActivity, activityVendorDetails, setActiveTab } = useAddActivity(); // Assuming similar context structure for activities
 
     const updateActivities = (activity: InsertActivity) => {
         console.log("Adding Activity");
@@ -31,7 +31,7 @@ const ActivityTab = () => {
                     <DataTable columns={columns} data={activityVendorDetails.activities} /> {/* Displaying activities */}
                 </div>
                 <div className="w-full flex justify-end">
-                    <Button variant={"primaryGreen"}>Next</Button>
+                    <Button variant={"primaryGreen"} onClick={()=> {setActiveTab("submit")}}>Next</Button>
                 </div>
             </div>
         </div>

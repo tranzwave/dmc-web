@@ -4,6 +4,7 @@ import { useOrganizationList, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import SideNavBar from "~/components/common/sideNavComponent";
 import TopBar from "~/components/common/topBarComponent";
+import LoadingLayout from "~/components/common/dashboardLoading";
 
 export default function DashboardLayout({
   children,
@@ -25,7 +26,19 @@ export default function DashboardLayout({
   }, [isLoaded, isSignedIn, user, setActive, router]);
 
   if (!isLoaded || !isSignedIn) {
-    return <div>Loading...</div>;
+    return (
+      <div className="layout">
+        <div className="side-nav">
+          <SideNavBar />
+        </div>
+        <div className="top-bar">
+          <TopBar />
+        </div>
+        <div className="dashboard-content">
+          <LoadingLayout/>
+        </div>
+      </div>
+    );
   }
 
   if (!(user?.organizationMemberships && user?.organizationMemberships.length !== 1 && userInvitations.data?.length == 0)) {

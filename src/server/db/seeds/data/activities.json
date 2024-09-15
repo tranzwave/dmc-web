@@ -6,6 +6,7 @@
       "city": "Colombo",
       "province": "Western Province",
       "contactNumber": "+94112233456",
+      "primaryEmail":"test@gmail.com",
       "activities": [
         {
           "activityType": "adventure",
@@ -21,6 +22,7 @@
       "city": "Kandy",
       "province": "Central Province",
       "contactNumber": "+94114455667",
+      "primaryEmail":"test@gmail.com",
       "activities": [
         {
           "activityType": "eco-tour",
@@ -36,6 +38,7 @@
       "city": "Negombo",
       "province": "Southern Province",
       "contactNumber": "+94113344567",
+      "primaryEmail":"test@gmail.com",
       "activities": [
         {
           "activityType": "adventure",
@@ -51,6 +54,7 @@
       "city": "Colombo",
       "province": "Central Province",
       "contactNumber": "+94112277889",
+      "primaryEmail":"test@gmail.com",
       "activities": [
         {
           "activityType": "beach",
@@ -66,6 +70,7 @@
       "city": "Galle",
       "province": "Western Province",
       "contactNumber": "+94119900990",
+      "primaryEmail":"test@gmail.com",
       "activities": [
         {
           "activityType": "cultural",

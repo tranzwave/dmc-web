@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { DataTableWithActions } from "~/components/common/dataTableWithActions/index";
@@ -50,6 +50,7 @@ const TasksTab = <
   const [selectedVoucher, setSelectedVoucher] = useState<any>();
   const [selectedVoucherLine, setSelectedVoucherLine] = useState<any>();
   const [rate, setRate] = useState<number | "">(0);
+  const [statusChanged,setStatusChanged] = useState<boolean>(false);
 
   const { toast } = useToast();
 
@@ -124,6 +125,10 @@ const TasksTab = <
 
   const proceedButton = <Button variant={"primaryGreen"}>Proceed</Button>;
 
+  useEffect(()=>{
+    console.log("Status changed")
+  }, [statusChanged])
+
   return (
     <div className="flex flex-col items-center justify-center gap-3">
       <div className="flex w-full flex-row justify-center gap-3">
@@ -185,6 +190,7 @@ const TasksTab = <
                   updateVoucherStatus,
                   rate,
                   setRate,
+                  setStatusChanged,
                 )}
                 size="large"
               />
@@ -235,15 +241,17 @@ const TasksTab = <
 export default TasksTab;
 
 const CreateRateColumn = <T extends object>(
-  rate: number | string,
-  setRate: any,
+  initialRate: number | string,
+  setRate: (rate: number | string) => void,
 ): ColumnDef<T> => ({
-  accessorKey: "rate",
-  header: "Rate - USD",
+  accessorKey: 'rate',
+  header: 'Rate - USD',
   cell: ({ getValue, row, column }) => {
-    const initialRate = getValue() as number;
-    setRate(initialRate);
-    // const [rate, setRate] = useState<number | "">(initialRate);
+    const [rate, setLocalRate] = useState<number | string>(initialRate);
+
+    useEffect(() => {
+      setLocalRate(initialRate);
+    }, [initialRate]);
 
     const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const inputValue = e.target.value;
@@ -251,24 +259,24 @@ const CreateRateColumn = <T extends object>(
 
       // Check if the newRate is a valid number
       if (!isNaN(newRate)) {
+        setLocalRate(newRate);
         setRate(newRate);
       } else {
-        setRate(""); // Set to '' if the input is not a valid number
+        setLocalRate(""); // Set to '' if the input is not a valid number
+        setRate("");
       }
 
       // Update the row data with the new rate value
       (row.original as Record<string, any>)[column.id] = newRate;
-
-      console.log(row.original);
     };
 
     return (
       <Input
         type="number"
-        value={rate !== 0 ? rate : 0}
+        value={rate === "" ? "" : rate}
         onChange={handleRateChange}
         className="rounded border border-gray-300 p-1"
-        style={{ width: "80px" }}
+        style={{ width: '80px' }}
       />
     );
   },
@@ -282,6 +290,7 @@ const ProceedContent = (
   updateVoucherStatus: any,
   rate: number | string,
   setRate: any,
+  setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   const rateColumn = CreateRateColumn<typeof voucherColumns>(rate, setRate);
   const VoucherLineColumnsWithRate = [...voucherColumns, rateColumn];
@@ -339,8 +348,10 @@ const ProceedContent = (
       });
       return;
     }
-    selectedVoucher?.status ? (selectedVoucher.status = "sentToVendor") : "";
+    
     try {
+      selectedVoucher?.status ? (selectedVoucher.status = "sentToVendor") : "";
+      setStatusChanged(true)
       await updateVoucherStatus(selectedVoucher);
       alert("Voucher status updated successfully");
     } catch (error) {
