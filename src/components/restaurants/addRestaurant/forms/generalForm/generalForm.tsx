@@ -31,7 +31,7 @@ export const generalSchema = z.object({
   streetName: z.string().min(1, "Street name is required"),
   cityName: z.string().min(1, "City is required"),
   province: z.string().min(1, "Province is required"),
-  primaryContactNumber: z.string().min(1, "Contact number is required"),
+  contactNumber: z.string().min(1, "Contact number is required"),
   // tenantId: z.string().default("f7f856e0-5be1-4a62-bd6c-b3f0dd887ac0"),
 });
 
@@ -59,7 +59,7 @@ const GeneralForm = () => {
     setGeneralDetails({
       cityId: selectedCity?.id ?? 0,
       name: data.name,
-      contactNumber: data.primaryContactNumber,
+      contactNumber: data.contactNumber,
       province: data.province,
       streetName: data.streetName,
       tenantId: "",
@@ -120,7 +120,7 @@ const GeneralForm = () => {
           />
 
           <FormField
-            name="primaryContactNumber"
+            name="contactNumber"
             control={form.control}
             render={({ field }) => (
               <FormItem>
