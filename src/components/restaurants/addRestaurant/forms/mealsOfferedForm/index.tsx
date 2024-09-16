@@ -8,7 +8,7 @@ import MealsOfferedForm from "./mealsOfferedForm";
 
 const MealsOfferedTab = ()=>{
     const [addedMealsOffered, setAddedMealsOffered] = useState<InsertMeal[]>([]); // State to handle added activities
-    const { addMeals, restaurantDetails } = useAddRestaurant(); // Assuming similar context structure for activities
+    const { addMeals, restaurantDetails, setActiveTab } = useAddRestaurant(); // Assuming similar context structure for activities
 
     const updateMealsOffered = (meal: InsertMeal) => {
         console.log("Adding Meals Offered");
@@ -30,7 +30,7 @@ const MealsOfferedTab = ()=>{
                     <DataTable columns={columns} data={restaurantDetails.mealsOffered} />
                 </div>
                 <div className="w-full flex justify-end">
-                    <Button variant={"primaryGreen"}>Next</Button>
+                    <Button variant={"primaryGreen"} onClick={()=> {setActiveTab("submit")}}>Next</Button>
                 </div>
             </div>
         </div>

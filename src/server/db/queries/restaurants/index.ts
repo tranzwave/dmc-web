@@ -101,7 +101,7 @@ export const insertRestaurant = async (
 
             for (const resDetails of restaurantDetails) {
                 const { general, mealsOffered } = resDetails;
-                const { city, ...restaurantData } = general;
+                const { ...restaurantData } = general;
 
                 // Insert or find existing restaurant
                 const foundRestaurant = await tx.query.restaurant.findFirst({

@@ -13,7 +13,7 @@ import { AddRestaurantProvider, useAddRestaurant } from './context';
 
 const AddRestaurant = () => {
   const pathname = usePathname();
-  const { setGeneralDetails } = useAddRestaurant();
+  const { restaurantDetails, activeTab, setActiveTab } = useAddRestaurant();
 
   useEffect(() => {
     console.log('Add Restaurant Component');
@@ -34,9 +34,33 @@ const AddRestaurant = () => {
           <div className='w-full'>
             <Tabs defaultValue="general" className="w-full border">
               <TabsList className='flex justify-evenly w-full'>
-                <TabsTrigger value="general" statusLabel="Mandatory">General</TabsTrigger>
-                <TabsTrigger value="mealsOffered" statusLabel="Mandatory">Meals Offered</TabsTrigger>
-                <TabsTrigger value="submit">Submit</TabsTrigger>
+              <TabsTrigger
+                  value="general"
+                  isCompleted={false}
+                  onClick={() => setActiveTab("general")}
+                  inProgress={activeTab == "general"}
+                >
+                  General
+                </TabsTrigger>                
+
+                <TabsTrigger
+                  value="mealsOffered"
+                  statusLabel="Mandatory"
+                  isCompleted={restaurantDetails.mealsOffered.length > 0}
+                  inProgress={activeTab == "mealsOffered"}
+                  disabled={!restaurantDetails.general.name}
+                >
+                  Meals Offered
+                </TabsTrigger>
+
+                <TabsTrigger
+                  value="submit"
+                  inProgress = {activeTab == "submit"}
+                  isCompleted={false}
+                  disabled={restaurantDetails.mealsOffered.length == 0}
+                >
+                  Submit
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="general">
                 <GeneralTab/>

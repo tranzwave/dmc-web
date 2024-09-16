@@ -1,3 +1,4 @@
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAddRestaurant } from "~/app/dashboard/restaurants/add/context";
 import { DataTable } from "~/components/bookings/home/dataTable";
@@ -11,14 +12,23 @@ const SubmitForm = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { toast } = useToast()
+    const router = useRouter()
+    const pathname = usePathname()
 
     const handleSubmit = async () => {
         console.log('Submitting restaurant details:', restaurantDetails);
+        setLoading(true)
 
         try {
+            let response;
             // Replace insertActivity with your function to handle the insertion of activity details
-            const response = await insertRestaurant([restaurantDetails]);
-        
+            if(pathname.includes("/edit")){
+                setLoading(false)
+                alert("Updated")
+                return
+            } else{
+                response = await insertRestaurant([restaurantDetails]);
+            }        
             if (!response) {
               throw new Error(`Error: Inserting Restaurant`);
             }
@@ -31,6 +41,7 @@ const SubmitForm = () => {
               title: "Success",
               description: "Restaurant added successfully",
             });
+            router.push("/dashboard/restaurants")
           } catch (error) {
             if (error instanceof Error) {
               setError(error.message);

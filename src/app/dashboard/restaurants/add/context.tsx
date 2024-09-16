@@ -1,12 +1,12 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
-import { InsertMeal, InsertRestaurant } from '~/server/db/schemaTypes';
+import { InsertMeal, InsertRestaurant, SelectCity } from '~/server/db/schemaTypes';
 
 export type Restaurant = InsertRestaurant & {
-  city?: string;
+  city?: SelectCity;
 };
 
 export type MealType = InsertMeal & {
-  // typeName?: string;
+  typeName?: string;
 };
 
 // Interface for RestaurantDetails
@@ -18,17 +18,24 @@ export interface RestaurantDetails {
 // Interface for the context properties
 interface AddRestaurantContextProps {
   restaurantDetails: RestaurantDetails;
-  setGeneralDetails: (details: InsertRestaurant) => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  setGeneralDetails: (details: Restaurant) => void;
   addMeals: (meal: InsertMeal) => void;
 }
 
-const defaultGeneral: InsertRestaurant = {
+const defaultGeneral: Restaurant = {
   name: "",
   streetName: "",
   cityId: 0,
   province: "",
   contactNumber: "",
-  tenantId: ""
+  tenantId: "",
+  // city:{
+  //   id:0,
+  //   name:'',
+  //   country:''
+  // }
 };
 
 const defaultRestaurantDetails: RestaurantDetails = {
@@ -40,16 +47,32 @@ const AddRestaurantContext = createContext<AddRestaurantContextProps | undefined
 
 export const AddRestaurantProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [restaurantDetails, setRestaurantDetails] = useState<RestaurantDetails>(defaultRestaurantDetails);
-
+  const [activeTab, setActiveTab] = useState<string>("general");
   const setGeneralDetails = (details: InsertRestaurant) => {
     setRestaurantDetails(prev => ({ ...prev, general: details }));
   };
 
   const addMeals = (meal: InsertMeal) => {
-    setRestaurantDetails(prev => ({
-      ...prev,
-      mealsOffered: [...prev.mealsOffered, meal],
-    }));
+    setRestaurantDetails((prev) => {
+      // Check if the activity already exists in the array by comparing name, activityType, and capacity
+      const exists = prev.mealsOffered.some(
+        (m) =>
+          m.mealType === meal.mealType &&
+          m.startTime === meal.startTime &&
+          m.endTime === meal.endTime
+      );
+  
+      if (exists) {
+        // If the activity already exists, return the current state without changes
+        return prev;
+      }
+  
+      // Otherwise, add the new activity to the activities array
+      return {
+        ...prev,
+        mealsOffered: [...prev.mealsOffered, meal],
+      };
+    });
   };
 
   return (
@@ -57,7 +80,9 @@ export const AddRestaurantProvider: React.FC<{ children: ReactNode }> = ({ child
       value={{
         restaurantDetails,
         setGeneralDetails,
-        addMeals
+        addMeals,
+        activeTab,
+        setActiveTab,
       }}
     >
       {children}

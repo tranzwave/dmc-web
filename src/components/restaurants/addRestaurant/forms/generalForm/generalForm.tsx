@@ -29,10 +29,10 @@ import { SelectCity } from "~/server/db/schemaTypes";
 export const generalSchema = z.object({
   name: z.string().min(1, "Name is required"),
   streetName: z.string().min(1, "Street name is required"),
-  city: z.string().min(1, "City is required"),
+  cityName: z.string().min(1, "City is required"),
   province: z.string().min(1, "Province is required"),
   primaryContactNumber: z.string().min(1, "Contact number is required"),
-  tenantId: z.string().default("f7f856e0-5be1-4a62-bd6c-b3f0dd887ac0"),
+  // tenantId: z.string().default("f7f856e0-5be1-4a62-bd6c-b3f0dd887ac0"),
 });
 
 // Define the type of the form values
@@ -42,21 +42,31 @@ const GeneralForm = () => {
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState<SelectCity[]>([]);
-  const { setGeneralDetails, restaurantDetails } = useAddRestaurant();
+  const { setGeneralDetails, restaurantDetails, setActiveTab } = useAddRestaurant();
+  const { city, ...general } = restaurantDetails.general;
+  const [selectedCity, setSelectedCity] = useState<SelectCity>();
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
+    defaultValues: {
+      ...general,
+      cityName: city?.name,
+    },
   });
 
   const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
     console.log(data);
+    // setGeneralDetails(data)
     setGeneralDetails({
-      cityId: Number(data.city),
+      cityId: selectedCity?.id ?? 0,
       name: data.name,
       contactNumber: data.primaryContactNumber,
       province: data.province,
       streetName: data.streetName,
       tenantId: "",
+      city: selectedCity,
     });
+    setActiveTab("mealsOffered");
+
   };
 
   const fetchData = async () => {
@@ -72,6 +82,7 @@ const GeneralForm = () => {
       console.log("Fetched cities:", citiesResponse);
 
       setCities(citiesResponse);
+      setSelectedCity(city);
 
       setLoading(false);
     } catch (error) {
@@ -84,9 +95,11 @@ const GeneralForm = () => {
     }
   };
 
+  const { reset } = form;
   useEffect(() => {
     fetchData();
-  }, []);
+    form.setValue("cityName", city?.name ?? "");
+  }, [city]);
 
   return (
     <Form {...form}>
@@ -141,25 +154,28 @@ const GeneralForm = () => {
           />
 
           <FormField
-            name="city"
+            name="cityName"
             control={form.control}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>City</FormLabel>
                 <FormControl>
-                  <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      alert(value);
+                <Select
+                    onValueChange={(valueFromSelection) => {
+                      field.onChange(valueFromSelection);
+                      setSelectedCity(
+                        cities.find((c) => c.name === valueFromSelection),
+                      );
                     }}
                     value={field.value}
+                    defaultValue={field.value}
                   >
                     <SelectTrigger className="bg-slate-100 shadow-md">
                       <SelectValue placeholder="Select city" />
                     </SelectTrigger>
                     <SelectContent>
                       {cities.map((city) => (
-                        <SelectItem key={city.id} value={String(city.id)}>
+                        <SelectItem key={city.id} value={city.name}>
                           {city.name}
                         </SelectItem>
                       ))}
