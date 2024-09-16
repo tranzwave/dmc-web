@@ -3,6 +3,7 @@
 import { and, eq } from "drizzle-orm";
 import { RestaurantDetails } from "~/app/dashboard/restaurants/add/context";
 import { db } from "../..";
+import { InsertMeal, InsertRestaurant } from "../../schemaTypes";
 import { city, restaurant, restaurantMeal, restaurantVoucher } from './../../schema';
 
 
@@ -34,7 +35,9 @@ export const getRestaurantVendorById = (id: string) => {
     return db.query.restaurant.findFirst({
         where: eq(restaurant.id, id),
         with: {
-            city: true
+            city: true,
+            restaurantMeal: {
+            }
         }
     })
 }
@@ -161,6 +164,64 @@ export const insertRestaurant = async (
         throw error;
     }
 };
+
+
+
+export async function updateRestaurantAndRelatedData(
+    restaurantId: string,
+    updatedRestaurant: InsertRestaurant | null,
+    updatedMeals: InsertMeal[],
+) {
+    console.log(restaurantId);
+    console.log(updatedRestaurant);
+
+    // Begin a transaction
+    const updated = await db.transaction(async (trx) => {
+        // Update the restaurant
+        if (!updatedRestaurant) {
+            throw new Error("Please provide updated data")
+        }
+        const updatedRestaurantResult = await trx
+            .update(restaurant)
+            .set({
+                name: updatedRestaurant.name,
+                contactNumber: updatedRestaurant.contactNumber,
+                streetName: updatedRestaurant.streetName,
+                province: updatedRestaurant.province,
+                cityId: updatedRestaurant.cityId,
+
+            })
+            .where(eq(restaurant.id, restaurantId))
+            .returning({ updatedId: restaurant.id });
+
+        if (updatedRestaurantResult.length === 0) {
+            throw new Error(`Restaurant with id ${restaurantId} not found.`);
+        }
+
+        // Update related vehicles
+        const updatedMealsData = await updateRestaurantMeals(trx, restaurantId, updatedMeals);
+
+        // Update related languages
+        // const updatedLanguagesData = await updateDriverLanguages(trx, driverId, updatedLanguages);
+
+        return { updatedDriverResult: updatedRestaurantResult };
+    });
+
+    console.log(updated);
+    return updated;
+}
+
+async function updateRestaurantMeals(
+    trx: any,
+    restaurantId: string,
+    updatedMeals: InsertMeal[]
+) {
+    // If there are no vehicles to update, return early
+    if (updatedMeals.length === 0) {
+        return [];
+    }
+}
+
 
 export async function deleteRestaurantCascade(restaurantId: string) {
     try {

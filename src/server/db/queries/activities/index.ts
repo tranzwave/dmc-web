@@ -45,9 +45,9 @@ export const getActivityVendorDataById = (id: string) => {
     where: eq(activityVendor.id, id),
     with: {
       city: true,
-      activity:{
-        with:{
-          activityType:true
+      activity: {
+        with: {
+          activityType: true
         }
       },
       activityVoucher: true,

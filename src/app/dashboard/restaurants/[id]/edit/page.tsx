@@ -2,35 +2,50 @@
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import ActivityTab from "~/components/activities/addActivity/forms/activityForm";
-import GeneralTab from "~/components/activities/addActivity/forms/generalForm";
-import SubmitForm from "~/components/activities/addActivity/forms/submitForm";
 import TitleBar from "~/components/common/titleBar";
+import GeneralTab from "~/components/restaurants/addRestaurant/forms/generalForm";
+import MealsOfferedTab from "~/components/restaurants/addRestaurant/forms/mealsOfferedForm";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { getActivityVendorDataById } from "~/server/db/queries/activities";
-import { AddActivityProvider, useAddActivity } from "../../add/context";
-import { FetchedActivityVendorData } from "../page";
+import { getRestaurantVendorById } from "~/server/db/queries/restaurants";
+import { AddRestaurantProvider, useAddRestaurant } from "../../add/context";
+// import { FetchedRestaurantVendorData } from "../page";
+import SubmitForm from "~/components/restaurants/addRestaurant/forms/submitForm";
+import { SelectRestaurant } from "~/server/db/schemaTypes";
+
+export type FetchedRestaurantVendorData = Awaited<ReturnType<typeof getRestaurantVendorById>>;
+
+// export type RestaurantData = SelectRestaurant & {
+//   // activityType: SelectActivityType
+// }
+
+export type RestaurantData = SelectRestaurant & {
+  // activityType: SelectActivityType
+  // city:SelectCity;
+  // meals: (SelectMeal & {
+  // })[];
+}
 
 
-const EditActivityVendor = ({ id }: { id: string }) => {
+
+const EditRestaurant = ({ id }: { id: string }) => {
   const pathname = usePathname();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const { activityVendorDetails, activeTab, setActiveTab, setGeneralDetails, addActivity } = useAddActivity();
-  const [activityVendor, setActivityVendor] = useState<FetchedActivityVendorData>();
+  const { restaurantDetails, activeTab, setActiveTab, setGeneralDetails, addMeals } = useAddRestaurant();
+  const [restaurantVendor, setRestaurantVendor] = useState<RestaurantData>();
   const [isGeneralDetailsSet, setIsGeneralDetailsSet] = useState<boolean>(false); // State to control rendering
 
-  const fetchActivityVendor = async () => {
+  const fetchRestaurantVendor = async () => {
     try {
       setLoading(true);
-      const selectedActivityVendor = await getActivityVendorDataById(id);
-      if (!selectedActivityVendor) {
-        throw new Error("Couldn't find activity vendor");
+      const selectedRestaurantVendor = await getRestaurantVendorById(id);
+      if (!selectedRestaurantVendor) {
+        throw new Error("Couldn't find restaurant vendor");
       }
 
-      const { city, activityVoucher, activity, ...general } = selectedActivityVendor;
-      setActivityVendor(selectedActivityVendor);
+      const { city, restaurantMeal, ...general } = selectedRestaurantVendor;
+      setRestaurantVendor(selectedRestaurantVendor);
 
       setGeneralDetails({
         cityId: general.cityId,
@@ -40,18 +55,15 @@ const EditActivityVendor = ({ id }: { id: string }) => {
         streetName: general.streetName,
         tenantId: general.tenantId,
         city: city,
-        primaryEmail: general.primaryEmail
       });
 
-      activity.forEach((a) => {
-        addActivity({
-          tenantId:a.tenantId,
-          activityType:a.activityType.id,
-          activityVendorId:a.activityVendorId,
-          name:a.name,
-          capacity:a.capacity,
-          id:a.id,
-          typeName:a.activityType.name
+      restaurantMeal.forEach((m) => {
+        addMeals({
+          mealType:m.mealType,
+          startTime:m.startTime,
+          endTime:m.endTime,
+          id:m.id,
+          restaurantId:m.restaurantId
         });
       });
 
@@ -69,7 +81,7 @@ const EditActivityVendor = ({ id }: { id: string }) => {
 
   useEffect(() => {
     console.log("Add Activity Component");
-    fetchActivityVendor();
+    fetchRestaurantVendor();
   }, [id]);
 
   return (
@@ -77,7 +89,7 @@ const EditActivityVendor = ({ id }: { id: string }) => {
       <div className="flex-1">
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
-            <TitleBar title={`Edit Activity Vendor - ${activityVendor?.name ?? ""}`} link="toAddActivity" />
+            <TitleBar title={`Edit Activity Vendor - ${restaurantVendor?.name ?? ""}`} link="toAddActivity" />
             <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
@@ -96,18 +108,18 @@ const EditActivityVendor = ({ id }: { id: string }) => {
                   General
                 </TabsTrigger>
                 <TabsTrigger
-                  value="activities"
+                  value="mealsOffered"
                   statusLabel="Mandatory"
-                  isCompleted={activityVendorDetails.activities.length > 0}
-                  inProgress={activeTab == "activities"}
-                  disabled={!activityVendorDetails.general.streetName}
+                  isCompleted={restaurantDetails.mealsOffered.length > 0}
+                  inProgress={activeTab == "mealsOffered"}
+                  disabled={!restaurantDetails.general.streetName}
                 >
-                  Activities
+                  Meals Offered
                 </TabsTrigger>
                 <TabsTrigger
                   value="submit"
                   isCompleted={false}
-                  disabled={activityVendorDetails.activities.length == 0}
+                  disabled={restaurantDetails.mealsOffered.length == 0}
                 >
                   Submit
                 </TabsTrigger>
@@ -116,11 +128,12 @@ const EditActivityVendor = ({ id }: { id: string }) => {
                 {/* Conditionally render GeneralTab based on isGeneralDetailsSet */}
                 {isGeneralDetailsSet ? <GeneralTab /> : <div>Loading General Details...</div>}
               </TabsContent>
-              <TabsContent value="activities">
-                <ActivityTab />
+              <TabsContent value="mealsOffered">
+                <MealsOfferedTab />
               </TabsContent>
               <TabsContent value="submit">
-                <SubmitForm />
+                {/* <EditRestaurantSubmitForm id={id} originalDriverData={restaurantVendor ?? null} /> */}
+                <SubmitForm/>
               </TabsContent>
             </Tabs>
           </div>
@@ -130,11 +143,11 @@ const EditActivityVendor = ({ id }: { id: string }) => {
   );
 };
 
-export default function WrappedEditActivity() {
+export default function WrappedEditRestaurant() {
   const { id } = useParams();
   return (
-    <AddActivityProvider>
-      {id ? <EditActivityVendor id={id as string} /> : <div>No activity ID provided.</div>}
-    </AddActivityProvider>
+    <AddRestaurantProvider>
+      {id ? <EditRestaurant id={id as string} /> : <div>No activity ID provided.</div>}
+    </AddRestaurantProvider>
   );
 }
