@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { useAddTransport } from "~/app/dashboard/transport/add/context";
-import { DataTable } from "~/components/bookings/home/dataTable";
+import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 import { Button } from "~/components/ui/button";
 import { columns, Vehicles } from "./columns";
 import VehiclesForm from "./vehiclesForm";
-import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 
 const VehiclesTab = () => {
   const [addedVehicle, setAddedVehicle] = useState<Vehicles[]>([]);

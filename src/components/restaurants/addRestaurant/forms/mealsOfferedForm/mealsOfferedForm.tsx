@@ -17,6 +17,7 @@ import { Input } from "~/components/ui/input";
 
 interface MealsOfferedFormProps {
   onAddMeal: (meal: MealType) => void;
+  selectedMealType: MealType
 }
 
 // Define the schema for form validation
@@ -26,7 +27,7 @@ export const mealsOfferedSchema = z.object({
   endTime: z.string().min(1, "Contact number is required"),
 });
 
-const MealsOfferedForm: React.FC<MealsOfferedFormProps> = ({ onAddMeal }) => {
+const MealsOfferedForm: React.FC<MealsOfferedFormProps> = ({ onAddMeal, selectedMealType }) => {
   const mealsOfferedForm = useForm<MealType>({
     resolver: zodResolver(mealsOfferedSchema),
     defaultValues: {

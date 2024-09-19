@@ -22,6 +22,8 @@ interface AddRestaurantContextProps {
   setActiveTab: (tab: string) => void;
   setGeneralDetails: (details: Restaurant) => void;
   addMeals: (meal: InsertMeal) => void;
+  deleteMealType: (mealType: string) => void; // New deleteVehicle method
+
 }
 
 const defaultGeneral: Restaurant = {
@@ -75,6 +77,14 @@ export const AddRestaurantProvider: React.FC<{ children: ReactNode }> = ({ child
     });
   };
 
+  const deleteMealType = (mealType: string) => {
+    alert(mealType)
+    setRestaurantDetails(prev => ({
+      ...prev,
+      mealsOffered: prev.mealsOffered.filter(mealTypes => mealTypes.mealType !== mealType)
+    }));
+  };
+
   return (
     <AddRestaurantContext.Provider
       value={{
@@ -83,6 +93,7 @@ export const AddRestaurantProvider: React.FC<{ children: ReactNode }> = ({ child
         addMeals,
         activeTab,
         setActiveTab,
+        deleteMealType
       }}
     >
       {children}

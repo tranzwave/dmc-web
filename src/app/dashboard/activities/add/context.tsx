@@ -21,6 +21,8 @@ interface AddActivityContextProps {
   setActiveTab: (tab: string) => void;
   setGeneralDetails: (details: ActivityVendorDTO) => void;
   addActivity: (activity: ActivityTypeDTO) => void; // Method to add activities
+  deleteActivity: (name: string) => void; // New deleteActivity method
+
 }
 
 // Provide default values
@@ -75,6 +77,15 @@ export const AddActivityProvider: React.FC<{ children: ReactNode }> = ({ childre
       };
     });
   };
+
+  const deleteActivity = (name: string) => {
+    alert(name)
+    setActivityVendorDetails(prev => ({
+      ...prev,
+      activities: prev.activities.filter(activity => activity.name !== name)
+    }));
+  };
+
   
 
   return (
@@ -85,6 +96,7 @@ export const AddActivityProvider: React.FC<{ children: ReactNode }> = ({ childre
         addActivity,
         activeTab,
         setActiveTab,
+        deleteActivity
       }}
     >
       {children}
