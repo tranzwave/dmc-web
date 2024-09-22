@@ -1,14 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import {
-  OrganizationList,
-  OrganizationProfile,
   OrganizationSwitcher,
   SignedIn,
   SignedOut,
   SignInButton,
-  useOrganization,
-  useOrganizationList,
   UserButton,
 } from "@clerk/nextjs";
 import {
@@ -19,8 +15,9 @@ import {
   Building2,
   House,
 } from "lucide-react";
+import {OrganizationRolesAndPermissions } from "~/components/organization/managePermissions";
 
-// Import or create your modal component
+// TopBar component
 const TopBar = () => {
   return (
     <div className="flex w-full flex-row items-center justify-between bg-white p-4">
@@ -55,24 +52,34 @@ const TopBar = () => {
                 <div className="items-center border-b pb-4 text-base font-bold">
                   Organization
                 </div>
-                <div className="flex flex-row gap-2 mt-4 items-center">
-                  <div className="text-[13px] font-medium">Please select your organization from this list</div>
-                  <div>
-                    <OrganizationSwitcher
-                      defaultOpen={true}
-                      hidePersonal={true}
-                      appearance={{
-                        elements: {
-                          organizationSwitcherPopoverActionButton__createOrganization:
-                            "hidden",
-                        },
-                      }}
-                    />
+                <div className="mt-4 flex flex-row items-center gap-2">
+                  <div className="text-[13px] font-medium">
+                    Please select your organization from this list
                   </div>
+                  <div></div>
                 </div>
               </div>
             </UserButton.UserProfilePage>
           </UserButton>
+          <OrganizationSwitcher
+            defaultOpen={true}
+            hidePersonal={true}
+            appearance={{
+              elements: {
+                organizationSwitcherPopoverActionButton__createOrganization:
+                  "hidden",
+              },
+            }}
+          >
+            <OrganizationSwitcher.OrganizationProfilePage
+              label="Roles & Permissions"
+              labelIcon={<House size={15} color="#737373" />}
+              url="roles"
+            >
+              <OrganizationRolesAndPermissions />
+              {/* <ManageRoles/> */}
+            </OrganizationSwitcher.OrganizationProfilePage>
+          </OrganizationSwitcher>
         </SignedIn>
         <SignedOut>
           <SignInButton />
@@ -81,5 +88,7 @@ const TopBar = () => {
     </div>
   );
 };
+
+
 
 export default TopBar;
