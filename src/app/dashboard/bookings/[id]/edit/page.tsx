@@ -1,20 +1,22 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect } from "react";
-import ActivitiesTab from "~/components/bookings/addBooking/forms/activitiesForm";
-import GeneralTab from "~/components/bookings/addBooking/forms/generalForm";
-import HotelsTab from "~/components/bookings/addBooking/forms/hotelsForm";
-import RestaurantsTab from "~/components/bookings/addBooking/forms/restaurantsForm";
-import ShopsTab from "~/components/bookings/addBooking/forms/shopsForm";
-import TransportTab from "~/components/bookings/addBooking/forms/transportForm";
+import { useParams, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import ActivitiesTab from "~/components/bookings/editBooking/forms/activitiesForm";
+import GeneralTab from "~/components/bookings/editBooking/forms/generalForm";
+import HotelsTab from "~/components/bookings/editBooking/forms/hotelsForm";
+import RestaurantsTab from "~/components/bookings/editBooking/forms/restaurantsForm";
+import ShopsTab from "~/components/bookings/editBooking/forms/shopsForm";
+import TransportTab from "~/components/bookings/editBooking/forms/transportForm";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { AddBookingProvider, useAddBooking } from "./context";
-import AddBookingSubmitTab from "~/components/bookings/addBooking/forms/submitForm";
+import AddBookingSubmitTab from "~/components/bookings/editBooking/forms/submitForm";
+import { EditBookingProvider, useEditBooking } from "./context";
+import { getBookingLineWithAllData } from "~/server/db/queries/booking";
+import { format } from 'date-fns';
 
-const AddBooking = () => {
+const EditBooking = ({ id }: { id: string }) => {
   const pathname = usePathname();
   const {
     setGeneralDetails,
@@ -27,22 +29,72 @@ const AddBooking = () => {
     setActiveTab,
     bookingDetails,
     statusLabels,
-  } = useAddBooking();
+  } = useEditBooking();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isGeneralDetailsSet, setIsGeneralDetailsSet] = useState<boolean>(false);
+
+  const fetchBookingLine = async ()=>{
+    try {
+        setLoading(true)
+        const selectedBookingLine = await getBookingLineWithAllData(id)
+
+        if(!selectedBookingLine){
+        throw new Error("Couldn't find booking line");
+        }
+
+        const {booking, hotelVouchers, restaurantVouchers, transportVouchers, activityVouchers, shopsVouchers, ...general} = selectedBookingLine;
+        // console.log(booking, hotelVouchers,restaurantVouchers,transportVouchers,activityVouchers, shopsVouchers, general)
+        console.log(selectedBookingLine)
+
+        setGeneralDetails({
+            clientName: booking.client.name,
+            adultsCount:general.adultsCount,
+            kidsCount:general.kidsCount,
+            agent:booking.agentId,
+            country:booking.client.country,
+            primaryEmail:booking.client.primaryEmail,
+            startDate:format(new Date(general.startDate), 'yyyy-MM-dd'),
+            endDate:format(new Date(general.endDate), 'yyyy-MM-dd'),
+            includes:{
+                activities:general.includes?.activities ?? false,
+                hotels:general.includes?.hotels ?? false,
+                restaurants:general.includes?.restaurants ?? false,
+                shops:general.includes?.shops ?? false,
+                transport:general.includes?.transport ?? false
+            },
+            marketingManager:booking.managerId,
+            numberOfDays:7,
+            tourType:booking.tourType
+        })
+        setLoading(false);
+        setTimeout(() => {
+            console.log("This message is logged after 3 seconds");
+            setIsGeneralDetailsSet(true);
+          }, 3000);
+          
+    } catch (error) {
+        console.error("Failed to fetch driver details:", error);
+      setError("Failed to load driver details.");
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     console.log("Add Booking Component");
-  }, []);
+    fetchBookingLine()
+  }, [id]);
 
   return (
     <div className="flex">
       <div className="flex-1">
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
-            <TitleBar title="Add Booking" link="toAddBooking" />
+            <TitleBar title="Add Booking" link="toeditBooking" />
             <div>
-              {/* <Link href={`${pathname}`}>
+              <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
-              </Link> */}
+              </Link>
             </div>
           </div>
           <div className="w-full">
@@ -122,7 +174,7 @@ const AddBooking = () => {
               </TabsList>
               <TabsContent value="general">
                 {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
-                <GeneralTab />
+                {isGeneralDetailsSet ? <GeneralTab /> : <div>Loading General Details...</div>}
               </TabsContent>
               <TabsContent value="hotels">
                 {/* <HotelsTab onAddHotel={addHotel} /> */}
@@ -156,9 +208,10 @@ const AddBooking = () => {
 };
 
 export default function WrappedAddBooking() {
+    const { id } = useParams();
   return (
-    <AddBookingProvider>
-      <AddBooking />
-    </AddBookingProvider>
+    <EditBookingProvider>
+      {id ? <EditBooking id={id as string} /> : <div>No booking ID provided.</div>}
+    </EditBookingProvider>
   );
 }

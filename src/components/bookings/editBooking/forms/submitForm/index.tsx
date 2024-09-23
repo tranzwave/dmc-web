@@ -15,10 +15,10 @@ import { createNewBooking } from "~/server/db/queries/booking";
 import SummaryCard, { formatDateToWeekdayMonth } from "./summaryCard";
 import ContactBox from "~/components/ui/content-box";
 import html2pdf from "html2pdf.js";
-import { useAddBooking } from "~/app/dashboard/bookings/add/context";
+import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 
 const AddBookingSubmitTab = () => {
-  const { bookingDetails, getBookingSummary } = useAddBooking();
+  const { bookingDetails, getBookingSummary } = useEditBooking();
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -119,7 +119,7 @@ const AddBookingSubmitTab = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-col w-[20%] justify-end">
+      <div className="flex flex-col w-[20%] justify-end ">
         <Button onClick={downloadPDF} variant="primaryGreen">
           Download Summary as PDF
         </Button>

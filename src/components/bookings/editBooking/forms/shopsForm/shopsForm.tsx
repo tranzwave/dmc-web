@@ -30,9 +30,9 @@ import { LoaderCircle } from "lucide-react";
 import { getShopsByTypeAndCity } from "~/server/db/queries/shops";
 import {
   ShopVoucher,
-  useAddBooking,
 } from "~/app/dashboard/bookings/add/context";
 import { booking } from "~/server/db/schema";
+import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 
 export type ShopsData = SelectShop & {
   shopTypes: {
@@ -69,7 +69,7 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
   const [shopsLoading, setShopsLoading] = useState(false);
   const [error, setError] = useState<string>();
   const [selectedShop, setSelectedShop] = useState<ShopsData | null>();
-  const { bookingDetails } = useAddBooking();
+  const { bookingDetails } = useEditBooking();
   const form = useForm<z.infer<typeof shopsSchema>>({
     resolver: zodResolver(shopsSchema),
     defaultValues: {

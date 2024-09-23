@@ -4,12 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useEffect, useState } from "react";
-import {
-  defaultGeneral,
-  StatusKey,
-  StatusLabels,
-  useAddBooking,
-} from "~/app/dashboard/bookings/add/context";
+
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import {
@@ -49,6 +44,12 @@ import {
 } from "~/components/ui/dialog";
 import { usePathname, useRouter } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
+import {
+  useEditBooking,
+  defaultGeneral,
+  StatusKey,
+  StatusLabels,
+} from "~/app/dashboard/bookings/[id]/edit/context";
 
 // Define the schema for form validation
 export const generalSchema = z
@@ -91,7 +92,7 @@ const includesOptions = [
 
 const GeneralForm = () => {
   const { setGeneralDetails, bookingDetails, setActiveTab, setStatusLabels } =
-    useAddBooking();
+    useEditBooking();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -159,88 +160,56 @@ const GeneralForm = () => {
     fetchData();
   }, []);
 
-  const onSubmit: SubmitHandler<GeneralFormValues> = async(data) => {
-    setSaving(true);
+  const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
     const sd = new Date(data.startDate);
     const ed = new Date(data.endDate);
-
+    
     const diffInMilliseconds = ed.getTime() - sd.getTime();
-
+    
     const diffInDays = Math.ceil(diffInMilliseconds / (1000 * 60 * 60 * 24));
-
-    data.numberOfDays = diffInDays;
+    
+    data.numberOfDays = diffInDays
     console.log(data);
     setGeneralDetails(data);
-    try {
-      // Call the createNewBooking function with the necessary data
-      console.log(bookingDetails)
-      const createdBooking = await createNewBooking({
-        general:data,
-        activities:[],
-        restaurants:[],
-        shops:[],
-        transport:[],
-        vouchers:[]
-      });
-
-      if (createdBooking) {
-        // If createNewBooking succeeds, set the success message and show modal
-        setMessage(
-          "Booking Added! Do you want to continue finalizing the tasks for this booking?",
-        );
-        setId(createdBooking);
-        setShowModal(true);
-      }
-    } catch (error) {
-      // Catch any errors and set error message
-      setMessage("An error occurred while adding the booking.");
-      console.error("Error in handleSubmit:", error);
-    } finally {
-      // Always stop the loading spinner
-      setSaving(false);
-    }
-    // setTimeout(() => {
-    //   saveBookingLine();
-      
-    // }, 3000);
-  };
-
-  const saveBookingLine = async () => {
-    console.log(bookingDetails);
-
-    try {
-      // Call the createNewBooking function with the necessary data
-      console.log(bookingDetails)
-      const createdBooking = await createNewBooking(bookingDetails);
-
-      if (createdBooking) {
-        // If createNewBooking succeeds, set the success message and show modal
-        setMessage(
-          "Booking Added! Do you want to continue finalizing the tasks for this booking?",
-        );
-        setId(createdBooking);
-        setShowModal(true);
-      }
-    } catch (error) {
-      // Catch any errors and set error message
-      setMessage("An error occurred while adding the booking.");
-      console.error("Error in handleSubmit:", error);
-    } finally {
-      // Always stop the loading spinner
-      setSaving(false);
-    }
-  };
-
-  const handleYes = () => {
-    setShowModal(false);
     setActiveTab("hotels");
   };
 
-  const handleNo = () => {
-    // Handle not continuing to finalize tasks
-    setShowModal(false);
-    router.push(`${pathname.split("add")[0]}`);
-  };
+  // const saveBookingLine = async () => {
+  //   console.log(bookingDetails);
+
+  //   try {
+  //     // Call the createNewBooking function with the necessary data
+  //     console.log(bookingDetails);
+  //     const createdBooking = await createNewBooking(bookingDetails);
+
+  //     if (createdBooking) {
+  //       // If createNewBooking succeeds, set the success message and show modal
+  //       setMessage(
+  //         "Booking Added! Do you want to continue finalizing the tasks for this booking?",
+  //       );
+  //       setId(createdBooking);
+  //       setShowModal(true);
+  //     }
+  //   } catch (error) {
+  //     // Catch any errors and set error message
+  //     setMessage("An error occurred while adding the booking.");
+  //     console.error("Error in handleSubmit:", error);
+  //   } finally {
+  //     // Always stop the loading spinner
+  //     setSaving(false);
+  //   }
+  // };
+
+  // const handleYes = () => {
+  //   setShowModal(false);
+  //   setActiveTab("hotels");
+  // };
+
+  // const handleNo = () => {
+  //   // Handle not continuing to finalize tasks
+  //   setShowModal(false);
+  //   router.push(`${pathname.split("add")[0]}`);
+  // };
 
   function getAgentId(agentName: string) {
     const agent = agents.find((agent) => agent.name === agentName);
@@ -565,18 +534,19 @@ const GeneralForm = () => {
               {saving ? (
                 <LoaderCircle size={15} className="animate-spin" />
               ) : (
-                "Save Booking"
+                "Next"
               )}
             </Button>
           </div>
         </form>
       </Form>
-      <Dialog open={showModal} onOpenChange={setShowModal}>
+      {/* <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Booking Saved!</DialogTitle>
             <DialogDescription>
-              Do you want to continue adding the required vouchers for this booking?
+              Do you want to continue adding the required vouchers for this
+              booking?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -588,7 +558,7 @@ const GeneralForm = () => {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </div>
   );
 };

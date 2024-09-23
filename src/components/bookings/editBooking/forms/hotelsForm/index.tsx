@@ -1,9 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-  HotelVoucher,
-  useAddBooking,
-} from "~/app/dashboard/bookings/add/context";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { Button } from "~/components/ui/button";
 import {
@@ -19,10 +15,11 @@ import { getAllHotels, getAllHotelsV2 } from "~/server/db/queries/hotel";
 import { useToast } from "~/hooks/use-toast";
 import { Calendar } from "~/components/ui/calendar";
 import { CalendarV2, DateRange } from "~/components/common/customCalendar";
+import {   HotelVoucher,useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 
 const HotelsTab = () => {
   const [addedHotels, setAddedHotels] = useState<Hotel[]>([]);
-  const { addHotelVoucher, bookingDetails, setActiveTab } = useAddBooking();
+  const { addHotelVoucher, bookingDetails, setActiveTab } = useEditBooking();
   const [loading, setLoading] = useState(false);
   const [hotels, setHotels] = useState<SelectHotel[]>([]);
   const [error, setError] = useState<string | null>();
