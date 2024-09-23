@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { MealType } from "~/app/dashboard/restaurants/add/context";
@@ -37,6 +38,9 @@ const MealsOfferedForm: React.FC<MealsOfferedFormProps> = ({ onAddMeal, selected
     },
   });
 
+  const {reset} = mealsOfferedForm;
+
+
   const onSubmit: SubmitHandler<MealType> = (data) => {
     onAddMeal({
         ...data,
@@ -44,6 +48,11 @@ const MealsOfferedForm: React.FC<MealsOfferedFormProps> = ({ onAddMeal, selected
     });
     mealsOfferedForm.reset();
   };
+
+  useEffect(()=>{
+    reset(selectedMealType)
+
+  }, [selectedMealType,reset])
 
   return (
     <Form {...mealsOfferedForm}>

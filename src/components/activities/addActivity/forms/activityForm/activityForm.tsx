@@ -25,6 +25,7 @@ import { SelectActivityType } from "~/server/db/schemaTypes";
 
 interface ActivityFormProps {
   onAddActivity: (activity: ActivityTypeDTO) => void;
+  selectedActivity: ActivityTypeDTO
 }
 
 // Define the schema for activity details
@@ -34,7 +35,7 @@ export const activitySchema = z.object({
   capacity: z.number().min(1, "Capacity must be at least 1"),
 });
 
-const VendorActivityForm: React.FC<ActivityFormProps> = ({ onAddActivity }) => {
+const VendorActivityForm: React.FC<ActivityFormProps> = ({ onAddActivity, selectedActivity }) => {
   const activityForm = useForm<ActivityTypeDTO>({
     resolver: zodResolver(activitySchema),
     defaultValues: {
@@ -43,6 +44,8 @@ const VendorActivityForm: React.FC<ActivityFormProps> = ({ onAddActivity }) => {
       capacity: 1,
     },
   });
+
+  const {reset} = activityForm;
 
   const [activityTypes, setActivityTypes] = useState<SelectActivityType[]>([]);
   const [selectedActivityType, setSelectedActivityType] =
@@ -57,6 +60,12 @@ const VendorActivityForm: React.FC<ActivityFormProps> = ({ onAddActivity }) => {
     });
     activityForm.reset();
   };
+
+  useEffect(()=>{
+    reset(selectedActivity)
+
+  }, [selectedActivity,reset])
+
 
   const fetchData = async () => {
     try {
@@ -87,6 +96,8 @@ const VendorActivityForm: React.FC<ActivityFormProps> = ({ onAddActivity }) => {
   useEffect(() => {
     fetchData();
   }, []);
+
+
 
   return (
     <Form {...activityForm}>

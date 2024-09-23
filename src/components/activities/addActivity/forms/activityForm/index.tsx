@@ -41,7 +41,7 @@ const ActivityTab = () => {
             <div className='w-full flex flex-row gap-2 justify-center'>
                 <div className='card w-[90%] space-y-6'>
                     <div className='card-title'>Activity Information</div>
-                    <VendorActivityForm onAddActivity={updateActivities} /> {/* Updated to use ActivityForm */}
+                    <VendorActivityForm onAddActivity={updateActivities} selectedActivity={selectedActivity} /> {/* Updated to use ActivityForm */}
                 </div>
             </div>
             <div className='flex flex-col gap-2 items-center justify-center w-[90%]'>
