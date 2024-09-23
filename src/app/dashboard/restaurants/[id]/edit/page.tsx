@@ -11,20 +11,20 @@ import { getRestaurantVendorById } from "~/server/db/queries/restaurants";
 import { AddRestaurantProvider, useAddRestaurant } from "../../add/context";
 // import { FetchedRestaurantVendorData } from "../page";
 import SubmitForm from "~/components/restaurants/addRestaurant/forms/submitForm";
-import { SelectRestaurant } from "~/server/db/schemaTypes";
+import { FetchedRestaurantVendorData } from "../page";
 
-export type FetchedRestaurantVendorData = Awaited<ReturnType<typeof getRestaurantVendorById>>;
+// export type FetchedRestaurantVendorData = Awaited<ReturnType<typeof getRestaurantVendorById>>;
+
+// // export type RestaurantData = SelectRestaurant & {
+// //   // activityType: SelectActivityType
+// // }
 
 // export type RestaurantData = SelectRestaurant & {
 //   // activityType: SelectActivityType
+//   // city:SelectCity;
+//   // meals: (SelectMeal & {
+//   // })[];
 // }
-
-export type RestaurantData = SelectRestaurant & {
-  // activityType: SelectActivityType
-  // city:SelectCity;
-  // meals: (SelectMeal & {
-  // })[];
-}
 
 
 
@@ -33,7 +33,7 @@ const EditRestaurant = ({ id }: { id: string }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { restaurantDetails, activeTab, setActiveTab, setGeneralDetails, addMeals } = useAddRestaurant();
-  const [restaurantVendor, setRestaurantVendor] = useState<RestaurantData>();
+  const [restaurantVendor, setRestaurantVendor] = useState<FetchedRestaurantVendorData>();
   const [isGeneralDetailsSet, setIsGeneralDetailsSet] = useState<boolean>(false); // State to control rendering
 
   const fetchRestaurantVendor = async () => {

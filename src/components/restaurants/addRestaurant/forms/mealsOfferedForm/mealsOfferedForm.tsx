@@ -79,7 +79,7 @@ const MealsOfferedForm: React.FC<MealsOfferedFormProps> = ({ onAddMeal, selected
               <FormItem>
                 <FormLabel>Start Time</FormLabel>
                 <FormControl>
-                  <Input placeholder="" type="date" {...field} />
+                  <Input placeholder="" type="time" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -93,7 +93,7 @@ const MealsOfferedForm: React.FC<MealsOfferedFormProps> = ({ onAddMeal, selected
               <FormItem>
                 <FormLabel>End Time</FormLabel>
                 <FormControl>
-                  <Input placeholder="" type="date" {...field} />
+                  <Input placeholder="" type="time" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

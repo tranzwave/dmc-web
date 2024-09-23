@@ -5,7 +5,7 @@ import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
 import { StatsCard } from "~/components/ui/stats-card";
-import { getActivityVendorDataById, getActivityVouchersForVendor } from "~/server/db/queries/activities";
+import { getActivityVendorDataById } from "~/server/db/queries/activities";
 import { SelectActivity, SelectActivityType, SelectActivityVoucher } from "~/server/db/schemaTypes";
 
 export type FetchedActivityVendorData = Awaited<ReturnType<typeof getActivityVendorDataById>>;
