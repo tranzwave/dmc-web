@@ -89,21 +89,15 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
     )
   );
   };
-
-    const deleteHotel = (typeName: string) => {
+  
+  const deleteHotel = (typeName: string) => {
     alert(typeName)
-    // setTransportDetails(prev => ({
-    //   ...prev,
-    //   vehicles: prev.vehicles.filter(vehicle => vehicle.numberPlate !== numberPlate)
-    // }));
+    setHotelRooms(prev => prev.filter(room => room.typeName !== typeName));
   };
 
   const deleteStaff = (name: string) => {
     alert(name)
-    // setTransportDetails(prev => ({
-    //   ...prev,
-    //   vehicles: prev.vehicles.filter(vehicle => vehicle.numberPlate !== numberPlate)
-    // }));
+    setHotelStaff(prev => prev.filter(staff => staff.name !== name));
   };
 
 
