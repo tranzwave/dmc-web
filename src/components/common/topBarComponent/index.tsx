@@ -15,17 +15,31 @@ import {
   Building2,
   House,
 } from "lucide-react";
-import {OrganizationRolesAndPermissions } from "~/components/organization/managePermissions";
+import { OrganizationRolesAndPermissions } from "~/components/organization/managePermissions";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "~/components/ui/breadcrumb";
+import { usePathname } from "next/navigation";
 
 // TopBar component
 const TopBar = () => {
+  const pathname = usePathname();
   return (
     <div className="flex w-full flex-row items-center justify-between bg-white p-4">
       <div className="flex flex-row items-center gap-2">
-        <SearchIcon size={20} color="#697077" />
+        {/* <SearchIcon size={20} color="#697077" /> */}
         <div className="font-sans text-base font-light text-[#697077]">
-          Search anything here
+          {/* Search anything here */}
         </div>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink>Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink>{pathname.split("dashboard/")[1]?.toUpperCase()}</BreadcrumbLink>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
       </div>
       <div className="flex flex-row items-center gap-8">
         <div className="flex flex-row items-center gap-3">
@@ -88,7 +102,5 @@ const TopBar = () => {
     </div>
   );
 };
-
-
 
 export default TopBar;

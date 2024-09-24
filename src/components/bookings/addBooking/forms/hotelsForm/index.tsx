@@ -7,8 +7,6 @@ import {
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
-import { useToast } from "~/hooks/use-toast";
-import { getAllHotelsV2 } from "~/server/db/queries/hotel";
 import {
   InsertHotelVoucher,
   InsertHotelVoucherLine,
@@ -18,7 +16,6 @@ import { Hotel, voucherColumns } from "./columns";
 import HotelsForm from "./hotelsForm";
 import { getAllHotels, getAllHotelsV2 } from "~/server/db/queries/hotel";
 import { useToast } from "~/hooks/use-toast";
-import { Calendar } from "~/components/ui/calendar";
 import { CalendarV2, DateRange } from "~/components/common/customCalendar";
 
 const HotelsTab = () => {
