@@ -1,13 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from 'zod';
+import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
-import { HotelStaffType } from "../generalForm/columns";
+import { HotelStaffType } from "../staffForm/columns";
 
 interface StaffFormProps {
   onAddStaff: (staff: HotelStaffType) => void;
+  selectedStaff: HotelStaffType
 }
 
 // Define the schema for staff details
@@ -18,7 +20,7 @@ export const staffSchema = z.object({
   occupation: z.string().min(1, "Occupation is required"),
 });
 
-const StaffForm: React.FC<StaffFormProps> = ({ onAddStaff }) => {
+const StaffForm: React.FC<StaffFormProps> = ({ onAddStaff, selectedStaff }) => {
   const staffForm = useForm<HotelStaffType>({
     resolver: zodResolver(staffSchema),
     defaultValues: {
@@ -29,10 +31,17 @@ const StaffForm: React.FC<StaffFormProps> = ({ onAddStaff }) => {
     },
   });
 
+  const {reset} = staffForm;
+
   const onSubmit: SubmitHandler<HotelStaffType> = (data) => {
     onAddStaff(data);
     staffForm.reset();
   };
+
+  useEffect(()=>{
+    reset(selectedStaff)
+
+  }, [selectedStaff,reset])
 
   return (
     <Form {...staffForm}>

@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "~/components/ui/dialog";
 import { useToast } from "~/hooks/use-toast";
-import { deleteDriverCascade } from "~/server/db/queries/transport";
+import { deleteAgentCascade } from "~/server/db/queries/agents";
 
 export default function DeleteHotelPage({ params }: { params: { id: string } }) {
   const [isDialogOpen, setIsDialogOpen] = useState(true); // Dialog initially open
@@ -24,21 +24,21 @@ export default function DeleteHotelPage({ params }: { params: { id: string } }) 
     setLoading(true); // Start loading
 
     try {
-      const response = await deleteDriverCascade(params.id)
+      const response = await deleteAgentCascade(params.id)
       if(!response){
-        throw new Error("Couldn't delete driver")
+        throw new Error("Couldn't delete agent")
       }
       setLoading(false);
-      router.push("/dashboard/transport");
+      router.push("/dashboard/agents");
     } catch (error) {
-      console.error("Error deleting hotel:", error);
-      alert("This driver has ongoing vouchers")
+      console.error("Error deleting agent:", error);
+      alert("This agent has ongoing vouchers")
       toast({
-        title: "Uh oh! You can't delete this hotel",
-        description:"This driver has ongoing voucher lines"
+        title: "Uh oh! You can't delete this agent",
+        description:"This agent has ongoing voucher lines"
       })
       setLoading(false);
-      router.push("/dashboard/transport");
+      router.push("/dashboard/agents");
     }
   };
   return (
@@ -47,11 +47,11 @@ export default function DeleteHotelPage({ params }: { params: { id: string } }) 
         <DialogHeader>
           <DialogTitle>Confirm Delete</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete this driver?
+            Are you sure you want to delete this agent?
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="secondary" onClick={() => router.push("/dashboard/transport")}>
+          <Button variant="secondary" onClick={() => router.push("/dashboard/agents")}>
             No
           </Button>
           <Button

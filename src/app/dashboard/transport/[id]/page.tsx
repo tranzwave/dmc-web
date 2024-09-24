@@ -1,7 +1,6 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
-import { columns } from "~/components/bookings/home/columns";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
@@ -81,6 +80,10 @@ const Page = ({ params }: { params: { id: string } }) => {
     {
       header: "Remarks",
       accessorFn: (row) => row.remarks
+    },
+    {
+      header: "Rate",
+      accessorFn: (row) => row.rate
     }
   
   ];

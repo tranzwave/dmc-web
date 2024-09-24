@@ -8,7 +8,9 @@ interface AgentDetails {
 // Define context properties
 interface AddAgentContextProps {
   agentDetails: AgentDetails;
+  activeTab: string;
   setGeneralDetails: (details: General) => void;
+  setActiveTab: (tab: string) => void;
 }
 
 // Provide default values
@@ -18,7 +20,6 @@ const defaultGeneral: General = {
   email: "",
   primaryContactNumber: "",
   agency: "",
-  tenantId: "0e8ac304-6858-4bb5-9dec-bdafeb03408b",
   // feild1: "",
   // feild2: "",
   // feild3: "",
@@ -32,6 +33,7 @@ const AddAgentContext = createContext<AddAgentContextProps | undefined>(undefine
 
 export const AddAgentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [agentDetails, setAgentDetails] = useState<AgentDetails>(defaultAgentDetails);
+  const [activeTab, setActiveTab] = useState<string>("general");
 
   const setGeneralDetails = (details: General) => {
     setAgentDetails(prev => ({ ...prev, general: details }));
@@ -40,8 +42,10 @@ export const AddAgentProvider: React.FC<{ children: ReactNode }> = ({ children }
   return (
     <AddAgentContext.Provider
       value={{
-        agentDetails: agentDetails,
-        setGeneralDetails
+        agentDetails,
+        activeTab,
+        setGeneralDetails,
+        setActiveTab,
       }}
     >
       {children}

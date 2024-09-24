@@ -6,12 +6,13 @@ import {
 } from "~/app/dashboard/bookings/add/context";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
+import { useToast } from "~/hooks/use-toast";
+import { getAllHotelsV2 } from "~/server/db/queries/hotel";
 import {
   InsertHotelVoucher,
   InsertHotelVoucherLine,
-  SelectHotel,
-  SelectHotelVoucher,
-  SelectHotelVoucherLine,
+  SelectHotel
 } from "~/server/db/schemaTypes";
 import { Hotel, voucherColumns } from "./columns";
 import HotelsForm from "./hotelsForm";

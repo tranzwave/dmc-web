@@ -845,7 +845,7 @@ export const activityVendorRelations = relations(
       references: [city.id],
     }),
     activity: many(activity),
-    activityVoucher:many(activityVoucher)
+    activityVoucher: many(activityVoucher)
   }),
 );
 

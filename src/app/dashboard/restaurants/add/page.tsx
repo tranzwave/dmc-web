@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import TitleBar from '~/components/common/titleBar';
 import GeneralTab from '~/components/restaurants/addRestaurant/forms/generalForm';
+import MealsOfferedTab from '~/components/restaurants/addRestaurant/forms/mealsOfferedForm';
 import SubmitForm from '~/components/restaurants/addRestaurant/forms/submitForm';
 import { Button } from '~/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
@@ -12,7 +13,7 @@ import { AddRestaurantProvider, useAddRestaurant } from './context';
 
 const AddRestaurant = () => {
   const pathname = usePathname();
-  const { setGeneralDetails } = useAddRestaurant();
+  const { restaurantDetails, activeTab, setActiveTab } = useAddRestaurant();
 
   useEffect(() => {
     console.log('Add Restaurant Component');
@@ -33,12 +34,39 @@ const AddRestaurant = () => {
           <div className='w-full'>
             <Tabs defaultValue="general" className="w-full border">
               <TabsList className='flex justify-evenly w-full'>
-                <TabsTrigger value="general" statusLabel="Mandatory">General</TabsTrigger>
-                <TabsTrigger value="submit">Submit</TabsTrigger>
+              <TabsTrigger
+                  value="general"
+                  isCompleted={false}
+                  onClick={() => setActiveTab("general")}
+                  inProgress={activeTab == "general"}
+                >
+                  General
+                </TabsTrigger>                
+
+                <TabsTrigger
+                   value="mealsOffered"
+                   statusLabel="Mandatory"
+                   isCompleted={restaurantDetails.mealsOffered.length > 0}
+                   inProgress={activeTab == "mealsOffered"}
+                   disabled={!restaurantDetails.general.streetName}
+                >
+                  Meals Offered
+                </TabsTrigger>
+
+                <TabsTrigger
+                  value="submit"
+                  inProgress = {activeTab == "submit"}
+                  isCompleted={false}
+                  disabled={restaurantDetails.mealsOffered.length == 0}
+                >
+                  Submit
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="general">
-                {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
                 <GeneralTab/>
+              </TabsContent>
+              <TabsContent value="mealsOffered">
+                <MealsOfferedTab/>
               </TabsContent>
               <TabsContent value="submit">
                 <SubmitForm />

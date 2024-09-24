@@ -1,15 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from 'zod';
+import { defaultHotelRoom } from "~/app/dashboard/hotels/add/context";
+import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
-import { InsertHotelRoom } from "~/server/db/schemaTypes";
-import { HotelRoomType } from "../generalForm/columns";
-import { defaultHotelRoom } from "~/app/dashboard/hotels/add/context";
+import { HotelRoomType } from "../roomsForm/columns";
 
 interface RoomsFormProps {
-  onAddRoom: (room: InsertHotelRoom) => void;
+  onAddRoom: (room: HotelRoomType) => void;
+  selectedRoom: HotelRoomType
 }
 
 // Define the schema for room details
@@ -23,11 +24,23 @@ export const roomsSchema = z.object({
   additionalComments: z.string().optional(), // Optional field
 });
 
-const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom }) => {
+const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom }) => {
   const roomsForm = useForm<HotelRoomType>({
     resolver: zodResolver(roomsSchema),
     defaultValues: defaultHotelRoom
+    // defaultValues: {
+    //   roomType: '',
+    //   typeName: '',
+    //   count: 1,
+    //   amenities: '',
+    //   floor: 1,
+    //   bedCount: 1,
+    //   additionalComments: ""
+    // },
   });
+
+  const {reset} = roomsForm;
+
 
   const onSubmit: SubmitHandler<HotelRoomType> = (data) => {
     onAddRoom({
@@ -38,6 +51,11 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom }) => {
     });
     roomsForm.reset();
   }
+
+  useEffect(()=>{
+    reset(selectedRoom)
+
+  }, [selectedRoom,reset])
 
   return (
     <Form {...roomsForm}>

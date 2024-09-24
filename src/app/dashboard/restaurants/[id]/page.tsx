@@ -6,8 +6,14 @@ import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
 import { StatsCard } from "~/components/ui/stats-card";
 import { getRestaurantVendorById, getRestaurantVouchersForVendor } from "~/server/db/queries/restaurants";
-import { SelectRestaurantVoucher } from "~/server/db/schemaTypes";
+import { SelectRestaurant, SelectRestaurantVoucher } from "~/server/db/schemaTypes";
 import { RestaurantData } from "../page";
+
+export type FetchedRestaurantVendorData = Awaited<ReturnType<typeof getRestaurantVendorById>>;
+
+export type Restaurant = SelectRestaurant & {
+  // activityType: SelectActivityType
+}
 
 const Page = ({ params }: { params: { id: string } }) => {
   const [restaurant, setRestaurant] = useState<RestaurantData | null>(null);

@@ -45,9 +45,9 @@ export const getActivityVendorDataById = (id: string) => {
     where: eq(activityVendor.id, id),
     with: {
       city: true,
-      activity:{
-        with:{
-          activityType:true
+      activity: {
+        with: {
+          activityType: true
         }
       },
       activityVoucher: true,
@@ -199,3 +199,30 @@ export const insertActivityVendor = async (
     throw error;
   }
 };
+
+
+
+export async function deleteActivitytCascade(activityVendorId: string) {
+  try {
+    // Start the transaction
+    const deletedActivityVendorId = await db.transaction(async (trx) => {
+      // Delete related activity-activityvendor relationships
+      await trx
+        .delete(activity)
+        .where(eq(activity.activityVendorId, activityVendorId));
+
+      // Finally, delete the activity
+      const deletedActivityVendor = await trx
+        .delete(activityVendor)
+        .where(eq(activityVendor.id, activityVendorId)).returning({ id: activityVendor.id });
+
+      return deletedActivityVendor;
+    });
+
+    console.log("Activity and related data deleted successfully");
+    return deletedActivityVendorId;
+  } catch (error) {
+    console.error("Error deleting activity and related data:", error);
+    throw error; // Re-throw the error to handle it elsewhere if needed
+  }
+}

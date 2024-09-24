@@ -46,10 +46,10 @@ const RestaurantHome = () => {
             return (
                 <div>
                   <div className="flex w-full flex-row justify-between gap-1">
-                    <TitleBar title="Activity Vendors" link="toAddHotel" />
+                    <TitleBar title="Restaurants" link="toAddRestaurant" />
                     <div>
                       <Link href={`${pathname}/add`}>
-                        <Button variant="primaryGreen">Add Activity</Button>
+                        <Button variant="primaryGreen">Add Restaurant</Button>
                       </Link>
                     </div>
                   </div>
@@ -123,7 +123,7 @@ const restaurantColumns: ColumnDef<RestaurantData>[] = [
             <DataTableDropDown data={restaurant} routeBase="/restaurants/" 
             onViewPath={(data) => `/dashboard/restaurants/${data.id}`}
             onEditPath={(data) => `/dashboard/restaurants/${data.id}/edit`}
-            onDeletePath={(data) => `/dashboard/restaurants/${data.id}`}
+            onDeletePath={(data) => `/dashboard/restaurants/${data.id}/delete`}
             // onDeleted={() => window.location.reload()}  // Refresh page after delete
 
   />

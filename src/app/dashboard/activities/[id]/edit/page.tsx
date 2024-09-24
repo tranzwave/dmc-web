@@ -1,17 +1,16 @@
 "use client";
-import { Button } from "~/components/ui/button";
-import { useEditActivity } from "./context";
-import { useParams, usePathname } from "next/navigation";
-import { AddActivityProvider, useAddActivity } from "../../add/context";
-import { useEffect, useState } from "react";
-import TitleBar from "~/components/common/titleBar";
 import Link from "next/link";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import GeneralTab from "~/components/activities/addActivity/forms/generalForm";
+import { useParams, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import ActivityTab from "~/components/activities/addActivity/forms/activityForm";
-import { FetchedActivityVendorData } from "../page";
-import { getActivityVendorDataById } from "~/server/db/queries/activities";
+import GeneralTab from "~/components/activities/addActivity/forms/generalForm";
 import SubmitForm from "~/components/activities/addActivity/forms/submitForm";
+import TitleBar from "~/components/common/titleBar";
+import { Button } from "~/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { getActivityVendorDataById } from "~/server/db/queries/activities";
+import { AddActivityProvider, useAddActivity } from "../../add/context";
+import { FetchedActivityVendorData } from "../page";
 
 
 const EditActivityVendor = ({ id }: { id: string }) => {
