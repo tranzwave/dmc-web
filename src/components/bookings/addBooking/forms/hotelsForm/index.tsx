@@ -4,7 +4,7 @@ import {
   HotelVoucher,
   useAddBooking,
 } from "~/app/dashboard/bookings/add/context";
-import { DataTable } from "~/components/bookings/home/dataTable";
+import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { useToast } from "~/hooks/use-toast";
@@ -19,7 +19,7 @@ import HotelsForm from "./hotelsForm";
 
 const HotelsTab = () => {
   const [addedHotels, setAddedHotels] = useState<Hotel[]>([]);
-  const { addHotelVoucher, bookingDetails, setActiveTab } = useAddBooking();
+  const { addHotelVoucher, bookingDetails, setActiveTab, deleteHotel } = useAddBooking();
   const [loading, setLoading] = useState(false);
   const [hotels, setHotels] = useState<SelectHotel[]>([]);
   const [error, setError] = useState<string | null>();
@@ -97,6 +97,16 @@ const HotelsTab = () => {
       });
     }
   };
+
+  const onRowEdit = (row: HotelVoucher) => {
+    console.log(row);
+    // setSelectedActivity(row);
+  };
+
+  const onRowDelete = (row: HotelVoucher) => {
+    alert(row.hotel.name);
+    deleteHotel(row.hotel.name);
+  };
   
   return (
     <div className="flex flex-col items-center justify-center gap-3">
@@ -130,7 +140,11 @@ const HotelsTab = () => {
       </div>
       <div className="flex w-full flex-col items-center justify-center gap-2">
         <div className="w-full">
-          <DataTable columns={voucherColumns} data={bookingDetails.vouchers} />
+          <DataTableWithActions columns={voucherColumns} data={bookingDetails.vouchers}
+          onDelete={onRowDelete}
+          onEdit={onRowEdit}
+          onRowClick={onRowEdit}
+          onDuplicate={onRowEdit} />
         </div>
         <div className="flex w-full justify-end">
           <Button variant={"primaryGreen"} onClick={onNextClick}>Next</Button>

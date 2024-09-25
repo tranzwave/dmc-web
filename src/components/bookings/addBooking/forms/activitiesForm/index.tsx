@@ -1,29 +1,27 @@
 "use client";
 import { useEffect, useState } from "react";
-import { DataTable } from "~/components/bookings/home/dataTable";
-import { columns, Activity } from "./columns";
-import ActivitiesForm from "./actvitiesForm";
 import {
   ActivityVoucher,
   useAddBooking,
 } from "~/app/dashboard/bookings/add/context";
-import {
-  SelectActivity,
-  SelectActivityType,
-  SelectCity,
-} from "~/server/db/schemaTypes";
+import { DataTableWithActions } from "~/components/common/dataTableWithActions";
+import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
+import { useToast } from "~/hooks/use-toast";
 import {
   getAllActivityTypes,
   getAllCities,
 } from "~/server/db/queries/activities";
-import { Divide } from "lucide-react";
-import { Button } from "~/components/ui/button";
-import { useToast } from "~/hooks/use-toast";
-import { Calendar } from "~/components/ui/calendar";
+import {
+  SelectActivityType,
+  SelectCity
+} from "~/server/db/schemaTypes";
+import ActivitiesForm from "./actvitiesForm";
+import { columns } from "./columns";
 
 const ActivitiesTab = () => {
   const [addedActivities, setAddedActivities] = useState<ActivityVoucher[]>([]);
-  const { addActivity, bookingDetails, setActiveTab } = useAddBooking();
+  const { addActivity, bookingDetails, setActiveTab, deleteActivity } = useAddBooking();
   const [loading, setLoading] = useState(false);
   const [activityTypes, setActivityTypes] = useState<SelectActivityType[]>([]);
   const [cities, setCities] = useState<SelectCity[]>([]);
@@ -94,6 +92,16 @@ const ActivitiesTab = () => {
     return <div>Loading...</div>;
   }
 
+  const onRowEdit = (row: ActivityVoucher) => {
+    console.log(row);
+    // setSelectedActivity(row);
+  };
+
+  const onRowDelete = (row: ActivityVoucher) => {
+    alert(row.vendor.name);
+    deleteActivity(row.vendor.name);
+  };
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-row justify-center gap-3">
@@ -116,7 +124,11 @@ const ActivitiesTab = () => {
       </div>
       <div className=" flex flex-row justify-center gap-2">
         <div className="w-full">
-          <DataTable columns={columns} data={bookingDetails.activities} />
+          <DataTableWithActions columns={columns} data={bookingDetails.activities} 
+                      onDelete={onRowDelete}
+                      onEdit={onRowEdit}
+                      onRowClick={onRowEdit}
+                      onDuplicate={onRowEdit}/>
         </div>
       </div>
       <div className="flex w-full justify-end">
