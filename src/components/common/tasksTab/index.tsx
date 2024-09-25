@@ -398,7 +398,7 @@ const ProceedContent = (
       </div>
       <div className="flex w-full flex-row justify-end gap-2">
         <Button variant="primaryGreen" onClick={handleSendVoucher}>
-          Send Voucher
+          Download Voucher
         </Button>
         <Button variant="primaryGreen" onClick={handleSubmit}>
           Save Voucher Rates

@@ -10,6 +10,7 @@ import LoadingLayout from "~/components/common/dashboardLoading";
 import Pagination from "~/components/common/pagination"; // Import the new pagination component
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import { getAllBookingLines } from "~/server/db/queries/booking";
 
 export default function Bookings() {
@@ -21,6 +22,8 @@ export default function Bookings() {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
+
+  const [searchQuery, setSearchQuery] = useState(""); // Add a state for search
 
   const pathname = usePathname();
 
@@ -59,10 +62,18 @@ export default function Bookings() {
     setCurrentPage(newPage);
   };
 
+    const filteredData = data.filter((booking) => {
+      const searchTerm = searchQuery.toLowerCase();
+      return (
+        booking.booking.client.id.toString().includes(searchTerm) ||
+        booking.booking.client.name.toLowerCase().includes(searchTerm)
+      );
+    });
+
   // Calculate the paginated data
   const startIndex = (currentPage - 1) * rowsPerPage;
-  const paginatedData = data.slice(startIndex, startIndex + rowsPerPage);
-  const totalPages = Math.ceil(data.length / rowsPerPage);
+  const paginatedData = filteredData.slice(startIndex, startIndex + rowsPerPage);
+  const totalPages = Math.ceil(filteredData.length / rowsPerPage);
 
   if (loading) {
     return (
@@ -92,8 +103,17 @@ export default function Bookings() {
               </Link>
             </div>
           </div>
-          <div className="flex flex-row gap-3">
+
+    
+
+          <div className="flex flex-row gap-3 mb-4">
             <div className="w-[60%]">
+            <Input
+              placeholder="Search by ID or Name"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)} // Update search state on input change
+            />
+            <div className="mt-2">
               <DataTable
                 columns={columns}
                 data={paginatedData} // Use the paginated data
@@ -105,6 +125,9 @@ export default function Bookings() {
                 onPageChange={handlePageChange}
               />
             </div>
+
+            </div>
+
             <div className="w-[40%]">
               <SidePanel
                 booking={selectedBooking ? selectedBooking : null}
