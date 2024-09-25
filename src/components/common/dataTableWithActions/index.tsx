@@ -1,4 +1,5 @@
-import React from "react";
+import { ColumnDef } from "@tanstack/react-table";
+import { MoreVertical } from "lucide-react";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { Button } from "~/components/ui/button";
 import {
@@ -8,8 +9,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { MoreVertical } from "lucide-react";
-import { ColumnDef } from "@tanstack/react-table";
 
 interface DataTableWithActionsProps<T> {
   data: T[];

@@ -1,34 +1,32 @@
-"use client";
+"use client"; 
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import {
-  BookingDTO,
-  columns
-} from "~/components/bookings/home/columns";
+import { BookingDTO, columns } from "~/components/bookings/home/columns";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import SidePanel from "~/components/bookings/home/sidePanel";
-import {
-  getAllBookingLines
-} from "~/server/db/queries/booking";
-// import { BookingDTO } from '~/lib/types/booking';
 import LoadingLayout from "~/components/common/dashboardLoading";
+import Pagination from "~/components/common/pagination"; // Import the new pagination component
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
+import { getAllBookingLines } from "~/server/db/queries/booking";
 
 export default function Bookings() {
   const [data, setData] = useState<BookingDTO[]>([]);
   const [selectedBooking, setSelectedBooking] = useState<BookingDTO | null>();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
 
   const pathname = usePathname();
 
   const fetchBookingLines = async () => {
     setLoading(true);
     try {
-      // const result = await getHotelData();
       const result = await getAllBookingLines();
 
       if (!result) {
@@ -43,6 +41,7 @@ export default function Bookings() {
       setLoading(false);
     }
   };
+
   // Fetch data on mount
   useEffect(() => {
     fetchBookingLines();
@@ -56,6 +55,15 @@ export default function Bookings() {
     setSelectedBooking(null);
   };
 
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  // Calculate the paginated data
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const paginatedData = data.slice(startIndex, startIndex + rowsPerPage);
+  const totalPages = Math.ceil(data.length / rowsPerPage);
+
   if (loading) {
     return (
       <div>
@@ -67,7 +75,7 @@ export default function Bookings() {
             </Link>
           </div>
         </div>
-          <LoadingLayout />
+        <LoadingLayout />
       </div>
     );
   }
@@ -88,8 +96,13 @@ export default function Bookings() {
             <div className="w-[60%]">
               <DataTable
                 columns={columns}
-                data={data}
+                data={paginatedData} // Use the paginated data
                 onRowClick={handleRowClick}
+              />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
               />
             </div>
             <div className="w-[40%]">
