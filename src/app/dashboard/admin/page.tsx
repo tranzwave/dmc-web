@@ -1,3 +1,4 @@
+
 import { redirect } from 'next/navigation'
 import { SearchUsers } from './_search-users'
 import { clerkClient } from '@clerk/nextjs/server'
@@ -9,13 +10,10 @@ import { OrganizationSwitcher } from '@clerk/nextjs'
 
 export default async function AdminDashboard(params: { searchParams: { search?: string } }) {
   if (!checkRole('admin')) {
+    alert("Not aut")
     redirect('/dashboard/overview')
   }
 
-  const query = params.searchParams.search
-
-  // const users = query ? (await clerkClient().users.getUserList()).data : []
-  const users = (await clerkClient().users.getUserList()).data
 
 
   return (
