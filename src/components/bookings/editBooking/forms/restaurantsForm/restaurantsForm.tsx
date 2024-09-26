@@ -82,7 +82,7 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
         kids: defaultValues?.kidsCount,
       },
       remarks: defaultValues?.remarks ?? "",
-      time: defaultValues?.time ?? "12:00",
+      time: defaultValues?.time ?? "",
     },
   });
 
@@ -93,7 +93,7 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
       date: form.getValues("date").toString(),
       mealType: form.getValues("mealType"),
       restaurantVoucherId: "",
-      time: form.getValues("time") ?? "10:00",
+      time: form.getValues("time") ?? "12:00",
       remarks: form.getValues("remarks"),
     };
     if (!selectedRestaurant) {
@@ -217,49 +217,42 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
               </FormItem>
             )}
           />
-          {/* {!showTimeField && (
-            <Button
-              variant="outline"
-              type="button"
-              onClick={() => setShowTimeField(true)}
-              className="mt-3"
-            >
-              Add Time
-            </Button>
-          )}
-          {showTimeField && (
-            <FormField
+          {/* <FormField
               name="time"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Time</FormLabel>
                   <FormControl>
-                    <Input
-                      type="time"
-                      {...field}
-                      value={field.value || "10:00"} // Default time
-                    />
+                    {showTimeField ? (
+                      <Input
+                        type="time"
+                        {...field}
+                        value={field.value || "10:00"} // Default time
+                      />
+                    ) : (
+                      <Button
+                        variant="outline"
+                        type="button"
+                        onClick={() => setShowTimeField(true)}
+                        className="mt-3"
+                      >
+                        Add Time
+                      </Button>
+                    )}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
-            />
-          )} */}
+            /> */}
           {/* <FormField
             name="time"
             control={form.control}
-            defaultValue="10:00"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Time</FormLabel>
                 <FormControl>
-                  <></>
-                  <Input
-                    type="time"
-                    {...field}
-                    value={field.value || "10:00 AM"}
-                  />
+                <Input type="time" {...field} value={field.value || "12:00"} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

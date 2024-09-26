@@ -50,9 +50,9 @@ export const activitySchema = z.object({
   city: z.string().min(1, "City is required"),
   vendor: z.string().min(1, "Vendor is required"),
   checkInDate: z.string().min(1, "Check-in date is required"),
-  time: z.string().min(1, "Time is required"),
-  headCount: z.number().min(1, "Head count is required"),
-  hours: z.number().min(1, "Hours are required"),
+  time: z.string().min(1, "Time is required").optional().or(z.literal("12:00")),
+  adultsCount: z.number().min(0, "Add adult count"),
+  kidsCount: z.number().min(0, "Add kids count"),
   remarks: z.string().optional(), // Optional field
 });
 
@@ -78,9 +78,9 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
       city: "",
       vendor: "",
       checkInDate: "",
-      time: "",
-      headCount: 1,
-      hours: 1,
+      time: "12:00",
+      kidsCount: 0,
+      adultsCount:0,
       remarks: "",
     },
   });
@@ -97,9 +97,9 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
           activityVendorId: selectedActivity.activityVendor.id,
           bookingLineId: "",
           coordinatorId: bookingDetails.general.marketingManager,
-          participantsCount: values.headCount,
-          time: values.time,
-          hours: values.hours,
+          participantsCount: values.adultsCount + values.kidsCount,
+          time: values.time ?? "10:00",
+          hours: 1,
           remarks: values.remarks,
         },
       });
@@ -210,7 +210,7 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>City</FormLabel>
+                  <FormLabel>Location</FormLabel>
                   <FormControl>
                     {/* <Input placeholder="Enter city" {...field} /> */}
                     <Select
@@ -321,7 +321,7 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
               </FormItem>
             )}
           />
-          <FormField
+          {/* <FormField
             name="time"
             control={form.control}
             render={({ field }) => (
@@ -333,13 +333,13 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
           <FormField
-            name="headCount"
+            name="adultsCount"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Head Count</FormLabel>
+                <FormLabel>Adults</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -351,7 +351,24 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
               </FormItem>
             )}
           />
-          <FormField
+                    <FormField
+            name="kidsCount"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Kids</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* <FormField
             name="hours"
             control={form.control}
             render={({ field }) => (
@@ -367,7 +384,7 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
         </div>
         <FormField
           name="remarks"

@@ -44,11 +44,11 @@ export const columns: ColumnDef<ActivityVoucher>[] = [
   //   header: "Time",
   //   accessorFn: row => row.voucher.time
   // },
-  // {
+  {
     
-  //   header: "Hours",
-  //   accessorFn: row => row.voucher.hours
-  // },
+    header: "Hours",
+    accessorFn: row => row.voucher.hours
+  },
   {
     
     header: "Adults & Kids",

@@ -22,7 +22,6 @@ export const formatDateToWeekdayMonth = (date: string): string => {
 const SummaryCard: React.FC<SummaryCardProps> = ({ summary }) => {
   const { day, date, hotel, restaurants, activities, transport, shops } =
     summary;
-
     const dateValue = formatDateToWeekdayMonth(date)
   return (
     <Accordion type="single" collapsible defaultValue={dateValue}>

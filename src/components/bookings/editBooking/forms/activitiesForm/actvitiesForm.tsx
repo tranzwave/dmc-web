@@ -11,14 +11,14 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Shop } from "./columns";
+import { Activity } from "./columns";
 import {
+  SelectActivity,
+  SelectActivityType,
+  SelectActivityVendor,
+  SelectActivityVoucher,
   SelectCity,
-  SelectShop,
-  SelectShopShopType,
-  SelectShopType,
 } from "~/server/db/schemaTypes";
-import { useState } from "react";
 import {
   Select,
   SelectContent,
@@ -26,100 +26,130 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { useState } from "react";
+import { getActivitiesByTypeAndCity } from "~/server/db/queries/activities";
 import { LoaderCircle } from "lucide-react";
-import { getShopsByTypeAndCity } from "~/server/db/queries/shops";
 import {
-  ShopVoucher,
+  ActivityVoucher,
   useAddBooking,
 } from "~/app/dashboard/bookings/add/context";
-import { booking } from "~/server/db/schema";
+import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 
-export type ShopsData = SelectShop & {
-  shopTypes: {
-    shopTypeId: number,
-    shopId: string,
-    shopType: SelectShopType;
-  }[];
-  city: SelectCity;
+export type ActivityData = SelectActivity & {
+  activityVendor: SelectActivityVendor & {
+    city: SelectCity
+  };
 };
-interface ShopsFormProps {
-  onAddShop: (shop: ShopVoucher) => void;
-  shopTypes: SelectShopType[];
+interface ActivityFormProps {
+  onAddActivity: (voucher: ActivityVoucher) => void;
+  activityTypes: SelectActivityType[];
   cities: SelectCity[];
 }
 
-type ShopWithoutCityAndTypes = Omit<ShopsData, "city" | "shopTypes">;
-
-export const shopsSchema = z.object({
-  shopType: z.string().min(1, "Shop type is required"),
+export const activitySchema = z.object({
+  activityType: z.string().min(1, "Activity type is required"),
   city: z.string().min(1, "City is required"),
-  shop: z.string().min(1, "Shop is required"),
-  date: z.string().min(1, "Date is required"),
+  vendor: z.string().min(1, "Vendor is required"),
+  checkInDate: z.string().min(1, "Check-in date is required"),
+  time: z.string().min(1, "Time is required").optional().or(z.literal("12:00")),
+  adultsCount: z.number().min(0, "Add adult count"),
+  kidsCount: z.number().min(0, "Add kids count"),
   remarks: z.string().optional(), // Optional field
 });
 
-const ShopsForm: React.FC<ShopsFormProps> = ({
-  onAddShop,
-  shopTypes,
+const ActivitiesForm: React.FC<ActivityFormProps> = ({
+  onAddActivity,
+  activityTypes,
   cities,
 }) => {
-  const [shops, setShops] = useState<ShopsData[]>([]);
+  const [selectedActivityType, setSelectedActivityType] =
+    useState<SelectActivityType>();
   const [selectedCity, setSelectedCity] = useState<SelectCity>();
-  const [selectedShopType, setSelectedShopType] = useState<SelectShopType>();
-  const [shopsLoading, setShopsLoading] = useState(false);
+  const [selectedActivity, setSelectedActivity] =
+    useState<ActivityData | null>();
+  const [activityLoading, setActivityLoading] = useState(false);
+  const [activities, setActivities] = useState<ActivityData[]>([]);
   const [error, setError] = useState<string>();
-  const [selectedShop, setSelectedShop] = useState<ShopsData | null>();
-  const { bookingDetails } = useAddBooking();
-  const form = useForm<z.infer<typeof shopsSchema>>({
-    resolver: zodResolver(shopsSchema),
+  const { addActivity, bookingDetails } = useEditBooking();
+
+  const form = useForm<z.infer<typeof activitySchema>>({
+    resolver: zodResolver(activitySchema),
     defaultValues: {
-      shopType: "",
+      activityType: "",
       city: "",
-      shop: "",
-      date: "",
+      vendor: "",
+      checkInDate: "",
+      time: "12:00",
+      kidsCount: 0,
+      adultsCount:0,
       remarks: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof shopsSchema>) {
-    const {
-      city,
-      shopTypes,
-      ...shopWithoutCityAndTypes
-    }: ShopWithoutCityAndTypes | any = selectedShop;
-    onAddShop({
-      shop: shopWithoutCityAndTypes,
-      voucher: {
-        bookingLineId: "",
-        coordinatorId: bookingDetails.general.marketingManager,
-        shopId: shopWithoutCityAndTypes.id,
-        date: values.date,
-        time: "10:00",
-        hours: 1,
-        participantsCount: bookingDetails.general.adultsCount + bookingDetails.general.kidsCount,
-        city: selectedShop?.city.name ?? "",
-        shopType: selectedShopType?.name ?? "",
-        remarks:values.remarks
-      },
-    });
-    form.reset();
+  function onSubmit(values: z.infer<typeof activitySchema>) {
+    if (selectedActivity) {
+      onAddActivity({
+        vendor: selectedActivity.activityVendor,
+        voucher: {
+          date: values.checkInDate,
+          activityName: selectedActivity.name,
+          city: selectedActivity.activityVendor.city.name,
+          activityId: selectedActivity.id,
+          activityVendorId: selectedActivity.activityVendor.id,
+          bookingLineId: "",
+          coordinatorId: bookingDetails.general.marketingManager,
+          participantsCount: values.adultsCount + values.kidsCount,
+          time: values.time ?? "10:00",
+          hours: 1,
+          remarks: values.remarks,
+        },
+      });
+      form.reset();
+    } else {
+      throw new Error("Please select a vendor");
+    }
   }
 
-  const fetchShops = async () => {
+  const getActivityTypeId = (name: string) => {
+    setSelectedActivity(null);
+    setActivities([]);
+    setActivityLoading(false);
+    const act = activityTypes.find((act) => act.name === name);
+    setSelectedActivityType(act);
+  };
+
+  const getCityId = (name: string) => {
+    setSelectedActivity(null);
+    setActivities([]);
+    setActivityLoading(false);
+    const city = cities.find((city) => city.name === name);
+    setSelectedCity(city);
+  };
+
+  const getVendorId = (name: string) => {
+    const activity = activities.find((act) => act.activityVendor.name === name);
+
+    setSelectedActivity(activity);
+  };
+
+  const fetchActivities = async () => {
     try {
-      if (selectedShopType && selectedCity) {
-        setShopsLoading(true);
-        const [shopsResponse] = await Promise.all([
-          getShopsByTypeAndCity(selectedShopType?.id, selectedCity?.id),
+      if (selectedActivityType && selectedCity) {
+        setActivityLoading(true);
+        const [activitiesResponse] = await Promise.all([
+          getActivitiesByTypeAndCity(
+            selectedActivityType?.id,
+            selectedCity?.id,
+          ),
         ]);
 
-        if (!shopsResponse) {
+        if (!activitiesResponse) {
           throw new Error("Couldn't get any activity");
         }
 
-        console.log(shopsResponse);
-        setShops(shopsResponse);
-        setShopsLoading(false);
+        console.log(activitiesResponse);
+        setActivities(activitiesResponse);
+        setActivityLoading(false);
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -128,30 +158,13 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
         setError("An unknown error occurred");
       }
       console.error("Error fetching data:", error);
-      setShopsLoading(false);
+      setActivityLoading(false);
     }
   };
 
-  const getCityId = (name: string) => {
-    setShops([]);
-    setShopsLoading(false);
-    const city = cities.find((city) => city.name === name);
-    setSelectedCity(city);
-  };
-
-  const getShopTypeId = (name: string) => {
-    setSelectedShop(null);
-    setShops([]);
-    setShopsLoading(false);
-    const type = shopTypes.find((type) => type.name === name);
-    setSelectedShopType(type);
-  };
-
-  const getShopId = (name: string) => {
-    const shop = shops.find((shop) => shop.name === name);
-
-    setSelectedShop(shop);
-  };
+  if (!activityTypes || !cities) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Form {...form}>
@@ -159,28 +172,31 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
         <div className="flex w-full flex-row items-end gap-3">
           <div className="grid w-full grid-cols-2 gap-3">
             <FormField
-              name="shopType"
+              name="activityType"
               control={form.control}
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Shop Type</FormLabel>
+                <FormItem className="w-full">
+                  <FormLabel>Activity Type</FormLabel>
                   <FormControl>
-                    {/* <Input placeholder="Enter shop type" {...field} /> */}
+                    {/* <Input placeholder="Enter activity type" {...field} /> */}
                     <Select
                       onValueChange={(value) => {
                         field.onChange(value);
                         // getHotelId(value);
-                        getShopTypeId(value);
+                        getActivityTypeId(value);
                       }}
                       value={field.value}
                     >
                       <SelectTrigger className="bg-slate-100 shadow-md">
-                        <SelectValue placeholder="Select shop type" />
+                        <SelectValue placeholder="Select activity type" />
                       </SelectTrigger>
                       <SelectContent>
-                        {shopTypes.map((shopType) => (
-                          <SelectItem key={shopType.id} value={shopType.name}>
-                            {shopType.name}
+                        {activityTypes.map((activityType) => (
+                          <SelectItem
+                            key={activityType.id}
+                            value={activityType.name}
+                          >
+                            {activityType.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -195,7 +211,7 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>City</FormLabel>
+                  <FormLabel>Location</FormLabel>
                   <FormControl>
                     {/* <Input placeholder="Enter city" {...field} /> */}
                     <Select
@@ -223,15 +239,16 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
               )}
             />
           </div>
+
           <div className="w-[10%]">
             <Button
               variant={"primaryGreen"}
-              onClick={fetchShops}
+              onClick={fetchActivities}
               type="button"
               className="w-full"
             >
-              {shopsLoading ? (
-                shopsLoading && (
+              {activityLoading ? (
+                activityLoading && (
                   <div>
                     <LoaderCircle className="animate-spin" />
                   </div>
@@ -244,38 +261,41 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
         </div>
         <div className="flex w-full flex-row items-center">
           <FormField
-            name="shop"
+            name="vendor"
             control={form.control}
             render={({ field }) => (
               <FormItem className="w-full">
-                <FormLabel>Shop</FormLabel>
+                <FormLabel>Vendor</FormLabel>
                 <FormControl>
                   {/* <Input placeholder="Enter vendor" {...field} /> */}
-                  {shopsLoading ? (
+                  {activityLoading ? (
                     <div>Loading...</div>
-                  ) : shops.length > 0 ? (
+                  ) : activities.length > 0 ? (
                     <Select
                       onValueChange={(value) => {
                         field.onChange(value);
                         // getHotelId(value);
-                        getShopId(value);
+                        getVendorId(value);
                       }}
                       value={field.value}
                     >
                       <SelectTrigger className="bg-slate-100 shadow-md">
-                        <SelectValue placeholder="Select shop" />
+                        <SelectValue placeholder="Select activity vendor" />
                       </SelectTrigger>
                       <SelectContent>
-                        {shops.map((shop) => (
-                          <SelectItem key={shop.id} value={shop.name}>
-                            {shop.name}
+                        {activities.map((activity) => (
+                          <SelectItem
+                            key={activity.id}
+                            value={activity.activityVendor.name}
+                          >
+                            {activity.activityVendor.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   ) : (
                     <Input
-                      placeholder={`Please click search after selecting a valid shop type and a city`}
+                      placeholder={`Please click search after selecting a valid activity type and a city`}
                       {...field}
                       disabled={true}
                     />
@@ -287,13 +307,14 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
           />
           {/* <Button variant={"outline"}>Search</Button> */}
         </div>
+
         <div className="grid grid-cols-4 gap-3">
           <FormField
-            name="date"
+            name="checkInDate"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date</FormLabel>
+                <FormLabel>Check-in Date</FormLabel>
                 <FormControl>
                   <Input type="date" {...field} />
                 </FormControl>
@@ -314,6 +335,40 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
               </FormItem>
             )}
           /> */}
+          <FormField
+            name="adultsCount"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Adults</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+                    <FormField
+            name="kidsCount"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Kids</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           {/* <FormField
             name="hours"
             control={form.control}
@@ -355,4 +410,4 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
   );
 };
 
-export default ShopsForm;
+export default ActivitiesForm;

@@ -1,25 +1,25 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-  HotelVoucher,
-  useAddBooking,
-} from "~/app/dashboard/bookings/add/context";
-import { CalendarV2 } from "~/components/common/customCalendar";
-import { DataTableWithActions } from "~/components/common/dataTableWithActions";
+import { DataTable } from "~/components/bookings/home/dataTable";
 import { Button } from "~/components/ui/button";
-import { useToast } from "~/hooks/use-toast";
-import { getAllHotelsV2 } from "~/server/db/queries/hotel";
 import {
   InsertHotelVoucher,
   InsertHotelVoucherLine,
-  SelectHotel
+  SelectHotel,
+  SelectHotelVoucher,
+  SelectHotelVoucherLine,
 } from "~/server/db/schemaTypes";
 import { Hotel, voucherColumns } from "./columns";
 import HotelsForm from "./hotelsForm";
+import { getAllHotels, getAllHotelsV2 } from "~/server/db/queries/hotel";
+import { useToast } from "~/hooks/use-toast";
+import { Calendar } from "~/components/ui/calendar";
+import { CalendarV2, DateRange } from "~/components/common/customCalendar";
+import {   HotelVoucher,useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 
 const HotelsTab = () => {
   const [addedHotels, setAddedHotels] = useState<Hotel[]>([]);
-  const { addHotelVoucher, bookingDetails, setActiveTab, deleteHotel } = useAddBooking();
+  const { addHotelVoucher, bookingDetails, setActiveTab } = useEditBooking();
   const [loading, setLoading] = useState(false);
   const [hotels, setHotels] = useState<SelectHotel[]>([]);
   const [error, setError] = useState<string | null>();
@@ -99,16 +99,6 @@ const HotelsTab = () => {
     }
   };
 
-  const onRowEdit = (row: HotelVoucher) => {
-    console.log(row);
-    // setSelectedActivity(row);
-  };
-
-  const onRowDelete = (row: HotelVoucher) => {
-    alert(row.hotel.name);
-    deleteHotel(row.hotel.name);
-  };
-  
   // const dateRanges: DateRange[] = [
   //   { start: "2024-09-03", end: "2024-09-07" }, // No color provided
   //   // { start: "2024-09-01", end: "2024-09-05", color: "bg-blue-300" },
@@ -174,11 +164,7 @@ const HotelsTab = () => {
       </div>
       <div className="flex w-full flex-col items-center justify-center gap-2">
         <div className="w-full">
-          <DataTableWithActions columns={voucherColumns} data={bookingDetails.vouchers}
-          onDelete={onRowDelete}
-          onEdit={onRowEdit}
-          onRowClick={onRowEdit}
-          onDuplicate={onRowEdit} />
+          <DataTable columns={voucherColumns} data={bookingDetails.vouchers} />
         </div>
         <div className="flex w-full justify-end">
           <Button variant={"primaryGreen"} onClick={onNextClick}>

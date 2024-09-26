@@ -13,6 +13,7 @@ import ActivitiesTasksTab from "~/components/bookings/tasks/activities";
 import ShopsTasksTab from "~/components/bookings/tasks/shops";
 import TransportTasksTab from "~/components/bookings/tasks/transport";
 import { BookingLineWithAllData } from "~/lib/types/booking";
+import { AddBookingProvider } from "../../add/context";
 
 const Page = ({ params }: { params: { id: string } }) => {
   const pathname = usePathname();
@@ -57,6 +58,7 @@ const Page = ({ params }: { params: { id: string } }) => {
   }
 
   return (
+    <AddBookingProvider>
     <div className="flex">
       <div className="flex-1">
         <div className="flex flex-col gap-3">
@@ -170,6 +172,7 @@ const Page = ({ params }: { params: { id: string } }) => {
         </div>
       </div>
     </div>
+    </AddBookingProvider>
   );
 };
 

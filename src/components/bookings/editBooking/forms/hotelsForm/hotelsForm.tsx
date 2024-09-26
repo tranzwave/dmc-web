@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useAddBooking } from "~/app/dashboard/bookings/add/context";
+import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -66,7 +66,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
 }) => {
   const [selectedHotel, setSelectedHotel] = useState<SelectHotel | null>();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { bookingDetails } = useAddBooking();
+  const { bookingDetails } = useEditBooking();
 
   const form = useForm<z.infer<typeof hotelsSchema>>({
     resolver: zodResolver(hotelsSchema),
