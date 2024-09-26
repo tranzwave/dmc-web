@@ -4,6 +4,8 @@ import { clerkClient } from '@clerk/nextjs/server'
 import { setRole } from './_actions'
 import { checkRole } from '~/lib/utils/roles'
 import { Permissions } from '~/lib/types/global'
+import { OrganizationRolesAndPermissions } from '~/components/organization/managePermissions'
+import { OrganizationSwitcher } from '@clerk/nextjs'
 
 export default async function AdminDashboard(params: { searchParams: { search?: string } }) {
   if (!checkRole('admin')) {
@@ -12,17 +14,19 @@ export default async function AdminDashboard(params: { searchParams: { search?: 
 
   const query = params.searchParams.search
 
-  const users = query ? (await clerkClient().users.getUserList({ query })).data : []
+  // const users = query ? (await clerkClient().users.getUserList()).data : []
+  const users = (await clerkClient().users.getUserList()).data
 
 
   return (
     <>
-      <h1>This is the admin dashboard</h1>
+    <OrganizationRolesAndPermissions/>
+      {/* <h1>This is the admin dashboard</h1>
       <p>This page is restricted to users with the 'admin' role.</p>
 
-      <SearchUsers />
+      <SearchUsers /> */}
 
-      {users.map((user) => {
+      {/* {users.map((user) => {
         return (
           <div key={user.id}>
             <div>
@@ -52,7 +56,7 @@ export default async function AdminDashboard(params: { searchParams: { search?: 
             </div>
           </div>
         )
-      })}
+      })} */}
     </>
   )
 }

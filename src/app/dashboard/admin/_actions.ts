@@ -3,6 +3,23 @@
 import { clerkClient } from '@clerk/nextjs/server'
 import { checkRole } from '~/lib/utils/roles'
 
+
+export async function getUserById(userId: string) {
+  // Check if the current user has the appropriate role to access this function
+  if (!checkRole('admin')) {
+    return { message: 'Not Authorized' }
+  }
+
+  try {
+    // Use Clerk's client to fetch user details by user ID
+    const user = await clerkClient().users.getUser(userId)
+    console.log(user)
+    return { message: 'User fetched successfully', user }
+  } catch (err) {
+    return { message: `Error fetching user: ${err}` }
+  }
+}
+
 export async function setRole(formData: FormData) {
 
   if (!checkRole('admin')) {

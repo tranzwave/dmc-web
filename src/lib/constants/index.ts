@@ -37,3 +37,20 @@ export const hotelBoardBasis = [
     "Modified American Plan", // Includes breakfast and either lunch or dinner
     "European Plan"           // Room-only, meals are paid separately
   ];
+
+
+  export const permissionsList = [
+    "booking_activity:manage",
+    "booking_agent:manage",
+    "booking_hotel:manage",
+    "booking_invoice:manage",
+    "booking_rest:manage",
+    "booking_shops:manage",
+    "booking_transport:manage",
+    "sys_domains:manage",
+    "sys_domains:read",
+    "sys_memberships:manage",
+    "sys_memberships:read",
+    "sys_profile:delete",
+    "sys_profile:manage",
+  ];
