@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { SetStateAction, useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { DataTableWithActions } from "~/components/common/dataTableWithActions/index";
@@ -49,8 +49,8 @@ const TasksTab = <
 }: TasksTabProps<T, L>) => {
   const [selectedVoucher, setSelectedVoucher] = useState<any>();
   const [selectedVoucherLine, setSelectedVoucherLine] = useState<any>();
-  const [rate, setRate] = useState<number | "">(0);
-  const [statusChanged,setStatusChanged] = useState<boolean>(false);
+  const [rate, setRate] = useState<string | number>(0);
+  const [statusChanged, setStatusChanged] = useState<boolean>(false);
 
   const { toast } = useToast();
 
@@ -125,9 +125,9 @@ const TasksTab = <
 
   const proceedButton = <Button variant={"primaryGreen"}>Proceed</Button>;
 
-  useEffect(()=>{
-    console.log("Status changed")
-  }, [statusChanged])
+  useEffect(() => {
+    console.log("Status changed");
+  }, [statusChanged]);
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">
@@ -182,16 +182,18 @@ const TasksTab = <
                 trigger={proceedButton}
                 onConfirm={handleConfirm}
                 onCancel={handleCancel}
-                dialogContent={ProceedContent(
-                  voucherColumns,
-                  selectedVoucher,
-                  onVoucherLineRowClick,
-                  updateVoucherLine,
-                  updateVoucherStatus,
-                  rate,
-                  setRate,
-                  setStatusChanged,
-                )}
+                dialogContent={
+                  <ProceedContent
+                    voucherColumns={voucherColumns}
+                    selectedVoucher={selectedVoucher}
+                    onVoucherLineRowClick={onVoucherLineRowClick}
+                    updateVoucherLine={updateVoucherLine}
+                    updateVoucherStatus={updateVoucherStatus}
+                    rate={rate}
+                    setRate={setRate}
+                    setStatusChanged={setStatusChanged}
+                  />
+                }
                 size="large"
               />
             </div>
@@ -240,58 +242,243 @@ const TasksTab = <
 
 export default TasksTab;
 
+// const CreateRateColumn = <T extends object>(
+//   initialRate: number | string,
+//   setRate: (rate: number | string) => void,
+// ): ColumnDef<T> => ({
+//   accessorKey: 'rate',
+//   header: 'Rate - USD',
+//   cell: ({ getValue, row, column }) => {
+//     const [rate, setLocalRate] = useState<number | string>(initialRate);
+
+//     useEffect(() => {
+//       setLocalRate(initialRate);
+//     }, [initialRate]);
+
+//     const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//       const inputValue = e.target.value;
+//       const newRate = parseFloat(inputValue);
+
+//       // Check if the newRate is a valid number
+//       if (!isNaN(newRate)) {
+//         setLocalRate(newRate);
+//         setRate(newRate);
+//       } else {
+//         setLocalRate(""); // Set to '' if the input is not a valid number
+//         setRate("");
+//       }
+
+//       // Update the row data with the new rate value
+//       (row.original as Record<string, any>)[column.id] = newRate;
+//     };
+
+//     return (
+//       <Input
+//         type="number"
+//         value={rate === "" ? "" : rate}
+//         onChange={handleRateChange}
+//         className="rounded border border-gray-300 p-1"
+//         style={{ width: '80px' }}
+//       />
+//     );
+//   },
+// });
+
 const CreateRateColumn = <T extends object>(
   initialRate: number | string,
-  setRate: (rate: number | string) => void,
+  setRate: React.Dispatch<SetStateAction<number | string>>,
 ): ColumnDef<T> => ({
-  accessorKey: 'rate',
-  header: 'Rate - USD',
+  accessorKey: "rate",
+  header: "Rate - USD",
   cell: ({ getValue, row, column }) => {
-    const [rate, setLocalRate] = useState<number | string>(initialRate);
+    // Create a separate component to handle state and rendering
+    const RateInput = () => {
+      const [rate, setLocalRate] = useState<number | string>(initialRate);
 
-    useEffect(() => {
-      setLocalRate(initialRate);
-    }, [initialRate]);
+      useEffect(() => {
+        setLocalRate(initialRate);
+      }, [initialRate]);
 
-    const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const inputValue = e.target.value;
-      const newRate = parseFloat(inputValue);
+      const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const inputValue = e.target.value;
+        const newRate = parseFloat(inputValue);
 
-      // Check if the newRate is a valid number
-      if (!isNaN(newRate)) {
-        setLocalRate(newRate);
-        setRate(newRate);
-      } else {
-        setLocalRate(""); // Set to '' if the input is not a valid number
-        setRate("");
-      }
+        // Check if the newRate is a valid number
+        if (!isNaN(newRate)) {
+          setLocalRate(newRate);
+          setRate(newRate);
+        } else {
+          setLocalRate(""); // Set to '' if the input is not a valid number
+          setRate("");
+        }
 
-      // Update the row data with the new rate value
-      (row.original as Record<string, any>)[column.id] = newRate;
+        // Update the row data with the new rate value
+        (row.original as Record<string, any>)[column.id] = newRate;
+      };
+
+      return (
+        <Input
+          type="number"
+          value={rate === "" ? "" : rate}
+          onChange={handleRateChange}
+          className="rounded border border-gray-300 p-1"
+          style={{ width: "80px" }}
+        />
+      );
     };
 
-    return (
-      <Input
-        type="number"
-        value={rate === "" ? "" : rate}
-        onChange={handleRateChange}
-        className="rounded border border-gray-300 p-1"
-        style={{ width: '80px' }}
-      />
-    );
+    // Render the RateInput component inside the cell
+    return <RateInput />;
   },
 });
 
-const ProceedContent = (
-  voucherColumns: any,
-  selectedVoucher: any,
-  onVoucherLineRowClick: any,
-  updateVoucherLine: any,
-  updateVoucherStatus: any,
-  rate: number | string,
-  setRate: any,
-  setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>
-) => {
+// const ProceedContent = (
+//   voucherColumns: any,
+//   selectedVoucher: any,
+//   onVoucherLineRowClick: any,
+//   updateVoucherLine: any,
+//   updateVoucherStatus: any,
+//   rate: number | string,
+//   setRate: any,
+//   setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>
+// ) => {
+//   const rateColumn = CreateRateColumn<typeof voucherColumns>(rate, setRate);
+//   const VoucherLineColumnsWithRate = [...voucherColumns, rateColumn];
+
+//   const [ratesConfirmedBy, setRatesConfirmedBy] = useState("");
+//   const [ratesConfirmedTo, setRatesConfirmedTo] = useState("");
+//   const [availabilityConfirmedBy, setAvailabilityConfirmedBy] = useState("");
+//   const [availabilityConfirmedTo, setAvailabilityConfirmedTo] = useState("");
+//   const { toast } = useToast();
+
+//   const areAllFieldsFilled = () => {
+//     return (
+//       ratesConfirmedBy.trim() !== "" &&
+//       ratesConfirmedTo.trim() !== "" &&
+//       availabilityConfirmedBy.trim() !== "" &&
+//       availabilityConfirmedTo.trim() !== ""
+//     );
+//   };
+
+//   const handleSubmit = async () => {
+//     if (!areAllFieldsFilled()) {
+//       alert("Please fill all the required fields.");
+//       return;
+//     }
+
+//     // Logic to check if all rates are filled
+//     const areAllRatesFilled = selectedVoucher?.voucherLine?.every(
+//       (line: any) => {
+//         console.log(line.rate);
+//         return !Number.isNaN(line.rate);
+//       },
+//     );
+
+//     if (!areAllRatesFilled) {
+//       alert("Please ensure all rates are filled.");
+//       return;
+//     }
+
+//     try {
+//       await updateVoucherLine(
+//         selectedVoucher?.voucherLine ?? [selectedVoucher],
+//       );
+//       alert("Voucher line updated successfully!");
+//     } catch (error) {
+//       console.error("Failed to update voucher line:", error);
+//       alert("An error occurred while updating the voucher line.");
+//     }
+//   };
+
+//   const handleSendVoucher = async () => {
+//     if (selectedVoucher?.status !== "inprogress") {
+//       toast({
+//         title: "Error",
+//         description: "You've already sent the voucher to vendor",
+//       });
+//       return;
+//     }
+
+//     try {
+//       selectedVoucher?.status ? (selectedVoucher.status = "sentToVendor") : "";
+//       setStatusChanged(true)
+//       await updateVoucherStatus(selectedVoucher);
+//       alert("Voucher status updated successfully");
+//     } catch (error) {
+//       console.error("Failed to update voucher status:", error);
+//     }
+//   };
+
+//   return (
+//     <div className="mb-9 space-y-6">
+//       <DataTableWithActions
+//         columns={VoucherLineColumnsWithRate}
+//         data={
+//           selectedVoucher
+//             ? (selectedVoucher.voucherLine ?? [selectedVoucher])
+//             : []
+//         }
+//         onRowClick={onVoucherLineRowClick}
+//         onView={() => alert("View action triggered")}
+//         onEdit={() => alert("Edit action triggered")}
+//         onDelete={() => alert("Delete action triggered")}
+//       />
+
+//       <div className="grid grid-cols-4 gap-2">
+//         <Input
+//           placeholder="Rates Confirmed By"
+//           value={ratesConfirmedBy}
+//           onChange={(e) => setRatesConfirmedBy(e.target.value)}
+//         />
+//         <Input
+//           placeholder="Rates Confirmed To"
+//           value={ratesConfirmedTo}
+//           onChange={(e) => setRatesConfirmedTo(e.target.value)}
+//         />
+//         <Input
+//           placeholder="Availability Confirmed By"
+//           value={availabilityConfirmedBy}
+//           onChange={(e) => setAvailabilityConfirmedBy(e.target.value)}
+//         />
+//         <Input
+//           placeholder="Availability Confirmed To"
+//           value={availabilityConfirmedTo}
+//           onChange={(e) => setAvailabilityConfirmedTo(e.target.value)}
+//         />
+//       </div>
+//       <div className="flex w-full flex-row justify-end gap-2">
+//         <Button variant="primaryGreen" onClick={handleSendVoucher}>
+//           Download Voucher
+//         </Button>
+//         <Button variant="primaryGreen" onClick={handleSubmit}>
+//           Save Voucher Rates
+//         </Button>
+//       </div>
+//     </div>
+//   );
+// };
+
+interface ProceedContentProps {
+  voucherColumns: any;
+  selectedVoucher: any;
+  onVoucherLineRowClick: any;
+  updateVoucherLine: any;
+  updateVoucherStatus: any;
+  rate: number | string;
+  setRate: React.Dispatch<SetStateAction<number | string>>,
+  setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const ProceedContent: React.FC<ProceedContentProps> = ({
+  voucherColumns,
+  selectedVoucher,
+  onVoucherLineRowClick,
+  updateVoucherLine,
+  updateVoucherStatus,
+  rate,
+  setRate,
+  setStatusChanged,
+}) => {
   const rateColumn = CreateRateColumn<typeof voucherColumns>(rate, setRate);
   const VoucherLineColumnsWithRate = [...voucherColumns, rateColumn];
 
@@ -299,7 +486,6 @@ const ProceedContent = (
   const [ratesConfirmedTo, setRatesConfirmedTo] = useState("");
   const [availabilityConfirmedBy, setAvailabilityConfirmedBy] = useState("");
   const [availabilityConfirmedTo, setAvailabilityConfirmedTo] = useState("");
-  const { toast } = useToast();
 
   const areAllFieldsFilled = () => {
     return (
@@ -318,10 +504,7 @@ const ProceedContent = (
 
     // Logic to check if all rates are filled
     const areAllRatesFilled = selectedVoucher?.voucherLine?.every(
-      (line: any) => {
-        console.log(line.rate);
-        return !Number.isNaN(line.rate);
-      },
+      (line: any) => !Number.isNaN(line.rate),
     );
 
     if (!areAllRatesFilled) {
@@ -342,16 +525,15 @@ const ProceedContent = (
 
   const handleSendVoucher = async () => {
     if (selectedVoucher?.status !== "inprogress") {
-      toast({
-        title: "Error",
-        description: "You've already sent the voucher to vendor",
-      });
+      alert("You've already sent the voucher to vendor");
       return;
     }
-    
+
     try {
-      selectedVoucher?.status ? (selectedVoucher.status = "sentToVendor") : "";
-      setStatusChanged(true)
+      if (selectedVoucher?.status) {
+        selectedVoucher.status = "sentToVendor";
+      }
+      setStatusChanged(true);
       await updateVoucherStatus(selectedVoucher);
       alert("Voucher status updated successfully");
     } catch (error) {

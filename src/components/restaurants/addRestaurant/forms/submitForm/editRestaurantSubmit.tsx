@@ -2,14 +2,14 @@
 import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { RestaurantData } from "~/app/dashboard/restaurants/[id]/edit/page";
+// import  RestaurantData from "~/app/dashboard/restaurants/[id]/edit/page";
 import { useAddRestaurant } from "~/app/dashboard/restaurants/add/context";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
 import { updateRestaurantAndRelatedData } from "~/server/db/queries/restaurants";
 import { InsertMeal, InsertRestaurant } from "~/server/db/schemaTypes";
 
-const EditRestaurantSubmitForm = ({id,originalDriverData}:{id:string,originalDriverData:RestaurantData | null}) => {
+const EditRestaurantSubmitForm = ({id,originalDriverData}:{id:string,originalDriverData:any | null}) => {
     const { restaurantDetails } = useAddRestaurant();
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
