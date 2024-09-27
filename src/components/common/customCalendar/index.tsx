@@ -70,7 +70,7 @@ export const CalendarV2: React.FC<CalendarProps> = ({ dateRanges }) => {
   
     // If a child range is found, highlight it
     if (childRange) {
-      return childRange.color || "bg-primary-green text-white"; // Highlight child range if present
+      return childRange.color ?? "bg-primary-green text-white"; // Highlight child range if present
     }
   
     // Proceed to check the main range if no child range is found
@@ -88,7 +88,7 @@ export const CalendarV2: React.FC<CalendarProps> = ({ dateRanges }) => {
   
     // Determine the color based on whether we're in the main range
     return isInMainRange
-      ? mainRange.color || "bg-primary-green text-white" // Highlight main range if no child range
+      ? mainRange.color ?? "bg-primary-green text-white" // Highlight main range if no child range
       : "bg-white text-neutral-700"; // Default color
   };
   
