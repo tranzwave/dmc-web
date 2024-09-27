@@ -18,6 +18,7 @@ import {
 import { OrganizationRolesAndPermissions } from "~/components/organization/managePermissions";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "~/components/ui/breadcrumb";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 // TopBar component
 const TopBar = () => {
@@ -44,56 +45,14 @@ const TopBar = () => {
       <div className="flex flex-row items-center gap-8">
         <div className="flex flex-row items-center gap-3">
           <Info size={20} color="#697077" className="cursor-pointer" />
-          <Settings size={20} color="#697077" className="cursor-pointer" />
+          <Link href={"/dashboard/admin"} className="hover:cursor-pointer">
+            <Settings size={20} color="#697077" className="cursor-pointer" />
+          </Link>
           <Bell size={20} color="#697077" className="cursor-pointer" />
         </div>
         <SignedIn>
           <UserButton>
-            <UserButton.MenuItems>
-              <UserButton.Action
-                label="Organization"
-                labelIcon={<Building2 size={15} color="#737373" />}
-                open="organization"
-              />
-            </UserButton.MenuItems>
-
-            <UserButton.UserProfilePage
-              label="Organization"
-              labelIcon={<House size={15} color="#737373" />}
-              url="organization"
-            >
-              <div>
-                <div className="items-center border-b pb-4 text-base font-bold">
-                  Organization
-                </div>
-                <div className="mt-4 flex flex-row items-center gap-2">
-                  <div className="text-[13px] font-medium">
-                    Please select your organization from this list
-                  </div>
-                  <div></div>
-                </div>
-              </div>
-            </UserButton.UserProfilePage>
           </UserButton>
-          <OrganizationSwitcher
-            defaultOpen={true}
-            hidePersonal={true}
-            appearance={{
-              elements: {
-                organizationSwitcherPopoverActionButton__createOrganization:
-                  "hidden",
-              },
-            }}
-          >
-            <OrganizationSwitcher.OrganizationProfilePage
-              label="Roles & Permissions"
-              labelIcon={<House size={15} color="#737373" />}
-              url="roles"
-            >
-              <OrganizationRolesAndPermissions />
-              {/* <ManageRoles/> */}
-            </OrganizationSwitcher.OrganizationProfilePage>
-          </OrganizationSwitcher>
         </SignedIn>
         <SignedOut>
           <SignInButton />
