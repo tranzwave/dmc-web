@@ -6,7 +6,7 @@ import { DriverData } from "~/app/dashboard/transport/[id]/edit/page";
 import { useAddTransport } from "~/app/dashboard/transport/add/context";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
-import { insertDriver, updateDriverAndRelatedData } from "~/server/db/queries/transport";
+import { updateDriverAndRelatedData } from "~/server/db/queries/transport";
 import { InsertDriver, InsertLanguage, InsertVehicle } from "~/server/db/schemaTypes";
 
 const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriverData:DriverData | null}) => {

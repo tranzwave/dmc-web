@@ -112,10 +112,10 @@ const Overview = () => {
         <div className="text-3xl font-semibold text-[#235026]">WELCOME</div>
         <div className="text-3xl font-semibold text-[#235026]">{user ? user.fullName?.toUpperCase() : "To Tranzwave"}</div>
       </div>
-      <div className="h-[14%]">
+      <div className="">
         <StatCards stats={data.stats ?? []}/>
       </div>
-      <div className="flex w-full h-[55%] flex-row gap-3">
+      <div className="flex w-full flex-row gap-3">
         <div className="card w-1/2 gap-3 h-full">
           <div>
             <div className="card-title">Services</div>

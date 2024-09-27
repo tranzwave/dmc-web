@@ -1,6 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { ActivityTypeDTO } from "~/app/dashboard/activities/add/context";
-import { InsertActivity } from "~/server/db/schemaTypes"; // Import your activity type definition
 
 export const columns: ColumnDef<ActivityTypeDTO>[] = [
   {

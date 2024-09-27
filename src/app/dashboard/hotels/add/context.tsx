@@ -11,6 +11,8 @@ interface AddHotelContextProps {
   restaurants: InsertRestaurant[];
   restaurantMeals: InsertMeal[];
   activeTab: string;
+  deleteStaff: (numberPlate: string) => void; // New deleteStaff method
+  deleteHotel: (typeName: string) => void; // New deleteHotel method
   setActiveTab: (tab: string) => void;
   setHotelGeneral: (hotel: InsertHotel) => void;
   addHotelRoom: (room: InsertHotelRoom) => void;
@@ -88,6 +90,23 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
   );
   };
 
+    const deleteHotel = (typeName: string) => {
+    alert(typeName)
+    // setTransportDetails(prev => ({
+    //   ...prev,
+    //   vehicles: prev.vehicles.filter(vehicle => vehicle.numberPlate !== numberPlate)
+    // }));
+  };
+
+  const deleteStaff = (name: string) => {
+    alert(name)
+    // setTransportDetails(prev => ({
+    //   ...prev,
+    //   vehicles: prev.vehicles.filter(vehicle => vehicle.numberPlate !== numberPlate)
+    // }));
+  };
+
+
   return (
     <AddHotelContext.Provider
       value={{
@@ -97,6 +116,8 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
         restaurants,
         restaurantMeals,
         activeTab,
+        deleteHotel,
+        deleteStaff,
         setActiveTab,
         setHotelGeneral,
         addHotelRoom,

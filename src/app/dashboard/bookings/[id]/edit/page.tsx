@@ -1,0 +1,217 @@
+"use client";
+import Link from "next/link";
+import { useParams, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import ActivitiesTab from "~/components/bookings/editBooking/forms/activitiesForm";
+import GeneralTab from "~/components/bookings/editBooking/forms/generalForm";
+import HotelsTab from "~/components/bookings/editBooking/forms/hotelsForm";
+import RestaurantsTab from "~/components/bookings/editBooking/forms/restaurantsForm";
+import ShopsTab from "~/components/bookings/editBooking/forms/shopsForm";
+import TransportTab from "~/components/bookings/editBooking/forms/transportForm";
+import TitleBar from "~/components/common/titleBar";
+import { Button } from "~/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import AddBookingSubmitTab from "~/components/bookings/editBooking/forms/submitForm";
+import { EditBookingProvider, useEditBooking } from "./context";
+import { getBookingLineWithAllData } from "~/server/db/queries/booking";
+import { format } from 'date-fns';
+
+const EditBooking = ({ id }: { id: string }) => {
+  const pathname = usePathname();
+  const {
+    setGeneralDetails,
+    addHotelVoucher,
+    addRestaurantVoucher: addRestaurant,
+    addActivity,
+    addTransport,
+    addShop,
+    activeTab,
+    setActiveTab,
+    bookingDetails,
+    statusLabels,
+  } = useEditBooking();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isGeneralDetailsSet, setIsGeneralDetailsSet] = useState<boolean>(false);
+
+  const fetchBookingLine = async ()=>{
+    try {
+        setLoading(true)
+        const selectedBookingLine = await getBookingLineWithAllData(id)
+
+        if(!selectedBookingLine){
+        throw new Error("Couldn't find booking line");
+        }
+
+        const {booking, hotelVouchers, restaurantVouchers, transportVouchers, activityVouchers, shopsVouchers, ...general} = selectedBookingLine;
+        // console.log(booking, hotelVouchers,restaurantVouchers,transportVouchers,activityVouchers, shopsVouchers, general)
+        console.log(selectedBookingLine)
+
+        setGeneralDetails({
+            clientName: booking.client.name,
+            adultsCount:general.adultsCount,
+            kidsCount:general.kidsCount,
+            agent:booking.agentId,
+            country:booking.client.country,
+            primaryEmail:booking.client.primaryEmail,
+            startDate:format(new Date(general.startDate), 'yyyy-MM-dd'),
+            endDate:format(new Date(general.endDate), 'yyyy-MM-dd'),
+            includes:{
+                activities:general.includes?.activities ?? false,
+                hotels:general.includes?.hotels ?? false,
+                restaurants:general.includes?.restaurants ?? false,
+                shops:general.includes?.shops ?? false,
+                transport:general.includes?.transport ?? false
+            },
+            marketingManager:booking.managerId,
+            numberOfDays:7,
+            tourType:booking.tourType
+        })
+        setLoading(false);
+        setTimeout(() => {
+            console.log("This message is logged after 3 seconds");
+            setIsGeneralDetailsSet(true);
+          }, 3000);
+          
+    } catch (error) {
+        console.error("Failed to fetch driver details:", error);
+      setError("Failed to load driver details.");
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    console.log("Add Booking Component");
+    fetchBookingLine()
+  }, [id]);
+
+  return (
+    <div className="flex">
+      <div className="flex-1">
+        <div className="flex flex-col gap-3">
+          <div className="flex w-full flex-row justify-between gap-1">
+            <TitleBar title="Add Booking" link="toeditBooking" />
+            <div>
+              <Link href={`${pathname}`}>
+                <Button variant="link">Finish Later</Button>
+              </Link>
+            </div>
+          </div>
+          <div className="w-full">
+            <Tabs
+              defaultValue="general"
+              className="w-full"
+              value={activeTab}
+            >
+              <TabsList className="flex w-full justify-evenly">
+                <TabsTrigger
+                  value="general"
+                  onClick={() => setActiveTab("general")}
+                  isCompleted = {false}
+                  inProgress = {activeTab == "general"}
+                >
+                  General
+                </TabsTrigger>
+                <TabsTrigger
+                  value="hotels"
+                  onClick={() => setActiveTab("hotels")}
+                  disabled={bookingDetails.vouchers.length == 0 || !bookingDetails.general.includes.hotels}
+                  statusLabel={statusLabels.hotels}
+                  isCompleted = {bookingDetails.vouchers.length > 0}
+                  inProgress = {activeTab == "hotels"}
+                >
+                  Hotels
+                </TabsTrigger>
+                <TabsTrigger
+                  value="restaurants"
+                  onClick={() => setActiveTab("restaurants")}
+                  disabled={bookingDetails.restaurants.length == 0 || !bookingDetails.general.includes.hotels}
+                  statusLabel={statusLabels.restaurants}
+                  isCompleted = {bookingDetails.restaurants.length > 0}
+                  inProgress = {activeTab == "restaurants"}
+                >
+                  Restaurants
+                </TabsTrigger>
+                <TabsTrigger
+                  value="activities"
+                  onClick={() => setActiveTab("activities")}
+                  disabled={bookingDetails.activities.length == 0 || !bookingDetails.general.includes.activities}
+                  statusLabel={statusLabels.activities}
+                  isCompleted = {bookingDetails.activities.length > 0}
+                  inProgress = {activeTab == "activities"}
+                >
+                  Activities
+                </TabsTrigger>
+                <TabsTrigger
+                  value="transport"
+                  onClick={() => setActiveTab("transport")}
+                  disabled={bookingDetails.transport.length == 0 || !bookingDetails.general.includes.transport}
+                  statusLabel={statusLabels.transport}
+                  isCompleted = {bookingDetails.transport.length > 0}
+                  inProgress = {activeTab == "transport"}
+                >
+                  Transport
+                </TabsTrigger>
+                <TabsTrigger
+                  value="shops"
+                  onClick={() => setActiveTab("shops")}
+                  disabled={bookingDetails.shops.length == 0 || !bookingDetails.general.includes.shops}
+                  statusLabel={statusLabels.shops}
+                  isCompleted = {bookingDetails.shops.length > 0}
+                  inProgress = {activeTab == "shops"}
+                >
+                  Shops
+                </TabsTrigger>
+                <TabsTrigger
+                  value="submit"
+                  onClick={() => setActiveTab("submit")}
+                  disabled={!bookingDetails.general.clientName}
+                  isCompleted = {false}
+                  inProgress = {activeTab == "submit"}
+                >
+                  Submit
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="general">
+                {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
+                {isGeneralDetailsSet ? <GeneralTab /> : <div>Loading General Details...</div>}
+              </TabsContent>
+              <TabsContent value="hotels">
+                {/* <HotelsTab onAddHotel={addHotel} /> */}
+                <HotelsTab />
+              </TabsContent>
+              <TabsContent value="restaurants">
+                {/* <RestaurantsTab onAddRestaurant={addRestaurant} /> */}
+                <RestaurantsTab />
+              </TabsContent>
+              <TabsContent value="activities">
+                {/* <ActivitiesTab onAddActivity={addActivity} /> */}
+                <ActivitiesTab />
+              </TabsContent>
+              <TabsContent value="transport">
+                {/* <TransportTab onAddTransport={addTransport} /> */}
+                <TransportTab />
+              </TabsContent>
+              <TabsContent value="shops">
+                {/* <ShopsTab onAddShop={addShop} /> */}
+                <ShopsTab />
+              </TabsContent>
+              <TabsContent value="submit">
+                <AddBookingSubmitTab />
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default function WrappedAddBooking() {
+    const { id } = useParams();
+  return (
+    <EditBookingProvider>
+      {id ? <EditBooking id={id as string} /> : <div>No booking ID provided.</div>}
+    </EditBookingProvider>
+  );
+}

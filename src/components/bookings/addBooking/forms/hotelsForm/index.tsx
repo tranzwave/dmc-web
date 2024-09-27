@@ -6,18 +6,17 @@ import {
 } from "~/app/dashboard/bookings/add/context";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
 import {
   InsertHotelVoucher,
   InsertHotelVoucherLine,
-  SelectHotel,
-  SelectHotelVoucher,
-  SelectHotelVoucherLine,
+  SelectHotel
 } from "~/server/db/schemaTypes";
 import { Hotel, voucherColumns } from "./columns";
 import HotelsForm from "./hotelsForm";
 import { getAllHotels, getAllHotelsV2 } from "~/server/db/queries/hotel";
 import { useToast } from "~/hooks/use-toast";
-import { Calendar } from "~/components/ui/calendar";
+import { CalendarV2, DateRange } from "~/components/common/customCalendar";
 
 const HotelsTab = () => {
   const [addedHotels, setAddedHotels] = useState<Hotel[]>([]);
@@ -25,7 +24,7 @@ const HotelsTab = () => {
   const [loading, setLoading] = useState(false);
   const [hotels, setHotels] = useState<SelectHotel[]>([]);
   const [error, setError] = useState<string | null>();
-  const {toast} = useToast()
+  const { toast } = useToast();
 
   const updateHotels = (
     data: InsertHotelVoucherLine,
@@ -55,7 +54,6 @@ const HotelsTab = () => {
     setLoading(true);
 
     try {
-
       const newResponse = await getAllHotelsV2();
 
       if (!newResponse) {
@@ -64,7 +62,7 @@ const HotelsTab = () => {
       console.log("Fetched Hotels:", newResponse);
 
       setHotels(newResponse);
-      setLoading(false)
+      setLoading(false);
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -76,11 +74,13 @@ const HotelsTab = () => {
   };
 
   useEffect(() => {
-    if(!bookingDetails.general.includes.hotels){
-      setActiveTab("restaurants")
-      return ()=>{console.log("Return")};
+    if (!bookingDetails.general.includes.hotels) {
+      setActiveTab("restaurants");
+      return () => {
+        console.log("Return");
+      };
     }
-    console.log("rerenderinggg")
+    console.log("rerenderinggg");
     getHotels();
   }, []);
 
@@ -89,7 +89,7 @@ const HotelsTab = () => {
   }
 
   const onNextClick = () => {
-    console.log(bookingDetails)
+    console.log(bookingDetails);
     if (bookingDetails.vouchers.length > 0) {
       setActiveTab("restaurants");
     } else {
@@ -99,16 +99,49 @@ const HotelsTab = () => {
       });
     }
   };
-  
+
+  // const dateRanges: DateRange[] = [
+  //   { start: "2024-09-03", end: "2024-09-07" }, // No color provided
+  //   // { start: "2024-09-01", end: "2024-09-05", color: "bg-blue-300" },
+  //   // { start: "2024-09-20", end: "2024-09-22", color: "bg-red-300" },
+  // ];
+
+  const dateRanges = [
+    {
+      start: bookingDetails.general.startDate,
+      end: bookingDetails.general.endDate,
+      color: "bg-green-200", // Default color for booking range
+    },
+    ...bookingDetails.vouchers.map((voucher) => ({
+      start: voucher.voucherLines[0]?.checkInDate ?? '',
+      end: voucher.voucherLines[0]?.checkOutDate ?? '',
+    })),
+  ];
+
   return (
     <div className="flex flex-col items-center justify-center gap-3">
       <div className="flex w-full flex-row justify-center gap-3">
-      <Calendar
+        {/* <Calendar
             mode="range"
             selected={{from: new Date(bookingDetails.general.startDate), to:new Date(bookingDetails.general.endDate)}}
             className="rounded-md"
-          />
-        <div className="card space-y-6 w-full">
+          /> */}
+        <CalendarV2
+          dateRanges={[
+
+            {
+              start: bookingDetails.general.startDate,
+              end: bookingDetails.general.endDate,
+              color: "bg-green-200", // Default color for booking range
+            },
+            ...bookingDetails.vouchers.map((voucher) => ({
+              start: voucher.voucherLines[0]?.checkInDate ?? '',
+              end: voucher.voucherLines[0]?.checkOutDate ?? '',
+            })),
+
+          ]}
+        />
+        <div className="card w-full space-y-6">
           <div className="card-title">Hotel Information</div>
           {hotels && (
             <HotelsForm
@@ -135,7 +168,9 @@ const HotelsTab = () => {
           <DataTable columns={voucherColumns} data={bookingDetails.vouchers} />
         </div>
         <div className="flex w-full justify-end">
-          <Button variant={"primaryGreen"} onClick={onNextClick}>Next</Button>
+          <Button variant={"primaryGreen"} onClick={onNextClick}>
+            Next
+          </Button>
         </div>
       </div>
     </div>

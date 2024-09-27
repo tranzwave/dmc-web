@@ -1,8 +1,8 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
-import { InsertActivity, InsertActivityVendor } from '~/server/db/schemaTypes'; // Import the activity type definition
+import { InsertActivity, InsertActivityVendor, SelectCity } from '~/server/db/schemaTypes'; // Import the activity type definition
 
 export type ActivityVendorDTO = InsertActivityVendor & {
-  city?:string
+  city?:SelectCity
 }
 
 export type ActivityTypeDTO = InsertActivity & {
@@ -17,18 +17,28 @@ export interface ActivityVendorDetails {
 // Define context properties
 interface AddActivityContextProps {
   activityVendorDetails: ActivityVendorDetails;
-  setGeneralDetails: (details: InsertActivityVendor) => void;
-  addActivity: (activity: InsertActivity) => void; // Method to add activities
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  setGeneralDetails: (details: ActivityVendorDTO) => void;
+  addActivity: (activity: ActivityTypeDTO) => void; // Method to add activities
+  deleteActivity: (name: string) => void; // New deleteActivity method
+
 }
 
 // Provide default values
-const defaultGeneral: InsertActivityVendor = {
+const defaultGeneral: ActivityVendorDTO = {
   name: "",
   streetName: "",
   province: "",
   cityId:0,
   contactNumber:"",
+  primaryEmail:"",
   tenantId:"",
+  city:{
+    id:0,
+    name:'',
+    country:''
+  }
 };
 
 const defaultActivityVendorDetails: ActivityVendorDetails = {
@@ -40,24 +50,53 @@ const AddActivityContext = createContext<AddActivityContextProps | undefined>(un
 
 export const AddActivityProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [activityVendorDetails, setActivityVendorDetails] = useState<ActivityVendorDetails>(defaultActivityVendorDetails);
-
+  const [activeTab, setActiveTab] = useState<string>("general");
   const setGeneralDetails = (details: InsertActivityVendor) => {
     setActivityVendorDetails(prev => ({ ...prev, general: details }));
   };
 
   const addActivity = (activity: InsertActivity) => {
+    setActivityVendorDetails((prev) => {
+      // Check if the activity already exists in the array by comparing name, activityType, and capacity
+      const exists = prev.activities.some(
+        (a) =>
+          a.name === activity.name &&
+          a.activityType === activity.activityType &&
+          a.capacity === activity.capacity
+      );
+  
+      if (exists) {
+        // If the activity already exists, return the current state without changes
+        return prev;
+      }
+  
+      // Otherwise, add the new activity to the activities array
+      return {
+        ...prev,
+        activities: [...prev.activities, activity],
+      };
+    });
+  };
+
+  const deleteActivity = (name: string) => {
+    alert(name)
     setActivityVendorDetails(prev => ({
       ...prev,
-      activities: [...prev.activities, activity],
+      activities: prev.activities.filter(activity => activity.name !== name)
     }));
   };
+
+  
 
   return (
     <AddActivityContext.Provider
       value={{
         activityVendorDetails,
         setGeneralDetails,
-        addActivity
+        addActivity,
+        activeTab,
+        setActiveTab,
+        deleteActivity
       }}
     >
       {children}

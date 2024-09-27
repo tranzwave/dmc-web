@@ -32,6 +32,7 @@ import {
   ShopVoucher,
   useAddBooking,
 } from "~/app/dashboard/bookings/add/context";
+import { booking } from "~/server/db/schema";
 
 export type ShopsData = SelectShop & {
   shopTypes: {
@@ -54,9 +55,6 @@ export const shopsSchema = z.object({
   city: z.string().min(1, "City is required"),
   shop: z.string().min(1, "Shop is required"),
   date: z.string().min(1, "Date is required"),
-  time: z.string().min(1, "Time is required"),
-  headCount: z.number().min(1, "Head count is required"),
-  hours: z.number().min(1, "Hours are required"),
   remarks: z.string().optional(), // Optional field
 });
 
@@ -79,9 +77,6 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
       city: "",
       shop: "",
       date: "",
-      time: "",
-      headCount: 1,
-      hours: 1,
       remarks: "",
     },
   });
@@ -99,9 +94,9 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
         coordinatorId: bookingDetails.general.marketingManager,
         shopId: shopWithoutCityAndTypes.id,
         date: values.date,
-        time: values.time,
-        hours: values.hours,
-        participantsCount: values.headCount,
+        time: "10:00",
+        hours: 1,
+        participantsCount: bookingDetails.general.adultsCount + bookingDetails.general.kidsCount,
         city: selectedShop?.city.name ?? "",
         shopType: selectedShopType?.name ?? "",
         remarks:values.remarks
@@ -306,7 +301,7 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
               </FormItem>
             )}
           />
-          <FormField
+          {/* <FormField
             name="time"
             control={form.control}
             render={({ field }) => (
@@ -318,25 +313,8 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
                 <FormMessage />
               </FormItem>
             )}
-          />
-          <FormField
-            name="headCount"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Head Count</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
+          /> */}
+          {/* <FormField
             name="hours"
             control={form.control}
             render={({ field }) => (
@@ -352,7 +330,7 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
         </div>
         <FormField
           name="remarks"

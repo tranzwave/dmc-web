@@ -33,7 +33,7 @@ import { AddAgentProvider, useAddAgent } from './context';
 
 const AddAgent = () => {
   const pathname = usePathname();
-  const { setGeneralDetails } = useAddAgent();
+  const { setGeneralDetails, activeTab, setActiveTab, agentDetails } = useAddAgent();
 
   useEffect(() => {
     console.log('Add Agent Component');
@@ -52,10 +52,24 @@ const AddAgent = () => {
             </div>
           </div>
           <div className='w-full'>
-            <Tabs defaultValue="general" className="w-full border">
+            <Tabs defaultValue="general" className="w-full border" value={activeTab}>
               <TabsList className='flex justify-evenly w-full'>
-                <TabsTrigger value="general" statusLabel="Mandatory">General</TabsTrigger>
-                <TabsTrigger value="submit">Submit</TabsTrigger>
+                <TabsTrigger 
+                value="general"
+                isCompleted={false}
+                onClick={() => setActiveTab("general")}
+                inProgress={activeTab == "general"}
+                  >
+                    General
+                    </TabsTrigger>
+                <TabsTrigger  
+                value="submit" inProgress = {activeTab == "submit"}
+                  disabled={
+                    !agentDetails.general.name ||
+                    !agentDetails.general.email ||
+                    !agentDetails.general.primaryContactNumber ||
+                    !agentDetails.general.agency
+                  }>Submit</TabsTrigger>
               </TabsList>
               <TabsContent value="general">
                 {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}

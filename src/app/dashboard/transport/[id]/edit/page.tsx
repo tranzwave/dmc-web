@@ -2,20 +2,19 @@
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import LoadingLayout from '~/components/common/dashboardLoading';
 import TitleBar from '~/components/common/titleBar';
+import ChargesTab from '~/components/transports/addTransport/forms/chargesForm';
+import DocumentsTab from "~/components/transports/addTransport/forms/documentsForm";
+import GeneralTab from '~/components/transports/addTransport/forms/generalForm';
+import EditTransportSubmitForm from '~/components/transports/addTransport/forms/submitForm/editTransportSubmit';
+import VehiclesTab from '~/components/transports/addTransport/forms/vehiclesForm';
 import { Button } from '~/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { Driver } from '~/lib/api';
 import { getDriverDataById } from '~/server/db/queries/transport';
 import { SelectCity, SelectDriver, SelectDriverLanguage, SelectDriverVehicle, SelectLanguage, SelectVehicle } from '~/server/db/schemaTypes';
 import { AddTransportProvider, useAddTransport } from '../../add/context';
-import LoadingLayout from '~/components/common/dashboardLoading';
-import VehiclesTab from '~/components/transports/addTransport/forms/vehiclesForm';
-import ChargesTab from '~/components/transports/addTransport/forms/chargesForm';
-import DocumentsTab from "~/components/transports/addTransport/forms/documentsForm";
-import GeneralTab from '~/components/transports/addTransport/forms/generalForm';
-import SubmitForm from '~/components/transports/addTransport/forms/submitForm';
-import EditTransportSubmitForm from '~/components/transports/addTransport/forms/submitForm/editTransportSubmit';
 
 export type DriverData = SelectDriver & {
   city:SelectCity;

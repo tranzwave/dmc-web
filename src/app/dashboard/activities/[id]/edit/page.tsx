@@ -1,113 +1,123 @@
-"use client"; 
-
+"use client";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import GeneralTab from "~/components/activities/editActivity/forms/generalForm";
+import ActivityTab from "~/components/activities/addActivity/forms/activityForm";
+import GeneralTab from "~/components/activities/addActivity/forms/generalForm";
+import SubmitForm from "~/components/activities/addActivity/forms/submitForm";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { Activity, getActivityData } from "~/lib/api";
-import { EditActivityProvider, useEditActivity } from "./context";
+import { getActivityVendorDataById } from "~/server/db/queries/activities";
+import { AddActivityProvider, useAddActivity } from "../../add/context";
+import { FetchedActivityVendorData } from "../page";
 
-const SubmitForm = () => {
-  const { activityDetails } = useEditActivity();
 
-  const handleSubmit = () => {
-    console.log("Submitting activity details:", activityDetails);
-  };
-
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="card h-10 w-full">
-        <p>Review all the details and submit your activity.</p>
-      </div>
-      <div className="flex w-full justify-center">
-        <Button variant="primaryGreen" onClick={handleSubmit}>
-          Submit
-        </Button>
-      </div>
-    </div>
-  );
-};
-
-const EditActivity = ({ id }: { id: string }) => {
+const EditActivityVendor = ({ id }: { id: string }) => {
   const pathname = usePathname();
-  const [activity, setActivity] = useState<Activity | null>(null);
-  const { setGeneralDetails } = useEditActivity();
-  const [data, setData] = useState<Activity[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { activityVendorDetails, activeTab, setActiveTab, setGeneralDetails, addActivity } = useAddActivity();
+  const [activityVendor, setActivityVendor] = useState<FetchedActivityVendorData>();
+  const [isGeneralDetailsSet, setIsGeneralDetailsSet] = useState<boolean>(false); // State to control rendering
+
+  const fetchActivityVendor = async () => {
+    try {
+      setLoading(true);
+      const selectedActivityVendor = await getActivityVendorDataById(id);
+      if (!selectedActivityVendor) {
+        throw new Error("Couldn't find activity vendor");
+      }
+
+      const { city, activityVoucher, activity, ...general } = selectedActivityVendor;
+      setActivityVendor(selectedActivityVendor);
+
+      setGeneralDetails({
+        cityId: general.cityId,
+        contactNumber: general.contactNumber,
+        name: general.name,
+        province: general.province,
+        streetName: general.streetName,
+        tenantId: general.tenantId,
+        city: city,
+        primaryEmail: general.primaryEmail
+      });
+
+      activity.forEach((a) => {
+        addActivity({
+          tenantId:a.tenantId,
+          activityType:a.activityType.id,
+          activityVendorId:a.activityVendorId,
+          name:a.name,
+          capacity:a.capacity,
+          id:a.id,
+          typeName:a.activityType.name
+        });
+      });
+
+      setIsGeneralDetailsSet(true); // Mark as ready to render GeneralTab
+
+      setLoading(false);
+    } catch (error) {
+      console.error("Failed to fetch driver details:", error);
+      setError("Failed to load driver details.");
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function fetchActivityDetails() {
-      try {
-        setLoading(true);
-        const activities = await getActivityData();
-        const selectedActivity = activities.find(
-          (activity) => activity.id.toString() === id,
-        );
-        setActivity(selectedActivity ?? null);
-      } catch (error) {
-        console.error("Failed to fetch activity details:", error);
-        setError("Failed to load activity details.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchActivityDetails();
+    console.log("Add Activity Component");
+    fetchActivityVendor();
   }, [id]);
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        const result = await getActivityData();
-        setData(result);
-      } catch (error) {
-        console.error("Failed to fetch activity data:", error);
-        setError("Failed to load data.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
-  if (!activity) {
-    return <div>No activity found with the given ID.</div>;
-  }
 
   return (
     <div className="flex">
       <div className="flex-1">
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
-            <TitleBar title={`Edit Activity ${id}`} link="toAddActivity" />
+            <TitleBar title={`Edit Activity Vendor - ${activityVendor?.name ?? ""}`} link="toAddActivity" />
             <div>
-              <Link href={pathname}>
+              <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
             </div>
           </div>
           <div className="w-full">
-            <Tabs defaultValue="general" className="w-full border">
+            <Tabs defaultValue="general" className="w-full border" value={activeTab}>
               <TabsList className="flex w-full justify-evenly">
-                <TabsTrigger value="general">General</TabsTrigger>
-                <TabsTrigger value="submit">Submit</TabsTrigger>
+                <TabsTrigger
+                  value="general"
+                  isCompleted={false}
+                  onClick={() => setActiveTab("general")}
+                  inProgress={activeTab == "general"}
+                >
+                  General
+                </TabsTrigger>
+                <TabsTrigger
+                  value="activities"
+                  statusLabel="Mandatory"
+                  isCompleted={activityVendorDetails.activities.length > 0}
+                  inProgress={activeTab == "activities"}
+                  disabled={!activityVendorDetails.general.streetName}
+                >
+                  Activities
+                </TabsTrigger>
+                <TabsTrigger
+                  value="submit"
+                  isCompleted={false}
+                  disabled={activityVendorDetails.activities.length == 0}
+                >
+                  Submit
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="general">
-                <GeneralTab />
+                {/* Conditionally render GeneralTab based on isGeneralDetailsSet */}
+                {isGeneralDetailsSet ? <GeneralTab /> : <div>Loading General Details...</div>}
+              </TabsContent>
+              <TabsContent value="activities">
+                <ActivityTab />
               </TabsContent>
               <TabsContent value="submit">
                 <SubmitForm />
@@ -123,8 +133,8 @@ const EditActivity = ({ id }: { id: string }) => {
 export default function WrappedEditActivity() {
   const { id } = useParams();
   return (
-    <EditActivityProvider>
-      {id ? <EditActivity id={id as string} /> : <div>No activity ID provided.</div>}
-    </EditActivityProvider>
+    <AddActivityProvider>
+      {id ? <EditActivityVendor id={id as string} /> : <div>No activity ID provided.</div>}
+    </AddActivityProvider>
   );
 }

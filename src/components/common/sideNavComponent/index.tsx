@@ -32,7 +32,7 @@ const SideNavBar = () => {
       path: "/hotels",
       icon: <Building className="icon-size" />,
     },
-    // { name: 'Restaurants', path: '/restaurants', icon: <Utensils className='icon-size'/> },
+    { name: 'Restaurants', path: '/restaurants', icon: <Utensils className='icon-size'/> },
 
     {
       name: "Transport",

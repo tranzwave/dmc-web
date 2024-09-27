@@ -65,7 +65,8 @@ export const getBookingLineWithAllData = (id:string) => {
     with: {
       booking: {
         with: {
-          client: true
+          client: true,
+          agent:true
         }
       },
       hotelVouchers: {
@@ -251,6 +252,7 @@ export const getBookingLineWithAllData = (id:string) => {
 //   }
 //   return newBookingLine[0].id;
 // };
+
 
 export const createNewBooking = async (
   bookingDetails: BookingDetails,

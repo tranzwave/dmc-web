@@ -1,61 +1,62 @@
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAddRestaurant } from "~/app/dashboard/restaurants/add/context";
+import { DataTable } from "~/components/bookings/home/dataTable";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
-import { saveRestaurant } from "~/server/db/queries/restaurants";
+import { insertRestaurant } from "~/server/db/queries/restaurants";
+import { columns } from "../mealsOfferedForm/columns";
 
 const SubmitForm = () => {
     const { restaurantDetails } = useAddRestaurant();
-
-    const { general } = restaurantDetails;
-
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { toast } = useToast()
-
-    
+    const router = useRouter()
+    const pathname = usePathname()
 
     const handleSubmit = async () => {
         console.log('Submitting restaurant details:', restaurantDetails);
-        setLoading(true);
-        setError(null);
+        setLoading(true)
 
         try {
-            const restaurantData = {
-                name: general.name,
-                streetName: general.streetName,
-                cityId: general.cityId, // Assuming you have a way to get the cityId
-                tenantId: general.tenantId, // Assuming tenantId is available in your context or form data
-                province: general.province,
-                primaryContactNumber: general.primaryContactNumber,
-                mealType: general.mealType,
-                startTime: general.startTime,
-                endTime: general.endTime,
-            };
-
-            // Call the server-side function to save the restaurant data
-            const response = await saveRestaurant(restaurantData);
-            console.log("Restaurant saved successfully!");
-
+            let response;
+            // Replace insertActivity with your function to handle the insertion of activity details
+            if(pathname.includes("/edit")){
+                setLoading(false)
+                alert("Updated")
+                return
+            } else{
+                response = await insertRestaurant([restaurantDetails]);
+            }        
             if (!response) {
-                throw new Error(`Error: Inserting Activity Vendor`);
-              }
-          
-              console.log("Success:", response);
-          
-              setLoading(false);
-              // Handle successful response (e.g., show a success message)
-              toast({
-                title: "Success",
-                description: "Restaurant added successfully",
-              });
-
-        } catch (err) {
-            console.error("Failed to save restaurant:", err);
-            setError("Failed to save restaurant. Please try again.");
-        } finally {
+              throw new Error(`Error: Inserting Restaurant`);
+            }
+        
+            console.log("Success:", response);
+        
             setLoading(false);
-        }
+            // Handle successful response (e.g., show a success message)
+            toast({
+              title: "Success",
+              description: "Restaurant added successfully",
+            });
+            router.push("/dashboard/restaurants")
+          } catch (error) {
+            if (error instanceof Error) {
+              setError(error.message);
+            } else {
+              setError("An unknown error occurred");
+            }
+            console.error("Error:", error);
+            setLoading(false);
+            toast({
+              title: "Uh Oh!",
+              description: "Error while adding the restaurant",
+            });
+          } finally {
+            setLoading(false);
+          }
     };
 
     return (
@@ -69,38 +70,34 @@ const SubmitForm = () => {
                     <tbody>
                         <tr>
                             <td className="border px-4 py-2 font-bold w-1/2">Name:</td>
-                            <td className="border px-4 py-2 w-1/2">{general.name}</td>
-                        </tr>
-                        <tr>
-                            <td className="border px-4 py-2 font-bold">Meal Type:</td>
-                            <td className="border px-4 py-2">{general.mealType}</td>
-                        </tr>
-                        <tr>
-                            <td className="border px-4 py-2 font-bold">Start Time:</td>
-                            <td className="border px-4 py-2">{general.startTime}</td>
-                        </tr>
-                        <tr>
-                            <td className="border px-4 py-2 font-bold">End Time:</td>
-                            <td className="border px-4 py-2">{general.endTime}</td>
+                            <td className="border px-4 py-2 w-1/2">{restaurantDetails.general.name}</td>
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">Street Name:</td>
-                            <td className="border px-4 py-2">{general.streetName}</td>
+                            <td className="border px-4 py-2">{restaurantDetails.general.streetName}</td>
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">City:</td>
-                            <td className="border px-4 py-2">{general.cityId}</td>
+                            <td className="border px-4 py-2">{restaurantDetails.general.cityId}</td>
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">Province:</td>
-                            <td className="border px-4 py-2">{general.province}</td>
+                            <td className="border px-4 py-2">{restaurantDetails.general.province}</td>
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">Contact Nummber:</td>
-                            <td className="border px-4 py-2">{general.primaryContactNumber}</td>
+                            <td className="border px-4 py-2">{restaurantDetails.general.contactNumber}</td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <div className="bg-primary-green text-white font-bold text-sm p-1 rounded-t-xl w-24 flex justify-center items-center">
+                <div>Meals Offered</div>
+            </div>
+
+            <div className="border rounded-lg mb-2 shadow-md">
+            <DataTable columns={columns} data={restaurantDetails.mealsOffered} /> {/* Displaying activities */}
             </div>
 
             <div className="flex w-full justify-center mt-4">

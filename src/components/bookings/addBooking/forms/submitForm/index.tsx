@@ -1,8 +1,7 @@
 "use client";
 import { Loader2Icon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
-import { useAddBooking } from "~/app/dashboard/bookings/add/context";
+import { useState, useRef } from "react";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -15,6 +14,8 @@ import {
 import { createNewBooking } from "~/server/db/queries/booking";
 import SummaryCard, { formatDateToWeekdayMonth } from "./summaryCard";
 import ContactBox from "~/components/ui/content-box";
+import html2pdf from "html2pdf.js";
+import { useAddBooking } from "~/app/dashboard/bookings/add/context";
 
 const AddBookingSubmitTab = () => {
   const { bookingDetails, getBookingSummary } = useAddBooking();
@@ -24,35 +25,31 @@ const AddBookingSubmitTab = () => {
   const [id, setId] = useState("0");
   const pathname = usePathname();
   const router = useRouter();
+  const summaryRef = useRef(null); // Ref to hold the summary section
 
   const handleSubmit = async () => {
     console.log(bookingDetails);
     setLoading(true);
     try {
-      // Prepare the data to pass to the createNewBooking function
       const bookingData = {
         newBooking: bookingDetails.general,
         generalData: bookingDetails.general,
         hotelVouchers: bookingDetails.vouchers,
       };
 
-      // Call the createNewBooking function with the necessary data
       const createdBooking = await createNewBooking(bookingDetails);
 
       if (createdBooking) {
-        // If createNewBooking succeeds, set the success message and show modal
         setMessage(
-          "Booking Added! Do you want to continue finalizing the tasks for this booking?",
+          "Booking Added! Do you want to continue finalizing the tasks for this booking?"
         );
         setId(createdBooking);
         setShowModal(true);
       }
     } catch (error) {
-      // Catch any errors and set error message
       setMessage("An error occurred while adding the booking.");
       console.error("Error in handleSubmit:", error);
     } finally {
-      // Always stop the loading spinner
       setLoading(false);
     }
   };
@@ -63,8 +60,16 @@ const AddBookingSubmitTab = () => {
   };
 
   const handleNo = () => {
-    // Handle not continuing to finalize tasks
     setShowModal(false);
+  };
+
+  const downloadPDF = () => {
+    const element = summaryRef.current;
+    const options = {
+      filename: "booking_summary.pdf",
+      jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
+    };
+    html2pdf().set(options).from(element).save();
   };
 
   const numberOfDays = bookingDetails.general?.numberOfDays ?? 0;
@@ -107,14 +112,19 @@ const AddBookingSubmitTab = () => {
               )}
             </Button>
           </div>
-          <div>
+          <div ref={summaryRef}>
             {summary.map((sum, index) => {
               return <SummaryCard summary={sum} key={index} />;
             })}
           </div>
         </div>
       </div>
-      <div className="flex w-[80%] justify-end"></div>
+      <div className="flex flex-col w-[20%] justify-end">
+        <Button onClick={downloadPDF} variant="primaryGreen">
+          Download Summary as PDF
+        </Button>
+        <div className="text-[8px] font-normal text-neutral-400">Please expand all the dates before downloading</div>
+      </div>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>

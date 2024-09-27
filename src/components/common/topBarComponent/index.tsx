@@ -1,14 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import {
-  OrganizationList,
-  OrganizationProfile,
   OrganizationSwitcher,
   SignedIn,
   SignedOut,
   SignInButton,
-  useOrganization,
-  useOrganizationList,
   UserButton,
 } from "@clerk/nextjs";
 import {
@@ -19,16 +15,31 @@ import {
   Building2,
   House,
 } from "lucide-react";
+import { OrganizationRolesAndPermissions } from "~/components/organization/managePermissions";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "~/components/ui/breadcrumb";
+import { usePathname } from "next/navigation";
 
-// Import or create your modal component
+// TopBar component
 const TopBar = () => {
+  const pathname = usePathname();
   return (
     <div className="flex w-full flex-row items-center justify-between bg-white p-4">
       <div className="flex flex-row items-center gap-2">
-        <SearchIcon size={20} color="#697077" />
+        {/* <SearchIcon size={20} color="#697077" /> */}
         <div className="font-sans text-base font-light text-[#697077]">
-          Search anything here
+          {/* Search anything here */}
         </div>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink>Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink>{pathname.split("dashboard/")[1]?.toUpperCase()}</BreadcrumbLink>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
       </div>
       <div className="flex flex-row items-center gap-8">
         <div className="flex flex-row items-center gap-3">
@@ -55,24 +66,34 @@ const TopBar = () => {
                 <div className="items-center border-b pb-4 text-base font-bold">
                   Organization
                 </div>
-                <div className="flex flex-row gap-2 mt-4 items-center">
-                  <div className="text-[13px] font-medium">Please select your organization from this list</div>
-                  <div>
-                    <OrganizationSwitcher
-                      defaultOpen={true}
-                      hidePersonal={true}
-                      appearance={{
-                        elements: {
-                          organizationSwitcherPopoverActionButton__createOrganization:
-                            "hidden",
-                        },
-                      }}
-                    />
+                <div className="mt-4 flex flex-row items-center gap-2">
+                  <div className="text-[13px] font-medium">
+                    Please select your organization from this list
                   </div>
+                  <div></div>
                 </div>
               </div>
             </UserButton.UserProfilePage>
           </UserButton>
+          <OrganizationSwitcher
+            defaultOpen={true}
+            hidePersonal={true}
+            appearance={{
+              elements: {
+                organizationSwitcherPopoverActionButton__createOrganization:
+                  "hidden",
+              },
+            }}
+          >
+            <OrganizationSwitcher.OrganizationProfilePage
+              label="Roles & Permissions"
+              labelIcon={<House size={15} color="#737373" />}
+              url="roles"
+            >
+              <OrganizationRolesAndPermissions />
+              {/* <ManageRoles/> */}
+            </OrganizationSwitcher.OrganizationProfilePage>
+          </OrganizationSwitcher>
         </SignedIn>
         <SignedOut>
           <SignInButton />

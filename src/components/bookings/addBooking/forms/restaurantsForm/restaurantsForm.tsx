@@ -38,8 +38,8 @@ interface RestaurantFormProps {
     restaurant: RestaurantData,
   ) => void;
   restaurants: RestaurantData[];
-  defaultValues:InsertRestaurantVoucherLine | null;
-  lockedVendorId?:string
+  defaultValues: InsertRestaurantVoucherLine | null;
+  lockedVendorId?: string;
 }
 
 export const restaurantSchema = z.object({
@@ -49,7 +49,7 @@ export const restaurantSchema = z.object({
     kids: z.number().min(0, "Kids quantity is required"),
   }),
   date: z.string().min(1, "Date is required"),
-  time: z.string().min(1, "Time is required"),
+  time: z.string().optional().or(z.literal("12:00")),
   mealType: z.string().min(1, "Meal type is required"),
   remarks: z.string().optional(), // Optional field
 });
@@ -58,14 +58,15 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
   onAddRestaurant,
   restaurants,
   defaultValues,
-  lockedVendorId
+  lockedVendorId,
 }) => {
   const [selectedRestaurant, setSelectedRestaurant] =
     useState<RestaurantData | null>();
   const [meals, setMeals] = useState<SelectMeal[]>([]);
 
   const [selectedMeal, setSelectedMeal] = useState<SelectMeal>();
-  const [rests, setRests] = useState<RestaurantData[]>([])
+  const [rests, setRests] = useState<RestaurantData[]>([]);
+  const [showTimeField, setShowTimeField] = useState(false);
 
   // const fetchMeals = async (restaurantId: string) => {
   //   const response = await getMeals;
@@ -74,14 +75,14 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
     resolver: zodResolver(restaurantSchema),
     defaultValues: {
       date: defaultValues?.date,
-      mealType:defaultValues?.mealType,
-      name:defaultValues?.restaurantVoucherId,
-      quantity:{
-        adults:defaultValues?.adultsCount,
-        kids:defaultValues?.kidsCount,
+      mealType: defaultValues?.mealType,
+      name: defaultValues?.restaurantVoucherId,
+      quantity: {
+        adults: defaultValues?.adultsCount,
+        kids: defaultValues?.kidsCount,
       },
-      remarks:defaultValues?.remarks ?? "",
-      time:defaultValues?.time ?? ""
+      remarks: defaultValues?.remarks ?? "",
+      time: defaultValues?.time ?? "12:00",
     },
   });
 
@@ -92,11 +93,11 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
       date: form.getValues("date").toString(),
       mealType: form.getValues("mealType"),
       restaurantVoucherId: "",
-      time: form.getValues("time"),
+      time: form.getValues("time") ?? "10:00",
       remarks: form.getValues("remarks"),
     };
-    if(!selectedRestaurant){
-      throw new Error("Can't fetch selected restaurant")
+    if (!selectedRestaurant) {
+      throw new Error("Can't fetch selected restaurant");
     }
     onAddRestaurant(voucherLine, selectedRestaurant);
     form.reset();
@@ -110,23 +111,27 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
     setSelectedRestaurant(restaurant);
   }
 
-  useEffect(()=>{
-    setRests(restaurants)
-    if(lockedVendorId){
-      const lockedRestaurant = restaurants.find((res)=> res.id === lockedVendorId)
-      if(lockedRestaurant){
-        setRests([lockedRestaurant])
-        setSelectedRestaurant(lockedRestaurant)
-        if(defaultValues?.mealType){
-          const meal = lockedRestaurant.restaurantMeal.find((m)=> m.mealType === defaultValues.mealType)
-          if(meal){
-            setSelectedMeal(meal)
+  useEffect(() => {
+    setRests(restaurants);
+    if (lockedVendorId) {
+      const lockedRestaurant = restaurants.find(
+        (res) => res.id === lockedVendorId,
+      );
+      if (lockedRestaurant) {
+        setRests([lockedRestaurant]);
+        setSelectedRestaurant(lockedRestaurant);
+        if (defaultValues?.mealType) {
+          const meal = lockedRestaurant.restaurantMeal.find(
+            (m) => m.mealType === defaultValues.mealType,
+          );
+          if (meal) {
+            setSelectedMeal(meal);
           }
         }
       }
     }
     console.log(restaurants);
-  }, [defaultValues])
+  }, [defaultValues]);
 
   return (
     <Form {...form}>
@@ -212,19 +217,54 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
               </FormItem>
             )}
           />
-          <FormField
+          {/* {!showTimeField && (
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setShowTimeField(true)}
+              className="mt-3"
+            >
+              Add Time
+            </Button>
+          )}
+          {showTimeField && (
+            <FormField
+              name="time"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Time</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="time"
+                      {...field}
+                      value={field.value || "10:00"} // Default time
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )} */}
+          {/* <FormField
             name="time"
             control={form.control}
+            defaultValue="10:00"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Time</FormLabel>
                 <FormControl>
-                  <Input type="time" {...field} />
+                  <></>
+                  <Input
+                    type="time"
+                    {...field}
+                    value={field.value || "10:00 AM"}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
           <FormField
             name="mealType"
             control={form.control}
@@ -247,7 +287,7 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
                         value={field.value}
                       >
                         <SelectTrigger className="bg-slate-100 shadow-md">
-                          <SelectValue placeholder="Select restaurant" />
+                          <SelectValue placeholder="Select meal type" />
                         </SelectTrigger>
                         <SelectContent>
                           {selectedRestaurant?.restaurantMeal.map((meal) => (

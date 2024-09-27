@@ -19,7 +19,7 @@ import { Input } from "~/components/ui/input";
 // Define the schema for form validation
 export const ChargesSchema = z.object({
   feePerKm: z.number().min(1, "Fee per km is required"),
-  fuelAllowance: z.number().min(1, "Fuel allowance is required"),
+  fuelAllowance: z.number().min(1, "Fuel allowance is required").default(2000),
   accommodationAllowance: z.number().min(1, "Accommodation allowance is required"),
   mealAllowance: z.number().min(1, "Meal allowance is required"),
 });

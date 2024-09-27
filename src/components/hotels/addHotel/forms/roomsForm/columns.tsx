@@ -38,3 +38,6 @@ export const columns: ColumnDef<HotelRoomType>[] = [
     cell: ({ row }) => <span>{row.original.additionalComments ?? "N/A"}</span>,
   },
 ];
+
+export type { HotelRoomType };
+

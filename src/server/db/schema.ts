@@ -497,6 +497,7 @@ export const activityVendor = createTable("activity_vendors", {
   streetName: varchar("street_name", { length: 255 }).notNull(),
   province: varchar("province", { length: 255 }).notNull(),
   contactNumber: varchar("contact_number", { length: 50 }).notNull(),
+  primaryEmail: varchar("primary_email", { length: 255 }).default("N/A"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   cityId: integer("city_id")
@@ -829,6 +830,11 @@ export const activityRelations = relations(activity, ({ one, many }) => ({
     fields: [activity.activityVendorId],
     references: [activityVendor.id],
   }),
+  activityVouchers: many(activityVoucher),
+  activityType: one(activityType, {
+    fields: [activity.activityType],
+    references: [activityType.id],
+  }),
 }));
 
 export const activityVendorRelations = relations(
@@ -839,6 +845,7 @@ export const activityVendorRelations = relations(
       references: [city.id],
     }),
     activity: many(activity),
+    activityVoucher: many(activityVoucher)
   }),
 );
 

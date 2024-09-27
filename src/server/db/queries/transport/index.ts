@@ -2,16 +2,14 @@
 
 import { and, eq, inArray, sql, SQL } from "drizzle-orm";
 import { db } from "../..";
+import { InsertDriver, InsertLanguage, InsertVehicle } from "../../schemaTypes";
 import {
   driver,
-  transportVoucher,
-  vehicle,
-  language,
-  city,
-  driverVehicle,
   driverLanguage,
+  driverVehicle,
+  transportVoucher,
+  vehicle
 } from "./../../schema";
-import { InsertDriver, InsertLanguage, InsertVehicle } from "../../schemaTypes";
 
 export const getAllVehicleTypes = async () => {
   return await db.query.vehicle
@@ -101,19 +99,19 @@ export const getDriverByIdQuery = (id: string) => {
   });
 };
 
-export const getDriverDataById = (id:string) =>{
+export const getDriverDataById = (id: string) => {
   return db.query.driver.findFirst({
     where: eq(driver.id, id),
     with: {
       city: true,
       vehicles: {
         with: {
-          vehicle:true
+          vehicle: true
         }
       },
-      languages:{
-        with:{
-          language:true
+      languages: {
+        with: {
+          language: true
         }
       }
     },
@@ -199,7 +197,7 @@ export const insertDriver = async (
       }
     });
     return newDriver
-  } catch (error:any) {
+  } catch (error: any) {
     console.error("Error in insertDriver:", error?.detail ?? error);
     throw error;
   }
@@ -217,7 +215,7 @@ export async function updateDriverAndRelatedData(
   // Begin a transaction
   const updated = await db.transaction(async (trx) => {
     // Update the driver
-    if(!updatedDriver){
+    if (!updatedDriver) {
       throw new Error("Please provide updated data")
     }
     const updatedDriverResult = await trx

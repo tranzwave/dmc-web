@@ -1,58 +1,61 @@
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAddAgent } from "~/app/dashboard/agents/add/context";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
-import { saveAgent } from "~/server/db/queries/agents";
+import { insertAgent } from "~/server/db/queries/agents";
+import { InsertAgent } from "~/server/db/schemaTypes";
 
 const SubmitForm = () => {
     const { agentDetails } = useAddAgent();
-
     const { general } = agentDetails;
-
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { toast } = useToast()
+    const router = useRouter()
 
     const handleSubmit = async () => {
         console.log('Submitting agent details:', agentDetails);
-        setLoading(true);
-        setError(null);
-
+    
+        const agentData: InsertAgent[] = [{
+            name: general.name,
+            countryCode: general.countryCode,
+            email: general.email,
+            tenantId: "",
+            agency: general.agency,
+            primaryContactNumber: general.primaryContactNumber,
+        }];
+        
         try {
-            const agentData = {
-                name: general.name,
-                countryCode: general.countryCode,
-                email: general.email,
-                tenantId: general.tenantId,
-                agency: general.agency,
-                primaryContactNumber: general.primaryContactNumber,
-            };
-
-            // Call the server-side function to save the agent data
-            const response = await saveAgent(agentData);
-            console.log("Agent saved successfully!");
-
-            if (!response) {
-                throw new Error(`Error: Inserting Agent Vendor`);
-              }
-          
-              console.log("Success:", response);
-          
-              setLoading(false);
-              // Handle successful response (e.g., show a success message)
-              toast({
+            await insertAgent(agentData); // No need to store response since it returns void
+    
+            console.log("Success");
+            setLoading(false);
+            toast({
                 title: "Success",
                 description: "Agent added successfully",
-              });
+            });
+            router.push("/dashboard/agents");
 
-        } catch (err) {
-            console.error("Failed to save agent:", err);
-            setError("Failed to save agent. Please try again.");
+        } catch (error) {
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError("An unknown error occurred");
+            }
+            console.error("Error:", error);
+            alert(error);
+            setLoading(false);
+            toast({
+                title: "Uh Oh!",
+                description: "Error while adding the agent",
+            });
         } finally {
             setLoading(false);
         }
     };
 
+    
     return (
         <div>
             <div className="bg-primary-green text-white font-bold text-sm p-1 rounded-t-xl w-24 flex justify-center items-center">
