@@ -16,7 +16,9 @@ export async function getUserById(userId: string) {
     console.log(user)
     return { message: 'User fetched successfully', user }
   } catch (err) {
-    return { message: `Error fetching user: ${err}` }
+    // Safely convert the error to a string to avoid type issues
+    const errorMessage = err instanceof Error ? err.message : String(err)
+    return { message: `Error fetching user: ${errorMessage}` }
   }
 }
 
@@ -38,7 +40,7 @@ export async function setRole(formData: FormData) {
 
 
 export async function updatePermissions(userId: string, permissions: string[]) {
-    const isAdmin = await checkRole('admin')
+    const isAdmin = checkRole('admin')
   
     if (!isAdmin) {
       return { message: 'Not Authorized' }

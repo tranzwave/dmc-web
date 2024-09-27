@@ -9,7 +9,7 @@ const isPublicRoute = createRouteMatcher([
 const isProtectedRoute = createRouteMatcher(['/dashboard/admin(.*)']);
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
-  const { userId, sessionClaims } = await auth();
+  const { userId, sessionClaims } =  auth();
 
   // Allow access to public routes
   if (isPublicRoute(req)) {
