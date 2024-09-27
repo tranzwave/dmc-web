@@ -1,6 +1,5 @@
 "use client";
 import { useUser } from "@clerk/nextjs";
-import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import Pagination from "~/components/common/pagination";
@@ -122,17 +121,12 @@ const Reports = () => {
     );
   }
 
-  const pathname = usePathname();
 
   return (
     <div>
       <div className="flex w-full flex-row justify-between gap-1">
         <TitleBar title="Reports" link="to AddReport" />
-        {/* <div>
-          <Link href={`${pathname}/add`}>
-            <Button variant="primaryGreen">Add Report</Button>
-          </Link>
-        </div> */}
+     
       </div>
       <div className="flex gap-10">
         <div className="w-[40%] grid-flow-col">

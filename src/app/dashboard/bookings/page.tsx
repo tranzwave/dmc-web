@@ -155,7 +155,7 @@ export default function Bookings() {
                     </label>
                     <input
                       type="date"
-                      value={startDate || ""}
+                      value={startDate ?? ""}
                       onChange={(e) => setStartDate(e.target.value)}
                       className="rounded-md border p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-400"
                     />
@@ -167,7 +167,7 @@ export default function Bookings() {
                     </label>
                     <input
                       type="date"
-                      value={endDate || ""}
+                      value={endDate ?? ""}
                       onChange={(e) => setEndDate(e.target.value)}
                       className="rounded-md border p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-400"
                     />
