@@ -131,7 +131,7 @@ const Reports = () => {
       <div className="flex gap-10">
         <div className="w-[40%] grid-flow-col">
           <div className="text-sm text-primary-gray">
-            Countries with number of bookings
+            Number of bookings within a year
           </div>
           <BookingsByCountry />
 
