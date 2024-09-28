@@ -40,13 +40,13 @@ export const columns: ColumnDef<BookingDTO>[] = [
 
   },
   {
-    header: "Client",
+    header: "Booking Name",
     accessorFn: (row) => row.booking.client.name,
   },
-  {
-    header: "Country",
-    accessorFn: (row) => row.booking.client.country,
-  },
+  // {
+  //   header: "Country",
+  //   accessorFn: (row) => row.booking.client.country,
+  // },
   {
     accessorKey: "startDate",
     header: "Start Date",
