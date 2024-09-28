@@ -51,7 +51,6 @@ const Reports = () => {
           getClientCountByCountry(),
         ]);
 
-        // Transform statsData to match the required structure
         const transformedStatsData = [
           {
             title: "Total Bookings",
