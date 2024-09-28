@@ -7,6 +7,7 @@ import {
   Car,
   Home,
   User,
+  User2,
   Utensils,
 } from "lucide-react";
 import Image from "next/image";
@@ -50,6 +51,8 @@ const SideNavBar = () => {
       icon: <BarChart2 className="icon-size" />,
     },
     { name: "Agents", path: "/agents", icon: <User className="icon-size" /> },
+    // { name: "Admin", path: "/admin", icon: <User2 className="icon-size" /> },
+
   ];
 
   return (
