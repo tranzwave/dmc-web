@@ -35,13 +35,18 @@ export type BookingDTO = SelectBookingLine & {
 
 export const columns: ColumnDef<BookingDTO>[] = [
   {
-    header: "Client",
-    accessorFn: (row) => row.booking.client.name,
+    header: "Booking Id",
+    accessorFn: (row) => row.booking.client.id,
+
   },
   {
-    header: "Country",
-    accessorFn: (row) => row.booking.client.country,
+    header: "Booking Name",
+    accessorFn: (row) => row.booking.client.name,
   },
+  // {
+  //   header: "Country",
+  //   accessorFn: (row) => row.booking.client.country,
+  // },
   {
     accessorKey: "startDate",
     header: "Start Date",

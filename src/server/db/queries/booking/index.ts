@@ -1,25 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
-import { db } from "../..";
-import {
-  CombinedHotelVoucher,
-  InsertBooking,
-  InsertBookingLine,
-  InsertClient,
-} from "../../schemaTypes";
-import {
-  booking,
-  bookingLine,
-  hotelVoucher,
-  hotelVoucherLine,
-  client,
-  restaurantVoucher,
-  restaurantVoucherLine,
-  activityVoucher,
-  shopVoucher,
-  transportVoucher,
-} from "../../schema";
+import { and, eq, sql } from "drizzle-orm";
 import {
   ActivityVoucher,
   BookingDetails,
@@ -28,7 +9,24 @@ import {
   ShopVoucher,
   TransportVoucher,
 } from "~/app/dashboard/bookings/add/context";
-import { PgTransaction } from "drizzle-orm/pg-core";
+import { db } from "../..";
+import {
+  activityVoucher,
+  booking,
+  bookingLine,
+  client,
+  hotelVoucher,
+  hotelVoucherLine,
+  restaurantVoucher,
+  restaurantVoucherLine,
+  shopVoucher,
+  transportVoucher,
+} from "../../schema";
+import {
+  InsertBooking,
+  InsertBookingLine,
+  InsertClient
+} from "../../schemaTypes";
 
 export const getAllBookings = () => {
   return db.query.booking.findMany();
@@ -59,14 +57,14 @@ export const getBookingLineById = (id: string) => {
   });
 };
 
-export const getBookingLineWithAllData = (id:string) => {
+export const getBookingLineWithAllData = (id: string) => {
   return db.query.bookingLine.findFirst({
     where: eq(bookingLine.id, id),
     with: {
       booking: {
         with: {
           client: true,
-          agent:true
+          agent: true
         }
       },
       hotelVouchers: {
@@ -331,7 +329,7 @@ export const createNewBooking = async (
           restaurants: bookingDetails.general.includes.restaurants,
           transport: bookingDetails.general.includes.transport,
           activities: bookingDetails.general.includes.activities,
-          shops:bookingDetails.general.includes.shops
+          shops: bookingDetails.general.includes.shops
         },
       };
 
@@ -637,3 +635,56 @@ export const insertTransportVoucherTx = async (
   );
   return transportVouchers;
 };
+
+// export const getBookingCountByMonth = async () => {
+//   const bookingCountByMonth = await db
+//     .select({
+//       month: bookingLine.startDate,
+//       bookingCount: count(),
+//     })
+//     .from(bookingLine)
+//     .groupBy(bookingLine.startDate);
+
+//   return bookingCountByMonth.map(row => ({
+//     month: row.month ?? "Unknown",
+//     count: row.bookingCount ?? "Unknown",
+//   }));
+// };
+
+
+export const getBookingCountByMonth = async () => {
+  const currentDate = new Date();
+  const lastYearDate = new Date();
+  lastYearDate.setFullYear(currentDate.getFullYear() - 1);
+
+  const bookingCountByMonth = await db
+    .select({
+      month: sql`DATE_TRUNC('month', ${bookingLine.startDate})`.as('month'),
+      bookingCount: sql`COUNT(*)`.as('bookingCount'),
+    })
+    .from(bookingLine)
+    // Filter to only include bookings from the last year
+    .where(sql`${bookingLine.startDate} >= ${lastYearDate}`)
+    .groupBy(sql`DATE_TRUNC('month', ${bookingLine.startDate})`);
+
+  // convert month and year to formatted string
+  const getMonthAndYear = (date: any) => {
+    const monthNames = [
+      "January", "February", "March", "April",
+      "May", "June", "July", "August",
+      "September", "October", "November", "December"
+    ];
+
+    const monthIndex = new Date(date).getMonth();
+    const year = new Date(date).getFullYear();
+    return `${monthNames[monthIndex]} ${year}`;
+  };
+
+  return bookingCountByMonth.map(row => ({
+    month: getMonthAndYear(row.month),
+    count: Number(row.bookingCount),
+  }));
+};
+
+
+

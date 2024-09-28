@@ -1,22 +1,22 @@
 "use client";
 import { useEffect, useState } from "react";
-import { DataTable } from "~/components/bookings/home/dataTable";
-import { restaurantVoucherColumns, Restaurant } from "./columns";
-import RestaurantForm from "./restaurantsForm";
 import {
   RestaurantVoucher,
   useAddBooking,
 } from "~/app/dashboard/bookings/add/context";
+import { DataTableWithActions } from "~/components/common/dataTableWithActions";
+import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
+import { useToast } from "~/hooks/use-toast";
+import { getAllRestaurants } from "~/server/db/queries/booking/restaurantVouchers";
 import {
   InsertRestaurantVoucher,
   InsertRestaurantVoucherLine,
   SelectMeal,
   SelectRestaurant,
 } from "~/server/db/schemaTypes";
-import { getAllRestaurants } from "~/server/db/queries/booking/restaurantVouchers";
-import { Button } from "~/components/ui/button";
-import { useToast } from "~/hooks/use-toast";
-import { Calendar } from "~/components/ui/calendar";
+import { restaurantVoucherColumns } from "./columns";
+import RestaurantForm from "./restaurantsForm";
 
 export type RestaurantData = SelectRestaurant & {
   restaurantMeal: SelectMeal[];
@@ -25,7 +25,7 @@ const RestaurantsTab = () => {
   const [addedRestaurants, setAddedRestaurants] = useState<RestaurantVoucher[]>(
     [],
   );
-  const { addRestaurantVoucher, bookingDetails, setActiveTab } =
+  const { addRestaurantVoucher, bookingDetails, setActiveTab, deleteRestaurant } =
     useAddBooking();
   const [loading, setLoading] = useState(false);
   const [restaurants, setRestaurants] = useState<RestaurantData[]>([]);
@@ -101,6 +101,17 @@ const RestaurantsTab = () => {
   if (loading) {
     return <div>Loading</div>;
   }
+
+  const onRowEdit = (row: RestaurantVoucher) => {
+    console.log(row);
+    // setSelectedActivity(row);
+  };
+
+  const onRowDelete = (row: RestaurantVoucher) => {
+    alert(row.restaurant.name);
+    deleteRestaurant(row.restaurant.name);
+  };
+
   return (
     <div className="flex flex-col items-center justify-center gap-3">
       <div className="flex w-full flex-row justify-center gap-3">
@@ -125,9 +136,13 @@ const RestaurantsTab = () => {
       </div>
       <div className="flex w-full flex-col items-center justify-center gap-3">
         <div className="w-full">
-          <DataTable
+          <DataTableWithActions
             columns={restaurantVoucherColumns}
             data={bookingDetails.restaurants}
+            onDelete={onRowDelete}
+          onEdit={onRowEdit}
+          onRowClick={onRowEdit}
+          onDuplicate={onRowEdit}
           />
         </div>
         <div className="flex w-full justify-end">

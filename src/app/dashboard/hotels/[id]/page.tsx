@@ -1,16 +1,14 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
-import { Booking, columns } from "~/components/bookings/home/columns";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
 import { StatsCard } from "~/components/ui/stats-card";
-import { BookingDTO } from "~/lib/types/booking";
 import { HotelDTO } from "~/lib/types/hotel";
 import { formatDate } from "~/lib/utils/index";
-import { getHotelByIdQuery, getHotelVouchersForHotel, getVoucherLinesByHotelId } from "~/server/db/queries/hotel";
-import { SelectHotelVoucher, SelectHotelVoucherLine } from "~/server/db/schemaTypes";
+import { getHotelByIdQuery, getVoucherLinesByHotelId } from "~/server/db/queries/hotel";
+import { SelectHotelVoucherLine } from "~/server/db/schemaTypes";
 
 
 

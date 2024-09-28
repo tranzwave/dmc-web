@@ -1,5 +1,5 @@
-import { Progress } from '~/components/ui/progress';
 import ReactCountryFlag from 'react-country-flag';
+import { Progress } from '~/components/ui/progress';
 
 // Define prop types
 export type TouristData = {

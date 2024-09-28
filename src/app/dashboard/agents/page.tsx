@@ -118,7 +118,6 @@ const AgentHome = () => {
             <div className="w-[90%]">
               <DataTable columns={agentVendorColumns} data={data} />
             </div>
-            - ;' '
           </div>
         </div>
       </div>

@@ -2,11 +2,9 @@ import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { General } from '~/components/bookings/addBooking/forms/generalForm/columns';
 import { Hotel } from '~/components/bookings/addBooking/forms/hotelsForm/columns';
 import { RestaurantData } from '~/components/bookings/addBooking/forms/restaurantsForm';
-import { Restaurant } from '~/components/bookings/addBooking/forms/restaurantsForm/columns';
-import { Shop } from '~/components/bookings/addBooking/forms/shopsForm/columns';
 import { Transport } from '~/components/bookings/addBooking/forms/transportForm/columns';
 import { Driver } from '~/lib/types/driver/type';
-import { InsertActivityVoucher, InsertHotelVoucher, InsertHotelVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectActivityVoucher, SelectDriver, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant, SelectShop, SelectShopVoucher } from '~/server/db/schemaTypes';
+import { InsertActivityVoucher, InsertHotelVoucher, InsertHotelVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectDriver, SelectHotel, SelectShop } from '~/server/db/schemaTypes';
 
 export interface TransportWithDriver {
   transport: Transport;
@@ -79,6 +77,10 @@ interface AddBookingContextProps {
   statusLabels: StatusLabels;
   setStatusLabels: React.Dispatch<React.SetStateAction<StatusLabels>>;
   getBookingSummary: () => BookingSummary[];
+  deleteHotel: (name: string) => void; // New deleteActivity method
+  deleteRestaurant: (name: string) => void; // New deleteActivity method
+  deleteActivity: (name: string) => void; // New deleteActivity method
+
 }
 
 // Provide default values
@@ -162,6 +164,22 @@ export const AddBookingProvider: React.FC<{ children: ReactNode }> = ({ children
     setBookingDetails(prev => ({ ...prev, shops: [...prev.shops, shop] }));
   };
 
+  const deleteHotel = (name: string) => {
+    alert(name)
+    // setActivityVendorDetails(prev => ({
+    //   ...prev,
+    //   activities: prev.activities.filter(activity => activity.name !== name)
+    // }));
+  };
+
+  const deleteRestaurant = (name: string) => {
+    alert(name)
+  };
+
+  const deleteActivity = (name: string) => {
+    alert(name)
+  };
+
   const getBookingSummary = (): BookingSummary[] => {
     const { general, vouchers, restaurants, activities, transport, shops } = bookingDetails;
     const { startDate, numberOfDays } = general;
@@ -210,7 +228,10 @@ export const AddBookingProvider: React.FC<{ children: ReactNode }> = ({ children
         setActiveTab,
         statusLabels,
         setStatusLabels,
-        getBookingSummary
+        getBookingSummary,
+        deleteHotel,
+        deleteRestaurant,
+        deleteActivity
       }}
     >
       {children}

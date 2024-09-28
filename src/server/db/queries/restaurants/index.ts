@@ -165,8 +165,6 @@ export const insertRestaurant = async (
     }
 };
 
-
-
 export async function updateRestaurantAndRelatedData(
     restaurantId: string,
     updatedRestaurant: InsertRestaurant | null,
@@ -200,9 +198,6 @@ export async function updateRestaurantAndRelatedData(
 
         // Update related vehicles
         const updatedMealsData = await updateRestaurantMeals(trx, restaurantId, updatedMeals);
-
-        // Update related languages
-        // const updatedLanguagesData = await updateDriverLanguages(trx, driverId, updatedLanguages);
 
         return { updatedDriverResult: updatedRestaurantResult };
     });
