@@ -42,7 +42,7 @@ export default function Bookings() {
       setData(result);
       setLoading(false);
     } catch (error) {
-      console.error("Failed to fetch hotel data:", error);
+      console.error("Failed to fetch booking data:", error);
       setError("Failed to load data.");
       setLoading(false);
     }
@@ -154,6 +154,7 @@ export default function Bookings() {
                       Start Date
                     </label>
                     <input
+                    title="startDateFilter"
                       type="date"
                       value={startDate ?? ""}
                       onChange={(e) => setStartDate(e.target.value)}
@@ -166,6 +167,7 @@ export default function Bookings() {
                       End Date
                     </label>
                     <input
+                    title="endDateFilter"
                       type="date"
                       value={endDate ?? ""}
                       onChange={(e) => setEndDate(e.target.value)}

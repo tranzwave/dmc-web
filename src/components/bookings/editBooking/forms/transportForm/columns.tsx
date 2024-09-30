@@ -1,8 +1,8 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { EllipsisVertical } from "lucide-react";
-import { TransportVoucher, TransportWithDriver } from "~/app/dashboard/bookings/add/context";
+import { TransportVoucher } from "~/app/dashboard/bookings/add/context";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
-import { Driver, VehicleType } from "~/lib/types/driver/type";
+import { Driver } from "~/lib/types/driver/type";
 
 export type Transport = {
   driver: Driver | null;
@@ -37,7 +37,7 @@ export const columns: ColumnDef<TransportVoucher>[] = [
   },
   {
     header: "Type",
-    accessorFn: row => row.driver.isGuide ? "Chauffer" : "Driver"
+    accessorFn: row => row.driver.type ? "Chauffer" : "Driver"
   },
   {
     header: "Remarks",

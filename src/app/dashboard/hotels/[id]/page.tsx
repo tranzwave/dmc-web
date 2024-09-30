@@ -124,13 +124,18 @@ const voucherLinesColumns: ColumnDef<SelectHotelVoucherLine>[] = [
       accessorFn: (row) => formatDate(row.checkOutDate.toString())
     },
     {
-        header: "Adults",
-        accessorFn: (row) => row.adultsCount,
-    },
-    {
-        header: "Kids",
-        accessorFn: (row) => row.kidsCount,
-    },
+      header: "Room Category",
+      accessorFn: (row) => row.roomType,
+  },
+//   {
+//     header: "Room Type",
+//     accessorFn: (row) => row.,
+// },
+  {
+    header: "Basis",
+    accessorFn: (row) => row.basis,
+},
+
     {
         header: "Rate",
         accessorFn: (row) => row.rate,

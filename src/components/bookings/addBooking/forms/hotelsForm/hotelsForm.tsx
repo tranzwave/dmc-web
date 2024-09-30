@@ -346,9 +346,9 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Remarks</FormLabel>
+                  <FormLabel>Special Notes</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter any remarks" {...field} />
+                    <Input placeholder="Enter any special notes" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

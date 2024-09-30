@@ -20,7 +20,7 @@ import { Input } from "~/components/ui/input";
 export const DocumentsSchema = z.object({
   driverLicense: z.string().min(1, "Driver's license is required"),
   guideLicense: z.string().min(1, "Guid license is required"),
-  vehicleEmissionTest: z.string().min(1, "Vehicle emission test is required"),
+  vehicleEmissionTest: z.string().min(1, "Vehicle emission test is required").optional().or(z.literal('')),
   insurance: z.string().min(1, "Insurance is required"),
 });
 
@@ -38,7 +38,7 @@ const DocumentsForm = () => {
 
 
   const onSubmit: SubmitHandler<DocumentsFormValues> = (data) => {
-    setDocumetsDetails(data);
+    setDocumetsDetails({...data,vehicleEmissionTest:"N/A"});
     console.log(data);
     setActiveTab("submit")
   };
@@ -79,7 +79,7 @@ const DocumentsForm = () => {
           />
           
 
-          <FormField
+          {/* <FormField
             name="vehicleEmissionTest"
             control={form.control}
             render={({ field }) => (
@@ -94,7 +94,7 @@ const DocumentsForm = () => {
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
             <FormField
               name="insurance"
               control={form.control}

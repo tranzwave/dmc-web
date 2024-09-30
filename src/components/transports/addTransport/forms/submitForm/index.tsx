@@ -34,7 +34,7 @@ const SubmitForm = () => {
             cityId: Number(general.city),
             driversLicense: documents.driverLicense,
             insurance: documents.insurance,
-            isGuide: general.guide,
+            type: general.type,
             guideLicense: documents.guideLicense,
             accommodationAllowance: charges.accommodationAllowance,
             fuelAllowance:charges.fuelAllowance,
@@ -82,7 +82,7 @@ const SubmitForm = () => {
             title: "Success",
             description: "Driver added successfully",
           });
-          router.push("dashboard/transport")
+          router.push("/dashboard/transport")
         } catch (error) {
           if (error instanceof Error) {
             setError(error.message);
@@ -143,6 +143,8 @@ const SubmitForm = () => {
                 </table>
             </div>
 
+            {general.type !== "Guide" && (
+<>
             {/* Vehicles Section */}
             <div className="bg-primary-green text-white font-bold text-sm p-1 rounded-t-xl w-24 flex justify-center items-center">
                 <div>Vehicles</div>
@@ -248,6 +250,9 @@ const SubmitForm = () => {
                     </tbody>
                 </table>
             </div>
+
+            </>
+            )}
 
             {/* Submit Button */}
             <div className="flex w-full justify-center mt-4">

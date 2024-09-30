@@ -2,7 +2,14 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDate } from "~/lib/utils/index";
-import { SelectBooking, SelectBookingLine, SelectClient } from "~/server/db/schemaTypes";
+import { SelectBooking, SelectBookingLine, SelectClient, SelectUser } from "~/server/db/schemaTypes";
+import {
+  Hotel,
+  Utensils,
+  Car,
+  Activity,
+  ShoppingBag,
+} from "lucide-react"; 
 
 export type CategoryDetails = {
     title: string;
@@ -56,6 +63,29 @@ export const columns: ColumnDef<BookingDTO>[] = [
     accessorKey: "endDate",
     header: "End Date",
     accessorFn: (row) => formatDate(row.endDate.toString())
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    accessorFn: (row) => formatDate(row.endDate.toString())
+  },
+  {
+    header: "Includes",
+    id: "includes-icons",
+    cell: ({ row }) => (
+      <div className="flex flex-row gap-1">
+        {/* Conditionally render the icons based on the includes fields with color applied */}
+        {row.original.includes?.hotels && <Hotel size={16} color="#1E90FF"/>}
+        {row.original.includes?.restaurants && (
+          <Utensils size={16} color="#FF8C00"/>
+        )}
+        {row.original.includes?.transport && <Car size={16} color="#32CD32"  />}
+        {row.original.includes?.activities && (
+          <Activity size={16} color="#8A2BE2"  />
+        )}
+        {row.original.includes?.shops && <ShoppingBag size={16} color="#DC143C" />}
+      </div>
+    ),
   },
 
 ];

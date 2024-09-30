@@ -11,19 +11,35 @@ export const tourTypes = [
     "Honeymoon"
 ];
 
+export const hotelRoomCategories = [
+  "Deluxe",
+  "Suite",
+  "Standard",
+  "Superior",
+  "Executive",
+  "Family",
+  "Economy",
+  "Penthouse",
+  "Luxury",
+  "Studio",
+];
+
 export const hotelRoomTypes = [
-    "Single Room",       // A room for one person
-    "Double Room",       // A room for two people with a double bed
-    "Twin Room",         // A room for two people with two single beds
-    "Deluxe Room",       // A room with added luxury features
-    "Suite",             // A larger room with a living area and extra amenities
-    "Family Room",       // A room with extra beds for families
-    "Executive Room",    // A higher-end room, often for business travelers
-    "Presidential Suite",// The most luxurious room in the hotel
-    "Studio Room",       // A room with a kitchenette
-    "Penthouse Suite",   // A high-end room on the top floor
-    "Accessible Room"    // A room designed for guests with disabilities
-  ];
+  "Single",
+  "Double",
+  "Twin",
+  "Triple",
+  "Queen",
+  "King",
+  "Executive Suite",
+  "Family Suite",
+  "Deluxe Room",
+  "Standard Room",
+  "Penthouse Suite",
+  "Studio Room",
+  "Connecting Room",
+];
+
 
 export const hotelBoardBasis = [
     "Room Only",              // No meals included
