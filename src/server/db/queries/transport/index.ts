@@ -226,7 +226,7 @@ export async function updateDriverAndRelatedData(
         primaryContactNumber: updatedDriver.primaryContactNumber,
         streetName: updatedDriver.streetName,
         province: updatedDriver.province,
-        isGuide: updatedDriver.isGuide,
+        type: updatedDriver.type,
         feePerKM: updatedDriver.feePerKM,
         fuelAllowance: updatedDriver.fuelAllowance,
         accommodationAllowance: updatedDriver.accommodationAllowance,

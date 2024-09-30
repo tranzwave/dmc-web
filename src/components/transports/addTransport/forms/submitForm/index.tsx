@@ -82,7 +82,7 @@ const SubmitForm = () => {
             title: "Success",
             description: "Driver added successfully",
           });
-          router.push("dashboard/transport")
+          router.push("/dashboard/transport")
         } catch (error) {
           if (error instanceof Error) {
             setError(error.message);

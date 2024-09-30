@@ -1,4 +1,6 @@
 "use client"
+import { LoaderCircle } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAddActivity } from "~/app/dashboard/activities/add/context";
 import { DataTable } from "~/components/bookings/home/dataTable";
@@ -6,8 +8,6 @@ import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
 import { insertActivityVendor } from "~/server/db/queries/activities";
 import { columns } from "../activityForm/columns";
-import { LoaderCircle } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
 
 const SubmitForm = () => {
     const { activityVendorDetails } = useAddActivity();
