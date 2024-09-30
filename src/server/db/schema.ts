@@ -404,7 +404,8 @@ export const driver = createTable("drivers", {
   }).notNull(),
   streetName: varchar("street_name", { length: 255 }).notNull(),
   province: varchar("province", { length: 255 }).notNull(),
-  isGuide: boolean("has_restaurant").notNull().default(false),
+  type: varchar("type", { length: 255 }).notNull(),
+  // isGuide: boolean("has_restaurant").notNull().default(false),
   feePerKM: integer("fee_per_km").notNull().default(0),
   fuelAllowance: integer("fuel_allowance").notNull().default(0),
   accommodationAllowance: integer("accommodation_allowance")

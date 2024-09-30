@@ -1,13 +1,13 @@
 "use client";
-import { useEffect, useState } from "react";
-import { DataTable } from "~/components/bookings/home/dataTable";
-import { columns, Transport } from "./columns";
-import TransportForm from "./transportsForm";
+import { ColumnDef } from "@tanstack/react-table";
 import { SearchIcon } from "lucide-react";
-import { Button } from "~/components/ui/button";
-import { Driver, driverColumns } from "~/lib/types/driver/type";
-import { DriverSearchParams } from "~/lib/api";
+import { useEffect, useState } from "react";
 import { useAddBooking } from "~/app/dashboard/bookings/add/context";
+import { DataTable } from "~/components/bookings/home/dataTable";
+import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
+import { useToast } from "~/hooks/use-toast";
+import { DriverSearchParams } from "~/lib/api";
 import {
   getAllDriversByVehicleTypeAndLanguage,
   getAllLanguages,
@@ -20,10 +20,8 @@ import {
   SelectLanguage,
   SelectVehicle,
 } from "~/server/db/schemaTypes";
-import { useToast } from "~/hooks/use-toast";
-import { Calendar } from "~/components/ui/calendar";
-import { ColumnDef } from "@tanstack/react-table";
-import ContactBox from "~/components/ui/content-box";
+import { columns, Transport } from "./columns";
+import TransportForm from "./transportsForm";
 
 type DriverWithoutVehiclesAndLanguages = Omit<
   DriverData,
@@ -139,9 +137,9 @@ const TransportTab = () => {
       console.log(results);
       const filteredDrivers = results.filter((driver) => {
         if (searchParams.type === "Chauffer") {
-          return driver.isGuide;
+          return driver.type;
         } else {
-          return !driver.isGuide;
+          return !driver.type;
         }
       });
 

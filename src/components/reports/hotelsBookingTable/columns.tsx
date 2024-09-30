@@ -1,20 +1,16 @@
+// Ensure this is the only place where HotelsBooking is defined
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import { HotelsBooking } from "./hotelsBookingTable"; // Adjust the path accordingly
 
-export type HotelsBooking = {
-  name: string;
-  numberOfBookings: string;
-  lastBookingDate: string;
-};
-
-export const columns: ColumnDef<HotelsBooking>[] = [
+export const columns: ColumnDef<HotelsBooking, unknown>[] = [
   {
-    accessorKey: "name",
+    accessorKey: "hotelName",
     header: "Name",
   },
   {
-    accessorKey: "numberOfBookings",
+    accessorKey: "bookingCount",
     header: "Number of Bookings",
   },
   {

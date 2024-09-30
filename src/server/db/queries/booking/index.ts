@@ -15,6 +15,7 @@ import {
   booking,
   bookingLine,
   client,
+  hotel,
   hotelVoucher,
   hotelVoucherLine,
   restaurantVoucher,
@@ -654,6 +655,39 @@ export const getBookingCountByMonth = async () => {
     count: Number(row.bookingCount),
   }));
 };
+
+
+export const getHotelBookingStats = async () => {
+  const hotelBookingStats = await db
+    .select({
+      hotelName: hotel.name,
+      bookingCount: sql`COUNT(${hotelVoucher.id})`.as('bookingCount'),
+      lastBookingDate: sql`MAX(${hotelVoucher.createdAt})`.as('lastBookingDate')
+    })
+    .from(hotel)
+    .innerJoin(hotelVoucher, sql`${hotel.id} = ${hotelVoucher.hotelId}`)
+    .groupBy(hotel.id)
+  // .orderBy(sql`COUNT(${hotelVoucher.id})`, 'desc'); // Optional: to sort by number of bookings
+
+  return hotelBookingStats.map(row => {
+    let formattedDate = null;
+
+    // Check if lastBookingDate is a valid date string or number before converting
+    if (row.lastBookingDate && (typeof row.lastBookingDate === 'string' || typeof row.lastBookingDate === 'number')) {
+      const date = new Date(row.lastBookingDate);
+      if (!isNaN(date.getTime())) {
+        formattedDate = date.toLocaleDateString(); // Format date if valid
+      }
+    }
+
+    return {
+      hotelName: row.hotelName,
+      bookingCount: Number(row.bookingCount),
+      lastBookingDate: formattedDate // If the date is invalid, it will remain null
+    };
+  });
+};
+
 
 
 

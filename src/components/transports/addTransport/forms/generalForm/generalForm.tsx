@@ -15,7 +15,13 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { getAllCities } from "~/server/db/queries/activities";
 import { getAllLanguages } from "~/server/db/queries/transport";
 import { SelectCity, SelectLanguage } from "~/server/db/schemaTypes";
@@ -29,7 +35,7 @@ export const generalSchema = z.object({
   streetName: z.string().min(1, "Street name is required"),
   city: z.string().min(1, "City is required"),
   province: z.string().min(1, "Province is required"),
-  guide: z.boolean().default(false),
+  type: z.string().min(1, "Type is required"),
   includes: z.object({
     vehicles: z.boolean(),
     charges: z.boolean(),
@@ -51,8 +57,9 @@ const GeneralForm = () => {
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState<SelectCity[]>([]);
-  const [languages, setLanguages] = useState<SelectLanguage[]>([])
-  const { setGeneralDetails, transportDetails, setActiveTab } = useAddTransport();
+  const [languages, setLanguages] = useState<SelectLanguage[]>([]);
+  const { setGeneralDetails, transportDetails, setActiveTab } =
+    useAddTransport();
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
     defaultValues: transportDetails.general,
@@ -61,16 +68,23 @@ const GeneralForm = () => {
   const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
     console.log(data);
     setGeneralDetails(data);
-    setActiveTab("vehicles")
+    setActiveTab("vehicles");
+
+    if (data.type === "Guide") {
+      setActiveTab("submit");
+    } else {
+      setActiveTab("vehicles");
+    }
   };
 
   const fetchData = async () => {
     try {
       // Run both requests in parallel
       setLoading(true);
-      const [citiesResponse, languagesResponse] =
-        await Promise.all([getAllCities("LK"), getAllLanguages()]);
-
+      const [citiesResponse, languagesResponse] = await Promise.all([
+        getAllCities("LK"),
+        getAllLanguages(),
+      ]);
 
       if (!citiesResponse) {
         throw new Error("Error fetching cities");
@@ -83,9 +97,8 @@ const GeneralForm = () => {
       console.log("Fetched cities:", citiesResponse);
       console.log("Fetched langs:", languagesResponse);
 
-
       setCities(citiesResponse);
-      setLanguages(languagesResponse)
+      setLanguages(languagesResponse);
 
       setLoading(false);
     } catch (error) {
@@ -220,26 +233,26 @@ const GeneralForm = () => {
                     <FormControl>
                       {/* <Input placeholder="Enter city" {...field} /> */}
                       <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
-                    value={field.value}
-                    defaultValue={form.getValues("city")}
-                  >
-                    <SelectTrigger className="bg-slate-100 shadow-md">
-                      <SelectValue placeholder="Select city"/>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {cities.map((city) => (
-                        <SelectItem
-                          key={city.id}
-                          value={String(city.id ?? 0) ?? "0"}
-                        >
-                          {city.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                        }}
+                        value={field.value}
+                        defaultValue={form.getValues("city")}
+                      >
+                        <SelectTrigger className="bg-slate-100 shadow-md">
+                          <SelectValue placeholder="Select city" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {cities.map((city) => (
+                            <SelectItem
+                              key={city.id}
+                              value={String(city.id ?? 0) ?? "0"}
+                            >
+                              {city.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -260,22 +273,29 @@ const GeneralForm = () => {
               />
 
               <FormField
-                name="guide"
+                name="type"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Guide</FormLabel>
+                    <FormLabel>Type</FormLabel>
                     <FormControl>
-                      {/* <Input placeholder="Enter guid" {...field} /> */}
-                      <Select onValueChange={(value)=>field.onChange(value === "Yes")} value={field.value ? "Yes" :"No"}>
-                    <SelectTrigger className="bg-slate-100 shadow-md">
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={"Yes"}>Yes</SelectItem>
-                      <SelectItem value={"No"}>No</SelectItem>
-                    </SelectContent>
-                  </Select>
+                      <Select
+                        onValueChange={(value) => field.onChange(value)}
+                        value={
+                          typeof field.value === "string"
+                            ? field.value
+                            : undefined
+                        }
+                      >
+                        <SelectTrigger className="bg-slate-100 shadow-md">
+                          <SelectValue placeholder="Select type"/>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Driver">Driver</SelectItem>
+                          <SelectItem value="Chauffeur">Chauffeur</SelectItem>
+                          <SelectItem value="Guide">Guide</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
