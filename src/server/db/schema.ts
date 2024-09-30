@@ -78,7 +78,8 @@ export const client = createTable("clients", {
     .references(() => country.code)
     .notNull(),
   name: varchar("name", { length: 255 }).notNull(),
-  primaryEmail: varchar("primary_email", { length: 255 }).notNull(),
+  primaryEmail: varchar("primary_email", { length: 100 }),
+  primaryContactNumber:varchar("primary_contact", { length: 14 }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
@@ -117,8 +118,7 @@ export const booking = createTable("bookings", {
     .references(() => client.id)
     .notNull(),
   agentId: varchar("agent_id", { length: 255 })
-    .references(() => agent.id)
-    .notNull(),
+    .references(() => agent.id),
   coordinatorId: varchar("coordinator_id", { length: 255 })
     .references(() => user.id)
     .notNull(),

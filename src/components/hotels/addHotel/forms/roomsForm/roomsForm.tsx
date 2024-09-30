@@ -136,7 +136,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom }) => {
               <FormControl>
                 <Input
                   {...field}
-                  placeholder="Enter any remarks"
+                  placeholder="Enter any additional comments"
                   value={field.value ?? ""}
                 />
               </FormControl>

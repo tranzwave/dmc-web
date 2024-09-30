@@ -33,7 +33,7 @@ import {
 } from "~/components/ui/select";
 import { getAllCountries } from "~/server/db/queries/countries";
 import { tourTypes } from "~/lib/constants";
-import { createNewBooking } from "~/server/db/queries/booking";
+import { createNewBooking, updateBookingLine, updateClient } from "~/server/db/queries/booking";
 import {
   Dialog,
   DialogContent,
@@ -50,36 +50,37 @@ import {
   StatusKey,
   StatusLabels,
 } from "~/app/dashboard/bookings/[id]/edit/context";
+import { addBookingGeneralSchema } from "~/components/bookings/addBooking/forms/generalForm/generalForm";
 
 // Define the schema for form validation
-export const generalSchema = z
-  .object({
-    clientName: z.string().min(1, "Client name is required"),
-    country: z.string().min(1, "Country is required"),
-    primaryEmail: z.string().email("Invalid email address"),
-    adultsCount: z.number().min(0, "Add adult count"),
-    kidsCount: z.number().min(0, "Add kids count"),
-    startDate: z.string().min(1, "Start date is required"),
-    numberOfDays: z.number().min(1, "Number of days must be at least 1"),
-    endDate: z.string().min(1, "End date is required"),
-    marketingManager: z.string().min(1, "Marketing manager is required"),
-    agent: z.string().min(1, "Agent is required"),
-    tourType: z.string().min(1, "Tour type is required"),
-    includes: z.object({
-      hotels: z.boolean(),
-      restaurants: z.boolean(),
-      transport: z.boolean(),
-      activities: z.boolean(),
-      shops: z.boolean(),
-    }),
-  })
-  .refine((data) => new Date(data.endDate) >= new Date(data.startDate), {
-    message: "End date cannot be earlier than start date",
-    path: ["endDate"],
-  });
+// export const generalSchema = z
+//   .object({
+//     clientName: z.string().min(1, "Client name is required"),
+//     country: z.string().min(1, "Country is required"),
+//     primaryEmail: z.string().email("Invalid email address"),
+//     adultsCount: z.number().min(0, "Add adult count"),
+//     kidsCount: z.number().min(0, "Add kids count"),
+//     startDate: z.string().min(1, "Start date is required"),
+//     numberOfDays: z.number().min(1, "Number of days must be at least 1"),
+//     endDate: z.string().min(1, "End date is required"),
+//     marketingManager: z.string().min(1, "Marketing manager is required"),
+//     agent: z.string().min(1, "Agent is required"),
+//     tourType: z.string().min(1, "Tour type is required"),
+//     includes: z.object({
+//       hotels: z.boolean(),
+//       restaurants: z.boolean(),
+//       transport: z.boolean(),
+//       activities: z.boolean(),
+//       shops: z.boolean(),
+//     }),
+//   })
+//   .refine((data) => new Date(data.endDate) >= new Date(data.startDate), {
+//     message: "End date cannot be earlier than start date",
+//     path: ["endDate"],
+//   });
 
 // Define the type of the form values
-type GeneralFormValues = z.infer<typeof generalSchema>;
+type GeneralFormValues = z.infer<typeof addBookingGeneralSchema>;
 
 // Define checkbox options
 const includesOptions = [
@@ -109,8 +110,8 @@ const GeneralForm = () => {
   const router = useRouter();
 
   const form = useForm<GeneralFormValues>({
-    resolver: zodResolver(generalSchema),
-    defaultValues: bookingDetails.general,
+    resolver: zodResolver(addBookingGeneralSchema),
+    defaultValues: {...bookingDetails.general, directCustomer : bookingDetails.general.primaryEmail ? true : false},
   });
 
   const startDate = form.watch("startDate");
@@ -160,19 +161,77 @@ const GeneralForm = () => {
     fetchData();
   }, []);
 
-  const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
+  const onSubmit: SubmitHandler<GeneralFormValues> = async (data) => {
+    setSaving(true);
     const sd = new Date(data.startDate);
     const ed = new Date(data.endDate);
-    
+
     const diffInMilliseconds = ed.getTime() - sd.getTime();
-    
+
     const diffInDays = Math.ceil(diffInMilliseconds / (1000 * 60 * 60 * 24));
-    
-    data.numberOfDays = diffInDays
+
+    data.numberOfDays = diffInDays;
     console.log(data);
     setGeneralDetails(data);
-    setActiveTab("hotels");
+    try {
+      // Call the createNewBooking function with the necessary data
+      console.log(bookingDetails);
+      // const createdBooking = await createNewBooking({
+      //   general: data,
+      //   activities: [],
+      //   restaurants: [],
+      //   shops: [],
+      //   transport: [],
+      //   vouchers: [],
+      // });
+
+      const updatedBooking = await updateBookingLine(
+        pathname.split("/")[3] ?? "",
+        {
+          general: data,
+          activities: [],
+          restaurants: [],
+          shops: [],
+          transport: [],
+          vouchers: [],
+        }
+      )
+
+      if (updatedBooking) {
+        // If createNewBooking succeeds, set the success message and show modal
+        setMessage(
+          "Booking Updated! Do you want to continue finalizing the tasks for this booking?",
+        );
+        setId(updatedBooking);
+        setShowModal(true);
+      }
+    } catch (error) {
+      // Catch any errors and set error message
+      setMessage("An error occurred while updating the booking.");
+      console.error("Error in handleSubmit:", error);
+    } finally {
+      // Always stop the loading spinner
+      setSaving(false);
+    }
+    // setTimeout(() => {
+    //   saveBookingLine();
+
+    // }, 3000);
   };
+
+  // const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
+  //   const sd = new Date(data.startDate);
+  //   const ed = new Date(data.endDate);
+    
+  //   const diffInMilliseconds = ed.getTime() - sd.getTime();
+    
+  //   const diffInDays = Math.ceil(diffInMilliseconds / (1000 * 60 * 60 * 24));
+    
+  //   data.numberOfDays = diffInDays
+  //   console.log(data);
+  //   setGeneralDetails(data);
+  //   setActiveTab("hotels");
+  // };
 
   // const saveBookingLine = async () => {
   //   console.log(bookingDetails);
@@ -200,16 +259,16 @@ const GeneralForm = () => {
   //   }
   // };
 
-  // const handleYes = () => {
-  //   setShowModal(false);
-  //   setActiveTab("hotels");
-  // };
+  const handleYes = () => {
+    setShowModal(false);
+    setActiveTab("hotels");
+  };
 
-  // const handleNo = () => {
-  //   // Handle not continuing to finalize tasks
-  //   setShowModal(false);
-  //   router.push(`${pathname.split("add")[0]}`);
-  // };
+  const handleNo = () => {
+    // Handle not continuing to finalize tasks
+    setShowModal(false);
+    router.push(`${pathname.split("add")[0]}`);
+  };
 
   function getAgentId(agentName: string) {
     const agent = agents.find((agent) => agent.name === agentName);
@@ -279,22 +338,70 @@ const GeneralForm = () => {
               )}
             />
             <FormField
-              name="primaryEmail"
+              name="directCustomer"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Primary Email</FormLabel>
+                  <FormLabel>Direct Customer</FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="Enter primary email"
-                      {...field}
-                    />
+                    {/* <Input placeholder="Select Country" {...field} /> */}
+                    <Select
+                      onValueChange={(value) => field.onChange(value === "Yes")}
+                      value={field.value ? "Yes" : "No"}
+                    >
+                      <SelectTrigger className="bg-slate-100 shadow-md">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={"Yes"}>Yes</SelectItem>
+                        <SelectItem value={"No"}>No</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            {form.watch("directCustomer") == true ? (
+              <>
+                <FormField
+                  name="primaryEmail"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Primary Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="Enter primary email"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="primaryContactNumber"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Primary Contact Number</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="tel"
+                          placeholder="Enter primary contact number"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            ) : (
+              ""
+            )}
           </div>
 
           <div className="grid grid-cols-3 gap-4">
@@ -417,36 +524,40 @@ const GeneralForm = () => {
                 </FormItem>
               )}
             />
-            <FormField
-              name="agent"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Agent</FormLabel>
-                  <FormControl>
-                    {/* <Input placeholder="Enter agent's name" {...field} /> */}
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                      }}
-                      value={field.value}
-                    >
-                      <SelectTrigger className="bg-slate-100 shadow-md">
-                        <SelectValue placeholder="Select agent" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {agents.map((agent) => (
-                          <SelectItem key={agent.id} value={agent?.id ?? ""}>
-                            {agent.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {form.watch("directCustomer") == true ? (
+              <></>
+            ) : (
+              <FormField
+                name="agent"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Agent</FormLabel>
+                    <FormControl>
+                      {/* <Input placeholder="Enter agent's name" {...field} /> */}
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                        }}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="bg-slate-100 shadow-md">
+                          <SelectValue placeholder="Select agent" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {agents.map((agent) => (
+                            <SelectItem key={agent.id} value={agent?.id ?? ""}>
+                              {agent.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
 
           <FormField
@@ -534,13 +645,13 @@ const GeneralForm = () => {
               {saving ? (
                 <LoaderCircle size={15} className="animate-spin" />
               ) : (
-                "Next"
+                "Save Booking"
               )}
             </Button>
           </div>
         </form>
       </Form>
-      {/* <Dialog open={showModal} onOpenChange={setShowModal}>
+      <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Booking Saved!</DialogTitle>
@@ -558,7 +669,7 @@ const GeneralForm = () => {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog> */}
+      </Dialog>
     </div>
   );
 };

@@ -51,9 +51,11 @@ const EditBooking = ({ id }: { id: string }) => {
             clientName: booking.client.name,
             adultsCount:general.adultsCount,
             kidsCount:general.kidsCount,
-            agent:booking.agentId,
+            directCustomer:booking.agentId ? true: false,
+            primaryContactNumber: booking.client.primaryContactNumber ?? '',
+            agent:booking.agentId ?? '',
             country:booking.client.country,
-            primaryEmail:booking.client.primaryEmail,
+            primaryEmail:booking.client.primaryEmail ?? '',
             startDate:format(new Date(general.startDate), 'yyyy-MM-dd'),
             endDate:format(new Date(general.endDate), 'yyyy-MM-dd'),
             includes:{
@@ -90,7 +92,7 @@ const EditBooking = ({ id }: { id: string }) => {
       <div className="flex-1">
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
-            <TitleBar title="Add Booking" link="toeditBooking" />
+            <TitleBar title="Edit Booking" link="toeditBooking" />
             <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>

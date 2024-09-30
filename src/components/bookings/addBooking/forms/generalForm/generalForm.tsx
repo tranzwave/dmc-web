@@ -51,18 +51,28 @@ import { usePathname, useRouter } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
 
 // Define the schema for form validation
-export const generalSchema = z
+export const addBookingGeneralSchema = z
   .object({
     clientName: z.string().min(1, "Client name is required"),
     country: z.string().min(1, "Country is required"),
-    primaryEmail: z.string().email("Invalid email address"),
+    directCustomer: z.boolean().default(true),
+    primaryEmail: z
+      .string()
+      .email("Please enter a valid email")
+      .optional()
+      .or(z.literal('')),
+    primaryContactNumber: z
+      .string()
+      .min(10, "Please enter a valid number")
+      .optional()
+      .or(z.literal('')),
     adultsCount: z.number().min(0, "Add adult count"),
     kidsCount: z.number().min(0, "Add kids count"),
     startDate: z.string().min(1, "Start date is required"),
     numberOfDays: z.number().min(1, "Number of days must be at least 1"),
     endDate: z.string().min(1, "End date is required"),
     marketingManager: z.string().min(1, "Marketing manager is required"),
-    agent: z.string().min(1, "Agent is required"),
+    agent: z.string().min(1, "Agent is required").optional().or(z.literal('')),
     tourType: z.string().min(1, "Tour type is required"),
     includes: z.object({
       hotels: z.boolean(),
@@ -78,7 +88,7 @@ export const generalSchema = z
   });
 
 // Define the type of the form values
-type GeneralFormValues = z.infer<typeof generalSchema>;
+type GeneralFormValues = z.infer<typeof addBookingGeneralSchema>;
 
 // Define checkbox options
 const includesOptions = [
@@ -108,7 +118,7 @@ const GeneralForm = () => {
   const router = useRouter();
 
   const form = useForm<GeneralFormValues>({
-    resolver: zodResolver(generalSchema),
+    resolver: zodResolver(addBookingGeneralSchema),
     defaultValues: bookingDetails.general,
   });
 
@@ -159,7 +169,7 @@ const GeneralForm = () => {
     fetchData();
   }, []);
 
-  const onSubmit: SubmitHandler<GeneralFormValues> = async(data) => {
+  const onSubmit: SubmitHandler<GeneralFormValues> = async (data) => {
     setSaving(true);
     const sd = new Date(data.startDate);
     const ed = new Date(data.endDate);
@@ -173,14 +183,14 @@ const GeneralForm = () => {
     setGeneralDetails(data);
     try {
       // Call the createNewBooking function with the necessary data
-      console.log(bookingDetails)
+      console.log(bookingDetails);
       const createdBooking = await createNewBooking({
-        general:data,
-        activities:[],
-        restaurants:[],
-        shops:[],
-        transport:[],
-        vouchers:[]
+        general: data,
+        activities: [],
+        restaurants: [],
+        shops: [],
+        transport: [],
+        vouchers: [],
       });
 
       if (createdBooking) {
@@ -201,7 +211,7 @@ const GeneralForm = () => {
     }
     // setTimeout(() => {
     //   saveBookingLine();
-      
+
     // }, 3000);
   };
 
@@ -210,7 +220,7 @@ const GeneralForm = () => {
 
     try {
       // Call the createNewBooking function with the necessary data
-      console.log(bookingDetails)
+      console.log(bookingDetails);
       const createdBooking = await createNewBooking(bookingDetails);
 
       if (createdBooking) {
@@ -310,22 +320,70 @@ const GeneralForm = () => {
               )}
             />
             <FormField
-              name="primaryEmail"
+              name="directCustomer"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Primary Email</FormLabel>
+                  <FormLabel>Direct Customer</FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="Enter primary email"
-                      {...field}
-                    />
+                    {/* <Input placeholder="Select Country" {...field} /> */}
+                    <Select
+                      onValueChange={(value) => field.onChange(value === "Yes")}
+                      value={field.value ? "Yes" : "No"}
+                    >
+                      <SelectTrigger className="bg-slate-100 shadow-md">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={"Yes"}>Yes</SelectItem>
+                        <SelectItem value={"No"}>No</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            {form.watch("directCustomer") == true ? (
+              <>
+                <FormField
+                  name="primaryEmail"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Primary Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="Enter primary email"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="primaryContactNumber"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Primary Contact Number</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="tel"
+                          placeholder="Enter primary contact number"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            ) : (
+              ""
+            )}
           </div>
 
           <div className="grid grid-cols-3 gap-4">
@@ -448,36 +506,40 @@ const GeneralForm = () => {
                 </FormItem>
               )}
             />
-            <FormField
-              name="agent"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Agent</FormLabel>
-                  <FormControl>
-                    {/* <Input placeholder="Enter agent's name" {...field} /> */}
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                      }}
-                      value={field.value}
-                    >
-                      <SelectTrigger className="bg-slate-100 shadow-md">
-                        <SelectValue placeholder="Select agent" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {agents.map((agent) => (
-                          <SelectItem key={agent.id} value={agent?.id ?? ""}>
-                            {agent.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {form.watch("directCustomer") == true ? (
+              <></>
+            ) : (
+              <FormField
+                name="agent"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Agent</FormLabel>
+                    <FormControl>
+                      {/* <Input placeholder="Enter agent's name" {...field} /> */}
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                        }}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="bg-slate-100 shadow-md">
+                          <SelectValue placeholder="Select agent" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {agents.map((agent) => (
+                            <SelectItem key={agent.id} value={agent?.id ?? ""}>
+                              {agent.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
 
           <FormField
@@ -576,7 +638,8 @@ const GeneralForm = () => {
           <DialogHeader>
             <DialogTitle>Booking Saved!</DialogTitle>
             <DialogDescription>
-              Do you want to continue adding the required vouchers for this booking?
+              Do you want to continue adding the required vouchers for this
+              booking?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

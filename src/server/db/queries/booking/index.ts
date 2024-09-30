@@ -99,159 +99,6 @@ export const getBookingLineWithAllData = (id: string) => {
   })
 }
 
-// export const createNewBooking = async (
-//   bookingDetails: BookingDetails,
-//   newBooking?: InsertBooking,
-//   generalData?: any,
-//   parentBookingId?: string,
-//   hotelVouchers?: HotelVoucher[],
-//   restaurantVouchers?: any,
-//   activityVouchers?: any,
-//   shopsVouchers?: any,
-// ) => {
-//   try {
-//     const tenantExist = await db.query.tenant.findFirst();
-
-//     if (!tenantExist) {
-//       throw new Error("Couldn't find a tenant");
-//     }
-//     const tenantId = tenantExist.id;
-
-//     let parentBooking;
-
-//     //Create client
-//     const bookingClient = await createClient({
-//       name: bookingDetails.general.clientName,
-//       country: bookingDetails.general.country,
-//       primaryEmail: bookingDetails.general.primaryEmail,
-//       tenantId: tenantId,
-//     });
-
-//     // Check if the parent booking exists
-//     if (parentBookingId) {
-//       parentBooking = await db.query.booking.findFirst({
-//         where: eq(booking.id, parentBookingId),
-//       });
-//     }
-
-//     // If no parentBookingId, create a new parent booking
-//     if (!parentBooking) {
-//       parentBooking = await db
-//         .insert(booking)
-//         .values({
-//           agentId: bookingDetails.general.agent,
-//           clientId: bookingClient.id,
-//           coordinatorId: bookingDetails.general.marketingManager,
-//           managerId: bookingDetails.general.marketingManager,
-//           tenantId: tenantId,
-//           tourType: bookingDetails.general.tourType,
-//         })
-//         .returning();
-
-//       if (
-//         !parentBooking ||
-//         !Array.isArray(parentBooking) ||
-//         !parentBooking[0]?.id
-//       ) {
-//         throw new Error("Couldn't add new parent booking");
-//       }
-//     }
-
-//     // Now we know parentBooking is an array with at least one item
-//     const parentBookingIdToUse = Array.isArray(parentBooking)
-//       ? parentBooking[0]?.id ?? ""
-//       : parentBooking.id;
-
-//     // Create a new booking line
-//     const newBookingLineGeneral: InsertBookingLine = {
-//       bookingId: parentBookingIdToUse,
-//       adultsCount: 2,
-//       kidsCount: 2,
-//       startDate: new Date(bookingDetails.general.startDate),
-//       endDate: new Date(bookingDetails.general.endDate),
-//       includes: {
-//         hotels: true,
-//         transport: true,
-//         activities: true,
-//       },
-//     };
-
-//     const lineId = await createBookingLine(newBookingLineGeneral);
-
-//     if (!lineId) {
-//       throw new Error("Couldn't add new booking line");
-//     }
-
-//     // Handle hotel vouchers
-//     if (bookingDetails.general.includes.hotels) {
-//       await insertHotelVouchers(
-//         bookingDetails.vouchers,
-//         lineId,
-//         bookingDetails.general.marketingManager,
-//       );
-//     }
-
-//     if (bookingDetails.general.includes.hotels) {
-//       await insertRestaurantVouchers(
-//         bookingDetails.restaurants,
-//         lineId,
-//         bookingDetails.general.marketingManager,
-//       );
-//     }
-
-//     if(bookingDetails.general.includes.activities){
-//       await insertActivityVouchers(
-//         bookingDetails.activities,
-//         lineId,
-//         bookingDetails.general.marketingManager
-//       )
-//     }
-//     // Handle other vouchers similarly (e.g., restaurant, activity, shops)
-
-//     return lineId;
-//   } catch (error) {
-//     console.error("Error in createNewBooking:", error);
-//     throw error;
-//   }
-// };
-
-// export const createClient = async (data: InsertClient) => {
-//   //check if client exists
-//   const existingClient = await db.query.client.findFirst({
-//     where: and(
-//       eq(client.tenantId, data.tenantId),
-//       eq(client.name, data.name),
-//       eq(client.primaryEmail, data.primaryEmail),
-//     ),
-//   });
-
-//   if (!existingClient) {
-//     const newClient = await db.insert(client).values(data).returning();
-
-//     if (!newClient ?? !newClient[0]) {
-//       throw new Error("Couldn't create client");
-//     }
-
-//     return newClient[0];
-//   }
-
-//   return existingClient;
-
-//   //Create new client if client doesnt exist
-// };
-
-// export const createBookingLine = async (
-//   data: InsertBookingLine,
-// ): Promise<string> => {
-//   const newBookingLine = await db.insert(bookingLine).values(data).returning();
-
-//   if (!newBookingLine ?? !newBookingLine[0]?.id) {
-//     throw new Error("Couldn't add booking line");
-//   }
-//   return newBookingLine[0].id;
-// };
-
-
 export const createNewBooking = async (
   bookingDetails: BookingDetails,
   newBooking?: InsertBooking,
@@ -279,6 +126,7 @@ export const createNewBooking = async (
         name: bookingDetails.general.clientName,
         country: bookingDetails.general.country,
         primaryEmail: bookingDetails.general.primaryEmail,
+        primaryContactNumber: bookingDetails.general.primaryContactNumber,
         tenantId: tenantId,
       });
 
@@ -294,7 +142,7 @@ export const createNewBooking = async (
         parentBooking = await tx
           .insert(booking)
           .values({
-            agentId: bookingDetails.general.agent,
+            agentId: bookingDetails.general.agent == '' ? null : bookingDetails.general.agent,
             clientId: bookingClient.id,
             coordinatorId: bookingDetails.general.marketingManager,
             managerId: bookingDetails.general.marketingManager,
@@ -402,13 +250,15 @@ export const createNewBooking = async (
 
 // Transactional functions for handling each operation
 export const createClientTx = async (tx: any, data: InsertClient) => {
-  const existingClient = await tx.query.client.findFirst({
-    where: and(
-      eq(client.tenantId, data.tenantId),
-      eq(client.name, data.name),
-      eq(client.primaryEmail, data.primaryEmail),
-    ),
-  });
+  // const existingClient = await tx.query.client.findFirst({
+  //   where: and(
+  //     eq(client.tenantId, data.tenantId),
+  //     eq(client.name, data.name),
+  //     eq(client.primaryEmail, data.primaryEmail),
+  //   ),
+  // });
+
+  const existingClient = false;
 
   if (!existingClient) {
     const newClient = await tx.insert(client).values(data).returning();
@@ -423,6 +273,47 @@ export const createClientTx = async (tx: any, data: InsertClient) => {
   return existingClient;
 };
 
+export const updateClient = async (
+  tx: any,
+  clientId: string,
+  updateData: Partial<InsertClient>
+) => {
+  try {
+    // Validate that the client exists before attempting an update
+    const existingClient = await tx.query.client.findFirst({
+      where: eq(client.id, clientId),
+    });
+
+    if (!existingClient) {
+      throw new Error(`Client with ID ${clientId} not found`);
+    }
+
+    // Update the existing client with new data
+    const updatedClient = await tx
+      .update(client)
+      .set({
+        name: updateData.name ?? existingClient.name,
+        primaryEmail: updateData.primaryEmail ?? existingClient.primaryEmail,
+        primaryContactNumber:
+          updateData.primaryContactNumber ?? existingClient.primaryContactNumber,
+        country: updateData.country ?? existingClient.country,
+        // updatedAt: new Date(), // Update the `updatedAt` timestamp to the current time
+      })
+      .where(eq(client.id, clientId))
+      .returning();
+
+    // Return the updated client record
+    if (!updatedClient || !updatedClient[0]) {
+      throw new Error("Client update failed");
+    }
+
+    return updatedClient[0];
+  } catch (error) {
+    console.error("Error updating client:", error);
+    throw error;
+  }
+};
+
 export const createBookingLineTx = async (
   tx: any,
   data: InsertBookingLine,
@@ -434,6 +325,8 @@ export const createBookingLineTx = async (
   }
   return newBookingLine[0].id;
 };
+
+
 
 export const insertHotelVouchersTx = async (
   trx: any, // Replace with actual transaction type
@@ -650,6 +543,82 @@ export const insertTransportVoucherTx = async (
 //     count: row.bookingCount ?? "Unknown",
 //   }));
 // };
+
+export const updateBookingLine = async (
+  lineId: string,
+  updatedBookingDetails: BookingDetails,
+) => {
+  try {
+    // Start a transaction for updating the booking line
+    const result = await db.transaction(async (tx) => {
+      // Find the existing booking line by its ID
+      const existingLine = await tx.query.bookingLine.findFirst({
+        where: eq(bookingLine.id, lineId),
+      });
+
+
+
+      if (!existingLine) {
+        throw new Error(`Booking line with ID ${lineId} not found`);
+      }
+
+      const existingBooking = await tx.query.booking.findFirst({
+        where: eq(booking.id, existingLine.bookingId),
+      });
+
+      if (!existingBooking) {
+        throw new Error(`Booking with ID ${existingLine.bookingId} not found`);
+      }
+
+      const updatedClient = await updateClient(
+        tx,
+        existingBooking.clientId,
+        {
+          name: updatedBookingDetails.general.clientName,
+          primaryEmail: updatedBookingDetails.general.primaryEmail,
+          primaryContactNumber: updatedBookingDetails.general.primaryContactNumber,
+          country: updatedBookingDetails.general.country,
+        }
+      );
+
+      console.log(updatedClient)
+
+      // Update the main booking line details
+      const updatedLine = await tx
+        .update(bookingLine)
+        .set({
+          adultsCount: updatedBookingDetails.general.adultsCount,
+          kidsCount: updatedBookingDetails.general.kidsCount,
+          startDate: new Date(updatedBookingDetails.general.startDate),
+          endDate: new Date(updatedBookingDetails.general.endDate),
+          includes: {
+            hotels: updatedBookingDetails.general.includes.hotels,
+            restaurants: updatedBookingDetails.general.includes.restaurants,
+            transport: updatedBookingDetails.general.includes.transport,
+            activities: updatedBookingDetails.general.includes.activities,
+            shops: updatedBookingDetails.general.includes.shops,
+          },
+        })
+        .where(eq(bookingLine.id, lineId))
+        .returning();
+
+      console.log(updatedLine)
+
+      if (!updatedLine || !updatedLine[0]?.id || !updatedClient) {
+        throw new Error("Couldn't update the booking line");
+      }
+
+      // Return the updated booking line ID
+      return updatedLine[0]?.id;
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Error in updateBookingLine:", error);
+    throw error;
+  }
+};
+
 
 
 export const getBookingCountByMonth = async () => {
