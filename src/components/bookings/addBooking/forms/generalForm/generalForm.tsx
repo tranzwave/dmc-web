@@ -49,6 +49,8 @@ import {
 } from "~/components/ui/dialog";
 import { usePathname, useRouter } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
+import { OrganizationMembershipResource } from "@clerk/types";
+import { useOrganization } from "@clerk/nextjs";
 
 // Define the schema for form validation
 export const addBookingGeneralSchema = z
@@ -117,6 +119,25 @@ const GeneralForm = () => {
   const pathname = usePathname();
   const router = useRouter();
 
+  const { organization, isLoaded } = useOrganization();
+  const [members, setMembers] = useState<OrganizationMembershipResource[]>([]); // Correct type for members
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const fetchMembers = async () => {
+    if (organization) {
+      try {
+        setLoading(true);
+        const memberships = await organization.getMemberships();
+        setMembers(memberships.data); // Set the 'items' array containing memberships
+        console.log(memberships);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching members:", error);
+        setLoading(false);
+      }
+    }
+  };
+
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(addBookingGeneralSchema),
     defaultValues: bookingDetails.general,
@@ -167,7 +188,8 @@ const GeneralForm = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+    fetchMembers()
+  }, [organization]);
 
   const onSubmit: SubmitHandler<GeneralFormValues> = async (data) => {
     setSaving(true);

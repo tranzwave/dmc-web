@@ -1,7 +1,7 @@
 "use server"
-import { eq } from "drizzle-orm"
+import { eq, or } from "drizzle-orm"
 import { db } from "~/server/db"
-import { restaurantVoucher, restaurant, restaurantMeal, restaurantVoucherLine } from './../../../schema';
+import { restaurantVoucher, restaurant, restaurantMeal, restaurantVoucherLine, user } from './../../../schema';
 import { SelectRestaurantVoucher, SelectRestaurantVoucherLine } from "~/server/db/schemaTypes";
 
 
@@ -26,6 +26,12 @@ export const getRestaurantVouchers = (bookingLineId:string) => {
         }
     })
 
+}
+
+export const getCoordinatorAndManager = (cooridnatorId:string, managerId:string) =>{
+  return db.query.user.findMany({
+    where:or(eq(user.id, cooridnatorId), eq(user.id, managerId))
+})
 }
 
 export const getMeals = (restaurantId:string)=>{
