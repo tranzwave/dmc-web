@@ -86,6 +86,7 @@ export const defaultGeneral: General = {
   clientName: "",
   country: "",
   primaryEmail: "",
+  directCustomer:false,
   adultsCount: 0,
   kidsCount: 0,
   startDate: "",
