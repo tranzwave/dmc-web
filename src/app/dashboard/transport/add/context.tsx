@@ -32,7 +32,7 @@ const defaultGeneral: General = {
   streetName: "",
   city: "",
   province: "",
-  guide: false,
+  type: "",
   includes: {
     vehicles: false,
     charges: false,
@@ -48,10 +48,10 @@ const defaultCharges: Charges = {
 }
 
 const defaultDocuments: Documents = {
-  driverLicense: "",
-  guideLicense: "",
-  vehicleEmissionTest: "",
-  insurance: ""
+  driverLicense: "N/A",
+  guideLicense: "N/A",
+  vehicleEmissionTest: "N/A",
+  insurance: "N/A"
 }
 
 const defaultTransportDetails: TransportDetails = {

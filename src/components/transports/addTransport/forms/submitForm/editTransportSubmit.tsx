@@ -35,7 +35,7 @@ const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriv
             cityId: Number(general.city),
             driversLicense: documents.driverLicense,
             insurance: documents.insurance,
-            isGuide: general.guide,
+            type: general.type,
             guideLicense: documents.guideLicense,
             accommodationAllowance: charges.accommodationAllowance,
             fuelAllowance:charges.fuelAllowance,
@@ -146,7 +146,8 @@ const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriv
                     </tbody>
                 </table>
             </div>
-
+            {general.type !== "Guide" && (
+                <>
             {/* Vehicles Section */}
             <div className="bg-primary-green text-white font-bold text-sm p-1 rounded-t-xl w-24 flex justify-center items-center">
                 <div>Vehicles</div>
@@ -252,6 +253,8 @@ const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriv
                     </tbody>
                 </table>
             </div>
+            </>
+            )}
 
             {/* Submit Button */}
             <div className="flex w-full justify-center mt-4">

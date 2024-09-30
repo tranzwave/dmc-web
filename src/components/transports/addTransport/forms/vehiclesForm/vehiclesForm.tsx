@@ -23,13 +23,13 @@ interface VehiclesFormProps {
 
 // Define the schema for form validation
 export const vehiclesSchema = z.object({
-  vehicle: z.string().min(1, "Vehicle is required"),
-  numberPlate: z.string().min(1, "Number Plate is required"),
-  seats: z.number().min(1, "Number of seats is required"),
-  make: z.string().min(1, "Make is required"),
-  model: z.string().min(1, "Model is required"),
-  year: z.string().min(1, "Year is required"),
-  vrl: z.string().min(1, "VRL is required"),
+  vehicle: z.string().min(1, "Vehicle is required").default("N/A"),
+  numberPlate: z.string().min(1, "Number Plate is required").default("N/A"),
+  seats: z.number().min(1, "Number of seats is required").default(0),
+  make: z.string().min(1, "Make is required").default("N/A"),
+  model: z.string().min(1, "Model is required").default("N/A"),
+  year: z.string().min(1, "Year is required").default("N/A"),
+  vrl: z.string().min(1, "VRL is required").default("N/A"),
 });
 
 // Define the type of the form values

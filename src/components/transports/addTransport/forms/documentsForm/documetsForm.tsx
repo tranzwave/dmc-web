@@ -18,10 +18,10 @@ import { Input } from "~/components/ui/input";
 
 // Define the schema for form validation
 export const DocumentsSchema = z.object({
-  driverLicense: z.string().min(1, "Driver's license is required"),
-  guideLicense: z.string().min(1, "Guid license is required"),
-  vehicleEmissionTest: z.string().min(1, "Vehicle emission test is required"),
-  insurance: z.string().min(1, "Insurance is required"),
+  driverLicense: z.string().min(1, "Driver's license is required").default("N/A"),
+  guideLicense: z.string().min(1, "Guid license is required").default("N/A"),
+  vehicleEmissionTest: z.string().min(1, "Vehicle emission test is required").default("N/A"),
+  insurance: z.string().min(1, "Insurance is required").default("N/A"),
 });
 
 // Define the type of the form values

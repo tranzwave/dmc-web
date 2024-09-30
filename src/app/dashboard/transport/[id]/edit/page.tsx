@@ -72,7 +72,7 @@ const EditTransport = ({ id }: { id: string }) => {
         setGeneralDetails({
           name:selectedDriver.name,
           city:selectedDriver.cityId.toString(),
-          guide:selectedDriver.isGuide,
+          type:selectedDriver.type,
           includes:{
             charges:true,
             documents:true,
@@ -129,6 +129,7 @@ const EditTransport = ({ id }: { id: string }) => {
     return <div>Error: {error}</div>;
   }
 
+  const isGuide = transportDetails.general?.type === "Guide";
 
   return (
     <div className="flex">
@@ -153,6 +154,8 @@ const EditTransport = ({ id }: { id: string }) => {
                 >
                   General
                 </TabsTrigger>
+                {!isGuide && (
+                  <>
                 <TabsTrigger
                   value="vehicles"
                   statusLabel="Mandatory"
@@ -187,6 +190,8 @@ const EditTransport = ({ id }: { id: string }) => {
                 >
                   Documents
                 </TabsTrigger>
+                </>
+                )}
                 <TabsTrigger
                   value="submit"
                   isCompleted={transportDetails.vehicles.length > 0}
@@ -200,6 +205,7 @@ const EditTransport = ({ id }: { id: string }) => {
                 >
                   Submit
                 </TabsTrigger>
+                
               </TabsList>
               <TabsContent value="general">
                 {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
