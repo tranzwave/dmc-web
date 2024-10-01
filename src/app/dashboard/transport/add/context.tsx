@@ -11,19 +11,17 @@ interface TransportDetails {
   documents: Documents;
 }
 
-// Define context properties
 interface AddTransportContextProps {
   transportDetails: TransportDetails;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   setGeneralDetails: (details: General) => void;
   addVehicles: (vehicles: Vehicles) => void;
-  deleteVehicle: (numberPlate: string) => void; // New deleteVehicle method
+  deleteVehicle: (numberPlate: string) => void;
   setChargesDetails: (charges: Charges) => void;
   setDocumetsDetails: (documents: Documents) => void;
 }
 
-// Provide default values
 const defaultGeneral: General = {
   name: "",
   language: "",
@@ -55,7 +53,7 @@ const defaultDocuments: Documents = {
 };
 
 const generateRandomString = (length: number): string => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; // Alphanumeric characters
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let result = '';
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);
@@ -140,7 +138,7 @@ export const AddTransportProvider: React.FC<{ children: ReactNode }> = ({
         transportDetails,
         setGeneralDetails,
         addVehicles,
-        deleteVehicle, // Include deleteVehicle in the context value
+        deleteVehicle,
         setChargesDetails,
         setDocumetsDetails,
         activeTab,
