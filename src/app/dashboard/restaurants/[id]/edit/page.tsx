@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { getRestaurantVendorById } from "~/server/db/queries/restaurants";
 import { AddRestaurantProvider, useAddRestaurant } from "../../add/context";
 // import { FetchedRestaurantVendorData } from "../page";
-import SubmitForm from "~/components/restaurants/addRestaurant/forms/submitForm";
+import EditRestaurantSubmitForm from "~/components/restaurants/addRestaurant/forms/submitForm/editRestaurantSubmit";
 import { FetchedRestaurantVendorData } from "../page";
 
 // export type FetchedRestaurantVendorData = Awaited<ReturnType<typeof getRestaurantVendorById>>;
@@ -132,8 +132,8 @@ const EditRestaurant = ({ id }: { id: string }) => {
                 <MealsOfferedTab />
               </TabsContent>
               <TabsContent value="submit">
-                {/* <EditRestaurantSubmitForm id={id} originalDriverData={restaurantVendor ?? null} /> */}
-                <SubmitForm/>
+                <EditRestaurantSubmitForm id={id} originalDriverData={restaurantVendor ?? null} />
+                {/* <SubmitForm/> */}
               </TabsContent>
             </Tabs>
           </div>
