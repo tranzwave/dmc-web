@@ -21,6 +21,7 @@ import {
   restaurantVoucher,
   restaurantVoucherLine,
   shopVoucher,
+  tenant,
   transportVoucher,
 } from "../../schema";
 import {
@@ -100,6 +101,24 @@ export const getBookingLineWithAllData = (id: string) => {
   })
 }
 
+async function generateBookingLineId(tenantId: string, countryCode:string): Promise<string> {
+  // Fetch tenant name and country based on tenantId
+  const tenantData =  await db.query.tenant.findFirst({
+    where: eq(tenant.id,tenantId)
+})
+
+  if (!tenantData) {
+    throw new Error(`Tenant with ID ${tenantId} not found`);
+  }
+
+
+  // Helper function to generate a 6-digit random number
+  const generate6DigitNumber = () => Math.floor(100000 + Math.random() * 900000).toString();
+
+  // Format the ID: <tenantName>-<country>-<6 digits>
+  return `${tenantData.name.toUpperCase().slice(0,3)}-${countryCode}-${generate6DigitNumber()}`;
+}
+
 export const createNewBooking = async (
   bookingDetails: BookingDetails,
   newBooking?: InsertBooking,
@@ -166,8 +185,11 @@ export const createNewBooking = async (
         ? parentBooking[0]?.id ?? ""
         : parentBooking.id;
 
+      const customId = await generateBookingLineId(tenantId, bookingDetails.general.country)
+
       // Create a new booking line within the transaction
       const newBookingLineGeneral: InsertBookingLine = {
+        id:customId,
         bookingId: parentBookingIdToUse,
         adultsCount: bookingDetails.general.adultsCount,
         kidsCount: bookingDetails.general.kidsCount,
@@ -327,7 +349,28 @@ export const createBookingLineTx = async (
   return newBookingLine[0].id;
 };
 
+export const addHotelVoucherLinesToBooking = async (
+  vouchers: HotelVoucher[],
+  newBookingLineId: string,
+  coordinatorId: string,
+) => {
+  // Start a transaction
+  const result = await db.transaction(async (trx) => {
+    try {
+      // Call the insertHotelVouchersTx function inside this transaction
+      const insertedVouchers = await insertHotelVouchersTx(trx, vouchers, newBookingLineId, coordinatorId);
 
+      // If there are additional inserts/updates, you can perform them here using the same trx.
+      
+      return insertedVouchers;
+    } catch (error) {
+      console.error('Error while inserting hotel vouchers:', error);
+      throw error; // Rethrow to trigger transaction rollback
+    }
+  });
+
+  return result;
+};
 
 export const insertHotelVouchersTx = async (
   trx: any, // Replace with actual transaction type

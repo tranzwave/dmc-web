@@ -128,11 +128,12 @@ export const booking = createTable("bookings", {
   tourType: varchar("tour_type", { length: 255 }).notNull(), // e.g., adventure, honeymoon
 });
 
+export const bookingLineStatus = pgEnum('status', ['inprogress', 'confirmed', 'cancelled']);
+
 export const bookingLine = createTable("booking_lines", {
   id: varchar("id", { length: 255 })
     .notNull()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+    .primaryKey(),
   bookingId: varchar("booking_id")
     .notNull()
     .references(() => booking.id),
@@ -147,6 +148,7 @@ export const bookingLine = createTable("booking_lines", {
   kidsCount: integer("kids_count").notNull(),
   startDate: timestamp("start_date").notNull(),
   endDate: timestamp("end_date").notNull(),
+  status: bookingLineStatus('status').default('inprogress'),
 });
 
 export const city = createTable(
@@ -277,7 +279,7 @@ export const hotelVoucherLine = createTable("hotel_voucher_lines", {
     .notNull(),
   rate: numeric('rate', { precision: 4 }),
   roomType: varchar("room_type", { length: 100 }).notNull(),
-  basis: varchar("basis", { length: 10 }).notNull(), // HB, FB, BB
+  basis: varchar("basis", { length: 50 }).notNull(), // HB, FB, BB
   checkInDate: varchar("check_in_date", { length: 100 }).notNull(),
   checkInTime: time("check_in_time").notNull(),
   checkOutDate: varchar("check_out_date", { length: 100 }).notNull(),

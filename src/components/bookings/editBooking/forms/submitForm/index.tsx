@@ -41,7 +41,7 @@ const AddBookingSubmitTab = () => {
 
       if (createdBooking) {
         setMessage(
-          "Booking Added! Do you want to continue finalizing the tasks for this booking?"
+          "Booking Added! Do you want to continue finalizing the tasks for this booking?",
         );
         setId(createdBooking);
         setShowModal(true);
@@ -95,22 +95,24 @@ const AddBookingSubmitTab = () => {
         >
           <div className="card-title flex w-full flex-row justify-between">
             <div>Booking Summary</div>
-            <Button
-              variant="primaryGreen"
-              onClick={handleSubmit}
-              disabled={loading}
-            >
-              {loading ? (
-                <div className="flex flex-row gap-2">
-                  <div>
-                    <Loader2Icon className="animate-spin" />
-                  </div>{" "}
-                  <div> Saving </div>
-                </div>
-              ) : (
-                "Submit Booking"
-              )}
-            </Button>
+            {!pathname.includes("edit") && (
+              <Button
+                variant="primaryGreen"
+                onClick={handleSubmit}
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="flex flex-row gap-2">
+                    <div>
+                      <Loader2Icon className="animate-spin" />
+                    </div>{" "}
+                    <div> Saving </div>
+                  </div>
+                ) : (
+                  "Submit Booking"
+                )}
+              </Button>
+            )}
           </div>
           <div ref={summaryRef}>
             {summary.map((sum, index) => {
@@ -119,11 +121,13 @@ const AddBookingSubmitTab = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-col w-[20%] justify-end ">
+      <div className="flex w-[20%] flex-col justify-end">
         <Button onClick={downloadPDF} variant="primaryGreen">
           Download Summary as PDF
         </Button>
-        <div className="text-[8px] font-normal text-neutral-400">Please expand all the dates before downloading</div>
+        <div className="text-[8px] font-normal text-neutral-400">
+          Please expand all the dates before downloading
+        </div>
       </div>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>

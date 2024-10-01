@@ -192,7 +192,9 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
         <div className="text-xs text-neutral-500">{`Coordinator - ${coordinatorAndManager[0]?.name ?? ""} | Manager - ${coordinatorAndManager[0]?.name ?? ""}`}</div>
         </div>
 
-        <Button variant={"primaryGreen"}>Summary</Button>
+        <Link href={`${pathname}/${booking.id}/edit?tab=submit`}>
+          <Button variant={"primaryGreen"}>Summary</Button>
+        </Link>
       </div>
       <div className="grid grid-cols-3 rounded-lg shadow-sm">
         <div></div>
@@ -201,35 +203,35 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
         title: "Hotels",
         totalVouchers: hotelVouchers?.length ?? 0,
         done: 0,
-        locked: false,
+        locked: booking.includes?.hotels ? false : true,
         vouchersToFinalize: hotelVouchers?.length ?? 0,
       })}
       {renderCard({
         title: "Restaurants",
         totalVouchers: restaurantVouchers?.length ?? 0,
         done: 0,
-        locked: (restaurantVouchers?.length ?? 0 > 0) ? false : true,
+        locked: booking.includes?.restaurants ? false : true,
         vouchersToFinalize: restaurantVouchers?.length ?? 0,
       })}
       {renderCard({
         title: "Transport",
         totalVouchers: transportVouchers?.length ?? 0,
         done: 0,
-        locked: (transportVouchers?.length ?? 0 > 0) ? false : true,
+        locked: booking.includes?.transport ? false : true,
         vouchersToFinalize: transportVouchers?.length ?? 0,
       })}
       {renderCard({
         title: "Activities",
         totalVouchers: activityVouchers?.length ?? 0,
         done: 0,
-        locked: (activityVouchers?.length ?? 0 > 0) ? false : true,
+        locked: booking.includes?.activities ? false : true,
         vouchersToFinalize: activityVouchers?.length ?? 0,
       })}
       {renderCard({
         title: "Shops",
         totalVouchers: shopVouchers?.length ?? 0,
         done: 0,
-        locked: (shopVouchers?.length ?? 0 > 0) ? false : true,
+        locked: booking.includes?.shops ? false : true,
         vouchersToFinalize: shopVouchers?.length ?? 0,
       })}
       {/* {renderCard(booking.details.transport)}
