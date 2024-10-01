@@ -1,17 +1,12 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import { DriverBooking } from './transportHistoryTable';
 
-export type TransportHistory = {
-  name: string;
-  numberOfBookings: string;
-  upcommingTrips: string;
-  ongoingTrips: string;
-};
 
-export const columns: ColumnDef<TransportHistory>[] = [
+export const columns: ColumnDef<DriverBooking>[] = [
   {
-    accessorKey: "name",
+    accessorKey: "driverName",
     header: "Driver Name",
   },
   {
@@ -19,11 +14,11 @@ export const columns: ColumnDef<TransportHistory>[] = [
     header: "Number of Bookings",
   },
   {
-    accessorKey: "upcommingTrips",
+    accessorKey: "numberOfUpcomingTrips",
     header: "Upcoming Trips",
   },
   {
-    accessorKey: "ongoingTrips",
+    accessorKey: "numberOfOngoingTrips",
     header: "Ongoing Trips",
   },
 ];

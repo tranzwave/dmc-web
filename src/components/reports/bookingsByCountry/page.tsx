@@ -8,7 +8,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "~/components/ui/chart";
-import { getBookingCountByMonth } from '~/server/db/queries/booking';
+import { getBookingCountByMonth } from '~/server/db/queries/reports';
 
 type BookingData = {
   month: string|undefined; 

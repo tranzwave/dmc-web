@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import {
   ActivityVoucher,
   BookingDetails,
@@ -15,13 +15,12 @@ import {
   booking,
   bookingLine,
   client,
-  hotel,
   hotelVoucher,
   hotelVoucherLine,
   restaurantVoucher,
   restaurantVoucherLine,
   shopVoucher,
-  transportVoucher,
+  transportVoucher
 } from "../../schema";
 import {
   InsertBooking,
@@ -636,89 +635,3 @@ export const insertTransportVoucherTx = async (
   );
   return transportVouchers;
 };
-
-// export const getBookingCountByMonth = async () => {
-//   const bookingCountByMonth = await db
-//     .select({
-//       month: bookingLine.startDate,
-//       bookingCount: count(),
-//     })
-//     .from(bookingLine)
-//     .groupBy(bookingLine.startDate);
-
-//   return bookingCountByMonth.map(row => ({
-//     month: row.month ?? "Unknown",
-//     count: row.bookingCount ?? "Unknown",
-//   }));
-// };
-
-
-export const getBookingCountByMonth = async () => {
-  const currentDate = new Date();
-  const lastYearDate = new Date();
-  lastYearDate.setFullYear(currentDate.getFullYear() - 1);
-
-  const bookingCountByMonth = await db
-    .select({
-      month: sql`DATE_TRUNC('month', ${bookingLine.startDate})`.as('month'),
-      bookingCount: sql`COUNT(*)`.as('bookingCount'),
-    })
-    .from(bookingLine)
-    // Filter to only include bookings from the last year
-    .where(sql`${bookingLine.startDate} >= ${lastYearDate}`)
-    .groupBy(sql`DATE_TRUNC('month', ${bookingLine.startDate})`);
-
-  // convert month and year to formatted string
-  const getMonthAndYear = (date: any) => {
-    const monthNames = [
-      "January", "February", "March", "April",
-      "May", "June", "July", "August",
-      "September", "October", "November", "December"
-    ];
-
-    const monthIndex = new Date(date).getMonth();
-    const year = new Date(date).getFullYear();
-    return `${monthNames[monthIndex]} ${year}`;
-  };
-
-  return bookingCountByMonth.map(row => ({
-    month: getMonthAndYear(row.month),
-    count: Number(row.bookingCount),
-  }));
-};
-
-
-export const getHotelBookingStats = async () => {
-  const hotelBookingStats = await db
-    .select({
-      hotelName: hotel.name,
-      bookingCount: sql`COUNT(${hotelVoucher.id})`.as('bookingCount'),
-      lastBookingDate: sql`MAX(${hotelVoucher.createdAt})`.as('lastBookingDate')
-    })
-    .from(hotel)
-    .innerJoin(hotelVoucher, sql`${hotel.id} = ${hotelVoucher.hotelId}`)
-    .groupBy(hotel.id)
-  // .orderBy(sql`COUNT(${hotelVoucher.id})`, 'desc'); // Optional: to sort by number of bookings
-
-  return hotelBookingStats.map(row => {
-    let formattedDate = null;
-
-    // Check if lastBookingDate is a valid date string or number before converting
-    if (row.lastBookingDate && (typeof row.lastBookingDate === 'string' || typeof row.lastBookingDate === 'number')) {
-      const date = new Date(row.lastBookingDate);
-      if (!isNaN(date.getTime())) {
-        formattedDate = date.toLocaleDateString(); // Format date if valid
-      }
-    }
-
-    return {
-      hotelName: row.hotelName,
-      bookingCount: Number(row.bookingCount),
-      lastBookingDate: formattedDate // If the date is invalid, it will remain null
-    };
-  });
-};
-
-
-
-
