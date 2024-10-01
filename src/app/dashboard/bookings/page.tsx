@@ -20,7 +20,6 @@ export default function Bookings() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
@@ -48,7 +47,6 @@ export default function Bookings() {
     }
   };
 
-  // Fetch data on mount
   useEffect(() => {
     fetchBookingLines();
   }, []);
@@ -65,21 +63,17 @@ export default function Bookings() {
     setCurrentPage(newPage);
   };
 
-  // Convert date string to Date object for comparison
   const parseDate = (dateString: string) => new Date(dateString);
 
-  // Filter data based on search query and date range
   const filteredData = data.filter((booking) => {
     const searchTerm = searchQuery.toLowerCase();
-    const bookingStartDate = booking.startDate; // Assuming booking.date is in a valid date format
-    const bookingEndDate = booking.endDate; // Assuming booking.date is in a valid date format
+    const bookingStartDate = booking.startDate;
+    const bookingEndDate = booking.endDate;
 
-    // Filter by search query
     const matchesSearch =
       booking.booking.client.id.toString().includes(searchTerm) ||
       booking.booking.client.name.toLowerCase().includes(searchTerm);
 
-    // Filter by date range
     const matchesStartDate = startDate
       ? bookingStartDate >= parseDate(startDate)
       : true;
@@ -142,7 +136,7 @@ export default function Bookings() {
                     <Search className="h-4 w-4 text-gray-500" />{" "}
                   </div>
                   <Input
-                    className="pl-10" // Padding to ensure text doesn't overlap the icon
+                    className="pl-10"
                     placeholder="Search by Booking Id or Client Name"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
