@@ -3,6 +3,7 @@
 import { and, eq } from "drizzle-orm";
 import { ActivityVendorDetails } from "~/app/dashboard/activities/add/context";
 import { db } from "../..";
+import { InsertActivity, InsertActivityVendor } from "../../schemaTypes";
 import {
   activity,
   activityType,
@@ -200,6 +201,59 @@ export const insertActivityVendor = async (
   }
 };
 
+
+
+export async function updateRestaurantAndRelatedData(
+  activityVendorId: string,
+  updatedActivityVendor: InsertActivityVendor | null,
+  updatedActivity: InsertActivity[],
+) {
+  console.log(activityVendorId);
+  console.log(updatedActivityVendor);
+
+  // Begin a transaction
+  const updated = await db.transaction(async (trx) => {
+    // Update the restaurant
+    if (!updatedActivityVendor) {
+      throw new Error("Please provide updated data")
+    }
+    const updatedActivityvendorResult = await trx
+      .update(activityVendor)
+      .set({
+        name: updatedActivityVendor.name,
+        contactNumber: updatedActivityVendor.contactNumber,
+        streetName: updatedActivityVendor.streetName,
+        province: updatedActivityVendor.province,
+        cityId: updatedActivityVendor.cityId,
+
+      })
+      .where(eq(activityVendor.id, activityVendorId))
+      .returning({ updatedId: activityVendor.id });
+
+    if (updatedActivityvendorResult.length === 0) {
+      throw new Error(`Restaurant with id ${activityVendorId} not found.`);
+    }
+
+    // Update related vehicles
+    const updatedActivityData = await updateActivity(trx, activityVendorId, updatedActivity);
+
+    return { updatedActivityVendorResult: updatedActivityvendorResult };
+  });
+
+  console.log(updated);
+  return updated;
+}
+
+async function updateActivity(
+  trx: any,
+  activityVendorId: string,
+  updatedActivities: InsertActivity[]
+) {
+  // If there are no vehicles to update, return early
+  if (updatedActivities.length === 0) {
+    return [];
+  }
+}
 
 
 export async function deleteActivitytCascade(activityVendorId: string) {

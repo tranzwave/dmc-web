@@ -28,7 +28,7 @@ const EditRestaurantSubmitForm = ({id,originalDriverData}:{id:string,originalDri
             streetName: general.streetName,
             province: general.province,
             tenantId: "",
-            cityId: Number(general.city),
+            cityId: Number(general.city?.id),
             createdAt:originalDriverData?.createdAt ?? new Date(),
             id: originalDriverData?.id ?? ""
         }]
@@ -59,7 +59,7 @@ const EditRestaurantSubmitForm = ({id,originalDriverData}:{id:string,originalDri
           // Handle successful response (e.g., show a success message)
           toast({
             title: "Success",
-            description: "Driver updated successfully",
+            description: "Restaurant updated successfully",
           });
           router.push("/dashboard/restaurants")
         } catch (error) {

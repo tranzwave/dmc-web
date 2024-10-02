@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import {
   ActivityVoucher,
   BookingDetails,
@@ -15,14 +15,15 @@ import {
   booking,
   bookingLine,
   client,
-  hotel,
   hotelVoucher,
   hotelVoucherLine,
   restaurantVoucher,
   restaurantVoucherLine,
   shopVoucher,
+
   tenant,
-  transportVoucher,
+
+  transportVoucher
 } from "../../schema";
 import {
   InsertBooking,
@@ -101,11 +102,11 @@ export const getBookingLineWithAllData = (id: string) => {
   })
 }
 
-async function generateBookingLineId(tenantId: string, countryCode:string): Promise<string> {
+async function generateBookingLineId(tenantId: string, countryCode: string): Promise<string> {
   // Fetch tenant name and country based on tenantId
-  const tenantData =  await db.query.tenant.findFirst({
-    where: eq(tenant.id,tenantId)
-})
+  const tenantData = await db.query.tenant.findFirst({
+    where: eq(tenant.id, tenantId)
+  })
 
   if (!tenantData) {
     throw new Error(`Tenant with ID ${tenantId} not found`);
@@ -116,7 +117,7 @@ async function generateBookingLineId(tenantId: string, countryCode:string): Prom
   const generate6DigitNumber = () => Math.floor(100000 + Math.random() * 900000).toString();
 
   // Format the ID: <tenantName>-<country>-<6 digits>
-  return `${tenantData.name.toUpperCase().slice(0,3)}-${countryCode}-${generate6DigitNumber()}`;
+  return `${tenantData.name.toUpperCase().slice(0, 3)}-${countryCode}-${generate6DigitNumber()}`;
 }
 
 export const createNewBooking = async (
@@ -189,7 +190,7 @@ export const createNewBooking = async (
 
       // Create a new booking line within the transaction
       const newBookingLineGeneral: InsertBookingLine = {
-        id:customId,
+        id: customId,
         bookingId: parentBookingIdToUse,
         adultsCount: bookingDetails.general.adultsCount,
         kidsCount: bookingDetails.general.kidsCount,
@@ -361,7 +362,7 @@ export const addHotelVoucherLinesToBooking = async (
       const insertedVouchers = await insertHotelVouchersTx(trx, vouchers, newBookingLineId, coordinatorId);
 
       // If there are additional inserts/updates, you can perform them here using the same trx.
-      
+
       return insertedVouchers;
     } catch (error) {
       console.error('Error while inserting hotel vouchers:', error);
@@ -575,165 +576,3 @@ export const insertTransportVoucherTx = async (
   );
   return transportVouchers;
 };
-
-// export const getBookingCountByMonth = async () => {
-//   const bookingCountByMonth = await db
-//     .select({
-//       month: bookingLine.startDate,
-//       bookingCount: count(),
-//     })
-//     .from(bookingLine)
-//     .groupBy(bookingLine.startDate);
-
-//   return bookingCountByMonth.map(row => ({
-//     month: row.month ?? "Unknown",
-//     count: row.bookingCount ?? "Unknown",
-//   }));
-// };
-
-export const updateBookingLine = async (
-  lineId: string,
-  updatedBookingDetails: BookingDetails,
-) => {
-  try {
-    // Start a transaction for updating the booking line
-    const result = await db.transaction(async (tx) => {
-      // Find the existing booking line by its ID
-      const existingLine = await tx.query.bookingLine.findFirst({
-        where: eq(bookingLine.id, lineId),
-      });
-
-
-
-      if (!existingLine) {
-        throw new Error(`Booking line with ID ${lineId} not found`);
-      }
-
-      const existingBooking = await tx.query.booking.findFirst({
-        where: eq(booking.id, existingLine.bookingId),
-      });
-
-      if (!existingBooking) {
-        throw new Error(`Booking with ID ${existingLine.bookingId} not found`);
-      }
-
-      const updatedClient = await updateClient(
-        tx,
-        existingBooking.clientId,
-        {
-          name: updatedBookingDetails.general.clientName,
-          primaryEmail: updatedBookingDetails.general.primaryEmail,
-          primaryContactNumber: updatedBookingDetails.general.primaryContactNumber,
-          country: updatedBookingDetails.general.country,
-        }
-      );
-
-      console.log(updatedClient)
-
-      // Update the main booking line details
-      const updatedLine = await tx
-        .update(bookingLine)
-        .set({
-          adultsCount: updatedBookingDetails.general.adultsCount,
-          kidsCount: updatedBookingDetails.general.kidsCount,
-          startDate: new Date(updatedBookingDetails.general.startDate),
-          endDate: new Date(updatedBookingDetails.general.endDate),
-          includes: {
-            hotels: updatedBookingDetails.general.includes.hotels,
-            restaurants: updatedBookingDetails.general.includes.restaurants,
-            transport: updatedBookingDetails.general.includes.transport,
-            activities: updatedBookingDetails.general.includes.activities,
-            shops: updatedBookingDetails.general.includes.shops,
-          },
-        })
-        .where(eq(bookingLine.id, lineId))
-        .returning();
-
-      console.log(updatedLine)
-
-      if (!updatedLine || !updatedLine[0]?.id || !updatedClient) {
-        throw new Error("Couldn't update the booking line");
-      }
-
-      // Return the updated booking line ID
-      return updatedLine[0]?.id;
-    });
-
-    return result;
-  } catch (error) {
-    console.error("Error in updateBookingLine:", error);
-    throw error;
-  }
-};
-
-
-
-export const getBookingCountByMonth = async () => {
-  const currentDate = new Date();
-  const lastYearDate = new Date();
-  lastYearDate.setFullYear(currentDate.getFullYear() - 1);
-
-  const bookingCountByMonth = await db
-    .select({
-      month: sql`DATE_TRUNC('month', ${bookingLine.startDate})`.as('month'),
-      bookingCount: sql`COUNT(*)`.as('bookingCount'),
-    })
-    .from(bookingLine)
-    // Filter to only include bookings from the last year
-    .where(sql`${bookingLine.startDate} >= ${lastYearDate}`)
-    .groupBy(sql`DATE_TRUNC('month', ${bookingLine.startDate})`);
-
-  // convert month and year to formatted string
-  const getMonthAndYear = (date: any) => {
-    const monthNames = [
-      "January", "February", "March", "April",
-      "May", "June", "July", "August",
-      "September", "October", "November", "December"
-    ];
-
-    const monthIndex = new Date(date).getMonth();
-    const year = new Date(date).getFullYear();
-    return `${monthNames[monthIndex]} ${year}`;
-  };
-
-  return bookingCountByMonth.map(row => ({
-    month: getMonthAndYear(row.month),
-    count: Number(row.bookingCount),
-  }));
-};
-
-
-export const getHotelBookingStats = async () => {
-  const hotelBookingStats = await db
-    .select({
-      hotelName: hotel.name,
-      bookingCount: sql`COUNT(${hotelVoucher.id})`.as('bookingCount'),
-      lastBookingDate: sql`MAX(${hotelVoucher.createdAt})`.as('lastBookingDate')
-    })
-    .from(hotel)
-    .innerJoin(hotelVoucher, sql`${hotel.id} = ${hotelVoucher.hotelId}`)
-    .groupBy(hotel.id)
-  // .orderBy(sql`COUNT(${hotelVoucher.id})`, 'desc'); // Optional: to sort by number of bookings
-
-  return hotelBookingStats.map(row => {
-    let formattedDate = null;
-
-    // Check if lastBookingDate is a valid date string or number before converting
-    if (row.lastBookingDate && (typeof row.lastBookingDate === 'string' || typeof row.lastBookingDate === 'number')) {
-      const date = new Date(row.lastBookingDate);
-      if (!isNaN(date.getTime())) {
-        formattedDate = date.toLocaleDateString(); // Format date if valid
-      }
-    }
-
-    return {
-      hotelName: row.hotelName,
-      bookingCount: Number(row.bookingCount),
-      lastBookingDate: formattedDate // If the date is invalid, it will remain null
-    };
-  });
-};
-
-
-
-

@@ -409,6 +409,7 @@ export const driver = createTable("drivers", {
   type: varchar("type", { length: 255 }).notNull(),
   // isGuide: boolean("has_restaurant").notNull().default(false),
   feePerKM: integer("fee_per_km").notNull().default(0),
+  feePerDay: integer("fee_per_day").notNull().default(0),
   fuelAllowance: integer("fuel_allowance").notNull().default(0),
   accommodationAllowance: integer("accommodation_allowance")
     .notNull()
