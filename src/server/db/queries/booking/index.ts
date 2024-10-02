@@ -21,6 +21,8 @@ import {
   restaurantVoucherLine,
   shopVoucher,
 
+  tenant,
+
   transportVoucher
 } from "../../schema";
 import {
