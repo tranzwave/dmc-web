@@ -21,7 +21,7 @@ export const getRestaurantVouchers = (bookingLineId:string) => {
             // voucherLine: true,
             // hotel:true,
             // bookingLine:true
-            voucherLine:true,
+            voucherLines:true,
             restaurant:true
         }
     })

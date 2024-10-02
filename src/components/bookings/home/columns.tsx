@@ -14,7 +14,15 @@ import { Badge } from "~/components/ui/badge";
 
 export type CategoryDetails = {
     title: string;
-    vouchersToFinalize: number;
+    statusCount: {
+      inprogress: number,
+      sentToVendor: number,
+      vendorConfirmed:number,
+      sentToClient:number,
+      confirmed:number,
+      cancelled:number,
+      amended:number
+    };
     done: number;
     totalVouchers: number;
     locked: boolean;

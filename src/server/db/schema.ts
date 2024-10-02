@@ -247,7 +247,7 @@ export const hotelStaff = createTable("hotel_staffs", {
     .$onUpdate(() => new Date()),
 });
 
-export const statusEnum = pgEnum('status', ['inprogress', 'sentToVendor', 'vendorConfirmed', 'sentToClient', 'confirmed', 'cancelled']);
+export const statusEnum = pgEnum('status', ['inprogress', 'sentToVendor', 'vendorConfirmed', 'sentToClient', 'confirmed', 'cancelled', 'amended']);
 // Hotel Vouchers table
 export const hotelVoucher = createTable("hotel_vouchers", {
   id: varchar("id", { length: 255 })
@@ -704,7 +704,7 @@ export const hotelVouchersRelations = relations(
       fields: [hotelVoucher.hotelId],
       references: [hotel.id],
     }),
-    voucherLine: many(hotelVoucherLine),
+    voucherLines: many(hotelVoucherLine),
   }),
 );
 
@@ -748,7 +748,7 @@ export const restaurantVouchersRelations = relations(
       fields: [restaurantVoucher.restaurantId],
       references: [restaurant.id],
     }),
-    voucherLine: many(restaurantVoucherLine),
+    voucherLines: many(restaurantVoucherLine),
   }),
 );
 

@@ -79,28 +79,28 @@ export async function getData(): Promise<Booking[]> {
       details: {
         hotels: {
           title: "Hotels & Restaurants",
-          vouchersToFinalize: 5,
+          statusCount: 5,
           done: 2,
           totalVouchers: 7,
           locked: false
         },
         transport: {
           title: "Transport",
-          vouchersToFinalize: 2,
+          statusCount: 2,
           done: 3,
           totalVouchers: 5,
           locked: true
         },
         activities: {
           title: "Activities",
-          vouchersToFinalize: 6,
+          statusCount: 6,
           done: 4,
           totalVouchers: 10,
           locked: true
         },
         shops: {
           title: "Shops",
-          vouchersToFinalize: 2,
+          statusCount: 2,
           done: 3,
           totalVouchers: 5,
           locked: true
@@ -116,28 +116,28 @@ export async function getData(): Promise<Booking[]> {
       details: {
         hotels: {
           title: "Hotels & Restaurants",
-          vouchersToFinalize: 4,
+          statusCount: 4,
           done: 1,
           totalVouchers: 5,
           locked: false
         },
         transport: {
           title: "Transport",
-          vouchersToFinalize: 1,
+          statusCount: 1,
           done: 2,
           totalVouchers: 3,
           locked: true
         },
         activities: {
           title: "Activities",
-          vouchersToFinalize: 5,
+          statusCount: 5,
           done: 3,
           totalVouchers: 8,
           locked: true
         },
         shops: {
           title: "Shops",
-          vouchersToFinalize: 3,
+          statusCount: 3,
           done: 1,
           totalVouchers: 4,
           locked: true
@@ -153,28 +153,28 @@ export async function getData(): Promise<Booking[]> {
       details: {
         hotels: {
           title: "Hotels & Restaurants",
-          vouchersToFinalize: 6,
+          statusCount: 6,
           done: 3,
           totalVouchers: 9,
           locked: false
         },
         transport: {
           title: "Transport",
-          vouchersToFinalize: 3,
+          statusCount: 3,
           done: 4,
           totalVouchers: 7,
           locked: true
         },
         activities: {
           title: "Activities",
-          vouchersToFinalize: 8,
+          statusCount: 8,
           done: 5,
           totalVouchers: 13,
           locked: true
         },
         shops: {
           title: "Shops",
-          vouchersToFinalize: 4,
+          statusCount: 4,
           done: 2,
           totalVouchers: 6,
           locked: true
@@ -190,28 +190,28 @@ export async function getData(): Promise<Booking[]> {
       details: {
         hotels: {
           title: "Hotels & Restaurants",
-          vouchersToFinalize: 2,
+          statusCount: 2,
           done: 1,
           totalVouchers: 3,
           locked: false
         },
         transport: {
           title: "Transport",
-          vouchersToFinalize: 1,
+          statusCount: 1,
           done: 2,
           totalVouchers: 3,
           locked: true
         },
         activities: {
           title: "Activities",
-          vouchersToFinalize: 3,
+          statusCount: 3,
           done: 2,
           totalVouchers: 5,
           locked: true
         },
         shops: {
           title: "Shops",
-          vouchersToFinalize: 1,
+          statusCount: 1,
           done: 1,
           totalVouchers: 2,
           locked: true
@@ -227,28 +227,28 @@ export async function getData(): Promise<Booking[]> {
       details: {
         hotels: {
           title: "Hotels & Restaurants",
-          vouchersToFinalize: 3,
+          statusCount: 3,
           done: 2,
           totalVouchers: 5,
           locked: false
         },
         transport: {
           title: "Transport",
-          vouchersToFinalize: 2,
+          statusCount: 2,
           done: 3,
           totalVouchers: 5,
           locked: true
         },
         activities: {
           title: "Activities",
-          vouchersToFinalize: 5,
+          statusCount: 5,
           done: 3,
           totalVouchers: 8,
           locked: true
         },
         shops: {
           title: "Shops",
-          vouchersToFinalize: 2,
+          statusCount: 2,
           done: 2,
           totalVouchers: 4,
           locked: true
@@ -264,28 +264,28 @@ export async function getData(): Promise<Booking[]> {
       details: {
         hotels: {
           title: "Hotels & Restaurants",
-          vouchersToFinalize: 5,
+          statusCount: 5,
           done: 3,
           totalVouchers: 8,
           locked: false
         },
         transport: {
           title: "Transport",
-          vouchersToFinalize: 3,
+          statusCount: 3,
           done: 2,
           totalVouchers: 5,
           locked: true
         },
         activities: {
           title: "Activities",
-          vouchersToFinalize: 4,
+          statusCount: 4,
           done: 3,
           totalVouchers: 7,
           locked: true
         },
         shops: {
           title: "Shops",
-          vouchersToFinalize: 2,
+          statusCount: 2,
           done: 1,
           totalVouchers: 3,
           locked: true
@@ -301,28 +301,28 @@ export async function getData(): Promise<Booking[]> {
       details: {
         hotels: {
           title: "Hotels & Restaurants",
-          vouchersToFinalize: 4,
+          statusCount: 4,
           done: 2,
           totalVouchers: 6,
           locked: false
         },
         transport: {
           title: "Transport",
-          vouchersToFinalize: 2,
+          statusCount: 2,
           done: 3,
           totalVouchers: 5,
           locked: true
         },
         activities: {
           title: "Activities",
-          vouchersToFinalize: 5,
+          statusCount: 5,
           done: 4,
           totalVouchers: 9,
           locked: true
         },
         shops: {
           title: "Shops",
-          vouchersToFinalize: 3,
+          statusCount: 3,
           done: 1,
           totalVouchers: 4,
           locked: true
@@ -338,28 +338,28 @@ export async function getData(): Promise<Booking[]> {
       details: {
         hotels: {
           title: "Hotels & Restaurants",
-          vouchersToFinalize: 6,
+          statusCount: 6,
           done: 3,
           totalVouchers: 9,
           locked: false
         },
         transport: {
           title: "Transport",
-          vouchersToFinalize: 4,
+          statusCount: 4,
           done: 2,
           totalVouchers: 6,
           locked: true
         },
         activities: {
           title: "Activities",
-          vouchersToFinalize: 7,
+          statusCount: 7,
           done: 4,
           totalVouchers: 11,
           locked: true
         },
         shops: {
           title: "Shops",
-          vouchersToFinalize: 3,
+          statusCount: 3,
           done: 2,
           totalVouchers: 5,
           locked: true
@@ -375,28 +375,28 @@ export async function getData(): Promise<Booking[]> {
       details: {
         hotels: {
           title: "Hotels & Restaurants",
-          vouchersToFinalize: 4,
+          statusCount: 4,
           done: 1,
           totalVouchers: 5,
           locked: false
         },
         transport: {
           title: "Transport",
-          vouchersToFinalize: 3,
+          statusCount: 3,
           done: 2,
           totalVouchers: 5,
           locked: true
         },
         activities: {
           title: "Activities",
-          vouchersToFinalize: 5,
+          statusCount: 5,
           done: 3,
           totalVouchers: 8,
           locked: true
         },
         shops: {
           title: "Shops",
-          vouchersToFinalize: 2,
+          statusCount: 2,
           done: 2,
           totalVouchers: 4,
           locked: true
@@ -412,28 +412,28 @@ export async function getData(): Promise<Booking[]> {
       details: {
         hotels: {
           title: "Hotels & Restaurants",
-          vouchersToFinalize: 7,
+          statusCount: 7,
           done: 4,
           totalVouchers: 11,
           locked: false
         },
         transport: {
           title: "Transport",
-          vouchersToFinalize: 5,
+          statusCount: 5,
           done: 3,
           totalVouchers: 8,
           locked: true
         },
         activities: {
           title: "Activities",
-          vouchersToFinalize: 9,
+          statusCount: 9,
           done: 5,
           totalVouchers: 14,
           locked: true
         },
         shops: {
           title: "Shops",
-          vouchersToFinalize: 4,
+          statusCount: 4,
           done: 3,
           totalVouchers: 7,
           locked: true

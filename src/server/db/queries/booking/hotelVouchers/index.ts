@@ -20,7 +20,7 @@ export const getHotelVouchers = (bookingLineId:string) => {
     return db.query.hotelVoucher.findMany({
         where: eq(hotelVoucher.bookingLineId, bookingLineId),
         with: {
-            voucherLine: true,
+            voucherLines: true,
             hotel:true
         }
     })

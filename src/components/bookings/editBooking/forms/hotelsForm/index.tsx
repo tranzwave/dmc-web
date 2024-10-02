@@ -107,9 +107,19 @@ const HotelsTab = () => {
 
   const onSaveClick = async()=>{
     console.log(bookingDetails.vouchers)
+    const newVouchers = bookingDetails.vouchers.filter(v => v.voucherLines[0]?.id ? false : true);
+
+    if(newVouchers.length == 0){
+      toast({
+        title: "Uh Oh!",
+        description: "No new vouchers to add!",
+      });
+
+      return
+    }
     try {
       setSaving(true)
-      const newResponse = await addHotelVoucherLinesToBooking(bookingDetails.vouchers,bookingLineId ?? "", bookingDetails.general.marketingManager);
+      const newResponse = await addHotelVoucherLinesToBooking(newVouchers,bookingLineId ?? "", bookingDetails.general.marketingManager);
 
       if (!newResponse) {
         throw new Error(`Error: Couldn't add hotel vouchers`);
@@ -117,9 +127,13 @@ const HotelsTab = () => {
       console.log("Fetched Hotels:", newResponse);
 
       setSaving(false);
+      toast({
+        title: "Success",
+        description: "Hotel Vouchers Added!",
+      });
     } catch (error) {
       if (error instanceof Error) {
-        setError(error.message);
+        // setError(error.message);
       } else {
         setError("An unknown error occurred");
       }

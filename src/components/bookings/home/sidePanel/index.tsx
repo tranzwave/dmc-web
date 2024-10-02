@@ -128,6 +128,19 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
 
   if (loading) return <div>Loading...</div>;
 
+  const getStatusesCount = (voucherList:any[])=>{
+    return {
+      inprogress: voucherList.filter(v=>v.status == 'inprogress').length,
+      sentToVendor:voucherList.filter(v=>v.status == 'sentToVendor').length,
+      vendorConfirmed:voucherList.filter(v=>v.status == 'vendorConfirmed').length,
+      sentToClient:voucherList.filter(v=>v.status == 'sentToClient').length,
+      amended:voucherList.filter(v=>v.status == 'amended').length,
+      confirmed:voucherList.filter(v=>v.status == 'confirmed').length,
+      cancelled:voucherList.filter(v=>v.status == 'cancelled').length
+
+    }
+  }
+
   const renderCard = (category: CategoryDetails) => (
     <div className="card relative gap-3">
       <div className="flex flex-row justify-between">
@@ -144,7 +157,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
         <div className="flex w-4/5 flex-col gap-4">
           <div>
             <div className="text-sm font-normal text-[#21272A]">
-              {category.vouchersToFinalize} Vouchers to finalize
+              {category.totalVouchers - (category.statusCount.confirmed + category.statusCount.cancelled)} Vouchers to finalize
             </div>
             <div>
               <Progress
@@ -155,7 +168,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
           </div>
           <div>
             <div className="text-sm font-normal text-[#21272A]">
-              {category.done} done | {category.totalVouchers - category.done}{" "}
+              {category.statusCount.confirmed} done | {category.totalVouchers - category.statusCount.confirmed}{" "}
               vouchers to confirm
             </div>
             <div>
@@ -204,39 +217,36 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
         totalVouchers: hotelVouchers?.length ?? 0,
         done: 0,
         locked: booking.includes?.hotels ? false : true,
-        vouchersToFinalize: hotelVouchers?.length ?? 0,
+        statusCount: getStatusesCount(hotelVouchers),
       })}
       {renderCard({
         title: "Restaurants",
         totalVouchers: restaurantVouchers?.length ?? 0,
         done: 0,
         locked: booking.includes?.restaurants ? false : true,
-        vouchersToFinalize: restaurantVouchers?.length ?? 0,
+        statusCount: getStatusesCount(restaurantVouchers),
       })}
       {renderCard({
         title: "Transport",
         totalVouchers: transportVouchers?.length ?? 0,
         done: 0,
         locked: booking.includes?.transport ? false : true,
-        vouchersToFinalize: transportVouchers?.length ?? 0,
+        statusCount: getStatusesCount(transportVouchers),
       })}
       {renderCard({
         title: "Activities",
         totalVouchers: activityVouchers?.length ?? 0,
         done: 0,
         locked: booking.includes?.activities ? false : true,
-        vouchersToFinalize: activityVouchers?.length ?? 0,
+        statusCount: getStatusesCount(activityVouchers),
       })}
       {renderCard({
         title: "Shops",
         totalVouchers: shopVouchers?.length ?? 0,
         done: 0,
         locked: booking.includes?.shops ? false : true,
-        vouchersToFinalize: shopVouchers?.length ?? 0,
+        statusCount: getStatusesCount(shopVouchers),
       })}
-      {/* {renderCard(booking.details.transport)}
-      {renderCard(booking.details.activities)}
-      {renderCard(booking.details.shops)} */}
     </div>
   );
 };

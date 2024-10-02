@@ -24,6 +24,7 @@ const EditBooking = ({ id }: { id: string }) => {
   const {
     setGeneralDetails,
     addHotelVoucher,
+    addHotelVouchers,
     addRestaurantVoucher: addRestaurant,
     addActivity,
     addTransport,
@@ -32,6 +33,7 @@ const EditBooking = ({ id }: { id: string }) => {
     setActiveTab,
     bookingDetails,
     statusLabels,
+    setStatusLabels
   } = useEditBooking();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -73,23 +75,40 @@ const EditBooking = ({ id }: { id: string }) => {
             tourType:booking.tourType
         })
 
+        setStatusLabels({
+          hotels:general.includes?.hotels ? "Mandatory" : "Locked",
+          restaurants:general.includes?.restaurants ? "Mandatory" : "Locked",
+          transport:general.includes?.transport ? "Mandatory" : "Locked",
+          activities:general.includes?.activities ? "Mandatory" : "Locked",
+          shops:general.includes?.shops ? "Mandatory" : "Locked"
+        })
+
         if(hotelVouchers){
-          
-          hotelVouchers.forEach(voucher => {
-            const {hotel, voucherLine, ...voucherData} = voucher
-            addHotelVoucher({
-              hotel: {...hotel},
-              voucher:{...voucherData},
-              voucherLines: voucherLine
-            })
+          const vouchers = hotelVouchers.map(v => {
+            const {hotel, voucherLines, ...voucher } = v
+            return {
+              hotel:hotel,
+              voucher:voucher,
+              voucherLines:voucherLines
+            }
           })
+          console.log(hotelVouchers)
+          addHotelVouchers(vouchers);
+          // hotelVouchers.forEach(voucher => {
+          //   const {hotel, voucherLines, ...voucherData} = voucher
+          //   addHotelVoucher({
+          //     hotel: {...hotel},
+          //     voucher:{...voucherData},
+          //     voucherLines: voucherLines
+          //   })
+          // })
         }
         setLoading(false);
         setTimeout(() => {
             console.log("This message is logged after 3 seconds");
             setIsGeneralDetailsSet(true);
+            console.log(bookingDetails.vouchers)
           }, 3000);
-          
     } catch (error) {
         console.error("Failed to fetch driver details:", error);
       setError("Failed to load driver details.");
@@ -139,7 +158,7 @@ const EditBooking = ({ id }: { id: string }) => {
                 <TabsTrigger
                   value="hotels"
                   onClick={() => setActiveTab("hotels")}
-                  disabled={bookingDetails.vouchers.length == 0 || !bookingDetails.general.includes.hotels}
+                  disabled={!bookingDetails.general.includes.hotels}
                   statusLabel={statusLabels.hotels}
                   isCompleted = {bookingDetails.vouchers.length > 0}
                   inProgress = {activeTab == "hotels"}
@@ -149,7 +168,7 @@ const EditBooking = ({ id }: { id: string }) => {
                 <TabsTrigger
                   value="restaurants"
                   onClick={() => setActiveTab("restaurants")}
-                  disabled={bookingDetails.restaurants.length == 0 || !bookingDetails.general.includes.hotels}
+                  disabled={!bookingDetails.general.includes.hotels}
                   statusLabel={statusLabels.restaurants}
                   isCompleted = {bookingDetails.restaurants.length > 0}
                   inProgress = {activeTab == "restaurants"}
@@ -159,7 +178,7 @@ const EditBooking = ({ id }: { id: string }) => {
                 <TabsTrigger
                   value="activities"
                   onClick={() => setActiveTab("activities")}
-                  disabled={bookingDetails.activities.length == 0 || !bookingDetails.general.includes.activities}
+                  disabled={!bookingDetails.general.includes.activities}
                   statusLabel={statusLabels.activities}
                   isCompleted = {bookingDetails.activities.length > 0}
                   inProgress = {activeTab == "activities"}
@@ -169,7 +188,7 @@ const EditBooking = ({ id }: { id: string }) => {
                 <TabsTrigger
                   value="transport"
                   onClick={() => setActiveTab("transport")}
-                  disabled={bookingDetails.transport.length == 0 || !bookingDetails.general.includes.transport}
+                  disabled={!bookingDetails.general.includes.transport}
                   statusLabel={statusLabels.transport}
                   isCompleted = {bookingDetails.transport.length > 0}
                   inProgress = {activeTab == "transport"}
@@ -179,7 +198,7 @@ const EditBooking = ({ id }: { id: string }) => {
                 <TabsTrigger
                   value="shops"
                   onClick={() => setActiveTab("shops")}
-                  disabled={bookingDetails.shops.length == 0 || !bookingDetails.general.includes.shops}
+                  disabled={!bookingDetails.general.includes.shops}
                   statusLabel={statusLabels.shops}
                   isCompleted = {bookingDetails.shops.length > 0}
                   inProgress = {activeTab == "shops"}

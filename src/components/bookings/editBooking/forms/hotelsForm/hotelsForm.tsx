@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select"; // Import Shadcn Select components
+import { useToast } from "~/hooks/use-toast";
 import { hotelBoardBasis, hotelRoomTypes } from "~/lib/constants";
 import {
   InsertHotelVoucherLine,
@@ -67,6 +68,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   const [selectedHotel, setSelectedHotel] = useState<SelectHotel | null>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { bookingDetails } = useEditBooking();
+  
 
   const form = useForm<z.infer<typeof hotelsSchema>>({
     resolver: zodResolver(hotelsSchema),
@@ -75,8 +77,8 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       remarks: defaultValues?.remarks ?? "No Remarks",
     },
     values: {
-      adultsCount: defaultValues?.adultsCount ?? 0,
-      kidsCount: defaultValues?.kidsCount ?? 0,
+      adultsCount: bookingDetails.general.adultsCount ?? 0,
+      kidsCount: bookingDetails.general.kidsCount ?? 0,
       name: hotels[0]?.name ?? "",
       checkInDate: defaultValues?.checkInDate ?? "",
       // checkInTime: defaultValues?.checkInTime ?? "10:00",
@@ -133,7 +135,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   }, [defaultValues]);
 
   return (
-    <>
+    <div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-3 gap-3">
@@ -229,7 +231,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                 <FormItem>
                   <FormLabel>Check-in Date</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input type="date" {...field} min={bookingDetails.general.startDate ?? ""} max={bookingDetails.general.endDate ?? ""}/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -259,6 +261,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                       type="date"
                       {...field}
                       min={form.watch("checkInDate") ?? ""}
+                      max={bookingDetails.general.endDate ?? ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -367,7 +370,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent>
           {bookingDetails.vouchers.length > 0 ? (
-            <>
+            <div>
               <DialogHeader>
                 <DialogTitle>Add to Voucher</DialogTitle>
               </DialogHeader>
@@ -391,9 +394,9 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                   Existing Voucher
                 </Button>
               </DialogFooter>
-            </>
+            </div>
           ) : (
-            <>
+            <div>
               <DialogHeader>
                 <DialogTitle>Add to Voucher</DialogTitle>
               </DialogHeader>
@@ -408,11 +411,11 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                   OK
                 </Button>
               </DialogFooter>
-            </>
+            </div>
           )}
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 };
 

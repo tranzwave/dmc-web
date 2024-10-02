@@ -72,13 +72,13 @@ export const getBookingLineWithAllData = (id: string) => {
       hotelVouchers: {
         with: {
           hotel: true,
-          voucherLine: true
+          voucherLines: true
         }
       },
       restaurantVouchers: {
         with: {
           restaurant: true,
-          voucherLine: true
+          voucherLines: true
         }
       },
       transportVouchers: {
@@ -399,6 +399,9 @@ export const insertHotelVouchersTx = async (
       // Add voucher lines
       const voucherLines = await Promise.all(
         currentVoucher.voucherLines.map(async (currentVoucherLine) => {
+
+          //Check for existing voucher
+
           const newVoucherLine = await trx
             .insert(hotelVoucherLine)
             .values({

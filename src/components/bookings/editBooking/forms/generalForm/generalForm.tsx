@@ -363,7 +363,7 @@ const GeneralForm = () => {
               )}
             />
             {form.watch("directCustomer") == true ? (
-              <>
+              <div>
                 <FormField
                   name="primaryEmail"
                   control={form.control}
@@ -398,7 +398,7 @@ const GeneralForm = () => {
                     </FormItem>
                   )}
                 />
-              </>
+              </div>
             ) : (
               ""
             )}
@@ -525,7 +525,7 @@ const GeneralForm = () => {
               )}
             />
             {form.watch("directCustomer") == true ? (
-              <></>
+              <div></div>
             ) : (
               <FormField
                 name="agent"
