@@ -6,6 +6,7 @@ import { Restaurant } from '~/components/bookings/addBooking/forms/restaurantsFo
 import { Shop } from '~/components/bookings/addBooking/forms/shopsForm/columns';
 import { Transport } from '~/components/bookings/addBooking/forms/transportForm/columns';
 import { Driver } from '~/lib/types/driver/type';
+import { calculateDaysBetween } from '~/lib/utils/index';
 import { InsertActivityVoucher, InsertHotelVoucher, InsertHotelVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectActivityVoucher, SelectDriver, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant, SelectShop, SelectShopVoucher } from '~/server/db/schemaTypes';
 
 export interface TransportWithDriver {
@@ -176,9 +177,11 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   const getBookingSummary = (): BookingSummary[] => {
     const { general, vouchers, restaurants, activities, transport, shops } = bookingDetails;
-    const { startDate, numberOfDays } = general;
+    const { startDate, endDate } = general;
     const bookingSummary: BookingSummary[] = [];
     const startDateObj = new Date(startDate);
+
+    const numberOfDays = calculateDaysBetween(startDate,endDate)
 
     for (let day = 1; day <= numberOfDays; day++) {
       const currentDate = new Date(startDateObj);

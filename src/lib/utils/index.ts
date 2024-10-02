@@ -10,3 +10,17 @@ export function formatDate(dateString: string) {
     // Format the date as dd/mm/yyyy
     return `${day}/${month}/${year}`;
   }
+
+  export function calculateDaysBetween(startDate: string | Date, endDate: string | Date): number {
+    const start: Date = typeof startDate === 'string' ? new Date(startDate) : startDate;
+    const end: Date = typeof endDate === 'string' ? new Date(endDate) : endDate;
+  
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      throw new Error("Invalid date format");
+    }
+  
+    const timeDifference: number = end.getTime() - start.getTime();
+  
+    return Math.round(timeDifference / (1000 * 60 * 60 * 24));
+  }
+  
