@@ -15,11 +15,13 @@ import {
   getAllActivityTypes,
   getAllCities,
 } from "~/server/db/queries/activities";
-import { Divide } from "lucide-react";
+import { Divide, LoaderCircle } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
 import { Calendar } from "~/components/ui/calendar";
 import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
+import { usePathname } from "next/navigation";
+import { addActivityVouchersToBooking } from "~/server/db/queries/booking";
 
 const ActivitiesTab = () => {
   const [addedActivities, setAddedActivities] = useState<ActivityVoucher[]>([]);
@@ -29,6 +31,10 @@ const ActivitiesTab = () => {
   const [cities, setCities] = useState<SelectCity[]>([]);
   const [error, setError] = useState<string | null>();
   const { toast } = useToast();
+  const [saving, setSaving] = useState(false)
+
+  const pathname = usePathname()
+  const bookingLineId = pathname.split("/")[3]
 
   const updateActivities = (voucher: ActivityVoucher) => {
     setAddedActivities((prev) => [...prev, voucher]);
@@ -94,6 +100,48 @@ const ActivitiesTab = () => {
     return <div>Loading...</div>;
   }
 
+  const onSaveClick = async()=>{
+    console.log(bookingDetails.vouchers)
+    const newVouchers = bookingDetails.activities.filter(v => v.voucher?.id ? false : true);
+
+    if(newVouchers.length == 0){
+      toast({
+        title: "Uh Oh!",
+        description: "No new vouchers to add!",
+      });
+
+      return
+    }
+    try {
+      setSaving(true)
+      const newResponse = await addActivityVouchersToBooking(newVouchers,bookingLineId ?? "", bookingDetails.general.marketingManager);
+
+      if (!newResponse) {
+        throw new Error(`Error: Couldn't add activity vouchers`);
+      }
+      console.log("Fetched restaurant vouchers:", newResponse);
+
+      setSaving(false);
+      toast({
+        title: "Success",
+        description: "Activity Vouchers Added!",
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        // setError(error.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+      console.error("Error:", error);
+      setSaving(false)
+      toast({
+        title: "Uh Oh!",
+        description: "Couldn't add activity vouchers!",
+      });
+    }
+
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-row justify-center gap-3">
@@ -120,9 +168,9 @@ const ActivitiesTab = () => {
         </div>
       </div>
       <div className="flex w-full justify-end">
-        <Button variant={"primaryGreen"} onClick={onNextClick}>
-          Next
-        </Button>
+      <Button variant={"primaryGreen"} onClick={onSaveClick} disabled={saving}>
+            {saving ? (<div className="flex flex-row gap-1"><div><LoaderCircle className="animate-spin" size={10}/></div>Saving</div>): ('Save')}
+          </Button>
       </div>
     </div>
   );

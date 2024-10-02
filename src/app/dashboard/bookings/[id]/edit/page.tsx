@@ -28,8 +28,11 @@ const EditBooking = ({ id }: { id: string }) => {
     addRestaurantVoucher,
     addRestaurantVouchers,
     addActivity,
+    addActivityVouchers,
     addTransport,
+    addTransportVouchers,
     addShop,
+    addShopVouchers,
     activeTab,
     setActiveTab,
     bookingDetails,
@@ -109,6 +112,45 @@ const EditBooking = ({ id }: { id: string }) => {
 
           console.log(vouchers)
           addRestaurantVouchers(vouchers)
+        }
+
+        if(activityVouchers){
+          const vouchers = activityVouchers.map(v => {
+            const {activity, activityVendor, ...voucher} = v
+            return {
+              vendor:activityVendor,
+              voucher:voucher,
+            }            
+          })
+
+          console.log(vouchers)
+          addActivityVouchers(vouchers)
+        }
+
+        if(transportVouchers){
+          const vouchers = transportVouchers.map(v => {
+            const {driver, ...voucher} = v
+            return {
+              driver:driver,
+              voucher:voucher,
+            }            
+          })
+
+          console.log(vouchers)
+          addTransportVouchers(vouchers)
+        }
+
+        if(shopsVouchers){
+          const vouchers = shopsVouchers.map(v => {
+            const {shop, ...voucher} = v
+            return {
+              shop:shop,
+              voucher:voucher,
+            }            
+          })
+
+          console.log(vouchers)
+          addShopVouchers(vouchers)
         }
         setLoading(false);
         setTimeout(() => {

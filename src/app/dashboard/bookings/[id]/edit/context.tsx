@@ -75,8 +75,11 @@ interface EditBookingContextProps {
   addRestaurantVoucher: (restaurant: RestaurantVoucher) => void;
   addRestaurantVouchers: (vouchers: RestaurantVoucher[]) => void;
   addActivity: (activity: ActivityVoucher) => void;
+  addActivityVouchers: (activity: ActivityVoucher[]) => void;
   addTransport: (transport: TransportVoucher) => void;
+  addTransportVouchers: (vouchers: TransportVoucher[])=>void;
   addShop: (shop: ShopVoucher) => void;
+  addShopVouchers: (vouchers:ShopVoucher[]) => void; 
   activeTab: string;
   setActiveTab: (tab: string) => void;
   statusLabels: StatusLabels;
@@ -167,12 +170,24 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
     setBookingDetails(prev => ({ ...prev, activities: [...prev.activities, activity] }));
   };
 
+  const addActivityVouchers = (vouchers: ActivityVoucher[]) => {
+    setBookingDetails(prev => ({ ...prev, activities: vouchers }));
+  };
+
   const addTransport = (transportWithDriver: TransportVoucher) => {
     setBookingDetails(prev => ({ ...prev, transport: [...prev.transport, transportWithDriver] }));
   };
 
+  const addTransportVouchers = (vouchers: TransportVoucher[]) => {
+    setBookingDetails(prev => ({ ...prev, transport: vouchers }));
+  };
+
   const addShop = (shop: ShopVoucher) => {
     setBookingDetails(prev => ({ ...prev, shops: [...prev.shops, shop] }));
+  };
+
+  const addShopVouchers = (vouchers: ShopVoucher[]) => {
+    setBookingDetails(prev => ({ ...prev, shops: vouchers }));
   };
 
   const getBookingSummary = (): BookingSummary[] => {
@@ -221,8 +236,11 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
         addRestaurantVoucher,
         addRestaurantVouchers,
         addActivity,
+        addActivityVouchers,
         addTransport,
+        addTransportVouchers,
         addShop,
+        addShopVouchers,
         activeTab,
         setActiveTab,
         statusLabels,

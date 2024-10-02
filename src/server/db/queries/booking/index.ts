@@ -512,8 +512,26 @@ export const insertRestaurantVouchersTx = async (
   return restaurantVouchers;
 };
 
+export const addActivityVouchersToBooking = async (
+  vouchers: ActivityVoucher[],
+  newBookingLineId: string,
+  coordinatorId: string,
+) => {
+  const result = await db.transaction(async (trx) => {
+    try {
+      const insertedVouchers = await insertActivityVouchersTx(trx, vouchers, newBookingLineId, coordinatorId);
+      return insertedVouchers;
+    } catch (error) {
+      console.error('Error while inserting activity vouchers:', error);
+      throw error;
+    }
+  });
+
+  return result;
+};
+
 export const insertActivityVouchersTx = async (
-  trx: any, // Replace with actual transaction type
+  trx: any,
   vouchers: ActivityVoucher[],
   newBookingLineId: string,
   coordinatorId: string,
@@ -539,6 +557,24 @@ export const insertActivityVouchersTx = async (
     }),
   );
   return activityVouchers;
+};
+
+export const addShopVouchersToBooking = async (
+  vouchers: ShopVoucher[],
+  newBookingLineId: string,
+  coordinatorId: string,
+) => {
+  const result = await db.transaction(async (trx) => {
+    try {
+      const insertedVouchers = await insertShopVouchersTx(trx, vouchers, newBookingLineId, coordinatorId);
+      return insertedVouchers;
+    } catch (error) {
+      console.error('Error while inserting shop vouchers:', error);
+      throw error;
+    }
+  });
+
+  return result;
 };
 
 export const insertShopVouchersTx = async (
@@ -568,6 +604,24 @@ export const insertShopVouchersTx = async (
     }),
   );
   return shopVouchers;
+};
+
+export const addTransportVouchersToBooking = async (
+  vouchers: TransportVoucher[],
+  newBookingLineId: string,
+  coordinatorId: string,
+) => {
+  const result = await db.transaction(async (trx) => {
+    try {
+      const insertedVouchers = await insertTransportVoucherTx(trx, vouchers, newBookingLineId, coordinatorId);
+      return insertedVouchers;
+    } catch (error) {
+      console.error('Error while inserting transport vouchers:', error);
+      throw error;
+    }
+  });
+
+  return result;
 };
 
 export const insertTransportVoucherTx = async (

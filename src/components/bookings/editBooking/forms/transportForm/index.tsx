@@ -1,6 +1,6 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
-import { SearchIcon } from "lucide-react";
+import { LoaderCircle, SearchIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 import { DataTable } from "~/components/bookings/home/dataTable";
@@ -22,6 +22,8 @@ import {
 } from "~/server/db/schemaTypes";
 import { columns, Transport } from "./columns";
 import TransportForm from "./transportsForm";
+import { usePathname } from "next/navigation";
+import { addTransportVouchersToBooking } from "~/server/db/queries/booking";
 
 type DriverWithoutVehiclesAndLanguages = Omit<
   DriverData,
@@ -46,6 +48,11 @@ const TransportTab = () => {
   const [vehicleTypes, setVehicleTypes] = useState<string[]>([]);
   const [languages, setLanguages] = useState<SelectLanguage[]>([]);
   const { toast } = useToast();
+
+  const [saving, setSaving] = useState(false)
+
+  const pathname = usePathname()
+  const bookingLineId = pathname.split("/")[3]
 
   const fetchData = async () => {
     try {
@@ -162,6 +169,48 @@ const TransportTab = () => {
     }
   };
 
+  const onSaveClick = async()=>{
+    console.log(bookingDetails.transport)
+    const newVouchers = bookingDetails.transport.filter(v => v.voucher?.id ? false : true);
+
+    if(newVouchers.length == 0){
+      toast({
+        title: "Uh Oh!",
+        description: "No new vouchers to add!",
+      });
+
+      return
+    }
+    try {
+      setSaving(true)
+      const newResponse = await addTransportVouchersToBooking(newVouchers,bookingLineId ?? "", bookingDetails.general.marketingManager);
+
+      if (!newResponse) {
+        throw new Error(`Error: Couldn't add transport vouchers`);
+      }
+      console.log("Fetched Transport:", newResponse);
+
+      setSaving(false);
+      toast({
+        title: "Success",
+        description: "Transport Vouchers Added!",
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        // setError(error.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+      console.error("Error:", error);
+      setSaving(false)
+      toast({
+        title: "Uh Oh!",
+        description: "Couldn't add transport!",
+      });
+    }
+
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <div className="mx-9 flex flex-row justify-center gap-3">
@@ -205,9 +254,9 @@ const TransportTab = () => {
             <DataTable columns={columns} data={bookingDetails.transport} />
           </div>
           <div className="flex w-full justify-end">
-            <Button variant={"primaryGreen"} onClick={onNextClick}>
-              Next
-            </Button>
+          <Button variant={"primaryGreen"} onClick={onSaveClick} disabled={saving}>
+            {saving ? (<div className="flex flex-row gap-1"><div><LoaderCircle className="animate-spin" size={10}/></div>Saving</div>): ('Save')}
+          </Button>
           </div>
         </div>
       </div>
