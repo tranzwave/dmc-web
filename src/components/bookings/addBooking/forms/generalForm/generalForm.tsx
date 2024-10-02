@@ -52,6 +52,7 @@ import { LoaderCircle } from "lucide-react";
 import { OrganizationMembershipResource } from "@clerk/types";
 import { useOrganization } from "@clerk/nextjs";
 
+
 // Define the schema for form validation
 export const addBookingGeneralSchema = z
   .object({
@@ -265,7 +266,8 @@ const GeneralForm = () => {
 
   const handleYes = () => {
     setShowModal(false);
-    setActiveTab("hotels");
+    // setActiveTab("hotels");
+    router.push(`${pathname.split("add")[0]}/${id}/edit`);
   };
 
   const handleNo = () => {
@@ -367,7 +369,7 @@ const GeneralForm = () => {
               )}
             />
             {form.watch("directCustomer") == true ? (
-              <>
+              <div>
                 <FormField
                   name="primaryEmail"
                   control={form.control}
@@ -402,7 +404,7 @@ const GeneralForm = () => {
                     </FormItem>
                   )}
                 />
-              </>
+              </div>
             ) : (
               ""
             )}
@@ -529,7 +531,7 @@ const GeneralForm = () => {
               )}
             />
             {form.watch("directCustomer") == true ? (
-              <></>
+              <div></div>
             ) : (
               <FormField
                 name="agent"

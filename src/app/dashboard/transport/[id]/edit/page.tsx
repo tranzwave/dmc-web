@@ -100,7 +100,8 @@ const EditTransport = ({ id }: { id: string }) => {
           accommodationAllowance:selectedDriver.accommodationAllowance,
           feePerKm:selectedDriver.feePerKM,
           fuelAllowance:selectedDriver.fuelAllowance,
-          mealAllowance:selectedDriver.mealAllowance
+          mealAllowance:selectedDriver.mealAllowance,
+          feePerDay:selectedDriver.feePerDay,
         })
 
         setDocumetsDetails({
@@ -155,7 +156,7 @@ const EditTransport = ({ id }: { id: string }) => {
                   General
                 </TabsTrigger>
                 {!isGuide && (
-                  <>
+                  <div>
                 <TabsTrigger
                   value="vehicles"
                   statusLabel="Mandatory"
@@ -190,7 +191,7 @@ const EditTransport = ({ id }: { id: string }) => {
                 >
                   Documents
                 </TabsTrigger>
-                </>
+                </div>
                 )}
                 <TabsTrigger
                   value="submit"
