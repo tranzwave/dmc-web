@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
+import { useParams, usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ActivitiesTab from "~/components/bookings/editBooking/forms/activitiesForm";
 import GeneralTab from "~/components/bookings/editBooking/forms/generalForm";
@@ -15,9 +15,12 @@ import AddBookingSubmitTab from "~/components/bookings/editBooking/forms/submitF
 import { EditBookingProvider, useEditBooking } from "./context";
 import { getBookingLineWithAllData } from "~/server/db/queries/booking";
 import { format } from 'date-fns';
+import LoadingLayout from "~/components/common/dashboardLoading";
 
 const EditBooking = ({ id }: { id: string }) => {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const tabToEdit = searchParams.get("tab")
   const {
     setGeneralDetails,
     addHotelVoucher,
@@ -51,9 +54,11 @@ const EditBooking = ({ id }: { id: string }) => {
             clientName: booking.client.name,
             adultsCount:general.adultsCount,
             kidsCount:general.kidsCount,
-            agent:booking.agentId,
+            directCustomer:booking.agentId ? true: false,
+            primaryContactNumber: booking.client.primaryContactNumber ?? '',
+            agent:booking.agentId ?? '',
             country:booking.client.country,
-            primaryEmail:booking.client.primaryEmail,
+            primaryEmail:booking.client.primaryEmail ?? '',
             startDate:format(new Date(general.startDate), 'yyyy-MM-dd'),
             endDate:format(new Date(general.endDate), 'yyyy-MM-dd'),
             includes:{
@@ -67,6 +72,18 @@ const EditBooking = ({ id }: { id: string }) => {
             numberOfDays:7,
             tourType:booking.tourType
         })
+
+        if(hotelVouchers){
+          
+          hotelVouchers.forEach(voucher => {
+            const {hotel, voucherLine, ...voucherData} = voucher
+            addHotelVoucher({
+              hotel: {...hotel},
+              voucher:{...voucherData},
+              voucherLines: voucherLine
+            })
+          })
+        }
         setLoading(false);
         setTimeout(() => {
             console.log("This message is logged after 3 seconds");
@@ -83,14 +100,21 @@ const EditBooking = ({ id }: { id: string }) => {
   useEffect(() => {
     console.log("Add Booking Component");
     fetchBookingLine()
+    setActiveTab(tabToEdit ?? "general")
   }, [id]);
+
+  if(loading){
+    return (
+      <LoadingLayout/>
+    )
+  }
 
   return (
     <div className="flex">
       <div className="flex-1">
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
-            <TitleBar title="Add Booking" link="toeditBooking" />
+            <TitleBar title="Edit Booking" link="toeditBooking" />
             <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
@@ -169,7 +193,7 @@ const EditBooking = ({ id }: { id: string }) => {
                   isCompleted = {false}
                   inProgress = {activeTab == "submit"}
                 >
-                  Submit
+                  Summary
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="general">

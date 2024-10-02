@@ -392,9 +392,9 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Remarks</FormLabel>
+              <FormLabel>Special Note</FormLabel>
               <FormControl>
-                <Input placeholder="Enter any remarks" {...field} />
+                <Input placeholder="Enter any special note" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import {
   ActivityVoucher,
   BookingDetails,
@@ -20,6 +20,7 @@ import {
   restaurantVoucher,
   restaurantVoucherLine,
   shopVoucher,
+
   transportVoucher
 } from "../../schema";
 import {
@@ -99,158 +100,23 @@ export const getBookingLineWithAllData = (id: string) => {
   })
 }
 
-// export const createNewBooking = async (
-//   bookingDetails: BookingDetails,
-//   newBooking?: InsertBooking,
-//   generalData?: any,
-//   parentBookingId?: string,
-//   hotelVouchers?: HotelVoucher[],
-//   restaurantVouchers?: any,
-//   activityVouchers?: any,
-//   shopsVouchers?: any,
-// ) => {
-//   try {
-//     const tenantExist = await db.query.tenant.findFirst();
+async function generateBookingLineId(tenantId: string, countryCode: string): Promise<string> {
+  // Fetch tenant name and country based on tenantId
+  const tenantData = await db.query.tenant.findFirst({
+    where: eq(tenant.id, tenantId)
+  })
 
-//     if (!tenantExist) {
-//       throw new Error("Couldn't find a tenant");
-//     }
-//     const tenantId = tenantExist.id;
+  if (!tenantData) {
+    throw new Error(`Tenant with ID ${tenantId} not found`);
+  }
 
-//     let parentBooking;
 
-//     //Create client
-//     const bookingClient = await createClient({
-//       name: bookingDetails.general.clientName,
-//       country: bookingDetails.general.country,
-//       primaryEmail: bookingDetails.general.primaryEmail,
-//       tenantId: tenantId,
-//     });
+  // Helper function to generate a 6-digit random number
+  const generate6DigitNumber = () => Math.floor(100000 + Math.random() * 900000).toString();
 
-//     // Check if the parent booking exists
-//     if (parentBookingId) {
-//       parentBooking = await db.query.booking.findFirst({
-//         where: eq(booking.id, parentBookingId),
-//       });
-//     }
-
-//     // If no parentBookingId, create a new parent booking
-//     if (!parentBooking) {
-//       parentBooking = await db
-//         .insert(booking)
-//         .values({
-//           agentId: bookingDetails.general.agent,
-//           clientId: bookingClient.id,
-//           coordinatorId: bookingDetails.general.marketingManager,
-//           managerId: bookingDetails.general.marketingManager,
-//           tenantId: tenantId,
-//           tourType: bookingDetails.general.tourType,
-//         })
-//         .returning();
-
-//       if (
-//         !parentBooking ||
-//         !Array.isArray(parentBooking) ||
-//         !parentBooking[0]?.id
-//       ) {
-//         throw new Error("Couldn't add new parent booking");
-//       }
-//     }
-
-//     // Now we know parentBooking is an array with at least one item
-//     const parentBookingIdToUse = Array.isArray(parentBooking)
-//       ? parentBooking[0]?.id ?? ""
-//       : parentBooking.id;
-
-//     // Create a new booking line
-//     const newBookingLineGeneral: InsertBookingLine = {
-//       bookingId: parentBookingIdToUse,
-//       adultsCount: 2,
-//       kidsCount: 2,
-//       startDate: new Date(bookingDetails.general.startDate),
-//       endDate: new Date(bookingDetails.general.endDate),
-//       includes: {
-//         hotels: true,
-//         transport: true,
-//         activities: true,
-//       },
-//     };
-
-//     const lineId = await createBookingLine(newBookingLineGeneral);
-
-//     if (!lineId) {
-//       throw new Error("Couldn't add new booking line");
-//     }
-
-//     // Handle hotel vouchers
-//     if (bookingDetails.general.includes.hotels) {
-//       await insertHotelVouchers(
-//         bookingDetails.vouchers,
-//         lineId,
-//         bookingDetails.general.marketingManager,
-//       );
-//     }
-
-//     if (bookingDetails.general.includes.hotels) {
-//       await insertRestaurantVouchers(
-//         bookingDetails.restaurants,
-//         lineId,
-//         bookingDetails.general.marketingManager,
-//       );
-//     }
-
-//     if(bookingDetails.general.includes.activities){
-//       await insertActivityVouchers(
-//         bookingDetails.activities,
-//         lineId,
-//         bookingDetails.general.marketingManager
-//       )
-//     }
-//     // Handle other vouchers similarly (e.g., restaurant, activity, shops)
-
-//     return lineId;
-//   } catch (error) {
-//     console.error("Error in createNewBooking:", error);
-//     throw error;
-//   }
-// };
-
-// export const createClient = async (data: InsertClient) => {
-//   //check if client exists
-//   const existingClient = await db.query.client.findFirst({
-//     where: and(
-//       eq(client.tenantId, data.tenantId),
-//       eq(client.name, data.name),
-//       eq(client.primaryEmail, data.primaryEmail),
-//     ),
-//   });
-
-//   if (!existingClient) {
-//     const newClient = await db.insert(client).values(data).returning();
-
-//     if (!newClient ?? !newClient[0]) {
-//       throw new Error("Couldn't create client");
-//     }
-
-//     return newClient[0];
-//   }
-
-//   return existingClient;
-
-//   //Create new client if client doesnt exist
-// };
-
-// export const createBookingLine = async (
-//   data: InsertBookingLine,
-// ): Promise<string> => {
-//   const newBookingLine = await db.insert(bookingLine).values(data).returning();
-
-//   if (!newBookingLine ?? !newBookingLine[0]?.id) {
-//     throw new Error("Couldn't add booking line");
-//   }
-//   return newBookingLine[0].id;
-// };
-
+  // Format the ID: <tenantName>-<country>-<6 digits>
+  return `${tenantData.name.toUpperCase().slice(0, 3)}-${countryCode}-${generate6DigitNumber()}`;
+}
 
 export const createNewBooking = async (
   bookingDetails: BookingDetails,
@@ -279,6 +145,7 @@ export const createNewBooking = async (
         name: bookingDetails.general.clientName,
         country: bookingDetails.general.country,
         primaryEmail: bookingDetails.general.primaryEmail,
+        primaryContactNumber: bookingDetails.general.primaryContactNumber,
         tenantId: tenantId,
       });
 
@@ -294,7 +161,7 @@ export const createNewBooking = async (
         parentBooking = await tx
           .insert(booking)
           .values({
-            agentId: bookingDetails.general.agent,
+            agentId: bookingDetails.general.agent == '' ? null : bookingDetails.general.agent,
             clientId: bookingClient.id,
             coordinatorId: bookingDetails.general.marketingManager,
             managerId: bookingDetails.general.marketingManager,
@@ -317,8 +184,11 @@ export const createNewBooking = async (
         ? parentBooking[0]?.id ?? ""
         : parentBooking.id;
 
+      const customId = await generateBookingLineId(tenantId, bookingDetails.general.country)
+
       // Create a new booking line within the transaction
       const newBookingLineGeneral: InsertBookingLine = {
+        id: customId,
         bookingId: parentBookingIdToUse,
         adultsCount: bookingDetails.general.adultsCount,
         kidsCount: bookingDetails.general.kidsCount,
@@ -402,13 +272,15 @@ export const createNewBooking = async (
 
 // Transactional functions for handling each operation
 export const createClientTx = async (tx: any, data: InsertClient) => {
-  const existingClient = await tx.query.client.findFirst({
-    where: and(
-      eq(client.tenantId, data.tenantId),
-      eq(client.name, data.name),
-      eq(client.primaryEmail, data.primaryEmail),
-    ),
-  });
+  // const existingClient = await tx.query.client.findFirst({
+  //   where: and(
+  //     eq(client.tenantId, data.tenantId),
+  //     eq(client.name, data.name),
+  //     eq(client.primaryEmail, data.primaryEmail),
+  //   ),
+  // });
+
+  const existingClient = false;
 
   if (!existingClient) {
     const newClient = await tx.insert(client).values(data).returning();
@@ -423,6 +295,47 @@ export const createClientTx = async (tx: any, data: InsertClient) => {
   return existingClient;
 };
 
+export const updateClient = async (
+  tx: any,
+  clientId: string,
+  updateData: Partial<InsertClient>
+) => {
+  try {
+    // Validate that the client exists before attempting an update
+    const existingClient = await tx.query.client.findFirst({
+      where: eq(client.id, clientId),
+    });
+
+    if (!existingClient) {
+      throw new Error(`Client with ID ${clientId} not found`);
+    }
+
+    // Update the existing client with new data
+    const updatedClient = await tx
+      .update(client)
+      .set({
+        name: updateData.name ?? existingClient.name,
+        primaryEmail: updateData.primaryEmail ?? existingClient.primaryEmail,
+        primaryContactNumber:
+          updateData.primaryContactNumber ?? existingClient.primaryContactNumber,
+        country: updateData.country ?? existingClient.country,
+        // updatedAt: new Date(), // Update the `updatedAt` timestamp to the current time
+      })
+      .where(eq(client.id, clientId))
+      .returning();
+
+    // Return the updated client record
+    if (!updatedClient || !updatedClient[0]) {
+      throw new Error("Client update failed");
+    }
+
+    return updatedClient[0];
+  } catch (error) {
+    console.error("Error updating client:", error);
+    throw error;
+  }
+};
+
 export const createBookingLineTx = async (
   tx: any,
   data: InsertBookingLine,
@@ -433,6 +346,29 @@ export const createBookingLineTx = async (
     throw new Error("Couldn't add booking line");
   }
   return newBookingLine[0].id;
+};
+
+export const addHotelVoucherLinesToBooking = async (
+  vouchers: HotelVoucher[],
+  newBookingLineId: string,
+  coordinatorId: string,
+) => {
+  // Start a transaction
+  const result = await db.transaction(async (trx) => {
+    try {
+      // Call the insertHotelVouchersTx function inside this transaction
+      const insertedVouchers = await insertHotelVouchersTx(trx, vouchers, newBookingLineId, coordinatorId);
+
+      // If there are additional inserts/updates, you can perform them here using the same trx.
+
+      return insertedVouchers;
+    } catch (error) {
+      console.error('Error while inserting hotel vouchers:', error);
+      throw error; // Rethrow to trigger transaction rollback
+    }
+  });
+
+  return result;
 };
 
 export const insertHotelVouchersTx = async (

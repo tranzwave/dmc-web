@@ -78,7 +78,8 @@ export const client = createTable("clients", {
     .references(() => country.code)
     .notNull(),
   name: varchar("name", { length: 255 }).notNull(),
-  primaryEmail: varchar("primary_email", { length: 255 }).notNull(),
+  primaryEmail: varchar("primary_email", { length: 100 }),
+  primaryContactNumber:varchar("primary_contact", { length: 14 }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
@@ -117,8 +118,7 @@ export const booking = createTable("bookings", {
     .references(() => client.id)
     .notNull(),
   agentId: varchar("agent_id", { length: 255 })
-    .references(() => agent.id)
-    .notNull(),
+    .references(() => agent.id),
   coordinatorId: varchar("coordinator_id", { length: 255 })
     .references(() => user.id)
     .notNull(),
@@ -128,11 +128,12 @@ export const booking = createTable("bookings", {
   tourType: varchar("tour_type", { length: 255 }).notNull(), // e.g., adventure, honeymoon
 });
 
+export const bookingLineStatus = pgEnum('status', ['inprogress', 'confirmed', 'cancelled']);
+
 export const bookingLine = createTable("booking_lines", {
   id: varchar("id", { length: 255 })
     .notNull()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+    .primaryKey(),
   bookingId: varchar("booking_id")
     .notNull()
     .references(() => booking.id),
@@ -147,6 +148,7 @@ export const bookingLine = createTable("booking_lines", {
   kidsCount: integer("kids_count").notNull(),
   startDate: timestamp("start_date").notNull(),
   endDate: timestamp("end_date").notNull(),
+  status: bookingLineStatus('status').default('inprogress'),
 });
 
 export const city = createTable(
@@ -277,7 +279,7 @@ export const hotelVoucherLine = createTable("hotel_voucher_lines", {
     .notNull(),
   rate: numeric('rate', { precision: 4 }),
   roomType: varchar("room_type", { length: 100 }).notNull(),
-  basis: varchar("basis", { length: 10 }).notNull(), // HB, FB, BB
+  basis: varchar("basis", { length: 50 }).notNull(), // HB, FB, BB
   checkInDate: varchar("check_in_date", { length: 100 }).notNull(),
   checkInTime: time("check_in_time").notNull(),
   checkOutDate: varchar("check_out_date", { length: 100 }).notNull(),

@@ -15,8 +15,9 @@ import { getActivityVouchers } from "~/server/db/queries/booking/activityVoucher
 import { getShopsVouchers } from "~/server/db/queries/booking/shopsVouchers";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { getRestaurantVouchers } from "~/server/db/queries/booking/restaurantVouchers";
+import { getCoordinatorAndManager, getRestaurantVouchers } from "~/server/db/queries/booking/restaurantVouchers";
 import { HotelVoucherData } from "../../tasks/hotelsTaskTab";
+import { SelectUser } from "~/server/db/schemaTypes";
 
 interface SidePanelProps {
   booking: BookingDTO | null;
@@ -31,6 +32,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
   const [activityVouchers, setActivityVouchers] = useState<any[]>([]);
   const [shopVouchers, setShopVouchers] = useState<any[]>([]);
   const [restaurantVouchers, setRestaurantVouchers] = useState<any[]>([]);
+  const [coordinatorAndManager, setCoordinatorAndManager] = useState<SelectUser[]>([])
 
   const pathname = usePathname();
   const fetchData = async () => {
@@ -47,12 +49,14 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
         activityVoucherResponse,
         shopVoucherResponse,
         restaurantVoucherResponse,
+        coordinatorAndManagerResponse,
       ] = await Promise.all([
         getHotelVouchers(booking?.id),
         getTransportVouchers(booking?.id),
         getActivityVouchers(booking?.id),
         getShopsVouchers(booking?.id),
         getRestaurantVouchers(booking?.id),
+        getCoordinatorAndManager(booking?.booking.coordinatorId, booking?.booking.managerId)
       ]);
 
       // Check for errors in the responses
@@ -81,6 +85,10 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
         throw new Error("Error fetching restaurant vouchers");
       }
 
+      if(!coordinatorAndManagerResponse) {
+        throw new Error("Couldn't find the coordinator")
+      }
+
       console.log("Fetched Agents:", hotelVoucherResponse);
       // console.log("Fetched Users:", usersResponse);
       // console.log("Fetched Users:", countriesResponse);
@@ -91,6 +99,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
       setActivityVouchers(activityVoucherResponse);
       setShopVouchers(shopVoucherResponse);
       setRestaurantVouchers(restaurantVoucherResponse);
+      setCoordinatorAndManager(coordinatorAndManagerResponse)
       // setUsers(usersResponse);
       // setCountries(countriesResponse);
 
@@ -178,8 +187,14 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
   return (
     <div className="card h-auto w-full gap-4 rounded-lg border border-primary-borderGray shadow-md">
       <div className="flex flex-row items-center justify-between">
+        <div>
         <div className="card-title">Booking - {booking.id}</div>
-        <Button variant={"primaryGreen"}>Summary</Button>
+        <div className="text-xs text-neutral-500">{`Coordinator - ${coordinatorAndManager[0]?.name ?? ""} | Manager - ${coordinatorAndManager[0]?.name ?? ""}`}</div>
+        </div>
+
+        <Link href={`${pathname}/${booking.id}/edit?tab=submit`}>
+          <Button variant={"primaryGreen"}>Summary</Button>
+        </Link>
       </div>
       <div className="grid grid-cols-3 rounded-lg shadow-sm">
         <div></div>
@@ -188,35 +203,35 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
         title: "Hotels",
         totalVouchers: hotelVouchers?.length ?? 0,
         done: 0,
-        locked: false,
+        locked: booking.includes?.hotels ? false : true,
         vouchersToFinalize: hotelVouchers?.length ?? 0,
       })}
       {renderCard({
         title: "Restaurants",
         totalVouchers: restaurantVouchers?.length ?? 0,
         done: 0,
-        locked: (restaurantVouchers?.length ?? 0 > 0) ? false : true,
+        locked: booking.includes?.restaurants ? false : true,
         vouchersToFinalize: restaurantVouchers?.length ?? 0,
       })}
       {renderCard({
         title: "Transport",
         totalVouchers: transportVouchers?.length ?? 0,
         done: 0,
-        locked: (transportVouchers?.length ?? 0 > 0) ? false : true,
+        locked: booking.includes?.transport ? false : true,
         vouchersToFinalize: transportVouchers?.length ?? 0,
       })}
       {renderCard({
         title: "Activities",
         totalVouchers: activityVouchers?.length ?? 0,
         done: 0,
-        locked: (activityVouchers?.length ?? 0 > 0) ? false : true,
+        locked: booking.includes?.activities ? false : true,
         vouchersToFinalize: activityVouchers?.length ?? 0,
       })}
       {renderCard({
         title: "Shops",
         totalVouchers: shopVouchers?.length ?? 0,
         done: 0,
-        locked: (shopVouchers?.length ?? 0 > 0) ? false : true,
+        locked: booking.includes?.shops ? false : true,
         vouchersToFinalize: shopVouchers?.length ?? 0,
       })}
       {/* {renderCard(booking.details.transport)}

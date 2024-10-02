@@ -309,9 +309,9 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Remarks</FormLabel>
+              <FormLabel>Special Notes</FormLabel>
               <FormControl>
-                <Input placeholder="Enter any remarks" {...field} />
+                <Input placeholder="Enter any special note" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

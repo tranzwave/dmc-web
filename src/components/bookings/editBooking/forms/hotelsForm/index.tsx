@@ -16,6 +16,9 @@ import { useToast } from "~/hooks/use-toast";
 import { Calendar } from "~/components/ui/calendar";
 import { CalendarV2, DateRange } from "~/components/common/customCalendar";
 import {   HotelVoucher,useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
+import { addHotelVoucherLinesToBooking } from "~/server/db/queries/booking";
+import { usePathname, useSearchParams } from "next/navigation";
+import { LoaderCircle } from "lucide-react";
 
 const HotelsTab = () => {
   const [addedHotels, setAddedHotels] = useState<Hotel[]>([]);
@@ -24,7 +27,10 @@ const HotelsTab = () => {
   const [hotels, setHotels] = useState<SelectHotel[]>([]);
   const [error, setError] = useState<string | null>();
   const { toast } = useToast();
+  const [saving, setSaving] = useState(false)
 
+  const pathname = usePathname()
+  const bookingLineId = pathname.split("/")[3]
   const updateHotels = (
     data: InsertHotelVoucherLine,
     isNewVoucher: boolean,
@@ -99,6 +105,30 @@ const HotelsTab = () => {
     }
   };
 
+  const onSaveClick = async()=>{
+    console.log(bookingDetails.vouchers)
+    try {
+      setSaving(true)
+      const newResponse = await addHotelVoucherLinesToBooking(bookingDetails.vouchers,bookingLineId ?? "", bookingDetails.general.marketingManager);
+
+      if (!newResponse) {
+        throw new Error(`Error: Couldn't add hotel vouchers`);
+      }
+      console.log("Fetched Hotels:", newResponse);
+
+      setSaving(false);
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+      console.error("Error:", error);
+      setSaving(false)
+    }
+
+  }
+
   // const dateRanges: DateRange[] = [
   //   { start: "2024-09-03", end: "2024-09-07" }, // No color provided
   //   // { start: "2024-09-01", end: "2024-09-05", color: "bg-blue-300" },
@@ -167,8 +197,11 @@ const HotelsTab = () => {
           <DataTable columns={voucherColumns} data={bookingDetails.vouchers} />
         </div>
         <div className="flex w-full justify-end">
-          <Button variant={"primaryGreen"} onClick={onNextClick}>
+          {/* <Button variant={"primaryGreen"} onClick={onNextClick}>
             Next
+          </Button> */}
+          <Button variant={"primaryGreen"} onClick={onSaveClick} disabled={saving}>
+            {saving ? (<div className="flex flex-row gap-1"><div><LoaderCircle className="animate-spin" size={10}/>Saving</div></div>): ('Save')}
           </Button>
         </div>
       </div>
