@@ -652,3 +652,59 @@ export const insertTransportVoucherTx = async (
   );
   return transportVouchers;
 };
+
+export const updateBookingLine = async (
+  bookingLineId: string,
+  updatedGeneralData: {
+    startDate: string;
+    endDate: string;
+    adultsCount: number;
+    kidsCount: number;
+    includes: {
+      hotels: boolean;
+      restaurants: boolean;
+      transport: boolean;
+      activities: boolean;
+      shops: boolean;
+    };
+  }
+) => {
+  try {
+    // Start a transaction to update the booking line
+    const result = await db.transaction(async (tx) => {
+      // Find the existing booking line by ID
+      const existingBookingLine = await tx.query.bookingLine.findFirst({
+        where: eq(bookingLine.id, bookingLineId),
+      });
+
+      if (!existingBookingLine) {
+        throw new Error(`Couldn't find a booking line with ID: ${bookingLineId}`);
+      }
+
+      // Update the booking line with the provided general data
+      const updatedBookingLine = await tx
+        .update(bookingLine)
+        .set({
+          startDate: new Date(updatedGeneralData.startDate),
+          endDate: new Date(updatedGeneralData.endDate),
+          adultsCount: updatedGeneralData.adultsCount,
+          kidsCount: updatedGeneralData.kidsCount,
+          includes: updatedGeneralData.includes,
+        })
+        .where(eq(bookingLine.id, bookingLineId))
+        .returning();
+
+      if (!updatedBookingLine || !Array.isArray(updatedBookingLine) || !updatedBookingLine[0]?.id) {
+        throw new Error(`Couldn't update the booking line with ID: ${bookingLineId}`);
+      }
+
+      return updatedBookingLine[0]?.id;
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Error in updateBookingLine:", error);
+    throw error;
+  }
+};
+

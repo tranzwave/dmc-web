@@ -188,12 +188,7 @@ const GeneralForm = () => {
       const updatedBooking = await updateBookingLine(
         pathname.split("/")[3] ?? "",
         {
-          general: data,
-          activities: [],
-          restaurants: [],
-          shops: [],
-          transport: [],
-          vouchers: [],
+          ...data
         }
       )
 
