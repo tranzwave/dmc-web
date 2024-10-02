@@ -4,7 +4,7 @@ import { Hotel } from '~/components/bookings/addBooking/forms/hotelsForm/columns
 import { RestaurantData } from '~/components/bookings/addBooking/forms/restaurantsForm';
 import { Transport } from '~/components/bookings/addBooking/forms/transportForm/columns';
 import { Driver } from '~/lib/types/driver/type';
-import { InsertActivityVoucher, InsertHotelVoucher, InsertHotelVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectDriver, SelectHotel, SelectShop } from '~/server/db/schemaTypes';
+import { InsertActivityVoucher, InsertHotelVoucher, InsertHotelVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectDriver, SelectHotel, SelectRestaurant, SelectShop } from '~/server/db/schemaTypes';
 
 export interface TransportWithDriver {
   transport: Transport;
@@ -18,7 +18,7 @@ export type HotelVoucher = {
 }
 
 export type RestaurantVoucher = {
-  restaurant: RestaurantData;
+  restaurant: SelectRestaurant;
   voucher: InsertRestaurantVoucher;
   voucherLines: InsertRestaurantVoucherLine[];
 }

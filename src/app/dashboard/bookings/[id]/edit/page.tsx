@@ -25,7 +25,8 @@ const EditBooking = ({ id }: { id: string }) => {
     setGeneralDetails,
     addHotelVoucher,
     addHotelVouchers,
-    addRestaurantVoucher: addRestaurant,
+    addRestaurantVoucher,
+    addRestaurantVouchers,
     addActivity,
     addTransport,
     addShop,
@@ -94,14 +95,20 @@ const EditBooking = ({ id }: { id: string }) => {
           })
           console.log(hotelVouchers)
           addHotelVouchers(vouchers);
-          // hotelVouchers.forEach(voucher => {
-          //   const {hotel, voucherLines, ...voucherData} = voucher
-          //   addHotelVoucher({
-          //     hotel: {...hotel},
-          //     voucher:{...voucherData},
-          //     voucherLines: voucherLines
-          //   })
-          // })
+        }
+
+        if(restaurantVouchers){
+          const vouchers = restaurantVouchers.map(v => {
+            const {restaurant, voucherLines, ...voucher} = v
+            return {
+              restaurant:restaurant,
+              voucher:voucher,
+              voucherLines:voucherLines
+            }            
+          })
+
+          console.log(vouchers)
+          addRestaurantVouchers(vouchers)
         }
         setLoading(false);
         setTimeout(() => {

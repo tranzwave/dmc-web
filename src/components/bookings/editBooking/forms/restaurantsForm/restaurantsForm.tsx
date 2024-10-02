@@ -31,6 +31,7 @@ import { useEffect, useState } from "react";
 import { getMeals } from "~/server/db/queries/booking/restaurantVouchers";
 import { RestaurantData } from ".";
 import { RestaurantVoucher } from "~/app/dashboard/bookings/add/context";
+import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 
 interface RestaurantFormProps {
   onAddRestaurant: (
@@ -67,6 +68,7 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
   const [selectedMeal, setSelectedMeal] = useState<SelectMeal>();
   const [rests, setRests] = useState<RestaurantData[]>([]);
   const [showTimeField, setShowTimeField] = useState(false);
+  const {bookingDetails} = useEditBooking()
 
   // const fetchMeals = async (restaurantId: string) => {
   //   const response = await getMeals;
@@ -211,7 +213,9 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
               <FormItem>
                 <FormLabel>Date</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  <Input type="date" {...field} 
+                  min={bookingDetails.general.startDate ?? ""}
+                  max={bookingDetails.general.endDate ?? ""}/>
                 </FormControl>
                 <FormMessage />
               </FormItem>

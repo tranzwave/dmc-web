@@ -20,7 +20,7 @@ export type HotelVoucher = {
 }
 
 export type RestaurantVoucher = {
-  restaurant: RestaurantData;
+  restaurant: SelectRestaurant;
   voucher: InsertRestaurantVoucher;
   voucherLines: InsertRestaurantVoucherLine[];
 }
@@ -72,6 +72,7 @@ interface EditBookingContextProps {
   addHotelVoucher: (hotel: HotelVoucher) => void;
   addHotelVouchers: (vouchers:HotelVoucher[]) => void;
   addRestaurantVoucher: (restaurant: RestaurantVoucher) => void;
+  addRestaurantVouchers: (vouchers: RestaurantVoucher[]) => void;
   addActivity: (activity: ActivityVoucher) => void;
   addTransport: (transport: TransportVoucher) => void;
   addShop: (shop: ShopVoucher) => void;
@@ -157,6 +158,10 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
     setBookingDetails(prev => ({ ...prev, restaurants: [...prev.restaurants, restaurantVoucher] }));
   };
 
+  const addRestaurantVouchers = (vouchers: RestaurantVoucher[]) => {
+    setBookingDetails(prev => ({ ...prev, restaurants: vouchers }));
+  };
+
   const addActivity = (activity: ActivityVoucher) => {
     setBookingDetails(prev => ({ ...prev, activities: [...prev.activities, activity] }));
   };
@@ -211,6 +216,7 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
         addHotelVoucher,
         addHotelVouchers,
         addRestaurantVoucher,
+        addRestaurantVouchers,
         addActivity,
         addTransport,
         addShop,

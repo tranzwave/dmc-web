@@ -435,6 +435,26 @@ export const insertHotelVouchersTx = async (
   return hotelVouchers;
 };
 
+export const addRestaurantVoucherLinesToBooking = async (
+  vouchers: RestaurantVoucher[],
+  newBookingLineId: string,
+  coordinatorId: string,
+) => {
+  const result = await db.transaction(async (trx) => {
+    try {
+      const insertedVouchers = await insertRestaurantVouchersTx(trx, vouchers, newBookingLineId, coordinatorId);
+
+
+      return insertedVouchers;
+    } catch (error) {
+      console.error('Error while inserting restaurant vouchers:', error);
+      throw error;
+    }
+  });
+
+  return result;
+};
+
 export const insertRestaurantVouchersTx = async (
   trx: any, // Replace with actual transaction type
   vouchers: RestaurantVoucher[],
@@ -469,8 +489,10 @@ export const insertRestaurantVouchersTx = async (
               kidsCount: currentVoucherLine.kidsCount,
               mealType: currentVoucherLine.mealType,
               date: currentVoucherLine.date,
-              time: currentVoucherLine.time,
+              time: currentVoucherLine.time ?? "12:00",
               restaurantVoucherId: voucherId,
+              remarks: currentVoucherLine.remarks,
+
             })
             .returning();
 
