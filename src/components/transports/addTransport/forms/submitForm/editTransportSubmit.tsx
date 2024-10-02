@@ -41,6 +41,7 @@ const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriv
             fuelAllowance:charges.fuelAllowance,
             mealAllowance:charges.mealAllowance,
             feePerKM:charges.feePerKm,
+            feePerDay:charges.feePerDay,
             createdAt:originalDriverData?.createdAt ?? new Date("22/10/2022"),
             id: originalDriverData?.id ?? ""
         }]
@@ -210,6 +211,10 @@ const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriv
                         <tr>
                             <td className="border px-4 py-2 font-bold w-1/2 ">Fee Per Km:</td>
                             <td className="border px-4 py-2 w-1/2 ">{charges.feePerKm}</td>
+                        </tr>
+                        <tr>
+                            <td className="border px-4 py-2 font-bold w-1/2 ">Fee Per Day:</td>
+                            <td className="border px-4 py-2 w-1/2 ">{charges.feePerDay}</td>
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">Fuel Allowance:</td>

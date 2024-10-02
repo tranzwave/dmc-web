@@ -40,6 +40,7 @@ const defaultGeneral: General = {
 
 const defaultCharges: Charges = {
   feePerKm: 1,
+  feePerDay: 1,
   fuelAllowance: 2000,
   accommodationAllowance: 1,
   mealAllowance: 1,

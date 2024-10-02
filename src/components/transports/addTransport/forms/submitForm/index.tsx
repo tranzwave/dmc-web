@@ -39,7 +39,8 @@ const SubmitForm = () => {
             accommodationAllowance: charges.accommodationAllowance,
             fuelAllowance:charges.fuelAllowance,
             mealAllowance:charges.mealAllowance,
-            feePerKM:charges.feePerKm
+            feePerKM:charges.feePerKm,
+            feePerDay:charges.feePerDay
         }]
         
         const vehicleData:InsertVehicle[] = vehicles.map((v) => {
@@ -207,6 +208,10 @@ const SubmitForm = () => {
                         <tr>
                             <td className="border px-4 py-2 font-bold w-1/2 ">Fee Per Km:</td>
                             <td className="border px-4 py-2 w-1/2 ">{charges.feePerKm}</td>
+                        </tr>
+                        <tr>
+                            <td className="border px-4 py-2 font-bold w-1/2 ">Fee Per Day:</td>
+                            <td className="border px-4 py-2 w-1/2 ">{charges.feePerDay}</td>
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">Fuel Allowance:</td>
