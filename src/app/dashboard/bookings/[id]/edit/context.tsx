@@ -6,6 +6,7 @@ import { Restaurant } from '~/components/bookings/addBooking/forms/restaurantsFo
 import { Shop } from '~/components/bookings/addBooking/forms/shopsForm/columns';
 import { Transport } from '~/components/bookings/addBooking/forms/transportForm/columns';
 import { Driver } from '~/lib/types/driver/type';
+import { calculateDaysBetween } from '~/lib/utils/index';
 import { InsertActivityVoucher, InsertHotelVoucher, InsertHotelVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectActivityVoucher, SelectDriver, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant, SelectShop, SelectShopVoucher } from '~/server/db/schemaTypes';
 
 export interface TransportWithDriver {
@@ -20,7 +21,7 @@ export type HotelVoucher = {
 }
 
 export type RestaurantVoucher = {
-  restaurant: RestaurantData;
+  restaurant: SelectRestaurant;
   voucher: InsertRestaurantVoucher;
   voucherLines: InsertRestaurantVoucherLine[];
 }
@@ -70,10 +71,15 @@ interface EditBookingContextProps {
   bookingDetails: BookingDetails;
   setGeneralDetails: (details: General) => void;
   addHotelVoucher: (hotel: HotelVoucher) => void;
+  addHotelVouchers: (vouchers:HotelVoucher[]) => void;
   addRestaurantVoucher: (restaurant: RestaurantVoucher) => void;
+  addRestaurantVouchers: (vouchers: RestaurantVoucher[]) => void;
   addActivity: (activity: ActivityVoucher) => void;
+  addActivityVouchers: (activity: ActivityVoucher[]) => void;
   addTransport: (transport: TransportVoucher) => void;
+  addTransportVouchers: (vouchers: TransportVoucher[])=>void;
   addShop: (shop: ShopVoucher) => void;
+  addShopVouchers: (vouchers:ShopVoucher[]) => void; 
   activeTab: string;
   setActiveTab: (tab: string) => void;
   statusLabels: StatusLabels;
@@ -147,27 +153,50 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
     setBookingDetails(prev => ({ ...prev, vouchers: [...prev.vouchers, hotelVoucher] }));
   };
 
+  const addHotelVouchers = (hotelVouchers: HotelVoucher[]) => {
+    setBookingDetails(prev => ({ ...prev, vouchers: hotelVouchers }));
+  };
+  
+
   const addRestaurantVoucher = (restaurantVoucher: RestaurantVoucher) => {
     setBookingDetails(prev => ({ ...prev, restaurants: [...prev.restaurants, restaurantVoucher] }));
+  };
+
+  const addRestaurantVouchers = (vouchers: RestaurantVoucher[]) => {
+    setBookingDetails(prev => ({ ...prev, restaurants: vouchers }));
   };
 
   const addActivity = (activity: ActivityVoucher) => {
     setBookingDetails(prev => ({ ...prev, activities: [...prev.activities, activity] }));
   };
 
+  const addActivityVouchers = (vouchers: ActivityVoucher[]) => {
+    setBookingDetails(prev => ({ ...prev, activities: vouchers }));
+  };
+
   const addTransport = (transportWithDriver: TransportVoucher) => {
     setBookingDetails(prev => ({ ...prev, transport: [...prev.transport, transportWithDriver] }));
+  };
+
+  const addTransportVouchers = (vouchers: TransportVoucher[]) => {
+    setBookingDetails(prev => ({ ...prev, transport: vouchers }));
   };
 
   const addShop = (shop: ShopVoucher) => {
     setBookingDetails(prev => ({ ...prev, shops: [...prev.shops, shop] }));
   };
 
+  const addShopVouchers = (vouchers: ShopVoucher[]) => {
+    setBookingDetails(prev => ({ ...prev, shops: vouchers }));
+  };
+
   const getBookingSummary = (): BookingSummary[] => {
     const { general, vouchers, restaurants, activities, transport, shops } = bookingDetails;
-    const { startDate, numberOfDays } = general;
+    const { startDate, endDate } = general;
     const bookingSummary: BookingSummary[] = [];
     const startDateObj = new Date(startDate);
+
+    const numberOfDays = calculateDaysBetween(startDate,endDate)
 
     for (let day = 1; day <= numberOfDays; day++) {
       const currentDate = new Date(startDateObj);
@@ -203,10 +232,15 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
         bookingDetails,
         setGeneralDetails,
         addHotelVoucher,
+        addHotelVouchers,
         addRestaurantVoucher,
+        addRestaurantVouchers,
         addActivity,
+        addActivityVouchers,
         addTransport,
+        addTransportVouchers,
         addShop,
+        addShopVouchers,
         activeTab,
         setActiveTab,
         statusLabels,

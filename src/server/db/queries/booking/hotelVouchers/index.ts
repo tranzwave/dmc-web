@@ -1,10 +1,12 @@
 "use server"
 
-import { bookingLine, hotelVoucherLine, hotelVoucher, hotel } from './../../../schema';
+import { bookingLine, hotelVoucherLine, hotelVoucher, hotel, tenant } from './../../../schema';
 import { eq } from "drizzle-orm"
 import { HotelVoucher } from '~/app/dashboard/bookings/add/context';
 import { db } from "~/server/db"
 import { SelectHotelVoucher, SelectHotelVoucherLine } from '~/server/db/schemaTypes';
+
+
 
 export const getBookingLineById = (id:string) => {
     return db.query.bookingLine.findFirst({
@@ -18,7 +20,7 @@ export const getHotelVouchers = (bookingLineId:string) => {
     return db.query.hotelVoucher.findMany({
         where: eq(hotelVoucher.bookingLineId, bookingLineId),
         with: {
-            voucherLine: true,
+            voucherLines: true,
             hotel:true
         }
     })

@@ -4,7 +4,7 @@ import { useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ActivityTab from "~/components/activities/addActivity/forms/activityForm";
 import GeneralTab from "~/components/activities/addActivity/forms/generalForm";
-import SubmitForm from "~/components/activities/addActivity/forms/submitForm";
+import EditActivitySubmitForm from "~/components/activities/addActivity/forms/submitForm/editActivitySubmit";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
@@ -120,7 +120,9 @@ const EditActivityVendor = ({ id }: { id: string }) => {
                 <ActivityTab />
               </TabsContent>
               <TabsContent value="submit">
-                <SubmitForm />
+              <EditActivitySubmitForm id={id} originalActivityVendorData={activityVendor ?? null} />
+
+                {/* <SubmitForm /> */}
               </TabsContent>
             </Tabs>
           </div>

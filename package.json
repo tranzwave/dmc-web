@@ -9,7 +9,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "cross-env POSTGRES_URL=postgres://default:ytw86PlIjDmE@ep-proud-wildflower-a15gneyp-pooler.ap-southeast-1.aws.neon.tech:5432/verceldb?sslmode=require DB_SEEDING=true SKIP_ENV_VALIDATION=true tsx src/server/db/seed.ts",
+    "db:seed": "cross-env POSTGRES_URL= DB_SEEDING=true SKIP_ENV_VALIDATION=true tsx src/server/db/seed.ts",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start"

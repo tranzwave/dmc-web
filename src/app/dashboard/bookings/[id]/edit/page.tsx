@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
+import { useParams, usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ActivitiesTab from "~/components/bookings/editBooking/forms/activitiesForm";
 import GeneralTab from "~/components/bookings/editBooking/forms/generalForm";
@@ -15,20 +15,29 @@ import AddBookingSubmitTab from "~/components/bookings/editBooking/forms/submitF
 import { EditBookingProvider, useEditBooking } from "./context";
 import { getBookingLineWithAllData } from "~/server/db/queries/booking";
 import { format } from 'date-fns';
+import LoadingLayout from "~/components/common/dashboardLoading";
 
 const EditBooking = ({ id }: { id: string }) => {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const tabToEdit = searchParams.get("tab")
   const {
     setGeneralDetails,
     addHotelVoucher,
-    addRestaurantVoucher: addRestaurant,
+    addHotelVouchers,
+    addRestaurantVoucher,
+    addRestaurantVouchers,
     addActivity,
+    addActivityVouchers,
     addTransport,
+    addTransportVouchers,
     addShop,
+    addShopVouchers,
     activeTab,
     setActiveTab,
     bookingDetails,
     statusLabels,
+    setStatusLabels
   } = useEditBooking();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,12 +78,86 @@ const EditBooking = ({ id }: { id: string }) => {
             numberOfDays:7,
             tourType:booking.tourType
         })
+
+        setStatusLabels({
+          hotels:general.includes?.hotels ? "Mandatory" : "Locked",
+          restaurants:general.includes?.restaurants ? "Mandatory" : "Locked",
+          transport:general.includes?.transport ? "Mandatory" : "Locked",
+          activities:general.includes?.activities ? "Mandatory" : "Locked",
+          shops:general.includes?.shops ? "Mandatory" : "Locked"
+        })
+
+        if(hotelVouchers){
+          const vouchers = hotelVouchers.map(v => {
+            const {hotel, voucherLines, ...voucher } = v
+            return {
+              hotel:hotel,
+              voucher:voucher,
+              voucherLines:voucherLines
+            }
+          })
+          console.log(hotelVouchers)
+          addHotelVouchers(vouchers);
+        }
+
+        if(restaurantVouchers){
+          const vouchers = restaurantVouchers.map(v => {
+            const {restaurant, voucherLines, ...voucher} = v
+            return {
+              restaurant:restaurant,
+              voucher:voucher,
+              voucherLines:voucherLines
+            }            
+          })
+
+          console.log(vouchers)
+          addRestaurantVouchers(vouchers)
+        }
+
+        if(activityVouchers){
+          const vouchers = activityVouchers.map(v => {
+            const {activity, activityVendor, ...voucher} = v
+            return {
+              vendor:activityVendor,
+              voucher:voucher,
+            }            
+          })
+
+          console.log(vouchers)
+          addActivityVouchers(vouchers)
+        }
+
+        if(transportVouchers){
+          const vouchers = transportVouchers.map(v => {
+            const {driver, ...voucher} = v
+            return {
+              driver:driver,
+              voucher:voucher,
+            }            
+          })
+
+          console.log(vouchers)
+          addTransportVouchers(vouchers)
+        }
+
+        if(shopsVouchers){
+          const vouchers = shopsVouchers.map(v => {
+            const {shop, ...voucher} = v
+            return {
+              shop:shop,
+              voucher:voucher,
+            }            
+          })
+
+          console.log(vouchers)
+          addShopVouchers(vouchers)
+        }
         setLoading(false);
         setTimeout(() => {
             console.log("This message is logged after 3 seconds");
             setIsGeneralDetailsSet(true);
+            console.log(bookingDetails.vouchers)
           }, 3000);
-          
     } catch (error) {
         console.error("Failed to fetch driver details:", error);
       setError("Failed to load driver details.");
@@ -85,7 +168,14 @@ const EditBooking = ({ id }: { id: string }) => {
   useEffect(() => {
     console.log("Add Booking Component");
     fetchBookingLine()
+    setActiveTab(tabToEdit ?? "general")
   }, [id]);
+
+  if(loading){
+    return (
+      <LoadingLayout/>
+    )
+  }
 
   return (
     <div className="flex">
@@ -117,7 +207,7 @@ const EditBooking = ({ id }: { id: string }) => {
                 <TabsTrigger
                   value="hotels"
                   onClick={() => setActiveTab("hotels")}
-                  disabled={bookingDetails.vouchers.length == 0 || !bookingDetails.general.includes.hotels}
+                  disabled={!bookingDetails.general.includes.hotels}
                   statusLabel={statusLabels.hotels}
                   isCompleted = {bookingDetails.vouchers.length > 0}
                   inProgress = {activeTab == "hotels"}
@@ -127,7 +217,7 @@ const EditBooking = ({ id }: { id: string }) => {
                 <TabsTrigger
                   value="restaurants"
                   onClick={() => setActiveTab("restaurants")}
-                  disabled={bookingDetails.restaurants.length == 0 || !bookingDetails.general.includes.hotels}
+                  disabled={!bookingDetails.general.includes.hotels}
                   statusLabel={statusLabels.restaurants}
                   isCompleted = {bookingDetails.restaurants.length > 0}
                   inProgress = {activeTab == "restaurants"}
@@ -137,7 +227,7 @@ const EditBooking = ({ id }: { id: string }) => {
                 <TabsTrigger
                   value="activities"
                   onClick={() => setActiveTab("activities")}
-                  disabled={bookingDetails.activities.length == 0 || !bookingDetails.general.includes.activities}
+                  disabled={!bookingDetails.general.includes.activities}
                   statusLabel={statusLabels.activities}
                   isCompleted = {bookingDetails.activities.length > 0}
                   inProgress = {activeTab == "activities"}
@@ -147,7 +237,7 @@ const EditBooking = ({ id }: { id: string }) => {
                 <TabsTrigger
                   value="transport"
                   onClick={() => setActiveTab("transport")}
-                  disabled={bookingDetails.transport.length == 0 || !bookingDetails.general.includes.transport}
+                  disabled={!bookingDetails.general.includes.transport}
                   statusLabel={statusLabels.transport}
                   isCompleted = {bookingDetails.transport.length > 0}
                   inProgress = {activeTab == "transport"}
@@ -157,7 +247,7 @@ const EditBooking = ({ id }: { id: string }) => {
                 <TabsTrigger
                   value="shops"
                   onClick={() => setActiveTab("shops")}
-                  disabled={bookingDetails.shops.length == 0 || !bookingDetails.general.includes.shops}
+                  disabled={!bookingDetails.general.includes.shops}
                   statusLabel={statusLabels.shops}
                   isCompleted = {bookingDetails.shops.length > 0}
                   inProgress = {activeTab == "shops"}
@@ -171,7 +261,7 @@ const EditBooking = ({ id }: { id: string }) => {
                   isCompleted = {false}
                   inProgress = {activeTab == "submit"}
                 >
-                  Submit
+                  Summary
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="general">

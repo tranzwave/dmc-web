@@ -228,6 +228,7 @@ export async function updateDriverAndRelatedData(
         province: updatedDriver.province,
         type: updatedDriver.type,
         feePerKM: updatedDriver.feePerKM,
+        feePerDay: updatedDriver.feePerDay,
         fuelAllowance: updatedDriver.fuelAllowance,
         accommodationAllowance: updatedDriver.accommodationAllowance,
         mealAllowance: updatedDriver.mealAllowance,

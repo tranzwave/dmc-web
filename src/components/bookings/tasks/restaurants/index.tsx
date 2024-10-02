@@ -17,7 +17,7 @@ import RestaurantsVoucherForm from "./form";
 
 export type RestaurantVoucherData = SelectRestaurantVoucher & {
   restaurant: SelectRestaurant;
-  voucherLine: SelectRestaurantVoucherLine[];
+  voucherLines: SelectRestaurantVoucherLine[];
 };
 // Define specific columns for restaurant vouchers
 const restaurantColumns: ColumnDef<RestaurantVoucherData>[] = [
@@ -33,12 +33,12 @@ const restaurantColumns: ColumnDef<RestaurantVoucherData>[] = [
   {
     accessorKey: "voucherLine",
     header: "Voucher Lines",
-    accessorFn: (row) => row.voucherLine?.length ?? "Not found",
+    accessorFn: (row) => row.voucherLines?.length ?? "Not found",
   },
   {
     accessorKey: "voucherLine",
     header: "Progress",
-    accessorFn: (row) => row.voucherLine?.length ?? "Not found",
+    accessorFn: (row) => row.voucherLines?.length ?? "Not found",
   },
 ];
 

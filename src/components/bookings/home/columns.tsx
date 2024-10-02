@@ -10,10 +10,19 @@ import {
   Activity,
   ShoppingBag,
 } from "lucide-react"; 
+import { Badge } from "~/components/ui/badge";
 
 export type CategoryDetails = {
     title: string;
-    vouchersToFinalize: number;
+    statusCount: {
+      inprogress: number,
+      sentToVendor: number,
+      vendorConfirmed:number,
+      sentToClient:number,
+      confirmed:number,
+      cancelled:number,
+      amended:number
+    };
     done: number;
     totalVouchers: number;
     locked: boolean;
@@ -43,7 +52,7 @@ export type BookingDTO = SelectBookingLine & {
 export const columns: ColumnDef<BookingDTO>[] = [
   {
     header: "Booking Id",
-    accessorFn: (row) => row.booking.client.id,
+    accessorFn: (row) => row.id,
 
   },
   {
@@ -65,11 +74,6 @@ export const columns: ColumnDef<BookingDTO>[] = [
     accessorFn: (row) => formatDate(row.endDate.toString())
   },
   {
-    accessorKey: "status",
-    header: "Status",
-    accessorFn: (row) => formatDate(row.endDate.toString())
-  },
-  {
     header: "Includes",
     id: "includes-icons",
     cell: ({ row }) => (
@@ -86,6 +90,26 @@ export const columns: ColumnDef<BookingDTO>[] = [
         {row.original.includes?.shops && <ShoppingBag size={16} color="#DC143C" />}
       </div>
     ),
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => {
+      const status:string = row.original.status ?? '';
+
+      // Set badge color based on the status value
+      const statusColor:any = {
+        inprogress: "bg-yellow-500 text-white", // Yellow for in progress
+        confirmed: "bg-green-500 text-white",  // Green for confirmed
+        cancelled: "bg-red-500 text-white",    // Red for cancelled
+      };
+
+      return (
+        <Badge className={statusColor[status.toLowerCase()]}>
+          {status.charAt(0).toUpperCase() + status.slice(1)}
+        </Badge>
+      );
+    },
   },
 
 ];

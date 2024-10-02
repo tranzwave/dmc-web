@@ -14,6 +14,9 @@ import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
 import { Calendar } from "~/components/ui/calendar";
 import { RestaurantVoucher,useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
+import { LoaderCircle } from "lucide-react";
+import { addRestaurantVoucherLinesToBooking } from "~/server/db/queries/booking";
+import { usePathname } from "next/navigation";
 
 export type RestaurantData = SelectRestaurant & {
   restaurantMeal: SelectMeal[];
@@ -28,6 +31,10 @@ const RestaurantsTab = () => {
   const [restaurants, setRestaurants] = useState<RestaurantData[]>([]);
   const [error, setError] = useState<string | null>();
   const { toast } = useToast();
+  const [saving, setSaving] = useState(false)
+
+  const pathname = usePathname()
+  const bookingLineId = pathname.split("/")[3]
 
   const updateRestaurants = (
     data: InsertRestaurantVoucherLine,
@@ -95,6 +102,44 @@ const RestaurantsTab = () => {
     }
   };
 
+  const onSaveClick = async()=>{
+    console.log(bookingDetails.restaurants)
+    const newVouchers = bookingDetails.restaurants.filter(v => v.voucherLines[0]?.id ? false : true);
+
+    if(newVouchers.length == 0){
+      toast({
+        title: "Uh Oh!",
+        description: "No new vouchers to add!",
+      });
+
+      return
+    }
+    try {
+      setSaving(true)
+      const newResponse = await addRestaurantVoucherLinesToBooking(newVouchers,bookingLineId ?? "", bookingDetails.general.marketingManager);
+
+      if (!newResponse) {
+        throw new Error(`Error: Couldn't add restaurant vouchers`);
+      }
+      console.log("Fetched Restaurants:", newResponse);
+
+      setSaving(false);
+      toast({
+        title: "Success",
+        description: "Restaurant Vouchers Added!",
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        // setError(error.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+      console.error("Error:", error);
+      setSaving(false)
+    }
+
+  }
+
   if (loading) {
     return <div>Loading</div>;
   }
@@ -128,8 +173,8 @@ const RestaurantsTab = () => {
           />
         </div>
         <div className="flex w-full justify-end">
-          <Button variant={"primaryGreen"} onClick={onNextClick}>
-            Next
+        <Button variant={"primaryGreen"} onClick={onSaveClick} disabled={saving}>
+            {saving ? (<div className="flex flex-row gap-1"><div><LoaderCircle className="animate-spin" size={10}/></div>Saving</div>): ('Save')}
           </Button>
         </div>
       </div>

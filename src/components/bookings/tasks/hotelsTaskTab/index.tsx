@@ -14,7 +14,8 @@ export type HotelVoucherData = {
   coordinatorId: string;
   hotelId: string;
   hotel: SelectHotel;
-  voucherLine: SelectHotelVoucherLine[];
+  voucherLines: SelectHotelVoucherLine[];
+  status:string | null;
 };
 // Define specific columns for hotels
 const hotelColumns: ColumnDef<HotelVoucherData>[] = [
@@ -30,12 +31,12 @@ const hotelColumns: ColumnDef<HotelVoucherData>[] = [
   {
     accessorKey: "voucherLine",
     header: "Voucher Lines",
-    accessorFn: (row) => row.voucherLine.length,
+    accessorFn: (row) => row.voucherLines.length,
   },
   {
     accessorKey: "voucherLine",
     header: "Progress",
-    accessorFn: (row) => row.voucherLine.length,
+    accessorFn: (row) => row.voucherLines.length,
   },
 ];
 
@@ -63,10 +64,6 @@ const hotelVoucherLineColumns: ColumnDef<SelectHotelVoucherLine>[] = [
     accessorFn: (row) => `${row.roomType} - ${row.roomCount} Room`,
   },
 ];
-
-
-
-
 
 
 // Update the HotelsTasksTab component to receive vouchers as a prop

@@ -19,6 +19,7 @@ import { Input } from "~/components/ui/input";
 // Define the schema for form validation
 export const ChargesSchema = z.object({
   feePerKm: z.number().min(1, "Fee per km is required").default(0),
+  feePerDay: z.number().min(1, "Fee per day is required").default(0),
   fuelAllowance: z.number().min(1, "Fuel allowance is required").default(2000).default(0),
   accommodationAllowance: z.number().min(1, "Accommodation allowance is required").default(0),
   mealAllowance: z.number().min(1, "Meal allowance is required").default(0),
@@ -44,7 +45,7 @@ const ChargesForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-5 gap-4">
             <FormField
               name="feePerKm"
               control={form.control}
@@ -53,6 +54,22 @@ const ChargesForm = () => {
                   <FormLabel>Fee Per km</FormLabel>
                   <FormControl>
                     <Input type="number" placeholder="Enter fee per km" 
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.valueAsNumber)} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+<FormField
+              name="feePerDay"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Fee Per Day</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="Enter fee per day" 
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)} />
                   </FormControl>

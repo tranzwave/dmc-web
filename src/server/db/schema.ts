@@ -128,11 +128,12 @@ export const booking = createTable("bookings", {
   tourType: varchar("tour_type", { length: 255 }).notNull(), // e.g., adventure, honeymoon
 });
 
+export const bookingLineStatus = pgEnum('status', ['inprogress', 'confirmed', 'cancelled']);
+
 export const bookingLine = createTable("booking_lines", {
   id: varchar("id", { length: 255 })
     .notNull()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+    .primaryKey(),
   bookingId: varchar("booking_id")
     .notNull()
     .references(() => booking.id),
@@ -147,6 +148,7 @@ export const bookingLine = createTable("booking_lines", {
   kidsCount: integer("kids_count").notNull(),
   startDate: timestamp("start_date").notNull(),
   endDate: timestamp("end_date").notNull(),
+  status: bookingLineStatus('status').default('inprogress'),
 });
 
 export const city = createTable(
@@ -245,7 +247,7 @@ export const hotelStaff = createTable("hotel_staffs", {
     .$onUpdate(() => new Date()),
 });
 
-export const statusEnum = pgEnum('status', ['inprogress', 'sentToVendor', 'vendorConfirmed', 'sentToClient', 'confirmed', 'cancelled']);
+export const statusEnum = pgEnum('status', ['inprogress', 'sentToVendor', 'vendorConfirmed', 'sentToClient', 'confirmed', 'cancelled', 'amended']);
 // Hotel Vouchers table
 export const hotelVoucher = createTable("hotel_vouchers", {
   id: varchar("id", { length: 255 })
@@ -277,7 +279,7 @@ export const hotelVoucherLine = createTable("hotel_voucher_lines", {
     .notNull(),
   rate: numeric('rate', { precision: 4 }),
   roomType: varchar("room_type", { length: 100 }).notNull(),
-  basis: varchar("basis", { length: 10 }).notNull(), // HB, FB, BB
+  basis: varchar("basis", { length: 50 }).notNull(), // HB, FB, BB
   checkInDate: varchar("check_in_date", { length: 100 }).notNull(),
   checkInTime: time("check_in_time").notNull(),
   checkOutDate: varchar("check_out_date", { length: 100 }).notNull(),
@@ -407,6 +409,7 @@ export const driver = createTable("drivers", {
   type: varchar("type", { length: 255 }).notNull(),
   // isGuide: boolean("has_restaurant").notNull().default(false),
   feePerKM: integer("fee_per_km").notNull().default(0),
+  feePerDay: integer("fee_per_day").notNull().default(0),
   fuelAllowance: integer("fuel_allowance").notNull().default(0),
   accommodationAllowance: integer("accommodation_allowance")
     .notNull()
@@ -702,7 +705,7 @@ export const hotelVouchersRelations = relations(
       fields: [hotelVoucher.hotelId],
       references: [hotel.id],
     }),
-    voucherLine: many(hotelVoucherLine),
+    voucherLines: many(hotelVoucherLine),
   }),
 );
 
@@ -746,7 +749,7 @@ export const restaurantVouchersRelations = relations(
       fields: [restaurantVoucher.restaurantId],
       references: [restaurant.id],
     }),
-    voucherLine: many(restaurantVoucherLine),
+    voucherLines: many(restaurantVoucherLine),
   }),
 );
 

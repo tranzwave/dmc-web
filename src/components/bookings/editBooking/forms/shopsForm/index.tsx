@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { columns, Shop } from "./columns";
 import ShopsForm from "./shopsForm";
-import { SearchIcon } from "lucide-react";
+import { LoaderCircle, SearchIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { ShopsSearchParams } from "~/lib/api";
 import { SelectCity, SelectShopType } from "~/server/db/schemaTypes";
@@ -11,7 +11,12 @@ import { getAllShopTypes } from "~/server/db/queries/shops";
 import { getAllCities } from "~/server/db/queries/activities";
 import { useToast } from "~/hooks/use-toast";
 import { Calendar } from "~/components/ui/calendar";
-import { useEditBooking, ShopVoucher } from "~/app/dashboard/bookings/[id]/edit/context";
+import {
+  useEditBooking,
+  ShopVoucher,
+} from "~/app/dashboard/bookings/[id]/edit/context";
+import { usePathname } from "next/navigation";
+import { addShopVouchersToBooking } from "~/server/db/queries/booking";
 
 const ShopsTab = () => {
   const { addShop, bookingDetails, setActiveTab } = useEditBooking();
@@ -21,7 +26,12 @@ const ShopsTab = () => {
   const [error, setError] = useState<string | null>();
   const [loading, setLoading] = useState(false);
   const [shopTypes, setShopTypes] = useState<SelectShopType[]>([]);
-  const {toast} = useToast()
+  const { toast } = useToast();
+
+  const [saving, setSaving] = useState(false);
+
+  const pathname = usePathname();
+  const bookingLineId = pathname.split("/")[3];
 
   const handleRowClick = (shop: ShopVoucher) => {
     if (searchDetails) {
@@ -82,7 +92,7 @@ const ShopsTab = () => {
   };
 
   const onNextClick = () => {
-    console.log(bookingDetails)
+    console.log(bookingDetails);
     if (bookingDetails.shops.length > 0) {
       setActiveTab("submit");
     } else {
@@ -93,21 +103,73 @@ const ShopsTab = () => {
     }
   };
 
+  const onSaveClick = async () => {
+    console.log(bookingDetails.shops);
+    const newVouchers = bookingDetails.shops.filter((v) =>
+      v.voucher?.id ? false : true,
+    );
+
+    if (newVouchers.length == 0) {
+      toast({
+        title: "Uh Oh!",
+        description: "No new vouchers to add!",
+      });
+
+      return;
+    }
+    try {
+      setSaving(true);
+      const newResponse = await addShopVouchersToBooking(
+        newVouchers,
+        bookingLineId ?? "",
+        bookingDetails.general.marketingManager,
+      );
+
+      if (!newResponse) {
+        throw new Error(`Error: Couldn't add shop vouchers`);
+      }
+      console.log("Fetched Shops:", newResponse);
+
+      setSaving(false);
+      toast({
+        title: "Success",
+        description: "Shops Vouchers Added!",
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        // setError(error.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+      console.error("Error:", error);
+      setSaving(false);
+      toast({
+        title: "Uh Oh!",
+        description: "Couldn't add shop vouchers!",
+      });
+    }
+  };
+
   useEffect(() => {
-    if(!bookingDetails.general.includes.shops){
-      setActiveTab("submit")
-      return ()=>{console.log("Return")};
+    if (!bookingDetails.general.includes.shops) {
+      setActiveTab("submit");
+      return () => {
+        console.log("Return");
+      };
     }
     fetchData();
   }, []);
 
   return (
     <div className="flex flex-col gap-3">
-      <div className=" flex flex-row justify-center gap-3">
+      <div className="flex flex-row justify-center gap-3">
         <div>
-        <Calendar
+          <Calendar
             mode="range"
-            selected={{from: new Date(bookingDetails.general.startDate), to:new Date(bookingDetails.general.endDate)}}
+            selected={{
+              from: new Date(bookingDetails.general.startDate),
+              to: new Date(bookingDetails.general.endDate),
+            }}
             className="rounded-md"
           />
         </div>
@@ -124,9 +186,11 @@ const ShopsTab = () => {
       <div className="w-full">
         <DataTable columns={columns} data={bookingDetails.shops} />
       </div>
-      <div className="flex w-full justify-end">
-        <Button variant={"primaryGreen"} onClick={onNextClick}>Next</Button>
-      </div>
+        <div className="flex w-full justify-end">
+          <Button variant={"primaryGreen"} onClick={onSaveClick} disabled={saving}>
+            {saving ? (<div className="flex flex-row gap-1"><div><LoaderCircle className="animate-spin" size={15}/></div>Saving</div>): ('Save')}
+          </Button>
+        </div>
     </div>
   );
 };

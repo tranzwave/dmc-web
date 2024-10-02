@@ -31,7 +31,7 @@ interface TasksTabProps<T, L> {
 }
 
 interface WithOptionalVoucherLine<L, T> {
-  voucherLine?: L[] | T[];
+  voucherLines?: L[] | T[];
 }
 
 const TasksTab = <
@@ -202,7 +202,11 @@ const TasksTab = <
             columns={voucherColumns}
             data={
               selectedVoucher
-                ? (selectedVoucher.voucherLine ?? [selectedVoucher])
+                ? selectedVoucher.voucherLines // Check if `voucherLines` is defined
+                  ? selectedVoucher.voucherLines // Use `voucherLines` if present
+                  : Array.isArray(selectedVoucher.voucherLine) // Otherwise, check if `voucherLine` is an array
+                    ? selectedVoucher.voucherLine // Use `voucherLine` if it's already an array
+                    : [selectedVoucher.voucherLine ?? selectedVoucher] // If `voucherLine` is a single object, wrap in an array
                 : []
             }
             onRowClick={onVoucherLineRowClick}
@@ -210,6 +214,7 @@ const TasksTab = <
             onEdit={() => alert("Edit action triggered")}
             onDelete={() => alert("Delete action triggered")}
           />
+
           <div className="flex w-full flex-row items-end justify-end">
             <div className="flex flex-row gap-2">
               <Popup
@@ -465,7 +470,7 @@ interface ProceedContentProps {
   updateVoucherLine: any;
   updateVoucherStatus: any;
   rate: number | string;
-  setRate: React.Dispatch<SetStateAction<number | string>>,
+  setRate: React.Dispatch<SetStateAction<number | string>>;
   setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
 }
 

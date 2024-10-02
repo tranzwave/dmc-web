@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import {
   ActivityVoucher,
   BookingDetails,
@@ -15,13 +15,15 @@ import {
   booking,
   bookingLine,
   client,
-  hotel,
   hotelVoucher,
   hotelVoucherLine,
   restaurantVoucher,
   restaurantVoucherLine,
   shopVoucher,
-  transportVoucher,
+
+  tenant,
+
+  transportVoucher
 } from "../../schema";
 import {
   InsertBooking,
@@ -71,13 +73,13 @@ export const getBookingLineWithAllData = (id: string) => {
       hotelVouchers: {
         with: {
           hotel: true,
-          voucherLine: true
+          voucherLines: true
         }
       },
       restaurantVouchers: {
         with: {
           restaurant: true,
-          voucherLine: true
+          voucherLines: true
         }
       },
       transportVouchers: {
@@ -98,6 +100,24 @@ export const getBookingLineWithAllData = (id: string) => {
       }
     }
   })
+}
+
+async function generateBookingLineId(tenantId: string, countryCode: string): Promise<string> {
+  // Fetch tenant name and country based on tenantId
+  const tenantData = await db.query.tenant.findFirst({
+    where: eq(tenant.id, tenantId)
+  })
+
+  if (!tenantData) {
+    throw new Error(`Tenant with ID ${tenantId} not found`);
+  }
+
+
+  // Helper function to generate a 6-digit random number
+  const generate6DigitNumber = () => Math.floor(100000 + Math.random() * 900000).toString();
+
+  // Format the ID: <tenantName>-<country>-<6 digits>
+  return `${tenantData.name.toUpperCase().slice(0, 3)}-${countryCode}-${generate6DigitNumber()}`;
 }
 
 export const createNewBooking = async (
@@ -166,8 +186,11 @@ export const createNewBooking = async (
         ? parentBooking[0]?.id ?? ""
         : parentBooking.id;
 
+      const customId = await generateBookingLineId(tenantId, bookingDetails.general.country)
+
       // Create a new booking line within the transaction
       const newBookingLineGeneral: InsertBookingLine = {
+        id: customId,
         bookingId: parentBookingIdToUse,
         adultsCount: bookingDetails.general.adultsCount,
         kidsCount: bookingDetails.general.kidsCount,
@@ -327,7 +350,28 @@ export const createBookingLineTx = async (
   return newBookingLine[0].id;
 };
 
+export const addHotelVoucherLinesToBooking = async (
+  vouchers: HotelVoucher[],
+  newBookingLineId: string,
+  coordinatorId: string,
+) => {
+  // Start a transaction
+  const result = await db.transaction(async (trx) => {
+    try {
+      // Call the insertHotelVouchersTx function inside this transaction
+      const insertedVouchers = await insertHotelVouchersTx(trx, vouchers, newBookingLineId, coordinatorId);
 
+      // If there are additional inserts/updates, you can perform them here using the same trx.
+
+      return insertedVouchers;
+    } catch (error) {
+      console.error('Error while inserting hotel vouchers:', error);
+      throw error; // Rethrow to trigger transaction rollback
+    }
+  });
+
+  return result;
+};
 
 export const insertHotelVouchersTx = async (
   trx: any, // Replace with actual transaction type
@@ -356,6 +400,9 @@ export const insertHotelVouchersTx = async (
       // Add voucher lines
       const voucherLines = await Promise.all(
         currentVoucher.voucherLines.map(async (currentVoucherLine) => {
+
+          //Check for existing voucher
+
           const newVoucherLine = await trx
             .insert(hotelVoucherLine)
             .values({
@@ -386,6 +433,26 @@ export const insertHotelVouchersTx = async (
   );
 
   return hotelVouchers;
+};
+
+export const addRestaurantVoucherLinesToBooking = async (
+  vouchers: RestaurantVoucher[],
+  newBookingLineId: string,
+  coordinatorId: string,
+) => {
+  const result = await db.transaction(async (trx) => {
+    try {
+      const insertedVouchers = await insertRestaurantVouchersTx(trx, vouchers, newBookingLineId, coordinatorId);
+
+
+      return insertedVouchers;
+    } catch (error) {
+      console.error('Error while inserting restaurant vouchers:', error);
+      throw error;
+    }
+  });
+
+  return result;
 };
 
 export const insertRestaurantVouchersTx = async (
@@ -422,8 +489,10 @@ export const insertRestaurantVouchersTx = async (
               kidsCount: currentVoucherLine.kidsCount,
               mealType: currentVoucherLine.mealType,
               date: currentVoucherLine.date,
-              time: currentVoucherLine.time,
+              time: currentVoucherLine.time ?? "12:00",
               restaurantVoucherId: voucherId,
+              remarks: currentVoucherLine.remarks,
+
             })
             .returning();
 
@@ -443,8 +512,26 @@ export const insertRestaurantVouchersTx = async (
   return restaurantVouchers;
 };
 
+export const addActivityVouchersToBooking = async (
+  vouchers: ActivityVoucher[],
+  newBookingLineId: string,
+  coordinatorId: string,
+) => {
+  const result = await db.transaction(async (trx) => {
+    try {
+      const insertedVouchers = await insertActivityVouchersTx(trx, vouchers, newBookingLineId, coordinatorId);
+      return insertedVouchers;
+    } catch (error) {
+      console.error('Error while inserting activity vouchers:', error);
+      throw error;
+    }
+  });
+
+  return result;
+};
+
 export const insertActivityVouchersTx = async (
-  trx: any, // Replace with actual transaction type
+  trx: any,
   vouchers: ActivityVoucher[],
   newBookingLineId: string,
   coordinatorId: string,
@@ -470,6 +557,24 @@ export const insertActivityVouchersTx = async (
     }),
   );
   return activityVouchers;
+};
+
+export const addShopVouchersToBooking = async (
+  vouchers: ShopVoucher[],
+  newBookingLineId: string,
+  coordinatorId: string,
+) => {
+  const result = await db.transaction(async (trx) => {
+    try {
+      const insertedVouchers = await insertShopVouchersTx(trx, vouchers, newBookingLineId, coordinatorId);
+      return insertedVouchers;
+    } catch (error) {
+      console.error('Error while inserting shop vouchers:', error);
+      throw error;
+    }
+  });
+
+  return result;
 };
 
 export const insertShopVouchersTx = async (
@@ -501,6 +606,24 @@ export const insertShopVouchersTx = async (
   return shopVouchers;
 };
 
+export const addTransportVouchersToBooking = async (
+  vouchers: TransportVoucher[],
+  newBookingLineId: string,
+  coordinatorId: string,
+) => {
+  const result = await db.transaction(async (trx) => {
+    try {
+      const insertedVouchers = await insertTransportVoucherTx(trx, vouchers, newBookingLineId, coordinatorId);
+      return insertedVouchers;
+    } catch (error) {
+      console.error('Error while inserting transport vouchers:', error);
+      throw error;
+    }
+  });
+
+  return result;
+};
+
 export const insertTransportVoucherTx = async (
   trx: any,
   vouchers: TransportVoucher[],
@@ -530,87 +653,52 @@ export const insertTransportVoucherTx = async (
   return transportVouchers;
 };
 
-// export const getBookingCountByMonth = async () => {
-//   const bookingCountByMonth = await db
-//     .select({
-//       month: bookingLine.startDate,
-//       bookingCount: count(),
-//     })
-//     .from(bookingLine)
-//     .groupBy(bookingLine.startDate);
-
-//   return bookingCountByMonth.map(row => ({
-//     month: row.month ?? "Unknown",
-//     count: row.bookingCount ?? "Unknown",
-//   }));
-// };
-
 export const updateBookingLine = async (
-  lineId: string,
-  updatedBookingDetails: BookingDetails,
+  bookingLineId: string,
+  updatedGeneralData: {
+    startDate: string;
+    endDate: string;
+    adultsCount: number;
+    kidsCount: number;
+    includes: {
+      hotels: boolean;
+      restaurants: boolean;
+      transport: boolean;
+      activities: boolean;
+      shops: boolean;
+    };
+  }
 ) => {
   try {
-    // Start a transaction for updating the booking line
+    // Start a transaction to update the booking line
     const result = await db.transaction(async (tx) => {
-      // Find the existing booking line by its ID
-      const existingLine = await tx.query.bookingLine.findFirst({
-        where: eq(bookingLine.id, lineId),
+      // Find the existing booking line by ID
+      const existingBookingLine = await tx.query.bookingLine.findFirst({
+        where: eq(bookingLine.id, bookingLineId),
       });
 
-
-
-      if (!existingLine) {
-        throw new Error(`Booking line with ID ${lineId} not found`);
+      if (!existingBookingLine) {
+        throw new Error(`Couldn't find a booking line with ID: ${bookingLineId}`);
       }
 
-      const existingBooking = await tx.query.booking.findFirst({
-        where: eq(booking.id, existingLine.bookingId),
-      });
-
-      if (!existingBooking) {
-        throw new Error(`Booking with ID ${existingLine.bookingId} not found`);
-      }
-
-      const updatedClient = await updateClient(
-        tx,
-        existingBooking.clientId,
-        {
-          name: updatedBookingDetails.general.clientName,
-          primaryEmail: updatedBookingDetails.general.primaryEmail,
-          primaryContactNumber: updatedBookingDetails.general.primaryContactNumber,
-          country: updatedBookingDetails.general.country,
-        }
-      );
-
-      console.log(updatedClient)
-
-      // Update the main booking line details
-      const updatedLine = await tx
+      // Update the booking line with the provided general data
+      const updatedBookingLine = await tx
         .update(bookingLine)
         .set({
-          adultsCount: updatedBookingDetails.general.adultsCount,
-          kidsCount: updatedBookingDetails.general.kidsCount,
-          startDate: new Date(updatedBookingDetails.general.startDate),
-          endDate: new Date(updatedBookingDetails.general.endDate),
-          includes: {
-            hotels: updatedBookingDetails.general.includes.hotels,
-            restaurants: updatedBookingDetails.general.includes.restaurants,
-            transport: updatedBookingDetails.general.includes.transport,
-            activities: updatedBookingDetails.general.includes.activities,
-            shops: updatedBookingDetails.general.includes.shops,
-          },
+          startDate: new Date(updatedGeneralData.startDate),
+          endDate: new Date(updatedGeneralData.endDate),
+          adultsCount: updatedGeneralData.adultsCount,
+          kidsCount: updatedGeneralData.kidsCount,
+          includes: updatedGeneralData.includes,
         })
-        .where(eq(bookingLine.id, lineId))
+        .where(eq(bookingLine.id, bookingLineId))
         .returning();
 
-      console.log(updatedLine)
-
-      if (!updatedLine || !updatedLine[0]?.id || !updatedClient) {
-        throw new Error("Couldn't update the booking line");
+      if (!updatedBookingLine || !Array.isArray(updatedBookingLine) || !updatedBookingLine[0]?.id) {
+        throw new Error(`Couldn't update the booking line with ID: ${bookingLineId}`);
       }
 
-      // Return the updated booking line ID
-      return updatedLine[0]?.id;
+      return updatedBookingLine[0]?.id;
     });
 
     return result;
@@ -619,75 +707,4 @@ export const updateBookingLine = async (
     throw error;
   }
 };
-
-
-
-export const getBookingCountByMonth = async () => {
-  const currentDate = new Date();
-  const lastYearDate = new Date();
-  lastYearDate.setFullYear(currentDate.getFullYear() - 1);
-
-  const bookingCountByMonth = await db
-    .select({
-      month: sql`DATE_TRUNC('month', ${bookingLine.startDate})`.as('month'),
-      bookingCount: sql`COUNT(*)`.as('bookingCount'),
-    })
-    .from(bookingLine)
-    // Filter to only include bookings from the last year
-    .where(sql`${bookingLine.startDate} >= ${lastYearDate}`)
-    .groupBy(sql`DATE_TRUNC('month', ${bookingLine.startDate})`);
-
-  // convert month and year to formatted string
-  const getMonthAndYear = (date: any) => {
-    const monthNames = [
-      "January", "February", "March", "April",
-      "May", "June", "July", "August",
-      "September", "October", "November", "December"
-    ];
-
-    const monthIndex = new Date(date).getMonth();
-    const year = new Date(date).getFullYear();
-    return `${monthNames[monthIndex]} ${year}`;
-  };
-
-  return bookingCountByMonth.map(row => ({
-    month: getMonthAndYear(row.month),
-    count: Number(row.bookingCount),
-  }));
-};
-
-
-export const getHotelBookingStats = async () => {
-  const hotelBookingStats = await db
-    .select({
-      hotelName: hotel.name,
-      bookingCount: sql`COUNT(${hotelVoucher.id})`.as('bookingCount'),
-      lastBookingDate: sql`MAX(${hotelVoucher.createdAt})`.as('lastBookingDate')
-    })
-    .from(hotel)
-    .innerJoin(hotelVoucher, sql`${hotel.id} = ${hotelVoucher.hotelId}`)
-    .groupBy(hotel.id)
-  // .orderBy(sql`COUNT(${hotelVoucher.id})`, 'desc'); // Optional: to sort by number of bookings
-
-  return hotelBookingStats.map(row => {
-    let formattedDate = null;
-
-    // Check if lastBookingDate is a valid date string or number before converting
-    if (row.lastBookingDate && (typeof row.lastBookingDate === 'string' || typeof row.lastBookingDate === 'number')) {
-      const date = new Date(row.lastBookingDate);
-      if (!isNaN(date.getTime())) {
-        formattedDate = date.toLocaleDateString(); // Format date if valid
-      }
-    }
-
-    return {
-      hotelName: row.hotelName,
-      bookingCount: Number(row.bookingCount),
-      lastBookingDate: formattedDate // If the date is invalid, it will remain null
-    };
-  });
-};
-
-
-
 

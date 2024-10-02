@@ -72,7 +72,7 @@ const AddBooking = () => {
                 >
                   General
                 </TabsTrigger>
-                <TabsTrigger
+                {/* <TabsTrigger
                   value="hotels"
                   onClick={() => setActiveTab("hotels")}
                   disabled={bookingDetails.vouchers.length == 0 || !bookingDetails.general.includes.hotels}
@@ -130,35 +130,29 @@ const AddBooking = () => {
                   inProgress = {activeTab == "submit"}
                 >
                   Submit
-                </TabsTrigger>
+                </TabsTrigger> */}
               </TabsList>
               <TabsContent value="general">
-                {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
                 <GeneralTab />
               </TabsContent>
-              <TabsContent value="hotels">
-                {/* <HotelsTab onAddHotel={addHotel} /> */}
+              {/* <TabsContent value="hotels">
                 <HotelsTab />
               </TabsContent>
               <TabsContent value="restaurants">
-                {/* <RestaurantsTab onAddRestaurant={addRestaurant} /> */}
                 <RestaurantsTab />
               </TabsContent>
               <TabsContent value="activities">
-                {/* <ActivitiesTab onAddActivity={addActivity} /> */}
                 <ActivitiesTab />
               </TabsContent>
               <TabsContent value="transport">
-                {/* <TransportTab onAddTransport={addTransport} /> */}
                 <TransportTab />
               </TabsContent>
               <TabsContent value="shops">
-                {/* <ShopsTab onAddShop={addShop} /> */}
                 <ShopsTab />
               </TabsContent>
               <TabsContent value="submit">
                 <AddBookingSubmitTab />
-              </TabsContent>
+              </TabsContent> */}
             </Tabs>
           </div>
         </div>

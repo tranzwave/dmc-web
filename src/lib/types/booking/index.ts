@@ -8,11 +8,11 @@ export type BookingLineWithAllData = SelectBookingLine & {
   };
   hotelVouchers: Array<SelectHotelVoucher & {
     hotel: SelectHotel;
-    voucherLine: SelectHotelVoucherLine[];
+    voucherLines: SelectHotelVoucherLine[];
   }>;
   restaurantVouchers: Array<SelectRestaurantVoucher & {
     restaurant: SelectRestaurant;
-    voucherLine: SelectRestaurantVoucherLine[];
+    voucherLines: SelectRestaurantVoucherLine[];
   }>;
   transportVouchers: Array<SelectTransportVoucher & {
     driver: SelectDriver;
