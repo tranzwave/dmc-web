@@ -29,7 +29,11 @@ import {
   SelectValue,
 } from "~/components/ui/select"; // Import Shadcn Select components
 import { useToast } from "~/hooks/use-toast";
-import { hotelBoardBasis, hotelRoomTypes } from "~/lib/constants";
+import {
+  hotelBoardBasis,
+  hotelRoomCategories,
+  hotelRoomTypes,
+} from "~/lib/constants";
 import {
   InsertHotelVoucherLine,
   SelectHotel,
@@ -43,7 +47,12 @@ interface HotelsFormProps {
     hotel: any,
   ) => void;
   hotels: SelectHotel[];
-  defaultValues: InsertHotelVoucherLine | null;
+  defaultValues:
+    | (InsertHotelVoucherLine & {
+        hotel: SelectHotel;
+      })
+    | null
+    | undefined;
 }
 
 export const hotelsSchema = z.object({
@@ -56,6 +65,7 @@ export const hotelsSchema = z.object({
   checkOutDate: z.string().min(1, "Check-out date is required"),
   // checkOutTime: z.string().min(1, "Check-out time is required").optional(),
   roomType: z.string().min(1, "Room type is required"),
+  roomCategory: z.string().min(1, "Room category is required"),
   basis: z.string().min(1, "Basis is required"),
   remarks: z.string().min(1, "Remarks required"), // Optional field
 });
@@ -68,13 +78,14 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   const [selectedHotel, setSelectedHotel] = useState<SelectHotel | null>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { bookingDetails } = useEditBooking();
-  
+  const [voucherLineId, setVoucherLineId] = useState(defaultValues?.id ?? "");
 
   const form = useForm<z.infer<typeof hotelsSchema>>({
     resolver: zodResolver(hotelsSchema),
     defaultValues: {
       ...defaultValues,
       remarks: defaultValues?.remarks ?? "No Remarks",
+      name: defaultValues?.hotel.name,
     },
     values: {
       adultsCount: bookingDetails.general.adultsCount ?? 0,
@@ -85,13 +96,12 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       checkOutDate: defaultValues?.checkOutDate ?? "",
       // checkOutTime: defaultValues?.checkOutTime ?? "10:00",
       roomType: defaultValues?.roomType ?? "",
+      roomCategory: defaultValues?.roomCategory ?? "",
       basis: defaultValues?.basis ?? "",
       roomCount: defaultValues?.roomCount ?? 0,
       remarks: defaultValues?.remarks ?? "",
     },
   });
-
-
 
   function handleModalResponse(isNewVoucher: boolean) {
     const voucherLine: InsertHotelVoucherLine = {
@@ -106,6 +116,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       checkOutTime: "10:00",
       roomCount: Number(form.getValues("roomCount")), // Room count from the form, converted to a number.
       remarks: form.getValues("remarks"),
+      id: voucherLineId,
     };
 
     if (isNewVoucher) {
@@ -116,12 +127,13 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
 
     // Reset form and close the modal
     form.reset();
+    setVoucherLineId("");
     setIsModalOpen(false);
   }
 
   function onSubmit(values: z.infer<typeof hotelsSchema>) {
     // setIsModalOpen(true);
-    handleModalResponse(true)
+    handleModalResponse(true);
   }
 
   function getHotelId(name: string) {
@@ -131,7 +143,11 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   }
 
   useEffect(() => {
-    console.log(hotels);
+    // form.reset();
+    console.log(defaultValues);
+    if(defaultValues?.hotel){
+      setSelectedHotel(defaultValues?.hotel);
+    }
   }, [defaultValues]);
 
   return (
@@ -151,7 +167,8 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                         field.onChange(value);
                         getHotelId(value);
                       }}
-                      value={field.value}
+                      // value={field.value}
+                      value={defaultValues?.hotel?.name}
                     >
                       <SelectTrigger className="bg-slate-100 shadow-md">
                         <SelectValue placeholder="Select hotel" />
@@ -223,7 +240,9 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
               )}
             />
           </div>
+          <div></div>
           <div className="grid grid-cols-4 gap-3">
+            <div className="flex flex-row gap-3">
             <FormField
               name="checkInDate"
               control={form.control}
@@ -237,19 +256,6 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                 </FormItem>
               )}
             />
-            {/* <FormField
-              name="checkInTime"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Check-in Time</FormLabel>
-                  <FormControl>
-                    <Input type="time" {...field} defaultValue={"10:00"}/>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
             <FormField
               name="checkOutDate"
               control={form.control}
@@ -268,7 +274,8 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                 </FormItem>
               )}
             />
-                        <FormField
+            </div>
+            <FormField
               name="roomType"
               control={form.control}
               render={({ field }) => (
@@ -287,6 +294,36 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                       </SelectTrigger>
                       <SelectContent>
                         {hotelRoomTypes.map((room) => (
+                          <SelectItem key={room} value={room}>
+                            {room}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="roomCategory"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Room Category</FormLabel>
+                  <FormControl>
+                    {/* <Input placeholder="Enter room type" {...field} /> */}
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                      }}
+                      value={field.value}
+                    >
+                      <SelectTrigger className="bg-slate-100 shadow-md">
+                        <SelectValue placeholder="Select room category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {hotelRoomCategories.map((room) => (
                           <SelectItem key={room} value={room}>
                             {room}
                           </SelectItem>
@@ -343,7 +380,6 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
             /> */}
           </div>
           <div className="grid grid-cols-1 gap-3">
-
             <FormField
               name="remarks"
               control={form.control}

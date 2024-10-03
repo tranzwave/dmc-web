@@ -19,15 +19,22 @@ import {   HotelVoucher,useEditBooking } from "~/app/dashboard/bookings/[id]/edi
 import { addHotelVoucherLinesToBooking } from "~/server/db/queries/booking";
 import { usePathname, useSearchParams } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
+import Link from "next/link";
+import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 
 const HotelsTab = () => {
   const [addedHotels, setAddedHotels] = useState<Hotel[]>([]);
-  const { addHotelVoucher, bookingDetails, setActiveTab } = useEditBooking();
+  const { addHotelVoucher, bookingDetails, setActiveTab, editHotelVoucher } = useEditBooking();
   const [loading, setLoading] = useState(false);
   const [hotels, setHotels] = useState<SelectHotel[]>([]);
   const [error, setError] = useState<string | null>();
   const { toast } = useToast();
   const [saving, setSaving] = useState(false)
+  const [defaultValues, setDefaultValues] = useState<InsertHotelVoucherLine & {
+    hotel:SelectHotel
+  } | null>()
+  const [defaultHotel, setDefaultHotel] = useState<SelectHotel>()
+  const [indexToEdit, setIndexToEdit] = useState<number>()
 
   const pathname = usePathname()
   const bookingLineId = pathname.split("/")[3]
@@ -48,6 +55,12 @@ const HotelsTab = () => {
         voucher: voucher,
         voucherLines: [data],
       };
+      alert(data.id)
+      if(data.id && indexToEdit != 999){
+        editHotelVoucher(hotelVoucher, indexToEdit ?? 99, data.id)
+        setIndexToEdit(999)
+        return
+      }
       addHotelVoucher(hotelVoucher);
     } else {
       console.log("Multiple vouchers for same hotel is not supported yet");
@@ -161,6 +174,17 @@ const HotelsTab = () => {
     })),
   ];
 
+  const onEdit = (data:HotelVoucher)=>{
+    const index = bookingDetails.vouchers.findIndex(v => v == data)
+    setIndexToEdit(index)
+    if(!data.voucherLines[0]){
+      return
+    }
+    setDefaultValues({...data.voucherLines[0], hotel: data.hotel})
+    alert(data.hotel.name)
+    setDefaultHotel(data.hotel)
+  }
+
   return (
     <div className="flex flex-col items-center justify-center gap-3">
       <div className="flex w-full flex-row justify-center gap-3">
@@ -185,30 +209,26 @@ const HotelsTab = () => {
           ]}
         />
         <div className="card w-full space-y-6">
+          <div className="flex flex-row justify-between">
           <div className="card-title">Hotel Information</div>
+          <Link href={`${pathname.split("edit")[0]}/tasks?tab=hotels`}>
+            <Button variant={"primaryGreen"}>Send Vouchers</Button>
+          </Link>
+
+          </div>
           {hotels && (
             <HotelsForm
               onAddHotel={updateHotels}
               hotels={hotels}
-              defaultValues={{
-                adultsCount: 0,
-                kidsCount: 0,
-                hotelVoucherId: "",
-                roomType: "",
-                basis: "",
-                checkInDate: "",
-                checkInTime: "",
-                checkOutDate: "",
-                checkOutTime: "",
-                roomCount: 0,
-              }}
+              defaultValues={defaultValues}
             />
           )}
         </div>
       </div>
       <div className="flex w-full flex-col items-center justify-center gap-2">
         <div className="w-full">
-          <DataTable columns={voucherColumns} data={bookingDetails.vouchers} />
+          {/* <DataTable columns={voucherColumns} data={bookingDetails.vouchers} /> */}
+          <DataTableWithActions columns={voucherColumns} data={bookingDetails.vouchers} onEdit={onEdit} onDelete={()=>{console.log("delete")}} onRowClick={()=>{console.log("row")}}/>
         </div>
         <div className="flex w-full justify-end">
           {/* <Button variant={"primaryGreen"} onClick={onNextClick}>
