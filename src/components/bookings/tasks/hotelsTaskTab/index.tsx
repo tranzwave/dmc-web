@@ -75,10 +75,23 @@ const HotelsTasksTab = ({
   vouchers: HotelVoucherData[]; // Accept vouchers as a prop
 }) => {
   const {toast} = useToast()
-  const updateVoucherLine = async (voucherLine: any[]) => {
+  const updateVoucherLine = async (voucherLine: any[], confirmationDetails?: {
+    availabilityConfirmedBy: string,
+    availabilityConfirmedTo: string,
+    ratesConfirmedBy: string,
+    ratesConfirmedTo: string,
+  }) => {
+    if(!confirmationDetails){
+      throw new Error("Failed")
+    }
     alert("Updating voucher line:");
     try{
-      const bulkUpdateResponse = bulkUpdateHotelVoucherRates(voucherLine)
+      const bulkUpdateResponse = bulkUpdateHotelVoucherRates(voucherLine,{
+        availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
+        availabilityConfirmedTo: confirmationDetails.availabilityConfirmedTo,
+        ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
+        ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
+      })
   
       if(!bulkUpdateResponse){
         throw new Error("Failed")

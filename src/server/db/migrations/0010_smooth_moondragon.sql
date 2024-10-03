@@ -1,0 +1,1 @@
+ALTER TABLE "dmc-web_hotel_voucher_lines" ADD COLUMN "room_category" varchar(100) DEFAULT '' NOT NULL;
