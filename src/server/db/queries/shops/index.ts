@@ -177,6 +177,28 @@ export const insertShop = async (
 };
 
 
+export async function deleteShopCascade(shopId: string) {
+  try {
+    // Start the transaction
+    const deletedShopId = await db.transaction(async (trx) => {
+      // Delete related activity-activityvendor relationships
+      await trx
+        .delete(shopShopType)
+        .where(eq(shopShopType.shopId, shopId));
 
+      // Finally, delete the activity
+      const deletedShop = await trx
+        .delete(shop)
+        .where(eq(shop.id, shopId)).returning({ id: shop.id });
 
+      return deletedShop;
+    });
+
+    console.log("Shop and related data deleted successfully");
+    return deletedShopId;
+  } catch (error) {
+    console.error("Error deleting shop and related data:", error);
+    throw error; // Re-throw the error to handle it elsewhere if needed
+  }
+}
 
