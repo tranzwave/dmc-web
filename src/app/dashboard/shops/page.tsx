@@ -2,6 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import LoadingLayout from "~/components/common/dashboardLoading";
@@ -10,7 +11,6 @@ import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
 import { getAllShops } from "~/server/db/queries/shops";
 import { SelectCity, SelectShop } from "~/server/db/schemaTypes";
-, SelectShop } from "~/server/db/schemaTypes";
 
 export type ShopData = SelectShop & {
     city: SelectCity

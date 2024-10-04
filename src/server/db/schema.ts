@@ -264,8 +264,13 @@ export const hotelVoucher = createTable("hotel_vouchers", {
     .references(() => user.id)
     .notNull(),
   status: statusEnum('status').default('inprogress'),
+  availabilityConfirmedBy: varchar("availability_confirmed_by", { length: 255 }).default(""),
+  availabilityConfirmedTo: varchar("availability_confirmed_to", { length: 255 }).default(""),
+  ratesConfirmedBy: varchar("rates_confirmed_by", { length: 255 }).default(""),
+  ratesConfirmedTo: varchar("rates_confirmed_to", { length: 255 }).default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+
 });
 
 // Hotel Voucher Lines table
@@ -279,6 +284,7 @@ export const hotelVoucherLine = createTable("hotel_voucher_lines", {
     .notNull(),
   rate: numeric('rate', { precision: 4 }),
   roomType: varchar("room_type", { length: 100 }).notNull(),
+  roomCategory: varchar("room_category", { length: 100 }).default("").notNull(),
   basis: varchar("basis", { length: 50 }).notNull(), // HB, FB, BB
   checkInDate: varchar("check_in_date", { length: 100 }).notNull(),
   checkInTime: time("check_in_time").notNull(),

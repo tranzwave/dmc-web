@@ -81,7 +81,7 @@ export const columns: ColumnDef<HotelDTO>[] = [
     // },
     {
       header: "Rooms",
-      accessorFn: row =>  `${row.voucherLines[0]?.roomType}-${row.voucherLines[0]?.roomCount}`
+      accessorFn: row =>  `${row.voucherLines[0]?.roomType}-${row.voucherLines[0]?.roomCategory}-${row.voucherLines[0]?.roomCount}`
     },
     {
       header: "Basis",

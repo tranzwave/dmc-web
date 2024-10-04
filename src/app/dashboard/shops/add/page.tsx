@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import TitleBar from "~/components/common/titleBar";
 import GeneralTab from "~/components/shops/addShop/forms/generalForm";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { AddShopProvider, useAddShop } from "./context";
-ddShopProvider, useAddShop } from "./context";
 
 const AddShop = () => {
   const pathname = usePathname();
