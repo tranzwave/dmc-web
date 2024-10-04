@@ -64,9 +64,7 @@ export const getAllCities = (countryCode: string) => {
 };
 
 
-export const insertShop = async (
-  shopDetails: ShopDetails[],
-) => {
+export const insertShop = async (shopDetails: ShopDetails[]) => {
   try {
     const newShops = await db.transaction(async (tx) => {
       const foundTenant = await tx.query.tenant.findFirst();
@@ -79,10 +77,10 @@ export const insertShop = async (
       for (const details of shopDetails) {
         const { general } = details;
         const { city, ...shopData } = general;
-        const shopTypes = general.shopTypes || [];
+        const shopTypes = general.shopTypes ?? [];
 
         // Insert or find existing shop vendor
-        const foundVendor = await tx.query.shop.findFirst({
+        const foundShop = await tx.query.shop.findFirst({
           where: and(
             eq(shop.tenantId, foundTenant.id),
             eq(shop.name, shopData.name),
@@ -93,7 +91,7 @@ export const insertShop = async (
 
         let shopId: string;
 
-        if (!foundVendor) {
+        if (!foundShop) {
           const newShop = await tx
             .insert(shop)
             .values({
@@ -111,7 +109,7 @@ export const insertShop = async (
 
           shopId = newShop[0].id;
         } else {
-          shopId = foundVendor.id;
+          shopId = foundShop.id;
         }
 
         for (const shopTypeData of shopTypes) {
@@ -154,12 +152,12 @@ export const insertShop = async (
                 shopId: shopId,
                 shopTypeId: typeId,
               });
-              console.log(`Inserted into shop_shop_type: shopId = ${shopId}, shopTypeId = ${typeId}`);
+              console.log(`Inserted into shop_shop_type: shopId = ${shopId as string}, shopTypeId = ${typeId as number}`); // Ensure types are known
             } catch (error) {
-              console.error(`Error inserting into shop_shop_type: ${error}`);
+              console.error(`Error inserting into shop_shop_type: ${error as string}`); // Ensure the error is a string
             }
           } else {
-            console.log(`Relation already exists for shopId = ${shopId}, shopTypeId = ${typeId}`);
+            console.log(`Relation already exists for shopId = ${shopId as string}, shopTypeId = ${typeId as number}`); // Ensure types are known
           }
         }
 
@@ -171,10 +169,11 @@ export const insertShop = async (
 
     return newShops;
   } catch (error) {
-    console.error("Error in insertShop:", error);
+    console.error("Error in insertShop:", error as string); // Ensure the error is a string
     throw error;
   }
 };
+
 
 
 export async function deleteShopCascade(shopId: string) {
