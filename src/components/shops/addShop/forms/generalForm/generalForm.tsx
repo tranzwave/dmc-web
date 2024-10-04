@@ -43,8 +43,8 @@ const GeneralForm = () => {
   const [cities, setCities] = useState<SelectCity[]>([]);
   const [shopTypes, setShopTypes] = useState<SelectShopType[]>([]);
   const { setGeneralDetails, shopDetails, setActiveTab } = useAddShop();
-  const [selectedCity, setSelectedCity] = useState<SelectCity>();
-  const [selectedShopType, setSelectedShopType] = useState<SelectShopType>();
+  const [selectedCity, setSelectedCity] = useState<SelectCity | undefined>();
+  const [selectedShopType, setSelectedShopType] = useState<SelectShopType | undefined>();
 
   // Initialize form with default values using React Hook Form
   const { city, ...general } = shopDetails.general;
@@ -85,9 +85,10 @@ const GeneralForm = () => {
 
       setCities(citiesResponse);
       setSelectedCity(city);
-      setLoading(false);
     } catch (error) {
       setError(error instanceof Error ? error.message : "An unknown error occurred");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -103,9 +104,10 @@ const GeneralForm = () => {
 
       setShopTypes(shopTypesResponse);
       setSelectedShopType(selectedShopType);
-      setLoading(false);
     } catch (error) {
       setError(error instanceof Error ? error.message : "An unknown error occurred");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -134,6 +136,7 @@ const GeneralForm = () => {
 
           <FormField
             name="typeName"
+            control={form.control}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Shop Type</FormLabel>
@@ -146,7 +149,6 @@ const GeneralForm = () => {
                       );
                     }}
                     value={field.value}
-                    defaultValue={field.value}
                   >
                     <SelectTrigger className="bg-slate-100 shadow-md">
                       <SelectValue placeholder="Select shop type" />
@@ -172,7 +174,7 @@ const GeneralForm = () => {
               <FormItem>
                 <FormLabel>Contact Number</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="Enter contact number" {...field} />
+                  <Input type="text" placeholder="Enter contact number" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -210,7 +212,6 @@ const GeneralForm = () => {
                       );
                     }}
                     value={field.value}
-                    defaultValue={field.value}
                   >
                     <SelectTrigger className="bg-slate-100 shadow-md">
                       <SelectValue placeholder="Select city" />

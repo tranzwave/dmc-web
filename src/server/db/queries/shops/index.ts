@@ -75,11 +75,11 @@ export const insertShop = async (
         throw new Error("Couldn't find any tenant");
       }
 
-      const addedVendors = [];
-
-      for (const shopsDetails of shopDetails) {
-        const { general, shopTypes } = shopsDetails;
+      const addedShops: string[] = [];
+      for (const details of shopDetails) {
+        const { general } = details;
         const { city, ...shopData } = general;
+        const shopTypes = general.shopTypes || [];
 
         // Insert or find existing shop vendor
         const foundVendor = await tx.query.shop.findFirst({
@@ -91,10 +91,10 @@ export const insertShop = async (
           ),
         });
 
-        let vendorId: string;
+        let shopId: string;
 
         if (!foundVendor) {
-          const newVendor = await tx
+          const newShop = await tx
             .insert(shop)
             .values({
               ...shopData,
@@ -105,24 +105,22 @@ export const insertShop = async (
               id: shop.id,
             });
 
-          if (!newVendor[0]) {
+          if (!newShop[0]) {
             throw new Error(`Couldn't add shop: ${shopData.name}`);
           }
 
-          vendorId = newVendor[0].id;
+          shopId = newShop[0].id;
         } else {
-          vendorId = foundVendor.id;
+          shopId = foundVendor.id;
         }
 
-        // Process activities for this vendor
         for (const shopTypeData of shopTypes) {
-          const { shopTypeId, ...shopTypeDetails } = shopTypeData;
+          const { id: shopTypeId, ...shopTypeDetails } = shopTypeData;
 
           if (!shopTypeId) {
             throw new Error("Error when adding the shop type");
           }
 
-          // Find or insert shop type
           const foundType = await tx.query.shopType.findFirst({
             where: eq(shopType.id, shopTypeId),
           });
@@ -132,7 +130,7 @@ export const insertShop = async (
           if (!foundType) {
             const newType = await tx
               .insert(shopType)
-              .values({ name: shopTypeDetails.shopId })
+              .values({ name: shopTypeDetails.name })
               .returning({
                 id: shopType.id,
               });
@@ -146,17 +144,29 @@ export const insertShop = async (
             typeId = foundType.id;
           }
 
-          // Insert into shop_shop_type with the found or new type ID
-          await tx.insert(shopShopType).values({
-            shopId: vendorId,
-            shopTypeId: typeId,
+          const existingRelation = await tx.query.shopShopType.findFirst({
+            where: and(eq(shopShopType.shopId, shopId), eq(shopShopType.shopTypeId, typeId)),
           });
 
-          addedVendors.push(vendorId);
+          if (!existingRelation) {
+            try {
+              await tx.insert(shopShopType).values({
+                shopId: shopId,
+                shopTypeId: typeId,
+              });
+              console.log(`Inserted into shop_shop_type: shopId = ${shopId}, shopTypeId = ${typeId}`);
+            } catch (error) {
+              console.error(`Error inserting into shop_shop_type: ${error}`);
+            }
+          } else {
+            console.log(`Relation already exists for shopId = ${shopId}, shopTypeId = ${typeId}`);
+          }
         }
+
+        addedShops.push(shopId);
       }
 
-      return addedVendors;
+      return addedShops;
     });
 
     return newShops;
@@ -168,106 +178,5 @@ export const insertShop = async (
 
 
 
-// export const insertShop = async (
-//   shopDetails: ShopDetails[],
-// ) => {
-//   try {
-//     const newShops = await db.transaction(async (tx) => {
-//       const foundTenant = await tx.query.tenant.findFirst();
-
-//       if (!foundTenant) {
-//         throw new Error("Couldn't find any tenant");
-//       }
-
-//       const addedVendors = []
-
-//       for (const shopsDetails of shopDetails) {
-//         const { general, shopTypes } = shopsDetails;
-//         const { city, ...shopData } = general;
-
-//         // Insert or find existing activity vendor
-//         const foundVendor = await tx.query.shop.findFirst({
-//           where: and(
-//             eq(shop.tenantId, foundTenant.id),
-//             eq(shop.name, shopData.name),
-//             eq(shop.streetName, shopData.streetName),
-//             eq(shop.cityId, general.cityId),
-//           ),
-//         });
-
-//         let vendorId: string;
-
-//         if (!foundVendor) {
-//           const newVendor = await tx
-//             .insert(shop)
-//             .values({
-//               ...shopData,
-//               tenantId: foundTenant.id,
-//               cityId: general.cityId,
-//             })
-//             .returning({
-//               id: shop.id,
-//             });
-
-//           if (!newVendor[0]) {
-//             throw new Error(`Couldn't add shop: ${shopData.name}`);
-//           }
-
-//           vendorId = newVendor[0].id;
-//         } else {
-//           vendorId = foundVendor.id;
-//         }
-
-//         // Process activities for this vendor
-//         for (const shopTypeData of shopTypes) {
-//           const { shopTypeId, ...shopTypeDetails } = shopTypeData;
-
-//           if (!shopTypeId) {
-//             throw new Error("Error when adding the shop type");
-//           }
-//           // Find or insert activity type
-//           const foundType = await tx.query.shopType.findFirst({
-//             where: eq(shopShopType.shopTypeId, shopTypeId),
-//           });
-
-//           let typeId: number;
-
-//           if (!foundType) {
-//             const newType = await tx
-//               .insert(shopShopType)
-//               .values({ shopTypeId: shopTypeId })
-//               .returning({
-//                 id: shopShopType.shopId,
-//               });
-
-//             if (!newType[0]) {
-//               throw new Error(`Couldn't add shop type: ${shopTypeId}`);
-//             }
-
-//             shopTypeId = newType[0].id;
-//           } else {
-//             typeId = foundType.id;
-//           }
-
-//           // Insert activity with the found or new activity type ID
-//           await tx.insert(shop).values({
-//             ...shopTypeDetails,
-//             shopTypeId: shopTypeId,
-//             shopId: shopType.id,
-//           });
-
-//           addedVendors.push(vendorId)
-//         }
-//       }
-
-//       return addedVendors
 
 
-//     });
-
-//     return newShops;
-//   } catch (error) {
-//     console.error("Error in insertActivityVendor:", error);
-//     throw error;
-//   }
-// };

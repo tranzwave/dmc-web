@@ -45,7 +45,7 @@ const AddShop = () => {
                 <TabsTrigger
                   value="submit"
                   isCompleted={false}
-                  disabled={shopDetails.shopTypes.length == 0}
+                  disabled={shopDetails.general.name.length == 0}
                 >
                   Submit
                 </TabsTrigger>
@@ -54,7 +54,9 @@ const AddShop = () => {
                 {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
                 <GeneralTab />
               </TabsContent>
-              <TabsContent value="submit"><SubmitForm /></TabsContent>
+              <TabsContent value="submit">
+                <SubmitForm />
+                </TabsContent>
             </Tabs>
           </div>
         </div>

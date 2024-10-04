@@ -17,12 +17,8 @@ export const generalColumns: ColumnDef<General>[] = [
     header: "Name",
   },
   {
-    accessorKey: "activity",
-    header: "Activity",
-  },
-  {
     accessorKey: "contactNumber",
-    header: "Primary Contact Number",
+    header: "Contact Number",
   },
   {
     accessorKey: "streetName",
@@ -31,6 +27,10 @@ export const generalColumns: ColumnDef<General>[] = [
   {
     accessorKey: "city",
     header: "City",
+  },
+  {
+    accessorKey: "province",
+    header: "Province",
   },
   {
     accessorKey: "province",
