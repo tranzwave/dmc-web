@@ -1,11 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import TitleBar from "~/components/common/titleBar";
 import GeneralTab from "~/components/shops/addShop/forms/generalForm";
-import { Button } from "~/components/ui/button";
+import SubmitForm from "~/components/shops/addShop/forms/submitForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { AddShopProvider, useAddShop } from "./context";
 
@@ -22,11 +21,11 @@ const AddShop = () => {
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title="Add Shop" link="toAddShop" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className="w-full">
             <Tabs
@@ -55,7 +54,7 @@ const AddShop = () => {
                 {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
                 <GeneralTab />
               </TabsContent>
-              <TabsContent value="submit">{/* <SubmitForm /> */}</TabsContent>
+              <TabsContent value="submit"><SubmitForm /></TabsContent>
             </Tabs>
           </div>
         </div>

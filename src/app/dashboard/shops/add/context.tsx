@@ -1,9 +1,9 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
-import { InsertShop, InsertShopShopType, SelectCity } from '~/server/db/schemaTypes'; // Import the activity type definition
+import { InsertShop, InsertShopShopType, SelectCity, SelectShopType } from '~/server/db/schemaTypes'; // Import the activity type definition
 
 export type Shop = InsertShop & {
   city?:SelectCity
-  shopTypes?: InsertShopShopType[]; // Shop can have multiple shop types
+  shopTypes?: SelectShopType[]; // Shop can have multiple shop types
 
 }
 
