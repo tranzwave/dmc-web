@@ -6,9 +6,9 @@ import {
   Calendar,
   Car,
   Home,
+  Store,
   User,
-  User2,
-  Utensils,
+  Utensils
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -44,6 +44,11 @@ const SideNavBar = () => {
       name: "Activities",
       path: "/activities",
       icon: <Activity className="icon-size" />,
+    },
+    {
+      name: "Shops",
+      path: "/shops",
+      icon: <Store className="icon-size" />,
     },
     {
       name: "Reports",
@@ -88,7 +93,7 @@ const SideNavBar = () => {
         </div>
       </nav>
       {/* Contact Us Section */}
-      <div className="mb-8 w-full rounded-lg border-t bg-white p-4">
+      <div className="mb-4 w-full rounded-lg border-t bg-white p-4">
         <div className="base-text mb-3 font-medium text-primary-green">
           <div>Developed By</div>
           <div>Tranzwave System</div>
