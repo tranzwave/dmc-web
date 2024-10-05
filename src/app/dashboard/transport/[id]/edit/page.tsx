@@ -174,12 +174,11 @@ const EditTransport = ({ id }: { id: string }) => {
                   isCompleted={false}
                   onClick={() => setActiveTab("general")}
                   inProgress={activeTab == "general"}
-                  className="w-1/5"
                 >
                   General
                 </TabsTrigger>
                 {!isGuide && (
-                  <div className="flex w-[60%] flex-row gap-0">
+                  <>
                     <TabsTrigger
                       value="vehicles"
                       statusLabel="Mandatory"
@@ -215,7 +214,7 @@ const EditTransport = ({ id }: { id: string }) => {
                     >
                       Documents
                     </TabsTrigger>
-                  </div>
+                  </>
                 )}
                 <TabsTrigger
                   value="submit"
@@ -227,7 +226,6 @@ const EditTransport = ({ id }: { id: string }) => {
                     !transportDetails.documents.insurance ||
                     !transportDetails.documents.vehicleEmissionTest
                   }
-                  className="w-1/5"
                 >
                   Submit
                 </TabsTrigger>
@@ -236,6 +234,8 @@ const EditTransport = ({ id }: { id: string }) => {
                 {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
                 <GeneralTab />
               </TabsContent>
+              {!isGuide && (
+                <>
               <TabsContent value="vehicles">
                 <VehiclesTab />
               </TabsContent>
@@ -245,6 +245,8 @@ const EditTransport = ({ id }: { id: string }) => {
               <TabsContent value="documents">
                 <DocumentsTab />
               </TabsContent>
+              </>
+              )}
               <TabsContent value="submit">
                 <EditTransportSubmitForm
                   id={id}

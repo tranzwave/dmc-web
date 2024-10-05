@@ -17,7 +17,7 @@ const VehiclesTab = () => {
     vrl: "",
   });
 
-  const { addVehicles, transportDetails, setActiveTab, deleteVehicle } =
+  const { addVehicles, transportDetails, setActiveTab, deleteVehicle, duplicateVehicle } =
     useAddTransport();
 
   const updateVehicles = (vehicles: Vehicles) => {
@@ -37,6 +37,10 @@ const VehiclesTab = () => {
   const onRowEdit = (row: Vehicles) => {
     console.log(row);
     setSelectedVehicle(row);
+  };
+
+  const onRowDuplicate = (row: Vehicles) => {
+    duplicateVehicle(row.vehicle);
   };
 
   const onRowDelete = (row: Vehicles) => {
@@ -61,7 +65,7 @@ const VehiclesTab = () => {
             onDelete={onRowDelete}
             onEdit={onRowEdit}
             onRowClick={onRowEdit}
-            onDuplicate={onRowEdit}
+            onDuplicate={onRowDuplicate}
           />
         </div>
         <div className="flex w-full justify-end">
