@@ -105,7 +105,7 @@ const EditRestaurantSubmitForm = ({id,originalDriverData}:{id:string,originalDri
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">City:</td>
-                            <td className="border px-4 py-2">{general.cityId}</td>
+                            <td className="border px-4 py-2">{general.city?.name}</td>
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">Province:</td>
