@@ -29,15 +29,14 @@ const EditShop = ({ id }: { id: string }) => {
         throw new Error("Couldn't find activity vendor");
       }
 
-      const { city, shopVouchers, ...general } = selectedShop;
-      setShop(selectedShop);
+      const { city, shopTypes, shopVouchers, ...general } = selectedShop;
 
-      const formattedShopTypes = general.shopTypes && general.shopTypes.length > 0
-      ? general.shopTypes.map((shopType: any) => ({
-          id: shopType.id,
-          name: shopType.name,
-        }))
-      : [];  // Handle empty array
+      const formattedShopTypes = shopTypes.map((type: any) => ({
+        id: type.shopType.id, // Adjust according to your actual data structure
+        name: type.shopType.name,
+      }));
+  
+      setShop(selectedShop);
 
       setGeneralDetails({
         cityId: general.cityId,
@@ -51,7 +50,7 @@ const EditShop = ({ id }: { id: string }) => {
 
       });
       setIsGeneralDetailsSet(true); // Mark as ready to render GeneralTab
-
+console.log(formattedShopTypes)
       setLoading(false);
     } catch (error) {
       console.error("Failed to fetch driver details:", error);

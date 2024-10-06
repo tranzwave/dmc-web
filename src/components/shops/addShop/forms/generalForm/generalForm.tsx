@@ -44,16 +44,20 @@ const GeneralForm = () => {
   const [shopTypes, setShopTypes] = useState<SelectShopType[]>([]);
   const { setGeneralDetails, shopDetails, setActiveTab } = useAddShop();
   const [selectedCity, setSelectedCity] = useState<SelectCity | undefined>();
-  const [selectedShopType, setSelectedShopType] = useState<SelectShopType | undefined>();
+  const [selectedShopType, setSelectedShopType] = useState<
+    SelectShopType | undefined
+  >();
 
   // Initialize form with default values using React Hook Form
   const { city, ...general } = shopDetails.general;
+  const initialShopType = shopDetails.general.shopTypes?.[0]?.name || "";
+
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
     defaultValues: {
       ...general,
       cityName: city?.name,
-      typeName: "",
+      typeName: initialShopType, // Set initial value safely
     },
   });
 
@@ -68,9 +72,10 @@ const GeneralForm = () => {
       streetName: data.streetName,
       tenantId: "",
       city: selectedCity,
-      shopTypes: selectedShopType ? [selectedShopType] : [], // Ensure shopTypes is an array
+      shopTypes: selectedShopType ? [selectedShopType] : [],
     });
     setActiveTab("submit");
+    // console.log(selectedShopType)
   };
 
   // Fetch Cities Data
@@ -86,7 +91,9 @@ const GeneralForm = () => {
       setCities(citiesResponse);
       setSelectedCity(city);
     } catch (error) {
-      setError(error instanceof Error ? error.message : "An unknown error occurred");
+      setError(
+        error instanceof Error ? error.message : "An unknown error occurred",
+      );
     } finally {
       setLoading(false);
     }
@@ -105,7 +112,9 @@ const GeneralForm = () => {
       setShopTypes(shopTypesResponse);
       setSelectedShopType(selectedShopType);
     } catch (error) {
-      setError(error instanceof Error ? error.message : "An unknown error occurred");
+      setError(
+        error instanceof Error ? error.message : "An unknown error occurred",
+      );
     } finally {
       setLoading(false);
     }
@@ -114,7 +123,10 @@ const GeneralForm = () => {
   useEffect(() => {
     fetchCities();
     fetchShopTypes();
-  }, []);
+    const initialShopType = shopDetails.general.shopTypes?.[0]; // Get the first shop type or undefined
+
+    setSelectedShopType(initialShopType);
+  }, [shopDetails]);
 
   return (
     <Form {...form}>
@@ -143,12 +155,16 @@ const GeneralForm = () => {
                 <FormControl>
                   <Select
                     onValueChange={(valueFromSelection) => {
+                      // Update the field value in the form control
                       field.onChange(valueFromSelection);
-                      setSelectedShopType(
-                        shopTypes.find((s) => s.name === valueFromSelection)
+
+                      // Set the selected shop type
+                      const selectedType = shopTypes.find(
+                        (s) => s.name === valueFromSelection,
                       );
+                      setSelectedShopType(selectedType);
                     }}
-                    value={field.value}
+                    value={field.value} // Ensure this reflects the selected shop type name
                   >
                     <SelectTrigger className="bg-slate-100 shadow-md">
                       <SelectValue placeholder="Select shop type" />
@@ -174,7 +190,11 @@ const GeneralForm = () => {
               <FormItem>
                 <FormLabel>Contact Number</FormLabel>
                 <FormControl>
-                  <Input type="text" placeholder="Enter contact number" {...field} />
+                  <Input
+                    type="text"
+                    placeholder="Enter contact number"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -208,7 +228,7 @@ const GeneralForm = () => {
                     onValueChange={(valueFromSelection) => {
                       field.onChange(valueFromSelection);
                       setSelectedCity(
-                        cities.find((c) => c.name === valueFromSelection)
+                        cities.find((c) => c.name === valueFromSelection),
                       );
                     }}
                     value={field.value}
