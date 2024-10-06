@@ -3,44 +3,68 @@ import { LoaderCircle } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAddShop } from "~/app/dashboard/shops/add/context";
+import { ShopData } from "~/app/dashboard/shops/page";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
-import { insertShop } from "~/server/db/queries/shops";
+import { updateShopAndRelatedData } from "~/server/db/queries/shops";
+import { InsertShop, InsertShopType } from "~/server/db/schemaTypes";
 
-const SubmitForm = () => {
+const EditShopSubmitForm = ({
+  id,
+  originalShopData,
+}: {
+  id: string;
+  originalShopData: ShopData | null;
+}) => {
   const { shopDetails } = useAddShop();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
+  const { general } = shopDetails;
 
-  const handleSubmit = async () => {
-    // Handle the submission of activityDetails
-    console.log("Submitting shop details:", shopDetails);
-    setLoading(true);
+  const updateShop = async () => {
+    console.log({ general });
+
+    // Ensure cityId is set correctly
+    const cityId = general.city?.id ? Number(general.city.id) : 0; 
+
+    const shopData: InsertShop[] = [
+      {
+        name: general.name,
+        contactNumber: general.contactNumber,
+        streetName: general.streetName,
+        province: general.province,
+        tenantId: "", 
+        cityId: cityId,
+      },
+    ];
+
+    const shopType: InsertShopType[] = [
+      {
+        name: "Bookstore", // Replace with dynamic shop type if needed
+      },
+    ];
+
     try {
-      let response;
-      // Replace insertActivity with your function to handle the insertion of activity details
-      if (pathname.includes("/edit")) {
-        setLoading(false);
-        alert("Updated");
-        return;
-      } else {
-        response = await insertShop([shopDetails]);
-      }
+      // Call the function to update shop and related data
+      const response = await updateShopAndRelatedData(
+        id,
+        shopData[0] ?? null,
+        shopType,
+      );
 
       if (!response) {
-        throw new Error(`Error: Inserting Shop`);
+        throw new Error(`Error: ${response}`);
       }
 
       console.log("Success:", response);
 
-      setLoading(false);
-      // Handle successful response (e.g., show a success message)
+      // Handle successful response
       toast({
         title: "Success",
-        description: "Shop added successfully",
+        description: "Shop updated successfully",
       });
       router.push("/dashboard/shops");
     } catch (error) {
@@ -50,10 +74,9 @@ const SubmitForm = () => {
         setError("An unknown error occurred");
       }
       console.error("Error:", error);
-      setLoading(false);
       toast({
         title: "Uh Oh!",
-        description: "Error while adding the shop",
+        description: "Error while updating the shop",
       });
     } finally {
       setLoading(false);
@@ -100,7 +123,7 @@ const SubmitForm = () => {
               </td>
             </tr>
             <tr>
-              <td className="border px-4 py-2 font-bold">Shop Types</td>
+              <td className="border px-4 py-2 font-bold">Shop Types:</td>
               <td className="border px-4 py-2">
                 {shopDetails.general.shopTypes &&
                 shopDetails.general.shopTypes.length > 0
@@ -115,11 +138,7 @@ const SubmitForm = () => {
       </div>
 
       <div className="mt-4 flex w-full justify-center">
-        <Button
-          variant="primaryGreen"
-          onClick={handleSubmit}
-          disabled={loading}
-        >
+        <Button variant="primaryGreen" onClick={updateShop} disabled={loading}>
           {loading && <LoaderCircle className="animate-spin" size={18} />}{" "}
           Submit
         </Button>
@@ -128,4 +147,4 @@ const SubmitForm = () => {
   );
 };
 
-export default SubmitForm;
+export default EditShopSubmitForm;

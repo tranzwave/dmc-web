@@ -4,7 +4,7 @@ import { useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import TitleBar from "~/components/common/titleBar";
 import GeneralTab from "~/components/shops/addShop/forms/generalForm";
-import SubmitForm from "~/components/shops/addShop/forms/submitForm";
+import EditShopSubmitForm from "~/components/shops/addShop/forms/submitForm/editShopSubmitForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { getShopDataById } from "~/server/db/queries/shops";
 import { AddShopProvider, useAddShop } from "../../add/context";
@@ -114,7 +114,11 @@ console.log(formattedShopTypes)
                 {/* <GeneralTab /> */}
               </TabsContent>
               <TabsContent value="submit">
-                <SubmitForm />
+              <EditShopSubmitForm
+                  id={id}
+                  originalShopData={shop ?? null}
+                />
+                {/* <SubmitForm /> */}
               </TabsContent>
             </Tabs>
           </div>
