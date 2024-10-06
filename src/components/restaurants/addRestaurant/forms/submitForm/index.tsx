@@ -78,7 +78,7 @@ const SubmitForm = () => {
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">City:</td>
-                            <td className="border px-4 py-2">{restaurantDetails.general.cityId}</td>
+                            <td className="border px-4 py-2">{restaurantDetails.general.city?.name}</td>
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">Province:</td>

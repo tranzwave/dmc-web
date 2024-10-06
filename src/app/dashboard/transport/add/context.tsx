@@ -20,6 +20,7 @@ interface AddTransportContextProps {
   deleteVehicle: (numberPlate: string) => void;
   setChargesDetails: (charges: Charges) => void;
   setDocumetsDetails: (documents: Documents) => void;
+  duplicateVehicle: (Vehicles:string)=>void;
 }
 
 const defaultGeneral: General = {
@@ -115,6 +116,27 @@ export const AddTransportProvider: React.FC<{ children: ReactNode }> = ({
     }));
   };
 
+  const duplicateVehicle = (vehicle: string) => {
+    const vehicleToDuplicate = transportDetails.vehicles.find(vehicles => vehicles.vehicle === vehicle);
+  
+    if (vehicleToDuplicate) {
+      const duplicatedVehicle = {
+        ...vehicleToDuplicate,
+        id: undefined,
+        vehicle: `${vehicleToDuplicate.vehicle}`, 
+      };
+  
+      // Update the state with the new duplicated meal type
+      setTransportDetails(prev => ({
+        ...prev,
+        vehicles: [...prev.vehicles, duplicatedVehicle],
+      }));
+      console.log("Duplicated vehicle type added:", duplicatedVehicle);
+    } else {
+      console.error(`Meal type "${vehicle}" not found.`);
+    }
+  };
+
   const deleteVehicle = (numberPlate: string) => {
     alert(numberPlate);
     setTransportDetails((prev) => ({
@@ -144,6 +166,7 @@ export const AddTransportProvider: React.FC<{ children: ReactNode }> = ({
         setDocumetsDetails,
         activeTab,
         setActiveTab,
+        duplicateVehicle
       }}
     >
       {children}
