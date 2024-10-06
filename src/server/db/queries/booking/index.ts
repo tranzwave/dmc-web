@@ -487,7 +487,7 @@ export const deleteHotelVoucherLine = async (
 
     return result;
   } catch (error) {
-    throw new Error(`Transaction error: ${error}`);
+    throw new Error(`Transaction error`);
   }
 };
 
