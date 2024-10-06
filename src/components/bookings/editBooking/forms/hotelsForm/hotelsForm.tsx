@@ -109,6 +109,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       kidsCount: Number(form.getValues("kidsCount")), // Assuming you have a `kidsCount` field in your form.
       hotelVoucherId: "", // Use the selected hotel ID stored in the state.
       roomType: form.getValues("roomType"), // Room type from the form.
+      roomCategory:form.getValues("roomCategory"),
       basis: form.getValues("basis"), // Basis from the form.
       checkInDate: form.getValues("checkInDate").toString(), // Convert check-in date from form to a Date object.
       checkInTime: "10:00",

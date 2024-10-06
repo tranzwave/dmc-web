@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import {
   ActivityVoucher,
   BookingDetails,
@@ -435,6 +435,60 @@ export const insertHotelVouchersTx = async (
 
   return hotelVouchers;
 };
+
+export const deleteHotelVoucherLine = async (
+  voucherLineId: string,
+) => {
+  try {
+    const result = await db.transaction(async (trx) => {
+      const voucherLine = await trx
+        .select()
+        .from(hotelVoucherLine)
+        .where(eq(hotelVoucherLine.id, voucherLineId))
+        .execute();
+
+      if (!voucherLine || !voucherLine[0]?.hotelVoucherId) {
+        throw new Error(`No voucher line found with ID: ${voucherLineId}`);
+      }
+
+      const hotelVoucherId = voucherLine[0]?.hotelVoucherId;
+
+      const remainingVoucherLines = await trx
+        .select()
+        .from(hotelVoucherLine)
+        .where(
+          and(eq(hotelVoucherLine.hotelVoucherId, hotelVoucherId), ne(hotelVoucherLine.id, voucherLineId))
+        )
+        .execute();
+
+      const deletedVoucherLine = await trx
+        .delete(hotelVoucherLine)
+        .where(eq(hotelVoucherLine.id, voucherLineId))
+        .returning()
+        .execute();
+
+      if (!deletedVoucherLine || !deletedVoucherLine[0]?.id) {
+        throw new Error(`Failed to delete voucher line with ID: ${voucherLineId}`);
+      }
+
+      let deletedVoucher = null;
+      if (remainingVoucherLines.length === 0) {
+        deletedVoucher = await trx
+          .delete(hotelVoucher)
+          .where(eq(hotelVoucher.id, hotelVoucherId))
+          .returning()
+          .execute();
+      }
+
+      return { deletedVoucherLine: deletedVoucherLine[0], deletedVoucher: deletedVoucher ? deletedVoucher[0] : null };
+    });
+
+    return result;
+  } catch (error) {
+    throw new Error(`Transaction error: ${error}`);
+  }
+};
+
 
 export const addRestaurantVoucherLinesToBooking = async (
   vouchers: RestaurantVoucher[],

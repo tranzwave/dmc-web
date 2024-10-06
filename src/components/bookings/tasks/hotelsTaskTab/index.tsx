@@ -34,34 +34,48 @@ const hotelColumns: ColumnDef<HotelVoucherData>[] = [
     accessorFn: (row) => row.voucherLines.length,
   },
   {
-    accessorKey: "voucherLine",
-    header: "Progress",
-    accessorFn: (row) => row.voucherLines.length,
+    accessorKey: "status",
+    header: "Status",
+    accessorFn: (row) => row.status,
   },
 ];
 
 const hotelVoucherLineColumns: ColumnDef<SelectHotelVoucherLine>[] = [
   {
-    header: "Head Count",
-    accessorFn: (row) => `${row.adultsCount}-Adults | ${row.kidsCount}-Kids`,
+    header: "Adults",
+    accessorFn: row => row.adultsCount ?? 0,
   },
   {
-    accessorKey: "checkInDate",
-    header: "Check In",
-    accessorFn: (row) => formatDate(row.checkInDate),
+    header: "Kids",
+    accessorFn: row => row.kidsCount ?? 0,
   },
   {
-    accessorKey: "checkOutDate",
-    header: "Check Out",
-    accessorFn: (row) => formatDate(row.checkOutDate),
+    header: "Room Count",
+    accessorFn: row => row.roomCount ?? 0,
   },
   {
-    accessorKey: "basis",
-    header: "Occupancy",
+    header: "Check-In Date",
+    accessorFn: row => formatDate(row.checkInDate ?? ""),
+  },
+  // {
+  //   header: "Check-In Time",
+  //   accessorFn: row => row.voucherLines[0]?.checkInTime ?? ""
+  // },
+  {
+    header: "Check-Out Date",
+    accessorFn: row => formatDate(row.checkOutDate ?? ""),
+  },
+  // {
+  //   header: "Check-Out Time",
+  //   accessorFn: row => row.voucherLines[0]?.checkOutTime ?? ""
+  // },
+  {
+    header: "Rooms",
+    accessorFn: row =>  `${row.roomType}-${row.roomCategory}-${row.roomCount}`
   },
   {
-    header: "Room",
-    accessorFn: (row) => `${row.roomType} - ${row.roomCount} Room`,
+    header: "Basis",
+    accessorFn: row => row.basis
   },
 ];
 

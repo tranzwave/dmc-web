@@ -4,22 +4,20 @@ import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { DataTableWithActions } from "~/components/common/dataTableWithActions/index";
 import { ColumnDef } from "@tanstack/react-table";
-import Popup from "../popup";
 import { Input } from "~/components/ui/input";
 import { useToast } from "~/hooks/use-toast";
-import { ConfirmationForm } from "./confirmationForm";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import Voucher from "./voucherComponent";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import html2pdf from "html2pdf.js";
-import DeletePopup from "../deletePopup";
+import Popup from "~/components/common/popup";
+import { ConfirmationForm } from "~/components/common/tasksTab/confirmationForm";
 
 // Define props type for the TasksTab component
-interface TasksTabProps<T, L> {
+interface HotelsVouchersTabProp<T, L> {
   bookingLineId: string;
   columns: ColumnDef<T>[]; // Columns for the main vouchers
   voucherColumns: ColumnDef<L>[]; // Columns for the voucher lines
@@ -46,7 +44,7 @@ interface WithOptionalVoucherLine<L, T> {
   voucherLines?: L[] | T[];
 }
 
-const TasksTab = <
+const HotelsVouchersTab = <
   T extends object & WithOptionalVoucherLine<L, T>,
   L extends object,
 >({
@@ -58,16 +56,11 @@ const TasksTab = <
   updateVoucherLine,
   updateVoucherStatus,
   contactDetails,
-}: TasksTabProps<T, L>) => {
+}: HotelsVouchersTabProp<T, L>) => {
   const [selectedVoucher, setSelectedVoucher] = useState<any>();
   const [selectedVoucherLine, setSelectedVoucherLine] = useState<any>();
   const [rate, setRate] = useState<string | number>(0);
   const [statusChanged, setStatusChanged] = useState<boolean>(false);
-  const [isInprogressVoucherDelete, setIsInProgressVoucherDelete] =
-    useState(false);
-  const [isProceededVoucherDelete, setIsProceededVoucherDelete] =
-    useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const { toast } = useToast();
 
@@ -112,17 +105,17 @@ const TasksTab = <
     // Add cancellation logic here
   };
 
-  const renderCancelContent = () => {
-    if (selectedVoucher) {
-      if (selectedVoucher.status) {
-        if (selectedVoucher.status == "inprogress") {
-          setIsInProgressVoucherDelete(true);
-        } else {
-          setIsProceededVoucherDelete(true);
-        }
-      }
-    }
-  };
+  // const confirmationContent = (
+  //   <div>
+  //     <p>Confirmation</p>
+  //   </div>
+  // );
+
+  const cancelContent = (
+    <div>
+      <p>Cancel</p>
+    </div>
+  );
 
   const cancelButton = (
     <Button variant={"outline"} className="border-red-600">
@@ -172,69 +165,10 @@ const TasksTab = <
             onEdit={() => alert("Edit action triggered")}
             onDelete={() => alert("Delete action triggered")}
           />
-          <div className="flex flex-row items-center justify-between">
-            <div className="text-sm font-normal">
-              {selectedVoucher && getFirstObjectName(selectedVoucher)
-                ? `${getFirstObjectName(selectedVoucher)} - Voucher Lines`
-                : "Voucher Lines"}
-            </div>
-            {selectedVoucher ? (
-              <div className="flex flex-row gap-2">
-                <Button
-                  variant={"outline"}
-                  className="border-red-600"
-                  onClick={renderCancelContent}
-                >
-                  Cancel
-                </Button>
-                {/* <Popup
-                  title="Cancel Voucher"
-                  description="This action cannot be undone"
-                  trigger={cancelButton}
-                  onConfirm={handleConfirm}
-                  onCancel={handleCancel}
-                  dialogContent={renderCancelContent()}
-                  size="small"
-                /> */}
-
-                <Popup
-                  title="Contact"
-                  description="Loading Contact Details"
-                  trigger={contactButton}
-                  onConfirm={handleConfirm}
-                  onCancel={handleCancel}
-                  dialogContent={ContactContent(
-                    contactDetails?.phone ?? "",
-                    contactDetails?.phone ?? "",
-                  )}
-                  size="small"
-                />
-                <DeletePopup
-                  itemName={`Voucher for ${selectedVoucher?.hotel.name}`}
-                  onDelete={() => {
-                    console.log("Deleting");
-                  }}
-                  isOpen={isInprogressVoucherDelete}
-                  setIsOpen={setIsInProgressVoucherDelete}
-                  isDeleting={isDeleting}
-                  description="You haven't sent this to the vendor yet. You can delete the
-                voucher without sending a cancellation voucher"
-                />
-                <DeletePopup
-                  itemName={`Voucher for ${selectedVoucher?.hotel.name}`}
-                  onDelete={() => {
-                    console.log("Deleting");
-                  }}
-                  isOpen={isProceededVoucherDelete}
-                  setIsOpen={setIsProceededVoucherDelete}
-                  isDeleting={isDeleting}
-                  description={`You have already proceeded with this voucher, and it's in the status of ${selectedVoucher.status} \n
-                Are you sure you want to cancel this voucher? This will give you the cancellation voucher and delete the voucher from this booking`}
-                />
-              </div>
-            ) : (
-              ""
-            )}
+          <div className="text-sm font-normal">
+            {selectedVoucher && getFirstObjectName(selectedVoucher)
+              ? `${getFirstObjectName(selectedVoucher)} - Voucher Lines`
+              : "Voucher Lines"}
           </div>
 
           <DataTableWithActions
@@ -257,6 +191,29 @@ const TasksTab = <
             className={`flex flex-row items-end justify-end ${!selectedVoucher ? "hidden" : ""}`}
           >
             <div className="flex flex-row gap-2">
+              <Popup
+                title="Cancel Voucher"
+                description="This action cannot be undone"
+                trigger={cancelButton}
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
+                dialogContent={cancelContent}
+                size="small"
+              />
+
+              <Popup
+                title="Contact"
+                description="Loading Contact Details"
+                trigger={contactButton}
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
+                dialogContent={ContactContent(
+                  contactDetails?.phone ?? "",
+                  contactDetails?.phone ?? "",
+                )}
+                size="small"
+              />
+
               <Popup
                 title="Confirm Voucher"
                 description="Confirm Form"
@@ -320,7 +277,7 @@ const TasksTab = <
   );
 };
 
-export default TasksTab;
+export default HotelsVouchersTab;
 
 const CreateRateColumn = <T extends object>(
   initialRate: number | string,
@@ -411,7 +368,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   const downloadPDF = () => {
     // Create a temporary container to hold the entire PDF content
     const tempContainer = document.createElement("div");
-
+    
     // Create the header section
     const headerElement = document.createElement("div");
     headerElement.innerHTML = `
@@ -420,10 +377,10 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         <p style="margin: 0; font-size: 14px;">This voucher is issued for the following booking details</p>
       </div>
     `;
-
+  
     // Clone the componentRef element and add it as the main content
     const componentElement = componentRef.current?.cloneNode(true);
-
+  
     // Create an additional section (optional, modify as needed)
     const additionalElement = document.createElement("div");
     additionalElement.innerHTML = `
@@ -431,7 +388,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
 
       </div>
     `;
-
+  
     // Create the footer section
     const footerElement = document.createElement("div");
     footerElement.innerHTML = `
@@ -440,7 +397,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         <p style="margin: 0; font-size: 12px;">Email: info@touragency.com | Phone: +1 234 567 890</p>
       </div>
     `;
-
+  
     // Append header, main content, and footer to the temporary container
     tempContainer.appendChild(headerElement); // Add the header
     if (componentElement) {
@@ -448,16 +405,16 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
     }
     tempContainer.appendChild(additionalElement); // Optional section
     tempContainer.appendChild(footerElement); // Add the footer
-
+  
     // Apply some basic styling to the container for better formatting
     tempContainer.style.width = "210mm"; // Set width to A4 size (portrait)
     tempContainer.style.minHeight = "297mm"; // Minimum height of A4 size
     tempContainer.style.padding = "10mm"; // Padding for the container
     tempContainer.style.backgroundColor = "white"; // Set background to white
-
+  
     // Append the temporary container to the body (invisible)
     document.body.appendChild(tempContainer);
-
+  
     // Generate the PDF from the temporary container
     const options = {
       filename: "booking_summary.pdf",
@@ -472,6 +429,8 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         document.body.removeChild(tempContainer);
       });
   };
+  
+  
 
   const areAllFieldsFilled = () => {
     return (
@@ -529,12 +488,12 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   const handleSendVoucher = async () => {
     if (selectedVoucher?.status !== "inprogress") {
       alert("You've already downloaded sent the voucher to vendor");
-      downloadPDF();
+      downloadPDF()
       return;
     }
 
     try {
-      downloadPDF();
+      downloadPDF()
       if (selectedVoucher?.status) {
         selectedVoucher.status = "sentToVendor";
       }
