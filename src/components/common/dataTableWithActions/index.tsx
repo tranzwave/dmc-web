@@ -46,10 +46,10 @@ export const DataTableWithActions = <T extends object>({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {onView && (
-                  <>
+                  <div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onSelect={onView}>View</DropdownMenuItem>
-                  </>
+                  </div>
                 )}
                 
                 <DropdownMenuSeparator />
@@ -58,12 +58,12 @@ export const DataTableWithActions = <T extends object>({
                 <DropdownMenuItem onSelect={() => onDelete(row.original)}>Delete</DropdownMenuItem>
 
                 {onDuplicate && (
-                  <>
+                  <div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onSelect={() => onDuplicate(row.original)}>
                       Duplicate
                     </DropdownMenuItem>
-                  </>
+                  </div>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>

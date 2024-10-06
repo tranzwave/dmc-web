@@ -20,7 +20,6 @@ import {
   restaurantVoucher,
   restaurantVoucherLine,
   shopVoucher,
-
   tenant,
 
   transportVoucher
@@ -28,7 +27,9 @@ import {
 import {
   InsertBooking,
   InsertBookingLine,
-  InsertClient
+  InsertClient,
+  SelectHotelVoucher,
+  SelectHotelVoucherLine
 } from "../../schemaTypes";
 
 export const getAllBookings = () => {
@@ -67,7 +68,8 @@ export const getBookingLineWithAllData = (id: string) => {
       booking: {
         with: {
           client: true,
-          agent: true
+          agent: true,
+          tenant:true
         }
       },
       hotelVouchers: {
@@ -163,7 +165,7 @@ export const createNewBooking = async (
         parentBooking = await tx
           .insert(booking)
           .values({
-            agentId: bookingDetails.general.agent == '' ? null : bookingDetails.general.agent,
+            agentId: bookingDetails.general.agent ?? '',
             clientId: bookingClient.id,
             coordinatorId: bookingDetails.general.marketingManager,
             managerId: bookingDetails.general.marketingManager,
@@ -488,6 +490,80 @@ export const deleteHotelVoucherLine = async (
     throw new Error(`Transaction error: ${error}`);
   }
 };
+
+export const updateSingleHotelVoucherLineTx = async (
+  voucherId: string, // ID of the voucher that the line belongs to
+  voucherLineId: string, // ID of the voucher line to be updated
+  updatedVoucherLineData: Partial<SelectHotelVoucherLine> = {}
+) => {
+  try {
+    // Update the single hotel voucher line
+    const updatedVoucherLine = await db
+      .update(hotelVoucherLine)
+      .set({
+        ...updatedVoucherLineData,
+      })
+      .where(and(eq(hotelVoucherLine.id, voucherLineId), eq(hotelVoucherLine.hotelVoucherId, voucherId)))
+      .returning();
+
+    if (!updatedVoucherLine || !updatedVoucherLine[0]?.id) {
+      throw new Error(`Couldn't update hotel voucher line with ID: ${voucherLineId}`);
+    }
+
+    return updatedVoucherLine[0];
+  } catch (error) {
+    console.error('Error while updating hotel voucher line:', error);
+    throw error;
+  }
+};
+
+export const updateHotelVoucherAndLine = async (
+  voucherId: string, // ID of the voucher to be updated
+  voucherLineId: string, // ID of the voucher line to be updated
+  updatedVoucherData: Partial<SelectHotelVoucher> = {}, // Partial fields to update on the hotel voucher
+  updatedVoucherLineData: Partial<SelectHotelVoucherLine> = {}, // Partial fields to update on the voucher line
+) => {
+  // Start a transaction using Drizzle ORM's `db.transaction`
+  return await db.transaction(async (trx) => {
+    try {
+      // Update the parent hotel voucher if any fields are provided
+      if (Object.keys(updatedVoucherData).length > 0) {
+        const updatedVoucher = await trx
+          .update(hotelVoucher)
+          .set(updatedVoucherData)
+          .where(eq(hotelVoucher.id, voucherId))
+          .returning();
+
+        if (!updatedVoucher || !updatedVoucher[0]?.id) {
+          throw new Error(`Couldn't update hotel voucher with ID: ${voucherId}`);
+        }
+      }
+
+      // Update the single hotel voucher line if any fields are provided
+      if (Object.keys(updatedVoucherLineData).length > 0) {
+        const updatedVoucherLine = await trx
+          .update(hotelVoucherLine)
+          .set(updatedVoucherLineData)
+          .where(and(eq(hotelVoucherLine.id, voucherLineId), eq(hotelVoucherLine.hotelVoucherId, voucherId)))
+          .returning();
+
+        if (!updatedVoucherLine || !updatedVoucherLine[0]?.id) {
+          throw new Error(`Couldn't update hotel voucher line with ID: ${voucherLineId}`);
+        }
+
+        return updatedVoucherLine[0]; // Return the updated voucher line
+      }
+
+      // If neither voucher nor voucher line was updated, return a message
+      return { message: 'No updates applied to voucher or voucher line' };
+    } catch (error) {
+      console.error('Error while updating hotel voucher or voucher line:', error);
+      throw error; // Rethrow the error to trigger transaction rollback
+    }
+  });
+};
+
+
 
 
 export const addRestaurantVoucherLinesToBooking = async (

@@ -5,13 +5,14 @@ import { formatDate } from "~/lib/utils/index";
 import { SelectDriver, SelectTransportVoucher } from "~/server/db/schemaTypes";
 import TasksTab from "~/components/common/tasksTab";
 import TransportForm from './form';
+import TransportVouchersTasksTab from './taskTab';
 
 export type TransportVoucherData = SelectTransportVoucher & {
   driver: SelectDriver
 }
 
 // Define specific columns for transport
-const transportColumns: ColumnDef<TransportVoucherData>[] = [
+const voucherColumns: ColumnDef<TransportVoucherData>[] = [
   {
     accessorKey: "driver.name",
     header: "Driver",
@@ -32,7 +33,17 @@ const transportColumns: ColumnDef<TransportVoucherData>[] = [
   },
 ];
 
-const transportVoucherLineColumns: ColumnDef<SelectTransportVoucher>[] = [
+const selectedVoucherColumns: ColumnDef<TransportVoucherData>[] = [
+  {
+    accessorKey: "driver.name",
+    header: "Driver",
+    accessorFn: (row) => `${row.driver.name}`,
+  },
+  {
+    accessorKey: "driver.contactNumber",
+    header: "Contact Number",
+    accessorFn: (row) => `${row.driver.primaryContactNumber}`,
+  },
   {
     header: "Vehicle",
     accessorFn: (row) => `${row.vehicleType}`,
@@ -64,12 +75,11 @@ const updateVoucherStatus = async(voucher:any)=>{
 }
 // Use TasksTab for Transport
 const TransportTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string, vouchers: TransportVoucherData[] }) => (
-  <TasksTab
+  <TransportVouchersTasksTab
     bookingLineId={bookingLineId}
-    columns={transportColumns}
-    voucherColumns={transportVoucherLineColumns}
+    voucherColumns={voucherColumns}
+    selectedVoucherColumns={selectedVoucherColumns}
     vouchers={vouchers}
-    formComponent={TransportForm}
     updateVoucherLine={updateVoucherLine}
     updateVoucherStatus={updateVoucherStatus}
 

@@ -5,6 +5,7 @@ import { formatDate } from "~/lib/utils/index";
 import TasksTab from "~/components/common/tasksTab";
 import ActivityVoucherForm from './form';
 import { SelectActivity, SelectActivityVendor, SelectActivityVoucher } from '~/server/db/schemaTypes';
+import ActivityVouchersTasksTab from './taskTab';
 
 export type ActivityVoucherData = SelectActivityVoucher & {
   activity: SelectActivity,
@@ -71,12 +72,11 @@ const updateVoucherStatus = async(voucher:any)=>{
 
 // Use TasksTab for Activities
 const ActivitiesTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string ; vouchers:ActivityVoucherData[] }) => (
-  <TasksTab
+  <ActivityVouchersTasksTab
     bookingLineId={bookingLineId}
     columns={activityColumns}
     voucherColumns={activityVoucherLineColumns}
     vouchers={vouchers}
-    formComponent={ActivityVoucherForm}
     updateVoucherLine={updateVoucherLine}
     updateVoucherStatus={updateVoucherStatus}
   />

@@ -1,14 +1,14 @@
-import React from 'react';
+import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDate } from "~/lib/utils/index";
 import { SelectShop, SelectShopVoucher } from "~/server/db/schemaTypes";
 import TasksTab from "~/components/common/tasksTab";
-import ShopsForm from './form';
+import ShopsForm from "./form";
+import ShopVouchersTasksTab from "./taskTab";
 
 export type ShopVoucherData = SelectShopVoucher & {
-  shop:SelectShop
-}
-
+  shop: SelectShop;
+};
 
 // Define specific columns for shops
 const shopColumns: ColumnDef<ShopVoucherData>[] = [
@@ -33,10 +33,10 @@ const shopColumns: ColumnDef<ShopVoucherData>[] = [
   },
 ];
 
-const shopVoucherLineColumns: ColumnDef<SelectShopVoucher>[] = [
+const shopVoucherLineColumns: ColumnDef<ShopVoucherData>[] = [
   {
     header: "Shop Type",
-    accessorFn: row => row.shopType
+    accessorFn: (row) => row.shopType,
   },
   {
     header: "Head Count",
@@ -49,7 +49,7 @@ const shopVoucherLineColumns: ColumnDef<SelectShopVoucher>[] = [
 
   {
     header: "Time",
-    accessorFn: row => row.time
+    accessorFn: (row) => row.time,
   },
   {
     header: "Remarks",
@@ -57,23 +57,28 @@ const shopVoucherLineColumns: ColumnDef<SelectShopVoucher>[] = [
   },
 ];
 
-const updateVoucherLine = async(voucher:any)=>{
-  console.log("Updating")
-}
+const updateVoucherLine = async (voucher: any) => {
+  console.log("Updating");
+};
 
-const updateVoucherStatus = async(voucher:any)=>{
-  console.log("Updating")
-  return true
-}
+const updateVoucherStatus = async (voucher: any) => {
+  console.log("Updating");
+  return true;
+};
 
 // Use TasksTab for Shops
-const ShopsTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string ; vouchers: ShopVoucherData[] }) => (
-  <TasksTab
+const ShopsTasksTab = ({
+  bookingLineId,
+  vouchers,
+}: {
+  bookingLineId: string;
+  vouchers: ShopVoucherData[];
+}) => (
+  <ShopVouchersTasksTab
     bookingLineId={bookingLineId}
-    columns={shopColumns}
-    voucherColumns={shopVoucherLineColumns}
+    voucherColumns={shopColumns}
+    selectedVoucherColumns={shopVoucherLineColumns}
     vouchers={vouchers}
-    formComponent={ShopsForm}
     updateVoucherLine={updateVoucherLine}
     updateVoucherStatus={updateVoucherStatus}
   />

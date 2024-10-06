@@ -13,12 +13,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import Voucher from "./voucherComponent";
+// import Voucher from "./voucherComponent";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import html2pdf from "html2pdf.js";
 import DeletePopup from "../deletePopup";
+import { SelectActivityVendor, SelectActivityVoucher, SelectDriver, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant, SelectRestaurantVoucher, SelectRestaurantVoucherLine, SelectShop, SelectShopVoucher, SelectTransportVoucher } from "~/server/db/schemaTypes";
+import { Phone } from "lucide-react";
 
-// Define props type for the TasksTab component
+type Vendor = SelectHotel | SelectRestaurant | SelectActivityVendor | SelectShop | SelectDriver
 interface TasksTabProps<T, L> {
   bookingLineId: string;
   columns: ColumnDef<T>[]; // Columns for the main vouchers
@@ -40,6 +42,9 @@ interface TasksTabProps<T, L> {
   ) => Promise<void>;
   updateVoucherStatus: (data: any) => Promise<boolean>;
   contactDetails?: { phone: string; email: string };
+  selectedVendor?:any
+  setSelectedVendor?: React.Dispatch<React.SetStateAction<any>>;
+
 }
 
 interface WithOptionalVoucherLine<L, T> {
@@ -58,9 +63,14 @@ const TasksTab = <
   updateVoucherLine,
   updateVoucherStatus,
   contactDetails,
+  selectedVendor,
+  setSelectedVendor,
+
 }: TasksTabProps<T, L>) => {
   const [selectedVoucher, setSelectedVoucher] = useState<any>();
   const [selectedVoucherLine, setSelectedVoucherLine] = useState<any>();
+  // const [selectedVoucher, setSelectedVoucher] = useState<any>();
+  // const [selectedVoucherLine, setSelectedVoucherLine] = useState<any>();
   const [rate, setRate] = useState<string | number>(0);
   const [statusChanged, setStatusChanged] = useState<boolean>(false);
   const [isInprogressVoucherDelete, setIsInProgressVoucherDelete] =
@@ -73,6 +83,9 @@ const TasksTab = <
 
   const onVoucherRowClick = (row: T) => {
     setSelectedVoucher(row);
+    if(setSelectedVendor){
+      setSelectedVendor(row)
+    }
   };
 
   const onVoucherLineRowClick = (row: L) => {
@@ -156,6 +169,26 @@ const TasksTab = <
     roomType: "Deluxe Suite",
   };
 
+  const getContactDetails = () => {
+    if(!selectedVendor){
+      return {
+        phone: "",
+        email:""
+
+      }
+    }
+    return {
+      phone: hasPrimaryContactDetails(selectedVendor) ? selectedVendor.primaryContactNumber : selectedVendor.contactNumber || "N/A",
+      email: selectedVendor.primaryEmail ?? "N/A",
+    };
+  };
+  
+  function hasPrimaryContactDetails(
+    vendor: Vendor,
+  ): vendor is Vendor & { primaryContactNumber: string; primaryEmail?: string } {
+    return 'primaryContactNumber' in vendor && typeof vendor.primaryContactNumber === 'string';
+  }
+
   return (
     <div className="flex flex-col items-center justify-center gap-3">
       <div className="flex w-full flex-row justify-center gap-3">
@@ -165,8 +198,8 @@ const TasksTab = <
         <div className="card w-full space-y-6">
           <div className="card-title">Voucher Information</div>
           <DataTableWithActions
-            columns={columns}
             data={vouchers}
+            columns={columns}
             onRowClick={onVoucherRowClick}
             onView={() => alert("View action triggered")}
             onEdit={() => alert("Edit action triggered")}
@@ -203,10 +236,7 @@ const TasksTab = <
                   trigger={contactButton}
                   onConfirm={handleConfirm}
                   onCancel={handleCancel}
-                  dialogContent={ContactContent(
-                    contactDetails?.phone ?? "",
-                    contactDetails?.phone ?? "",
-                  )}
+                  dialogContent={ContactContent(getContactDetails().phone, getContactDetails().email)}
                   size="small"
                 />
                 <DeletePopup

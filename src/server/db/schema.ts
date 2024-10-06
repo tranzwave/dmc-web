@@ -118,7 +118,7 @@ export const booking = createTable("bookings", {
     .references(() => client.id)
     .notNull(),
   agentId: varchar("agent_id", { length: 255 })
-    .references(() => agent.id),
+    .references(() => agent.id).notNull(),
   coordinatorId: varchar("coordinator_id", { length: 255 })
     .references(() => user.id)
     .notNull(),
@@ -311,6 +311,7 @@ export const restaurant = createTable("restaurants", {
   streetName: varchar("street_name", { length: 255 }).notNull(),
   province: varchar("province", { length: 255 }).notNull(),
   contactNumber: varchar("contact_number", { length: 50 }).notNull(),
+  primaryEmail: varchar("primaryEmail", { length: 50 }).notNull().default("N/A"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   cityId: integer("city_id")
@@ -584,6 +585,7 @@ export const shop = createTable("shops", {
   streetName: varchar("street_name", { length: 255 }).notNull(),
   province: varchar("province", { length: 255 }).notNull(),
   contactNumber: varchar("contact_number", { length: 50 }).notNull(),
+  primaryEmail: varchar("primary_email", { length: 50 }).notNull().default("N/A"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   cityId: integer("city_id")
@@ -641,7 +643,26 @@ export const shopVoucher = createTable("shop_vouchers", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
+export const tenantRelations = relations(tenant, ({ one,many }) => ({
+  booking: many(booking),
+  client: many(client),
+  agent: many(agent),
+  coordinator: many(user)
+}));
+
+export const agentRelations = relations(agent, ({ one,many }) => ({
+  booking: many(booking),
+  tenant: one(tenant, {
+    fields: [agent.tenantId],
+    references: [tenant.id],
+  }),
+}));
+
 export const bookingsRelations = relations(booking, ({ one }) => ({
+  tenant: one(tenant, {
+    fields: [booking.tenantId],
+    references: [tenant.id],
+  }),
   client: one(client, {
     fields: [booking.clientId],
     references: [client.id],
