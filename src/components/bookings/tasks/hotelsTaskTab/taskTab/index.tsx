@@ -536,7 +536,7 @@ const CreateRateColumn = <T extends object>(
 
       return (
         <Input
-          ref={inputRef} // Attach the ref to the input
+          // ref={inputRef} // Attach the ref to the input
           type="number" // You can keep this as "number" if you want to restrict to number inputs
           value={rate}
           onChange={handleRateChange}
