@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
-    MealType,
-    useAddRestaurant,
+  MealType,
+  useAddRestaurant,
 } from "~/app/dashboard/restaurants/add/context";
 import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 import { Button } from "~/components/ui/button";
@@ -11,7 +11,7 @@ import MealsOfferedForm from "./mealsOfferedForm";
 
 const MealsOfferedTab = () => {
   const [addedMealsOffered, setAddedMealsOffered] = useState<InsertMeal[]>([]); // State to handle added activities
-  const { addMeals, restaurantDetails, setActiveTab, deleteMealType } =
+  const { addMeals, restaurantDetails, setActiveTab, deleteMealType , duplicateMealType} =
     useAddRestaurant(); // Assuming similar context structure for activities
   const [selectedMealType, setSelectedMealType] = useState<MealType>({
     mealType: "",
@@ -40,8 +40,11 @@ const MealsOfferedTab = () => {
     setSelectedMealType(row);
   };
 
+  const onRowDuplicate = (row: MealType) => {
+    duplicateMealType(row.mealType);
+  };
+
   const onRowDelete = (row: MealType) => {
-    alert(row.mealType);
     deleteMealType(row.mealType);
   };
 
@@ -62,7 +65,7 @@ const MealsOfferedTab = () => {
             onDelete={onRowDelete}
             onEdit={onRowEdit}
             onRowClick={onRowEdit}
-            onDuplicate={onRowEdit}
+            onDuplicate={onRowDuplicate}
           />
         </div>
         <div className="flex w-full justify-end">

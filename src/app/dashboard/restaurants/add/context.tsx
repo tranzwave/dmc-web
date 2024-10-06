@@ -23,6 +23,7 @@ interface AddRestaurantContextProps {
   setGeneralDetails: (details: Restaurant) => void;
   addMeals: (meal: InsertMeal) => void;
   deleteMealType: (mealType: string) => void; // New deleteVehicle method
+  duplicateMealType:(MealType:string)=>void
 
 }
 
@@ -78,13 +79,35 @@ export const AddRestaurantProvider: React.FC<{ children: ReactNode }> = ({ child
   };
 
   const deleteMealType = (mealType: string) => {
-    alert(mealType)
+    // alert(mealType)
     setRestaurantDetails(prev => ({
       ...prev,
       mealsOffered: prev.mealsOffered.filter(mealTypes => mealTypes.mealType !== mealType)
     }));
   };
 
+  const duplicateMealType = (mealType: string) => {
+    const mealToDuplicate = restaurantDetails.mealsOffered.find(meal => meal.mealType === mealType);
+  
+    if (mealToDuplicate) {
+      const duplicatedMealType = {
+        ...mealToDuplicate,
+        id: undefined,
+        mealType: `${mealToDuplicate.mealType}`, 
+      };
+  
+      // Update the state with the new duplicated meal type
+      setRestaurantDetails(prev => ({
+        ...prev,
+        mealsOffered: [...prev.mealsOffered, duplicatedMealType],
+      }));
+      console.log("Duplicated meal type added:", duplicatedMealType);
+    } else {
+      console.error(`Meal type "${mealType}" not found.`);
+    }
+  };
+
+  
   return (
     <AddRestaurantContext.Provider
       value={{
@@ -93,7 +116,8 @@ export const AddRestaurantProvider: React.FC<{ children: ReactNode }> = ({ child
         addMeals,
         activeTab,
         setActiveTab,
-        deleteMealType
+        deleteMealType,
+        duplicateMealType
       }}
     >
       {children}
