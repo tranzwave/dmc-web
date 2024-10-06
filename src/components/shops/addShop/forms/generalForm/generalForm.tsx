@@ -50,7 +50,7 @@ const GeneralForm = () => {
 
   // Initialize form with default values using React Hook Form
   const { city, ...general } = shopDetails.general;
-  const initialShopType = shopDetails.general.shopTypes?.[0]?.name || "";
+  const initialShopType = shopDetails.general.shopTypes?.[0]?.name ?? "";
 
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),

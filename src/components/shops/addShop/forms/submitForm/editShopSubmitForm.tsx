@@ -22,46 +22,46 @@ const EditShopSubmitForm = ({
   const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
-  const { general } = shopDetails;
+  const general = shopDetails?.general;
+
+  if (!general) {
+    return <div>Error: Shop details are missing.</div>;
+  }
 
   const updateShop = async () => {
+    setLoading(true);
     console.log({ general });
 
-    // Ensure cityId is set correctly
-    const cityId = general.city?.id ? Number(general.city.id) : 0; 
+    const cityId = general.city?.id ? Number(general.city.id) : 0;
 
-    const shopData: InsertShop[] = [
-      {
-        name: general.name,
-        contactNumber: general.contactNumber,
-        streetName: general.streetName,
-        province: general.province,
-        tenantId: "", 
-        cityId: cityId,
-      },
-    ];
+    const shopData: InsertShop = {
+      name: general.name,
+      contactNumber: general.contactNumber,
+      streetName: general.streetName,
+      province: general.province,
+      tenantId: "",
+      cityId: cityId,
+    };
 
     const shopType: InsertShopType[] = [
       {
-        name: "Bookstore", // Replace with dynamic shop type if needed
+        name: "Bookstore",
       },
     ];
 
     try {
-      // Call the function to update shop and related data
       const response = await updateShopAndRelatedData(
         id,
-        shopData[0] ?? null,
+        shopData,
         shopType,
       );
 
       if (!response) {
-        throw new Error(`Error: ${response}`);
+        throw new Error("Failed to update shop data.");
       }
 
       console.log("Success:", response);
 
-      // Handle successful response
       toast({
         title: "Success",
         description: "Shop updated successfully",
@@ -95,41 +95,38 @@ const EditShopSubmitForm = ({
             <tr>
               <td className="w-1/2 border px-4 py-2 font-bold">Name:</td>
               <td className="w-1/2 border px-4 py-2">
-                {shopDetails.general.name}
+                {general.name}
               </td>
             </tr>
             <tr>
               <td className="border px-4 py-2 font-bold">Contact Number:</td>
               <td className="border px-4 py-2">
-                {shopDetails.general.contactNumber}
+                {general.contactNumber}
               </td>
             </tr>
             <tr>
               <td className="border px-4 py-2 font-bold">Street Name:</td>
               <td className="border px-4 py-2">
-                {shopDetails.general.streetName}
+                {general.streetName}
               </td>
             </tr>
             <tr>
               <td className="border px-4 py-2 font-bold">City:</td>
               <td className="border px-4 py-2">
-                {shopDetails.general.city?.name}
+                {general.city?.name}
               </td>
             </tr>
             <tr>
               <td className="border px-4 py-2 font-bold">Province:</td>
               <td className="border px-4 py-2">
-                {shopDetails.general.province}
+                {general.province}
               </td>
             </tr>
             <tr>
               <td className="border px-4 py-2 font-bold">Shop Types:</td>
               <td className="border px-4 py-2">
-                {shopDetails.general.shopTypes &&
-                shopDetails.general.shopTypes.length > 0
-                  ? shopDetails.general.shopTypes
-                      .map((type) => type.name)
-                      .join(", ")
+                {general.shopTypes && general.shopTypes.length > 0
+                  ? general.shopTypes.map((type) => type.name).join(", ")
                   : "No shop types available"}
               </td>
             </tr>
@@ -143,6 +140,7 @@ const EditShopSubmitForm = ({
           Submit
         </Button>
       </div>
+
     </div>
   );
 };
