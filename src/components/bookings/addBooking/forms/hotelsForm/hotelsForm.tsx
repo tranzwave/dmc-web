@@ -133,7 +133,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   }, [defaultValues]);
 
   return (
-    <>
+    <div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-3 gap-3">
@@ -367,7 +367,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent>
           {bookingDetails.vouchers.length > 0 ? (
-            <>
+            <div>
               <DialogHeader>
                 <DialogTitle>Add to Voucher</DialogTitle>
               </DialogHeader>
@@ -391,9 +391,9 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                   Existing Voucher
                 </Button>
               </DialogFooter>
-            </>
+            </div>
           ) : (
-            <>
+            <div>
               <DialogHeader>
                 <DialogTitle>Add to Voucher</DialogTitle>
               </DialogHeader>
@@ -408,11 +408,11 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                   OK
                 </Button>
               </DialogFooter>
-            </>
+            </div>
           )}
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 };
 

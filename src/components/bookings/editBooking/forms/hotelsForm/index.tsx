@@ -9,35 +9,69 @@ import {
   SelectHotelVoucher,
   SelectHotelVoucherLine,
 } from "~/server/db/schemaTypes";
-import { Hotel, voucherColumns } from "./columns";
+import { Hotel, hotelVoucherColumns } from "./columns";
 import HotelsForm from "./hotelsForm";
 import { getAllHotels, getAllHotelsV2 } from "~/server/db/queries/hotel";
 import { useToast } from "~/hooks/use-toast";
 import { Calendar } from "~/components/ui/calendar";
 import { CalendarV2, DateRange } from "~/components/common/customCalendar";
-import {   HotelVoucher,useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
-import { addHotelVoucherLinesToBooking } from "~/server/db/queries/booking";
+import {
+  HotelVoucher,
+  useEditBooking,
+} from "~/app/dashboard/bookings/[id]/edit/context";
+import {
+  addHotelVoucherLinesToBooking,
+  deleteHotelVoucherLine,
+} from "~/server/db/queries/booking";
 import { usePathname, useSearchParams } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
 import Link from "next/link";
 import { DataTableWithActions } from "~/components/common/dataTableWithActions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "~/components/ui/alert-dialog";
+import DeletePopup from "~/components/common/deletePopup";
 
 const HotelsTab = () => {
   const [addedHotels, setAddedHotels] = useState<Hotel[]>([]);
-  const { addHotelVoucher, bookingDetails, setActiveTab, editHotelVoucher } = useEditBooking();
+  const {
+    addHotelVoucher,
+    bookingDetails,
+    setActiveTab,
+    editHotelVoucher,
+    deleteHotelVoucher,
+    updateTriggerRefetch
+  } = useEditBooking();
   const [loading, setLoading] = useState(false);
   const [hotels, setHotels] = useState<SelectHotel[]>([]);
   const [error, setError] = useState<string | null>();
   const { toast } = useToast();
-  const [saving, setSaving] = useState(false)
-  const [defaultValues, setDefaultValues] = useState<InsertHotelVoucherLine & {
-    hotel:SelectHotel
-  } | null>()
-  const [defaultHotel, setDefaultHotel] = useState<SelectHotel>()
-  const [indexToEdit, setIndexToEdit] = useState<number>()
+  const [saving, setSaving] = useState(false);
+  const [defaultValues, setDefaultValues] = useState<
+    | (InsertHotelVoucherLine & {
+        hotel: SelectHotel;
+      })
+    | null
+  >();
+  const [defaultHotel, setDefaultHotel] = useState<SelectHotel>();
+  const [indexToEdit, setIndexToEdit] = useState<number>();
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isExistingVoucherDelete, setIsExistingVoucherDelete] = useState(false)
+  const [isUnsavedVoucherDelete, setIsUnsavedVoucherDelete] = useState(false)
+  const [selectedVoucher, setSelectedVoucher] = useState<HotelVoucher>();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [triggerRefetch, setTriggerRefetch]= useState(false);
 
-  const pathname = usePathname()
-  const bookingLineId = pathname.split("/")[3]
+  const pathname = usePathname();
+  const bookingLineId = pathname.split("/")[3];
   const updateHotels = (
     data: InsertHotelVoucherLine,
     isNewVoucher: boolean,
@@ -55,11 +89,10 @@ const HotelsTab = () => {
         voucher: voucher,
         voucherLines: [data],
       };
-      alert(data.id)
-      if(data.id && indexToEdit != 999){
-        editHotelVoucher(hotelVoucher, indexToEdit ?? 99, data.id)
-        setIndexToEdit(999)
-        return
+      if (data.id && indexToEdit != 999) {
+        editHotelVoucher(hotelVoucher, indexToEdit ?? 99, data.id);
+        setIndexToEdit(999);
+        return;
       }
       addHotelVoucher(hotelVoucher);
     } else {
@@ -118,32 +151,38 @@ const HotelsTab = () => {
     }
   };
 
-  const onSaveClick = async()=>{
-    console.log(bookingDetails.vouchers)
-    const newVouchers = bookingDetails.vouchers.filter(v => v.voucherLines[0]?.id ? false : true);
+  const onSaveClick = async () => {
+    console.log(bookingDetails.vouchers);
+    const newVouchers = bookingDetails.vouchers.filter((v) =>
+      v.voucherLines[0]?.id ? false : true,
+    );
 
-    if(newVouchers.length == 0){
+    if (newVouchers.length == 0) {
       toast({
         title: "Uh Oh!",
         description: "No new vouchers to add!",
       });
 
-      return
+      return;
     }
     try {
-      setSaving(true)
-      const newResponse = await addHotelVoucherLinesToBooking(newVouchers,bookingLineId ?? "", bookingDetails.general.marketingManager);
+      setSaving(true);
+      const newResponse = await addHotelVoucherLinesToBooking(
+        newVouchers,
+        bookingLineId ?? "",
+        bookingDetails.general.marketingManager,
+      );
 
       if (!newResponse) {
         throw new Error(`Error: Couldn't add hotel vouchers`);
       }
       console.log("Fetched Hotels:", newResponse);
-
       setSaving(false);
       toast({
         title: "Success",
         description: "Hotel Vouchers Added!",
       });
+      updateTriggerRefetch()
     } catch (error) {
       if (error instanceof Error) {
         // setError(error.message);
@@ -151,10 +190,9 @@ const HotelsTab = () => {
         setError("An unknown error occurred");
       }
       console.error("Error:", error);
-      setSaving(false)
+      setSaving(false);
     }
-
-  }
+  };
 
   // const dateRanges: DateRange[] = [
   //   { start: "2024-09-03", end: "2024-09-07" }, // No color provided
@@ -169,52 +207,95 @@ const HotelsTab = () => {
       color: "bg-green-200", // Default color for booking range
     },
     ...bookingDetails.vouchers.map((voucher) => ({
-      start: voucher.voucherLines[0]?.checkInDate ?? '',
-      end: voucher.voucherLines[0]?.checkOutDate ?? '',
+      start: voucher.voucherLines[0]?.checkInDate ?? "",
+      end: voucher.voucherLines[0]?.checkOutDate ?? "",
     })),
   ];
 
-  const onEdit = (data:HotelVoucher)=>{
-    const index = bookingDetails.vouchers.findIndex(v => v == data)
-    setIndexToEdit(index)
-    if(!data.voucherLines[0]){
-      return
+  const onEdit = (data: HotelVoucher) => {
+    const index = bookingDetails.vouchers.findIndex((v) => v == data);
+    setIndexToEdit(index);
+    if (!data.voucherLines[0]) {
+      return;
     }
-    setDefaultValues({...data.voucherLines[0], hotel: data.hotel})
-    alert(data.hotel.name)
-    setDefaultHotel(data.hotel)
-  }
+    setDefaultValues({ ...data.voucherLines[0], hotel: data.hotel });
+    setDefaultHotel(data.hotel);
+  };
+
+  const onDelete = async (data: HotelVoucher) => {
+    setSelectedVoucher(data);
+    if (data.voucher.status) {
+      setIsExistingVoucherDelete(true)
+      return;
+    }
+    setIsUnsavedVoucherDelete(true)
+    setIsDeleteOpen(true);
+  };
+
+  const handleExistingVoucherDelete = async() => {
+    if (selectedVoucher && selectedVoucher.voucher.status) {
+      if (selectedVoucher.voucher.status != "inprogress") {
+        toast({
+          title: "Uh Oh",
+          description: `You cant delete this voucher. It's already ${selectedVoucher.voucher.status}!. Please go to proceed vouchers and send the cancellation voucher first`,
+        });
+        return;
+      }
+      try {
+        setIsDeleting(true);
+        const deletedData = await deleteHotelVoucherLine(
+          selectedVoucher?.voucherLines[0]?.id ?? "",
+        );
+        if (!deletedData) {
+          throw new Error("Couldn't delete voucher");
+        }
+
+        deleteVoucherLineFromLocalContext();
+        setIsDeleting(false);
+
+
+      } catch (error) {
+        toast({
+          title: "Uh Oh",
+          description: `Couldn't delete this voucher`,
+        });
+        setIsDeleting(false);
+      }
+      return;
+    }
+  };
+
+  const deleteVoucherLineFromLocalContext = () => {
+    setIsDeleting(true)
+    const index = bookingDetails.vouchers.findIndex(
+      (v) => v == selectedVoucher,
+    );
+    deleteHotelVoucher(index, selectedVoucher?.voucherLines[0]?.id ?? "");
+    setIsDeleting(false)
+  };
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">
       <div className="flex w-full flex-row justify-center gap-3">
-        {/* <Calendar
-            mode="range"
-            selected={{from: new Date(bookingDetails.general.startDate), to:new Date(bookingDetails.general.endDate)}}
-            className="rounded-md"
-          /> */}
         <CalendarV2
           dateRanges={[
-
             {
               start: bookingDetails.general.startDate,
               end: bookingDetails.general.endDate,
               color: "bg-green-200", // Default color for booking range
             },
             ...bookingDetails.vouchers.map((voucher) => ({
-              start: voucher.voucherLines[0]?.checkInDate ?? '',
-              end: voucher.voucherLines[0]?.checkOutDate ?? '',
+              start: voucher.voucherLines[0]?.checkInDate ?? "",
+              end: voucher.voucherLines[0]?.checkOutDate ?? "",
             })),
-
           ]}
         />
         <div className="card w-full space-y-6">
           <div className="flex flex-row justify-between">
-          <div className="card-title">Hotel Information</div>
-          <Link href={`${pathname.split("edit")[0]}/tasks?tab=hotels`}>
-            <Button variant={"primaryGreen"}>Send Vouchers</Button>
-          </Link>
-
+            <div className="card-title">Hotel Information</div>
+            <Link href={`${pathname.split("edit")[0]}/tasks?tab=hotels`}>
+              <Button variant={"primaryGreen"}>Send Vouchers</Button>
+            </Link>
           </div>
           {hotels && (
             <HotelsForm
@@ -228,17 +309,53 @@ const HotelsTab = () => {
       <div className="flex w-full flex-col items-center justify-center gap-2">
         <div className="w-full">
           {/* <DataTable columns={voucherColumns} data={bookingDetails.vouchers} /> */}
-          <DataTableWithActions columns={voucherColumns} data={bookingDetails.vouchers} onEdit={onEdit} onDelete={()=>{console.log("delete")}} onRowClick={()=>{console.log("row")}}/>
+          <DataTableWithActions
+            columns={hotelVoucherColumns}
+            data={bookingDetails.vouchers}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onRowClick={() => {
+              console.log("row");
+            }}
+          />
         </div>
         <div className="flex w-full justify-end">
           {/* <Button variant={"primaryGreen"} onClick={onNextClick}>
             Next
           </Button> */}
-          <Button variant={"primaryGreen"} onClick={onSaveClick} disabled={saving}>
-            {saving ? (<div className="flex flex-row gap-1"><div><LoaderCircle className="animate-spin" size={10}/>Saving</div></div>): ('Save')}
+          <Button
+            variant={"primaryGreen"}
+            onClick={onSaveClick}
+            disabled={saving}
+          >
+            {saving ? (
+              <div className="flex flex-row gap-1">
+                <div>
+                  <LoaderCircle className="animate-spin" size={10} />
+                  Saving
+                </div>
+              </div>
+            ) : (
+              "Save"
+            )}
           </Button>
         </div>
       </div>
+      <DeletePopup
+        itemName={`Voucher for ${selectedVoucher?.hotel.name}`}
+        onDelete={deleteVoucherLineFromLocalContext}
+        isOpen={isUnsavedVoucherDelete}
+        setIsOpen={setIsUnsavedVoucherDelete}
+        isDeleting= {isDeleting}
+      />
+
+      <DeletePopup
+        itemName={`Voucher for ${selectedVoucher?.hotel.name}`}
+        onDelete={handleExistingVoucherDelete}
+        isOpen={isExistingVoucherDelete}
+        setIsOpen={setIsExistingVoucherDelete}
+        isDeleting= {isDeleting}
+      />
     </div>
   );
 };

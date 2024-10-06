@@ -14,6 +14,7 @@ import {
 } from "~/server/db/queries/booking/restaurantVouchers";
 import TasksTab from "~/components/common/tasksTab";
 import RestaurantsVoucherForm from "./form";
+import RestaurantVouchersTasksTab from "./taskTab";
 
 export type RestaurantVoucherData = SelectRestaurantVoucher & {
   restaurant: SelectRestaurant;
@@ -98,12 +99,12 @@ const RestaurantsTasksTab = ({
   bookingLineId: string;
   vouchers: RestaurantVoucherData[];
 }) => (
-  <TasksTab
+  <RestaurantVouchersTasksTab
     bookingLineId={bookingLineId}
     columns={restaurantColumns}
     voucherColumns={restaurantVoucherLineColumns}
     vouchers={vouchers}
-    formComponent={RestaurantsVoucherForm}
+    // formComponent={RestaurantsVoucherForm}
     updateVoucherLine={updateVoucherLine}
     updateVoucherStatus={updateVoucherStatus}
   />

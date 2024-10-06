@@ -37,7 +37,8 @@ const EditBooking = ({ id }: { id: string }) => {
     setActiveTab,
     bookingDetails,
     statusLabels,
-    setStatusLabels
+    setStatusLabels,
+    triggerRefetch
   } = useEditBooking();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -169,7 +170,7 @@ const EditBooking = ({ id }: { id: string }) => {
     console.log("Add Booking Component");
     fetchBookingLine()
     setActiveTab(tabToEdit ?? "general")
-  }, [id]);
+  }, [id, triggerRefetch]);
 
   if(loading){
     return (

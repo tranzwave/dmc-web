@@ -27,7 +27,6 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <>
       <ClerkProvider
         appearance={{
           variables: {
@@ -42,7 +41,6 @@ export default function RootLayout({
           </body>
         </html>
       </ClerkProvider>
-    </>
     // <html lang="en" className={`${fontSans.variable}`}>
     //   <body>
     //     <div>{children}</div>

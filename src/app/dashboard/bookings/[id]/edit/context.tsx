@@ -73,6 +73,7 @@ interface EditBookingContextProps {
   addHotelVoucher: (hotel: HotelVoucher) => void;
   addHotelVouchers: (vouchers:HotelVoucher[]) => void;
   editHotelVoucher: (voucher:HotelVoucher, index:number, id:string) => void,
+  deleteHotelVoucher: (index:number, id:string ) => void,
   addRestaurantVoucher: (restaurant: RestaurantVoucher) => void;
   addRestaurantVouchers: (vouchers: RestaurantVoucher[]) => void;
   addActivity: (activity: ActivityVoucher) => void;
@@ -86,6 +87,8 @@ interface EditBookingContextProps {
   statusLabels: StatusLabels;
   setStatusLabels: React.Dispatch<React.SetStateAction<StatusLabels>>;
   getBookingSummary: () => BookingSummary[];
+  triggerRefetch: boolean,
+  updateTriggerRefetch: ()=>void;
 }
 
 // Provide default values
@@ -145,6 +148,11 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
     activities: "Locked",
     shops: "Locked",
   });
+  const [triggerRefetch, setTriggerRefetch] = useState(false)
+
+  const updateTriggerRefetch= ()=>{
+    setTriggerRefetch(!triggerRefetch)
+  }
 
   const setGeneralDetails = (details: General) => {
     setBookingDetails(prev => ({ ...prev, general: details }));
@@ -166,6 +174,14 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
       ),
     }));
   };
+
+  const deleteHotelVoucher = (index: number, id: string) => {
+    setBookingDetails((prev) => ({
+      ...prev,
+      vouchers: prev.vouchers.filter((voucher, i) => !(i === index && voucher.voucherLines[0]?.id === id)),
+    }));
+  };
+  
   
   
 
@@ -242,9 +258,12 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
       value={{
         bookingDetails,
         setGeneralDetails,
+
         addHotelVoucher,
         addHotelVouchers,
         editHotelVoucher,
+        deleteHotelVoucher,
+
         addRestaurantVoucher,
         addRestaurantVouchers,
         addActivity,
@@ -257,7 +276,9 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
         setActiveTab,
         statusLabels,
         setStatusLabels,
-        getBookingSummary
+        getBookingSummary,
+        triggerRefetch,
+        updateTriggerRefetch
       }}
     >
       {children}

@@ -4,10 +4,8 @@ import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { DataTableWithActions } from "~/components/common/dataTableWithActions/index";
 import { ColumnDef } from "@tanstack/react-table";
-import Popup from "../popup";
 import { Input } from "~/components/ui/input";
 import { useToast } from "~/hooks/use-toast";
-import { ConfirmationForm } from "./confirmationForm";
 import {
   Popover,
   PopoverContent,
@@ -16,21 +14,42 @@ import {
 // import Voucher from "./voucherComponent";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import html2pdf from "html2pdf.js";
-import DeletePopup from "../deletePopup";
-import { SelectActivityVendor, SelectActivityVoucher, SelectDriver, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant, SelectRestaurantVoucher, SelectRestaurantVoucherLine, SelectShop, SelectShopVoucher, SelectTransportVoucher } from "~/server/db/schemaTypes";
+import {
+  SelectActivityVendor,
+  SelectActivityVoucher,
+  SelectDriver,
+  SelectHotel,
+  SelectHotelVoucher,
+  SelectHotelVoucherLine,
+  SelectRestaurant,
+  SelectRestaurantVoucher,
+  SelectRestaurantVoucherLine,
+  SelectShop,
+  SelectShopVoucher,
+  SelectTransportVoucher,
+} from "~/server/db/schemaTypes";
 import { Phone } from "lucide-react";
+import Popup from "~/components/common/popup";
+import DeletePopup from "~/components/common/deletePopup";
+import { ConfirmationForm } from "~/components/common/tasksTab/confirmationForm";
+import { HotelVoucherData } from "..";
+import HotelVoucherPDF from "../voucherTemplate";
+import HotelsVoucherForm from "../voucherForm";
+import { getAllHotelsV2 } from "~/server/db/queries/hotel";
+import LoadingLayout from "~/components/common/dashboardLoading";
+import { deleteHotelVoucherLine } from "~/server/db/queries/booking";
 
-type Vendor = SelectHotel | SelectRestaurant | SelectActivityVendor | SelectShop | SelectDriver
+type Vendor =
+  | SelectHotel
+  | SelectRestaurant
+  | SelectActivityVendor
+  | SelectShop
+  | SelectDriver;
 interface TasksTabProps<T, L> {
   bookingLineId: string;
-  columns: ColumnDef<T>[]; // Columns for the main vouchers
-  voucherColumns: ColumnDef<L>[]; // Columns for the voucher lines
-  vouchers: T[]; // Directly pass the voucher array
-  formComponent: React.FC<{
-    selectedItem: any | undefined;
-    onSave: () => void;
-    vendor: any;
-  }>; // Form component for editing/creating vouchers
+  columns: ColumnDef<HotelVoucherData>[];
+  voucherColumns: ColumnDef<SelectHotelVoucherLine>[];
+  vouchers: HotelVoucherData[];
   updateVoucherLine: (
     data: any,
     confirmationDetails?: {
@@ -42,16 +61,15 @@ interface TasksTabProps<T, L> {
   ) => Promise<void>;
   updateVoucherStatus: (data: any) => Promise<boolean>;
   contactDetails?: { phone: string; email: string };
-  selectedVendor?:any
+  selectedVendor?: any;
   setSelectedVendor?: React.Dispatch<React.SetStateAction<any>>;
-
 }
 
 interface WithOptionalVoucherLine<L, T> {
   voucherLines?: L[] | T[];
 }
 
-const TasksTab = <
+const HotelVouchersTasksTab = <
   T extends object & WithOptionalVoucherLine<L, T>,
   L extends object,
 >({
@@ -59,18 +77,15 @@ const TasksTab = <
   columns,
   voucherColumns,
   vouchers,
-  formComponent: FormComponent,
   updateVoucherLine,
   updateVoucherStatus,
   contactDetails,
   selectedVendor,
   setSelectedVendor,
-
 }: TasksTabProps<T, L>) => {
-  const [selectedVoucher, setSelectedVoucher] = useState<any>();
-  const [selectedVoucherLine, setSelectedVoucherLine] = useState<any>();
-  // const [selectedVoucher, setSelectedVoucher] = useState<any>();
-  // const [selectedVoucherLine, setSelectedVoucherLine] = useState<any>();
+  const [selectedVoucher, setSelectedVoucher] = useState<HotelVoucherData>();
+  const [selectedVoucherLine, setSelectedVoucherLine] =
+    useState<SelectHotelVoucherLine>();
   const [rate, setRate] = useState<string | number>(0);
   const [statusChanged, setStatusChanged] = useState<boolean>(false);
   const [isInprogressVoucherDelete, setIsInProgressVoucherDelete] =
@@ -78,17 +93,46 @@ const TasksTab = <
   const [isProceededVoucherDelete, setIsProceededVoucherDelete] =
     useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [hotels, setHotels] = useState<SelectHotel[]>([]);
+  const [error, setError] = useState<string | null>();
+  const deleteVoucherRef = useRef<HTMLDivElement>(null);
 
   const { toast } = useToast();
 
-  const onVoucherRowClick = (row: T) => {
-    setSelectedVoucher(row);
-    if(setSelectedVendor){
-      setSelectedVendor(row)
+  const getHotels = async () => {
+    setLoading(true);
+
+    try {
+      const newResponse = await getAllHotelsV2();
+
+      if (!newResponse) {
+        throw new Error(`Error: Couldn't get hotels`);
+      }
+      console.log("Fetched Hotels:", newResponse);
+
+      setHotels(newResponse);
+      setLoading(false);
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+      console.error("Error:", error);
+      setLoading(false);
     }
   };
 
-  const onVoucherLineRowClick = (row: L) => {
+  const onVoucherRowClick = (row: HotelVoucherData) => {
+    setSelectedVoucher(row);
+    setRate(row.voucherLines[0]?.rate ?? 0)
+    if (setSelectedVendor) {
+      setSelectedVendor(row);
+    }
+  };
+
+  const onVoucherLineRowClick = (row: SelectHotelVoucherLine) => {
     console.log(row);
     setSelectedVoucherLine(row);
     console.log("Updating");
@@ -155,39 +199,96 @@ const TasksTab = <
 
   const proceedButton = <Button variant={"primaryGreen"}>Proceed</Button>;
 
+  const amendButton = (
+    <Button variant={"outline"} className="border border-primary-green">
+      Amend
+    </Button>
+  );
+
   useEffect(() => {
     console.log("Status changed");
+    getHotels();
+    return () => {
+      console.log("Return");
+    };
   }, [statusChanged]);
 
-  const voucherData = {
-    clientName: "John Doe",
-    bookingId: "12345",
-    hotelName: "Grand Hotel",
-    checkInDate: "2023-10-01",
-    checkOutDate: "2023-10-05",
-    numberOfDays: 4,
-    roomType: "Deluxe Suite",
-  };
-
-  const getContactDetails = () => {
-    if(!selectedVendor){
-      return {
-        phone: "",
-        email:""
-
-      }
-    }
-    return {
-      phone: hasPrimaryContactDetails(selectedVendor) ? selectedVendor.primaryContactNumber : selectedVendor.contactNumber || "N/A",
-      email: selectedVendor.primaryEmail ?? "N/A",
-    };
-  };
-  
-  function hasPrimaryContactDetails(
-    vendor: Vendor,
-  ): vendor is Vendor & { primaryContactNumber: string; primaryEmail?: string } {
-    return 'primaryContactNumber' in vendor && typeof vendor.primaryContactNumber === 'string';
+  if (loading) {
+    return <LoadingLayout />;
   }
+
+  const downloadPDF = () => {
+    const tempContainer = deleteVoucherRef.current;
+
+    if (tempContainer && selectedVoucher) {
+      // Make the container visible
+      tempContainer.style.display = "block";
+
+      const options = {
+        filename: `cancellation_voucher_${selectedVoucher.hotel.name}.pdf`,
+        jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
+      };
+
+      html2pdf()
+        .set(options)
+        .from(tempContainer)
+        .save()
+        .then(() => {
+          // Hide the container after PDF is generated
+          tempContainer.style.display = "none"; // Set back to hidden
+        });
+    }
+  };
+
+  const handleInProgressVoucherDelete = async () => {
+    if (selectedVoucher && selectedVoucher.status) {
+      try {
+        setIsDeleting(true);
+        const deletedData = await deleteHotelVoucherLine(
+          selectedVoucher.voucherLines[0]?.id ?? "",
+        );
+        if (!deletedData) {
+          throw new Error("Couldn't delete voucher");
+        }
+
+        // deleteVoucherLineFromLocalContext();
+        setIsDeleting(false);
+      } catch (error) {
+        toast({
+          title: "Uh Oh",
+          description: `Couldn't delete this voucher`,
+        });
+        setIsDeleting(false);
+      }
+      return;
+    }
+  };
+
+  const handleProceededVoucherDelete = async () => {
+    if (selectedVoucher && selectedVoucher.status) {
+      try {
+        downloadPDF();
+
+        setIsDeleting(true);
+        const deletedData = await deleteHotelVoucherLine(
+          selectedVoucher.voucherLines[0]?.id ?? "",
+        );
+        if (!deletedData) {
+          throw new Error("Couldn't delete voucher");
+        }
+
+        // deleteVoucherLineFromLocalContext();
+        setIsDeleting(false);
+      } catch (error) {
+        toast({
+          title: "Uh Oh",
+          description: `Couldn't delete this voucher`,
+        });
+        setIsDeleting(false);
+      }
+      return;
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">
@@ -197,13 +298,18 @@ const TasksTab = <
         </div>
         <div className="card w-full space-y-6">
           <div className="card-title">Voucher Information</div>
-          <DataTableWithActions
+          {/* <DataTableWithActions
             data={vouchers}
             columns={columns}
             onRowClick={onVoucherRowClick}
             onView={() => alert("View action triggered")}
             onEdit={() => alert("Edit action triggered")}
             onDelete={() => alert("Delete action triggered")}
+          /> */}
+          <DataTable
+            data={vouchers}
+            columns={columns}
+            onRowClick={onVoucherRowClick}
           />
           <div className="flex flex-row items-center justify-between">
             <div className="text-sm font-normal">
@@ -236,25 +342,32 @@ const TasksTab = <
                   trigger={contactButton}
                   onConfirm={handleConfirm}
                   onCancel={handleCancel}
-                  dialogContent={ContactContent(getContactDetails().phone, getContactDetails().email)}
+                  dialogContent={ContactContent(
+                    selectedVoucher.hotel.primaryContactNumber,
+                    selectedVoucher.hotel.primaryEmail,
+                  )}
                   size="small"
                 />
                 <DeletePopup
                   itemName={`Voucher for ${selectedVoucher?.hotel.name}`}
-                  onDelete={() => {
-                    console.log("Deleting");
-                  }}
+                  onDelete={handleInProgressVoucherDelete}
                   isOpen={isInprogressVoucherDelete}
                   setIsOpen={setIsInProgressVoucherDelete}
                   isDeleting={isDeleting}
                   description="You haven't sent this to the vendor yet. You can delete the
                 voucher without sending a cancellation voucher"
                 />
+                <div ref={deleteVoucherRef} style={{ display: "none" }}>
+                  <HotelVoucherPDF
+                    voucher={selectedVoucher}
+                    cancellation={true}
+                    key={selectedVoucher.hotelId}
+                  />
+                </div>
+
                 <DeletePopup
                   itemName={`Voucher for ${selectedVoucher?.hotel.name}`}
-                  onDelete={() => {
-                    console.log("Deleting");
-                  }}
+                  onDelete={handleProceededVoucherDelete}
                   isOpen={isProceededVoucherDelete}
                   setIsOpen={setIsProceededVoucherDelete}
                   isDeleting={isDeleting}
@@ -267,26 +380,50 @@ const TasksTab = <
             )}
           </div>
 
-          <DataTableWithActions
+          {/* <DataTableWithActions
             columns={voucherColumns}
-            data={
-              selectedVoucher
-                ? selectedVoucher.voucherLines // Check if `voucherLines` is defined
-                  ? selectedVoucher.voucherLines // Use `voucherLines` if present
-                  : Array.isArray(selectedVoucher.voucherLine) // Otherwise, check if `voucherLine` is an array
-                    ? selectedVoucher.voucherLine // Use `voucherLine` if it's already an array
-                    : [selectedVoucher.voucherLine ?? selectedVoucher] // If `voucherLine` is a single object, wrap in an array
-                : []
-            }
+            data={selectedVoucher?.voucherLines ?? []}
             onRowClick={onVoucherLineRowClick}
             onView={() => alert("View action triggered")}
             onEdit={() => alert("Edit action triggered")}
             onDelete={() => alert("Delete action triggered")}
+          /> */}
+          <DataTable
+            columns={voucherColumns}
+            data={selectedVoucher?.voucherLines ?? []}
+            onRowClick={onVoucherLineRowClick}
           />
           <div
             className={`flex flex-row items-end justify-end ${!selectedVoucher ? "hidden" : ""}`}
           >
             <div className="flex flex-row gap-2">
+              {selectedVoucher && selectedVoucher.voucherLines[0] && (
+                <Popup
+                  title={
+                    selectedVoucher && getFirstObjectName(selectedVoucher)
+                      ? `${getFirstObjectName(selectedVoucher)} - Voucher`
+                      : "Select a voucher first"
+                  }
+                  description="Amend Voucher"
+                  trigger={amendButton}
+                  onConfirm={handleConfirm}
+                  onCancel={handleCancel}
+                  dialogContent={
+                    <HotelsVoucherForm
+                      onSave={() => {
+                        console.log("saving");
+                      }}
+                      defaultValues={{
+                        hotel: selectedVoucher?.hotel,
+                        ...selectedVoucher.voucherLines[0],
+                      }}
+                      hotels={hotels}
+                    />
+                  }
+                  size="large"
+                />
+              )}
+
               <Popup
                 title="Confirm Voucher"
                 description="Confirm Form"
@@ -326,6 +463,12 @@ const TasksTab = <
             </div>
           </div>
 
+          {/* <div>
+            {selectedVoucher && (
+              <HotelVoucherPDF voucher={selectedVoucher}/>
+            )}
+          </div> */}
+
           {/* <ProceedContent
             voucherColumns={voucherColumns}
             selectedVoucher={selectedVoucher}
@@ -350,7 +493,7 @@ const TasksTab = <
   );
 };
 
-export default TasksTab;
+export default HotelVouchersTasksTab;
 
 const CreateRateColumn = <T extends object>(
   initialRate: number | string,
@@ -362,6 +505,7 @@ const CreateRateColumn = <T extends object>(
     // Create a separate component to handle state and rendering
     const RateInput = () => {
       const [rate, setLocalRate] = useState<number | string>(initialRate);
+      const inputRef = useRef<HTMLInputElement | null>(null);
 
       useEffect(() => {
         setLocalRate(initialRate);
@@ -369,28 +513,36 @@ const CreateRateColumn = <T extends object>(
 
       const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const inputValue = e.target.value;
-        const newRate = parseFloat(inputValue);
 
-        // Check if the newRate is a valid number
-        if (!isNaN(newRate)) {
-          setLocalRate(newRate);
+        // Allow empty input or valid decimal/float values
+        if (inputValue === "" || /^(\d+(\.\d{0,2})?)?$/.test(inputValue)) {
+          setLocalRate(inputValue); // Set local rate directly to the input value
+          const newRate = inputValue === "" ? "" : parseFloat(inputValue);
+          
+          // Update the rate state with the new rate
           setRate(newRate);
-        } else {
-          setLocalRate(""); // Set to '' if the input is not a valid number
-          setRate("");
-        }
 
-        // Update the row data with the new rate value
-        (row.original as Record<string, any>)[column.id] = newRate;
+          // Update the row data with the new rate value
+          (row.original as Record<string, any>)[column.id] = newRate;
+        }
       };
+
+      // Focus the input element when it's mounted
+      useEffect(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+      }, []);
 
       return (
         <Input
-          type="number"
-          value={rate === "" ? "" : rate}
+          // ref={inputRef} // Attach the ref to the input
+          type="number" // You can keep this as "number" if you want to restrict to number inputs
+          value={rate}
           onChange={handleRateChange}
           className="rounded border border-gray-300 p-1"
           style={{ width: "80px" }}
+          placeholder="0.00" // Optional placeholder for clarity
         />
       );
     };
@@ -399,6 +551,7 @@ const CreateRateColumn = <T extends object>(
     return <RateInput />;
   },
 });
+
 interface ProceedContentProps {
   voucherColumns: any;
   selectedVoucher: any;
@@ -444,12 +597,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
 
     // Create the header section
     const headerElement = document.createElement("div");
-    headerElement.innerHTML = `
-      <div style="padding: 20px; background-color: #004080; color: white; text-align: center;">
-        <h1 style="margin: 0; font-size: 24px;">Tour Agency Hotel Voucher</h1>
-        <p style="margin: 0; font-size: 14px;">This voucher is issued for the following booking details</p>
-      </div>
-    `;
+    headerElement.innerHTML = ``;
 
     // Clone the componentRef element and add it as the main content
     const componentElement = componentRef.current?.cloneNode(true);
@@ -465,10 +613,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
     // Create the footer section
     const footerElement = document.createElement("div");
     footerElement.innerHTML = `
-      <div style="padding: 20px; background-color: #004080; color: white; text-align: center;">
-        <p style="margin: 0; font-size: 12px;">Tour Agency, 123 Travel Street, City, Country</p>
-        <p style="margin: 0; font-size: 12px;">Email: info@touragency.com | Phone: +1 234 567 890</p>
-      </div>
+
     `;
 
     // Append header, main content, and footer to the temporary container
@@ -578,7 +723,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
 
   return (
     <div className="mb-9 space-y-6">
-      <div ref={componentRef} className="flex flex-col gap-4 p-4">
+      <div className="flex flex-col gap-4 p-4">
         <DataTable
           columns={VoucherLineColumnsWithRate}
           data={
@@ -632,6 +777,11 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
           Save Voucher Rates
         </Button>
       </div>
+
+      <div ref={componentRef}>
+        <HotelVoucherPDF voucher={selectedVoucher} />
+      </div>
+
       <div>
         {/* <Voucher
         clientName="John Doe"

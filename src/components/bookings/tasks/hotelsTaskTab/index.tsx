@@ -1,21 +1,26 @@
 import { ColumnDef } from "@tanstack/react-table";
 import HotelsVoucherForm from "./voucherForm/index";
 import { formatDate } from "~/lib/utils/index";
-import { SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine } from "~/server/db/schemaTypes";
+import {
+  SelectHotel,
+  SelectHotelVoucher,
+  SelectHotelVoucherLine,
+} from "~/server/db/schemaTypes";
 import TasksTab from "~/components/common/tasksTab";
-import { bulkUpdateHotelVoucherRates, updateHotelVoucherStatus } from "~/server/db/queries/booking/hotelVouchers";
+import {
+  bulkUpdateHotelVoucherRates,
+  updateHotelVoucherStatus,
+} from "~/server/db/queries/booking/hotelVouchers";
 import { useToast } from "~/hooks/use-toast";
+import NewTasksTab, {
+  VoucherData,
+} from "~/components/common/tasksTab/newTaskTab";
+import { useState } from "react";
+import HotelVouchersTasksTab from "./taskTab";
 
-export type HotelVoucherData = {
-  bookingLineId: string;
-  id: string;
-  createdAt: Date | null;
-  updatedAt: Date | null;
-  coordinatorId: string;
-  hotelId: string;
+export type HotelVoucherData = SelectHotelVoucher & {
   hotel: SelectHotel;
   voucherLines: SelectHotelVoucherLine[];
-  status:string | null;
 };
 // Define specific columns for hotels
 const hotelColumns: ColumnDef<HotelVoucherData>[] = [
@@ -34,37 +39,50 @@ const hotelColumns: ColumnDef<HotelVoucherData>[] = [
     accessorFn: (row) => row.voucherLines.length,
   },
   {
-    accessorKey: "voucherLine",
-    header: "Progress",
-    accessorFn: (row) => row.voucherLines.length,
+    accessorKey: "status",
+    header: "Status",
+    accessorFn: (row) => row.status,
   },
 ];
 
-const hotelVoucherLineColumns: ColumnDef<SelectHotelVoucherLine>[] = [
+ const hotelVoucherLineColumns: ColumnDef<SelectHotelVoucherLine>[] = [
   {
-    header: "Head Count",
-    accessorFn: (row) => `${row.adultsCount}-Adults | ${row.kidsCount}-Kids`,
+    header: "Adults",
+    accessorFn: (row) => row.adultsCount ?? 0,
   },
   {
-    accessorKey: "checkInDate",
-    header: "Check In",
-    accessorFn: (row) => formatDate(row.checkInDate),
+    header: "Kids",
+    accessorFn: (row) => row.kidsCount ?? 0,
   },
   {
-    accessorKey: "checkOutDate",
-    header: "Check Out",
-    accessorFn: (row) => formatDate(row.checkOutDate),
+    header: "Room Count",
+    accessorFn: (row) => row.roomCount ?? 0,
   },
   {
-    accessorKey: "basis",
-    header: "Occupancy",
+    header: "Check-In Date",
+    accessorFn: (row) => formatDate(row.checkInDate ?? ""),
+  },
+  // {
+  //   header: "Check-In Time",
+  //   accessorFn: row => row.voucherLines[0]?.checkInTime ?? ""
+  // },
+  {
+    header: "Check-Out Date",
+    accessorFn: (row) => formatDate(row.checkOutDate ?? ""),
+  },
+  // {
+  //   header: "Check-Out Time",
+  //   accessorFn: row => row.voucherLines[0]?.checkOutTime ?? ""
+  // },
+  {
+    header: "Rooms",
+    accessorFn: (row) => `${row.roomType}-${row.roomCategory}-${row.roomCount}`,
   },
   {
-    header: "Room",
-    accessorFn: (row) => `${row.roomType} - ${row.roomCount} Room`,
+    header: "Basis",
+    accessorFn: (row) => row.basis,
   },
 ];
-
 
 // Update the HotelsTasksTab component to receive vouchers as a prop
 const HotelsTasksTab = ({
@@ -74,66 +92,75 @@ const HotelsTasksTab = ({
   bookingLineId: string;
   vouchers: HotelVoucherData[]; // Accept vouchers as a prop
 }) => {
-  const {toast} = useToast()
-  const updateVoucherLine = async (voucherLine: any[], confirmationDetails?: {
-    availabilityConfirmedBy: string,
-    availabilityConfirmedTo: string,
-    ratesConfirmedBy: string,
-    ratesConfirmedTo: string,
-  }) => {
-    if(!confirmationDetails){
-      throw new Error("Failed")
+  const { toast } = useToast();
+  const updateVoucherLinesRates = async (
+    voucherLine: SelectHotelVoucherLine[],
+    confirmationDetails?: {
+      availabilityConfirmedBy: string;
+      availabilityConfirmedTo: string;
+      ratesConfirmedBy: string;
+      ratesConfirmedTo: string;
+    },
+  ) => {
+    if (!confirmationDetails) {
+      throw new Error("Failed");
     }
     alert("Updating voucher line:");
-    try{
-      const bulkUpdateResponse = bulkUpdateHotelVoucherRates(voucherLine,{
+    try {
+      const bulkUpdateResponse = bulkUpdateHotelVoucherRates(voucherLine, {
         availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
         availabilityConfirmedTo: confirmationDetails.availabilityConfirmedTo,
         ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
         ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
-      })
-  
-      if(!bulkUpdateResponse){
-        throw new Error("Failed")
+      });
+
+      if (!bulkUpdateResponse) {
+        throw new Error("Failed");
       }
-    } catch(error){
+    } catch (error) {
       console.error("Error updating voucher line:", error);
       alert("Failed to update voucher line. Please try again.");
     }
   };
-  const updateVoucherStatus = async (voucher: SelectHotelVoucher)=>{
+  const updateVoucherStatus = async (voucher: SelectHotelVoucher) => {
     alert("Updating voucher status:");
-    try{
-      const voucherUpdateResponse = updateHotelVoucherStatus(voucher)
-  
-      if(!voucherUpdateResponse){
-        throw new Error("Failed")
+    try {
+      const voucherUpdateResponse = updateHotelVoucherStatus(voucher);
+
+      if (!voucherUpdateResponse) {
+        throw new Error("Failed");
       }
-      return true
-    } catch(error){
+      return true;
+    } catch (error) {
       console.error("Error updating voucher line:", error);
       toast({
         title: "Error",
         description: "Error while updating the voucher status",
-      })
-      return false
+      });
+      return false;
     }
-  }
+  };
+
+  const [selectedHotel, setSelectedHotel] = useState<SelectHotel>()
+
+
   return (
-  <TasksTab
-    bookingLineId={bookingLineId}
-    columns={hotelColumns}
-    voucherColumns={hotelVoucherLineColumns}
-    vouchers={vouchers} // Pass vouchers directly to TasksTab
-    formComponent={HotelsVoucherForm}
-    updateVoucherLine={updateVoucherLine}
-    updateVoucherStatus={updateVoucherStatus}
-    contactDetails={
-      {
-        phone:vouchers[0]?.hotel.primaryContactNumber ?? "",
-        email:vouchers[0]?.hotel.primaryEmail ?? ""}
-    }
-  />
-)};
+    <HotelVouchersTasksTab
+      bookingLineId={bookingLineId}
+      columns={hotelColumns}
+      voucherColumns={hotelVoucherLineColumns}
+      vouchers={vouchers}
+      updateVoucherLine={updateVoucherLinesRates}
+      updateVoucherStatus={updateVoucherStatus}
+      contactDetails={
+        {
+          phone:selectedHotel?.primaryContactNumber ?? "",
+          email:selectedHotel?.primaryEmail ?? ""}
+      }
+      setSelectedVendor={setSelectedHotel}
+      selectedVendor={selectedHotel}
+    />
+  );
+};
 
 export default HotelsTasksTab;

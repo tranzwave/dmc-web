@@ -1,5 +1,6 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -53,6 +54,8 @@ interface HotelsFormProps {
       })
     | null
     | undefined;
+  amendment?: boolean;
+  isUpdating?: boolean;
 }
 
 export const hotelsSchema = z.object({
@@ -74,6 +77,8 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   onAddHotel,
   hotels,
   defaultValues,
+  amendment,
+  isUpdating,
 }) => {
   const [selectedHotel, setSelectedHotel] = useState<SelectHotel | null>();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -88,8 +93,10 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       name: defaultValues?.hotel.name,
     },
     values: {
-      adultsCount: bookingDetails.general.adultsCount ?? 0,
-      kidsCount: bookingDetails.general.kidsCount ?? 0,
+      adultsCount:
+        defaultValues?.adultsCount ?? bookingDetails.general.adultsCount ?? 0,
+      kidsCount:
+        defaultValues?.kidsCount ?? bookingDetails.general.kidsCount ?? 0,
       name: hotels[0]?.name ?? "",
       checkInDate: defaultValues?.checkInDate ?? "",
       // checkInTime: defaultValues?.checkInTime ?? "10:00",
@@ -107,8 +114,9 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
     const voucherLine: InsertHotelVoucherLine = {
       adultsCount: Number(form.getValues("adultsCount")), // Assuming you have an `adultsCount` field in your form.
       kidsCount: Number(form.getValues("kidsCount")), // Assuming you have a `kidsCount` field in your form.
-      hotelVoucherId: "", // Use the selected hotel ID stored in the state.
+      hotelVoucherId: "",
       roomType: form.getValues("roomType"), // Room type from the form.
+      roomCategory: form.getValues("roomCategory"),
       basis: form.getValues("basis"), // Basis from the form.
       checkInDate: form.getValues("checkInDate").toString(), // Convert check-in date from form to a Date object.
       checkInTime: "10:00",
@@ -118,6 +126,13 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       remarks: form.getValues("remarks"),
       id: voucherLineId,
     };
+
+    if (amendment) {
+      onAddHotel(voucherLine, true, selectedHotel);
+      setVoucherLineId("");
+      setIsModalOpen(false);
+      return;
+    }
 
     if (isNewVoucher) {
       onAddHotel(voucherLine, true, selectedHotel);
@@ -145,7 +160,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   useEffect(() => {
     // form.reset();
     console.log(defaultValues);
-    if(defaultValues?.hotel){
+    if (defaultValues?.hotel) {
       setSelectedHotel(defaultValues?.hotel);
     }
   }, [defaultValues]);
@@ -158,6 +173,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
             <FormField
               name="name"
               control={form.control}
+              
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Hotel Name</FormLabel>
@@ -169,6 +185,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                       }}
                       // value={field.value}
                       value={defaultValues?.hotel?.name}
+                      disabled={amendment}
                     >
                       <SelectTrigger className="bg-slate-100 shadow-md">
                         <SelectValue placeholder="Select hotel" />
@@ -243,37 +260,42 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
           <div></div>
           <div className="grid grid-cols-4 gap-3">
             <div className="flex flex-row gap-3">
-            <FormField
-              name="checkInDate"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Check-in Date</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} min={bookingDetails.general.startDate ?? ""} max={bookingDetails.general.endDate ?? ""}/>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="checkOutDate"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Check-out Date</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="date"
-                      {...field}
-                      min={form.watch("checkInDate") ?? ""}
-                      max={bookingDetails.general.endDate ?? ""}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                name="checkInDate"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Check-in Date</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        {...field}
+                        min={bookingDetails.general.startDate ?? ""}
+                        max={bookingDetails.general.endDate ?? ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="checkOutDate"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Check-out Date</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        {...field}
+                        min={form.watch("checkInDate") ?? ""}
+                        max={bookingDetails.general.endDate ?? ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
             <FormField
               name="roomType"
@@ -395,8 +417,19 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
             />
           </div>
           <div className="flex w-full flex-row justify-end">
-            <Button variant={"primaryGreen"} type="submit" className="px-5">
-              Add
+            <Button variant={"primaryGreen"} type="submit" className="px-5" disabled={isUpdating}>
+              {amendment ? (
+                isUpdating ? (
+                  <div className="flex flex-row gap-1">
+                    <LoaderCircle size={15} className="animate-spin" />
+                    <div>Updating</div>
+                  </div>
+                ) : (
+                  "Amend"
+                )
+              ) : (
+                "Add"
+              )}
             </Button>
           </div>
         </form>

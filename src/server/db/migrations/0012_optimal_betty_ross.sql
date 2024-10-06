@@ -1,0 +1,1 @@
+ALTER TABLE "dmc-web_bookings" ALTER COLUMN "agent_id" SET NOT NULL;

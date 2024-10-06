@@ -4,33 +4,22 @@ import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { DataTableWithActions } from "~/components/common/dataTableWithActions/index";
 import { ColumnDef } from "@tanstack/react-table";
-import Popup from "../popup";
 import { Input } from "~/components/ui/input";
 import { useToast } from "~/hooks/use-toast";
-import { ConfirmationForm } from "./confirmationForm";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
-// import Voucher from "./voucherComponent";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import html2pdf from "html2pdf.js";
-import DeletePopup from "../deletePopup";
-import { SelectActivityVendor, SelectActivityVoucher, SelectDriver, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant, SelectRestaurantVoucher, SelectRestaurantVoucherLine, SelectShop, SelectShopVoucher, SelectTransportVoucher } from "~/server/db/schemaTypes";
-import { Phone } from "lucide-react";
+import {SelectRestaurantVoucherLine } from "~/server/db/schemaTypes";
+import Popup from "~/components/common/popup";
+import DeletePopup from "~/components/common/deletePopup";
+import { ConfirmationForm } from "~/components/common/tasksTab/confirmationForm";
+import { RestaurantVoucherData } from "..";
+import ContactContent from "~/components/common/tasksTab/contactContent";
 
-type Vendor = SelectHotel | SelectRestaurant | SelectActivityVendor | SelectShop | SelectDriver
-interface TasksTabProps<T, L> {
+interface TasksTabProps {
   bookingLineId: string;
-  columns: ColumnDef<T>[]; // Columns for the main vouchers
-  voucherColumns: ColumnDef<L>[]; // Columns for the voucher lines
-  vouchers: T[]; // Directly pass the voucher array
-  formComponent: React.FC<{
-    selectedItem: any | undefined;
-    onSave: () => void;
-    vendor: any;
-  }>; // Form component for editing/creating vouchers
+  columns: ColumnDef<RestaurantVoucherData>[];
+  voucherColumns: ColumnDef<SelectRestaurantVoucherLine>[]; 
+  vouchers: RestaurantVoucherData[];
   updateVoucherLine: (
     data: any,
     confirmationDetails?: {
@@ -51,26 +40,19 @@ interface WithOptionalVoucherLine<L, T> {
   voucherLines?: L[] | T[];
 }
 
-const TasksTab = <
-  T extends object & WithOptionalVoucherLine<L, T>,
-  L extends object,
->({
+const RestaurantVouchersTasksTab = ({
   bookingLineId,
   columns,
   voucherColumns,
   vouchers,
-  formComponent: FormComponent,
+//   formComponent: FormComponent,
   updateVoucherLine,
   updateVoucherStatus,
-  contactDetails,
-  selectedVendor,
   setSelectedVendor,
 
-}: TasksTabProps<T, L>) => {
-  const [selectedVoucher, setSelectedVoucher] = useState<any>();
-  const [selectedVoucherLine, setSelectedVoucherLine] = useState<any>();
-  // const [selectedVoucher, setSelectedVoucher] = useState<any>();
-  // const [selectedVoucherLine, setSelectedVoucherLine] = useState<any>();
+}: TasksTabProps) => {
+  const [selectedVoucher, setSelectedVoucher] = useState<RestaurantVoucherData>();
+  const [selectedVoucherLine, setSelectedVoucherLine] = useState<SelectRestaurantVoucherLine>();
   const [rate, setRate] = useState<string | number>(0);
   const [statusChanged, setStatusChanged] = useState<boolean>(false);
   const [isInprogressVoucherDelete, setIsInProgressVoucherDelete] =
@@ -81,48 +63,26 @@ const TasksTab = <
 
   const { toast } = useToast();
 
-  const onVoucherRowClick = (row: T) => {
+  const onVoucherRowClick = (row: RestaurantVoucherData) => {
     setSelectedVoucher(row);
     if(setSelectedVendor){
       setSelectedVendor(row)
     }
   };
 
-  const onVoucherLineRowClick = (row: L) => {
+  const onVoucherLineRowClick = (row: SelectRestaurantVoucherLine) => {
     console.log(row);
     setSelectedVoucherLine(row);
     console.log("Updating");
     console.log(selectedVoucherLine);
   };
 
-  const getFirstObjectName = (obj: any): string => {
-    if (typeof obj !== "object" || obj === null) {
-      return "";
-    }
-
-    if ("name" in obj) {
-      return obj.name;
-    }
-
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        const result = getFirstObjectName(obj[key]);
-        if (result) {
-          return result;
-        }
-      }
-    }
-    return "";
-  };
-
   const handleConfirm = () => {
     console.log("Confirmed");
-    // Add confirmation logic here
   };
 
   const handleCancel = () => {
     console.log("Cancelled");
-    // Add cancellation logic here
   };
 
   const renderCancelContent = () => {
@@ -159,18 +119,8 @@ const TasksTab = <
     console.log("Status changed");
   }, [statusChanged]);
 
-  const voucherData = {
-    clientName: "John Doe",
-    bookingId: "12345",
-    hotelName: "Grand Hotel",
-    checkInDate: "2023-10-01",
-    checkOutDate: "2023-10-05",
-    numberOfDays: 4,
-    roomType: "Deluxe Suite",
-  };
-
   const getContactDetails = () => {
-    if(!selectedVendor){
+    if(!selectedVoucher){
       return {
         phone: "",
         email:""
@@ -178,16 +128,11 @@ const TasksTab = <
       }
     }
     return {
-      phone: hasPrimaryContactDetails(selectedVendor) ? selectedVendor.primaryContactNumber : selectedVendor.contactNumber || "N/A",
-      email: selectedVendor.primaryEmail ?? "N/A",
+      phone: selectedVoucher.restaurant.contactNumber,
+      email: selectedVoucher.restaurant.primaryEmail,
     };
   };
-  
-  function hasPrimaryContactDetails(
-    vendor: Vendor,
-  ): vendor is Vendor & { primaryContactNumber: string; primaryEmail?: string } {
-    return 'primaryContactNumber' in vendor && typeof vendor.primaryContactNumber === 'string';
-  }
+
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">
@@ -207,8 +152,8 @@ const TasksTab = <
           />
           <div className="flex flex-row items-center justify-between">
             <div className="text-sm font-normal">
-              {selectedVoucher && getFirstObjectName(selectedVoucher)
-                ? `${getFirstObjectName(selectedVoucher)} - Voucher Lines`
+              {selectedVoucher
+                ? `${selectedVoucher.restaurant.name} - Voucher Lines`
                 : "Voucher Lines"}
             </div>
             {selectedVoucher ? (
@@ -220,15 +165,6 @@ const TasksTab = <
                 >
                   Cancel
                 </Button>
-                {/* <Popup
-                  title="Cancel Voucher"
-                  description="This action cannot be undone"
-                  trigger={cancelButton}
-                  onConfirm={handleConfirm}
-                  onCancel={handleCancel}
-                  dialogContent={renderCancelContent()}
-                  size="small"
-                /> */}
 
                 <Popup
                   title="Contact"
@@ -240,7 +176,7 @@ const TasksTab = <
                   size="small"
                 />
                 <DeletePopup
-                  itemName={`Voucher for ${selectedVoucher?.hotel.name}`}
+                  itemName={`Voucher for ${selectedVoucher?.restaurant.name}`}
                   onDelete={() => {
                     console.log("Deleting");
                   }}
@@ -251,7 +187,7 @@ const TasksTab = <
                 voucher without sending a cancellation voucher"
                 />
                 <DeletePopup
-                  itemName={`Voucher for ${selectedVoucher?.hotel.name}`}
+                  itemName={`Voucher for ${selectedVoucher?.restaurant.name}`}
                   onDelete={() => {
                     console.log("Deleting");
                   }}
@@ -269,15 +205,7 @@ const TasksTab = <
 
           <DataTableWithActions
             columns={voucherColumns}
-            data={
-              selectedVoucher
-                ? selectedVoucher.voucherLines // Check if `voucherLines` is defined
-                  ? selectedVoucher.voucherLines // Use `voucherLines` if present
-                  : Array.isArray(selectedVoucher.voucherLine) // Otherwise, check if `voucherLine` is an array
-                    ? selectedVoucher.voucherLine // Use `voucherLine` if it's already an array
-                    : [selectedVoucher.voucherLine ?? selectedVoucher] // If `voucherLine` is a single object, wrap in an array
-                : []
-            }
+            data={selectedVoucher?.voucherLines ?? []}
             onRowClick={onVoucherLineRowClick}
             onView={() => alert("View action triggered")}
             onEdit={() => alert("Edit action triggered")}
@@ -301,8 +229,7 @@ const TasksTab = <
               />
               <Popup
                 title={
-                  selectedVoucher && getFirstObjectName(selectedVoucher)
-                    ? `${getFirstObjectName(selectedVoucher)} - Voucher`
+                  selectedVoucher ? `${selectedVoucher.restaurant.name} - Voucher`
                     : "Select a voucher first"
                 }
                 description="Voucher Content"
@@ -325,32 +252,13 @@ const TasksTab = <
               />
             </div>
           </div>
-
-          {/* <ProceedContent
-            voucherColumns={voucherColumns}
-            selectedVoucher={selectedVoucher}
-            onVoucherLineRowClick={onVoucherLineRowClick}
-            updateVoucherLine={updateVoucherLine}
-            updateVoucherStatus={updateVoucherStatus}
-            rate={rate}
-            setRate={setRate}
-            setStatusChanged={setStatusChanged}
-          /> */}
-
-          {/* <Voucher {...voucherData} /> */}
-
-          {/* <FormComponent
-            selectedItem={selectedVoucherLine}
-            onSave={() => console.log("Saved")}
-            vendor={selectedVoucher}
-          /> */}
         </div>
       </div>
     </div>
   );
 };
 
-export default TasksTab;
+export default RestaurantVouchersTasksTab;
 
 const CreateRateColumn = <T extends object>(
   initialRate: number | string,
@@ -680,17 +588,4 @@ const confirmationContent = (
   }
 };
 
-const ContactContent = (phone: string, email: string) => {
-  return (
-    <div>
-      <div className="bg-slate-100 p-2">
-        <div className="text-base font-semibold">Email</div>
-        <div className="text-sm font-normal text-zinc-800">{email}</div>
-      </div>
-      <div className="bg-slate-100 p-2">
-        <div className="text-base font-semibold">Contact Number</div>
-        <div className="text-sm font-normal text-zinc-800">{phone}</div>
-      </div>
-    </div>
-  );
-};
+

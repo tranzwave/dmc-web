@@ -4,10 +4,10 @@ import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { DataTableWithActions } from "~/components/common/dataTableWithActions/index";
 import { ColumnDef } from "@tanstack/react-table";
-import Popup from "../popup";
+// import Popup from "../popup";
 import { Input } from "~/components/ui/input";
 import { useToast } from "~/hooks/use-toast";
-import { ConfirmationForm } from "./confirmationForm";
+// import { ConfirmationForm } from "./confirmationForm";
 import {
   Popover,
   PopoverContent,
@@ -16,23 +16,28 @@ import {
 // import Voucher from "./voucherComponent";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import html2pdf from "html2pdf.js";
-import DeletePopup from "../deletePopup";
+// import DeletePopup from "../deletePopup";
 import { SelectActivityVendor, SelectActivityVoucher, SelectDriver, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant, SelectRestaurantVoucher, SelectRestaurantVoucherLine, SelectShop, SelectShopVoucher, SelectTransportVoucher } from "~/server/db/schemaTypes";
-import { Phone } from "lucide-react";
+import Popup from "../../popup";
+import DeletePopup from "../../deletePopup";
+import { ConfirmationForm } from "../confirmationForm";
 
-type Vendor = SelectHotel | SelectRestaurant | SelectActivityVendor | SelectShop | SelectDriver
-interface TasksTabProps<T, L> {
-  bookingLineId: string;
-  columns: ColumnDef<T>[]; // Columns for the main vouchers
-  voucherColumns: ColumnDef<L>[]; // Columns for the voucher lines
-  vouchers: T[]; // Directly pass the voucher array
-  formComponent: React.FC<{
-    selectedItem: any | undefined;
-    onSave: () => void;
-    vendor: any;
-  }>; // Form component for editing/creating vouchers
-  updateVoucherLine: (
-    data: any,
+type Vendor = SelectHotel | SelectRestaurant | SelectDriver | SelectActivityVendor | SelectShop
+type Voucher = SelectHotelVoucher | SelectRestaurantVoucher | SelectTransportVoucher |SelectActivityVoucher | SelectShopVoucher
+type VoucherLine = SelectHotelVoucherLine | SelectRestaurantVoucherLine | SelectTransportVoucher |SelectActivityVoucher | SelectShopVoucher
+
+export type VoucherData = {
+    vendor : Vendor,
+    voucher: Voucher,
+    voucherLines?: VoucherLine[]
+}
+
+interface TasksTabProps {
+  vouchers: VoucherData[];
+  voucherColumns: ColumnDef<VoucherData>[];
+  voucherLineColumns: ColumnDef<VoucherLine>[];
+  updateVoucherLineRates: (
+    data: VoucherLine[],
     confirmationDetails?: {
       availabilityConfirmedBy: string;
       availabilityConfirmedTo: string;
@@ -40,35 +45,18 @@ interface TasksTabProps<T, L> {
       ratesConfirmedTo: string;
     },
   ) => Promise<void>;
-  updateVoucherStatus: (data: any) => Promise<boolean>;
-  contactDetails?: { phone: string; email: string };
-  selectedVendor?:any
-  setSelectedVendor?: React.Dispatch<React.SetStateAction<any>>;
-
+  updateVoucherStatus: (data: Voucher) => Promise<boolean>;
 }
 
-interface WithOptionalVoucherLine<L, T> {
-  voucherLines?: L[] | T[];
-}
-
-const TasksTab = <
-  T extends object & WithOptionalVoucherLine<L, T>,
-  L extends object,
->({
-  bookingLineId,
-  columns,
-  voucherColumns,
+const NewTasksTab = ({
   vouchers,
-  formComponent: FormComponent,
-  updateVoucherLine,
+  voucherColumns,
+  voucherLineColumns,
+  updateVoucherLineRates,
   updateVoucherStatus,
-  contactDetails,
-  selectedVendor,
-  setSelectedVendor,
-
-}: TasksTabProps<T, L>) => {
-  const [selectedVoucher, setSelectedVoucher] = useState<any>();
-  const [selectedVoucherLine, setSelectedVoucherLine] = useState<any>();
+}: TasksTabProps) => {
+  const [selectedVoucher, setSelectedVoucher] = useState<VoucherData>();
+  const [selectedVoucherLine, setSelectedVoucherLine] = useState<VoucherLine>();
   // const [selectedVoucher, setSelectedVoucher] = useState<any>();
   // const [selectedVoucherLine, setSelectedVoucherLine] = useState<any>();
   const [rate, setRate] = useState<string | number>(0);
@@ -81,39 +69,36 @@ const TasksTab = <
 
   const { toast } = useToast();
 
-  const onVoucherRowClick = (row: T) => {
+  const onVoucherRowClick = (row: VoucherData) => {
     setSelectedVoucher(row);
-    if(setSelectedVendor){
-      setSelectedVendor(row)
-    }
   };
 
-  const onVoucherLineRowClick = (row: L) => {
+  const onVoucherLineRowClick = (row: VoucherLine) => {
     console.log(row);
     setSelectedVoucherLine(row);
     console.log("Updating");
     console.log(selectedVoucherLine);
   };
 
-  const getFirstObjectName = (obj: any): string => {
-    if (typeof obj !== "object" || obj === null) {
-      return "";
-    }
+//   const getFirstObjectName = (obj: any): string => {
+//     if (typeof obj !== "object" || obj === null) {
+//       return "";
+//     }
 
-    if ("name" in obj) {
-      return obj.name;
-    }
+//     if ("name" in obj) {
+//       return obj.name;
+//     }
 
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        const result = getFirstObjectName(obj[key]);
-        if (result) {
-          return result;
-        }
-      }
-    }
-    return "";
-  };
+//     for (const key in obj) {
+//       if (obj.hasOwnProperty(key)) {
+//         const result = getFirstObjectName(obj[key]);
+//         if (result) {
+//           return result;
+//         }
+//       }
+//     }
+//     return "";
+//   };
 
   const handleConfirm = () => {
     console.log("Confirmed");
@@ -127,8 +112,8 @@ const TasksTab = <
 
   const renderCancelContent = () => {
     if (selectedVoucher) {
-      if (selectedVoucher.status) {
-        if (selectedVoucher.status == "inprogress") {
+      if (selectedVoucher.voucher.status) {
+        if (selectedVoucher.voucher.status == "inprogress") {
           setIsInProgressVoucherDelete(true);
         } else {
           setIsProceededVoucherDelete(true);
@@ -169,17 +154,10 @@ const TasksTab = <
     roomType: "Deluxe Suite",
   };
 
-  const getContactDetails = () => {
-    if(!selectedVendor){
-      return {
-        phone: "",
-        email:""
-
-      }
-    }
+  const getContactDetails = (vendor: Vendor) => {
     return {
-      phone: hasPrimaryContactDetails(selectedVendor) ? selectedVendor.primaryContactNumber : selectedVendor.contactNumber || "N/A",
-      email: selectedVendor.primaryEmail ?? "N/A",
+      phone: hasPrimaryContactDetails(vendor) ? vendor.primaryContactNumber : vendor.contactNumber || "N/A",
+      email: vendor.primaryEmail ?? "N/A",
     };
   };
   
@@ -199,7 +177,7 @@ const TasksTab = <
           <div className="card-title">Voucher Information</div>
           <DataTableWithActions
             data={vouchers}
-            columns={columns}
+            columns={voucherColumns}
             onRowClick={onVoucherRowClick}
             onView={() => alert("View action triggered")}
             onEdit={() => alert("Edit action triggered")}
@@ -207,8 +185,8 @@ const TasksTab = <
           />
           <div className="flex flex-row items-center justify-between">
             <div className="text-sm font-normal">
-              {selectedVoucher && getFirstObjectName(selectedVoucher)
-                ? `${getFirstObjectName(selectedVoucher)} - Voucher Lines`
+              {selectedVoucher
+                ? `${selectedVoucher.vendor.name} - Voucher Lines`
                 : "Voucher Lines"}
             </div>
             {selectedVoucher ? (
@@ -220,15 +198,6 @@ const TasksTab = <
                 >
                   Cancel
                 </Button>
-                {/* <Popup
-                  title="Cancel Voucher"
-                  description="This action cannot be undone"
-                  trigger={cancelButton}
-                  onConfirm={handleConfirm}
-                  onCancel={handleCancel}
-                  dialogContent={renderCancelContent()}
-                  size="small"
-                /> */}
 
                 <Popup
                   title="Contact"
@@ -236,11 +205,11 @@ const TasksTab = <
                   trigger={contactButton}
                   onConfirm={handleConfirm}
                   onCancel={handleCancel}
-                  dialogContent={ContactContent(getContactDetails().phone, getContactDetails().email)}
+                  dialogContent={ContactContent(getContactDetails(selectedVoucher.vendor).phone, getContactDetails(selectedVoucher.vendor).email)}
                   size="small"
                 />
                 <DeletePopup
-                  itemName={`Voucher for ${selectedVoucher?.hotel.name}`}
+                  itemName={`Voucher for ${selectedVoucher?.vendor.name}`}
                   onDelete={() => {
                     console.log("Deleting");
                   }}
@@ -251,14 +220,14 @@ const TasksTab = <
                 voucher without sending a cancellation voucher"
                 />
                 <DeletePopup
-                  itemName={`Voucher for ${selectedVoucher?.hotel.name}`}
+                  itemName={`Voucher for ${selectedVoucher?.vendor.name}`}
                   onDelete={() => {
                     console.log("Deleting");
                   }}
                   isOpen={isProceededVoucherDelete}
                   setIsOpen={setIsProceededVoucherDelete}
                   isDeleting={isDeleting}
-                  description={`You have already proceeded with this voucher, and it's in the status of ${selectedVoucher.status} \n
+                  description={`You have already proceeded with this voucher, and it's in the status of ${selectedVoucher.voucher.status} \n
                 Are you sure you want to cancel this voucher? This will give you the cancellation voucher and delete the voucher from this booking`}
                 />
               </div>
@@ -268,16 +237,8 @@ const TasksTab = <
           </div>
 
           <DataTableWithActions
-            columns={voucherColumns}
-            data={
-              selectedVoucher
-                ? selectedVoucher.voucherLines // Check if `voucherLines` is defined
-                  ? selectedVoucher.voucherLines // Use `voucherLines` if present
-                  : Array.isArray(selectedVoucher.voucherLine) // Otherwise, check if `voucherLine` is an array
-                    ? selectedVoucher.voucherLine // Use `voucherLine` if it's already an array
-                    : [selectedVoucher.voucherLine ?? selectedVoucher] // If `voucherLine` is a single object, wrap in an array
-                : []
-            }
+            data={selectedVoucher?.voucherLines ?? []}
+            columns={voucherLineColumns}
             onRowClick={onVoucherLineRowClick}
             onView={() => alert("View action triggered")}
             onEdit={() => alert("Edit action triggered")}
@@ -300,21 +261,17 @@ const TasksTab = <
                 size="small"
               />
               <Popup
-                title={
-                  selectedVoucher && getFirstObjectName(selectedVoucher)
-                    ? `${getFirstObjectName(selectedVoucher)} - Voucher`
-                    : "Select a voucher first"
-                }
+                title={selectedVoucher ? selectedVoucher.vendor.name + ' Voucher' : "Select a voucher first"}
                 description="Voucher Content"
                 trigger={proceedButton}
                 onConfirm={handleConfirm}
                 onCancel={handleCancel}
                 dialogContent={
                   <ProceedContent
-                    voucherColumns={voucherColumns}
+                    voucherColumns={voucherLineColumns}
                     selectedVoucher={selectedVoucher}
                     onVoucherLineRowClick={onVoucherLineRowClick}
-                    updateVoucherLine={updateVoucherLine}
+                    updateVoucherLine={updateVoucherLineRates}
                     updateVoucherStatus={updateVoucherStatus}
                     rate={rate}
                     setRate={setRate}
@@ -350,7 +307,7 @@ const TasksTab = <
   );
 };
 
-export default TasksTab;
+export default NewTasksTab;
 
 const CreateRateColumn = <T extends object>(
   initialRate: number | string,
