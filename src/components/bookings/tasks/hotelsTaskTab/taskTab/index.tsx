@@ -126,6 +126,7 @@ const HotelVouchersTasksTab = <
 
   const onVoucherRowClick = (row: HotelVoucherData) => {
     setSelectedVoucher(row);
+    setRate(row.voucherLines[0]?.rate ?? 0)
     if (setSelectedVendor) {
       setSelectedVendor(row);
     }
@@ -221,7 +222,7 @@ const HotelVouchersTasksTab = <
 
     if (tempContainer && selectedVoucher) {
       // Make the container visible
-      tempContainer.style.display = 'block';
+      tempContainer.style.display = "block";
 
       const options = {
         filename: `cancellation_voucher_${selectedVoucher.hotel.name}.pdf`,
@@ -234,7 +235,7 @@ const HotelVouchersTasksTab = <
         .save()
         .then(() => {
           // Hide the container after PDF is generated
-          tempContainer.style.display = 'none'; // Set back to hidden
+          tempContainer.style.display = "none"; // Set back to hidden
         });
     }
   };
@@ -297,13 +298,18 @@ const HotelVouchersTasksTab = <
         </div>
         <div className="card w-full space-y-6">
           <div className="card-title">Voucher Information</div>
-          <DataTableWithActions
+          {/* <DataTableWithActions
             data={vouchers}
             columns={columns}
             onRowClick={onVoucherRowClick}
             onView={() => alert("View action triggered")}
             onEdit={() => alert("Edit action triggered")}
             onDelete={() => alert("Delete action triggered")}
+          /> */}
+          <DataTable
+            data={vouchers}
+            columns={columns}
+            onRowClick={onVoucherRowClick}
           />
           <div className="flex flex-row items-center justify-between">
             <div className="text-sm font-normal">
@@ -351,10 +357,7 @@ const HotelVouchersTasksTab = <
                   description="You haven't sent this to the vendor yet. You can delete the
                 voucher without sending a cancellation voucher"
                 />
-                <div
-                  ref={deleteVoucherRef}
-                  style={{ display: "none" }}
-                >
+                <div ref={deleteVoucherRef} style={{ display: "none" }}>
                   <HotelVoucherPDF
                     voucher={selectedVoucher}
                     cancellation={true}
@@ -377,13 +380,18 @@ const HotelVouchersTasksTab = <
             )}
           </div>
 
-          <DataTableWithActions
+          {/* <DataTableWithActions
             columns={voucherColumns}
             data={selectedVoucher?.voucherLines ?? []}
             onRowClick={onVoucherLineRowClick}
             onView={() => alert("View action triggered")}
             onEdit={() => alert("Edit action triggered")}
             onDelete={() => alert("Delete action triggered")}
+          /> */}
+          <DataTable
+            columns={voucherColumns}
+            data={selectedVoucher?.voucherLines ?? []}
+            onRowClick={onVoucherLineRowClick}
           />
           <div
             className={`flex flex-row items-end justify-end ${!selectedVoucher ? "hidden" : ""}`}
@@ -497,6 +505,7 @@ const CreateRateColumn = <T extends object>(
     // Create a separate component to handle state and rendering
     const RateInput = () => {
       const [rate, setLocalRate] = useState<number | string>(initialRate);
+      const inputRef = useRef<HTMLInputElement | null>(null);
 
       useEffect(() => {
         setLocalRate(initialRate);
@@ -504,28 +513,36 @@ const CreateRateColumn = <T extends object>(
 
       const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const inputValue = e.target.value;
-        const newRate = parseFloat(inputValue);
 
-        // Check if the newRate is a valid number
-        if (!isNaN(newRate)) {
-          setLocalRate(newRate);
+        // Allow empty input or valid decimal/float values
+        if (inputValue === "" || /^(\d+(\.\d{0,2})?)?$/.test(inputValue)) {
+          setLocalRate(inputValue); // Set local rate directly to the input value
+          const newRate = inputValue === "" ? "" : parseFloat(inputValue);
+          
+          // Update the rate state with the new rate
           setRate(newRate);
-        } else {
-          setLocalRate(""); // Set to '' if the input is not a valid number
-          setRate("");
-        }
 
-        // Update the row data with the new rate value
-        (row.original as Record<string, any>)[column.id] = newRate;
+          // Update the row data with the new rate value
+          (row.original as Record<string, any>)[column.id] = newRate;
+        }
       };
+
+      // Focus the input element when it's mounted
+      useEffect(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+      }, []);
 
       return (
         <Input
-          type="number"
-          value={rate === "" ? "" : rate}
+          ref={inputRef} // Attach the ref to the input
+          type="number" // You can keep this as "number" if you want to restrict to number inputs
+          value={rate}
           onChange={handleRateChange}
           className="rounded border border-gray-300 p-1"
           style={{ width: "80px" }}
+          placeholder="0.00" // Optional placeholder for clarity
         />
       );
     };
