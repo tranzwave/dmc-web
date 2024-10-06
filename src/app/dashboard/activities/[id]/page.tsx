@@ -49,7 +49,6 @@ const Page = ({ params }: { params: { id: string } }) => {
       header: "Capacity",
       accessorFn: (row) => row.capacity,
     }
-  
   ];
   const [activityVendor, setActivityVendor] = useState<FetchedActivityVendorData | null>(null);
 

@@ -1,0 +1,2 @@
+ALTER TABLE "dmc-web_restaurants" ADD COLUMN "primaryEmail" varchar(50) DEFAULT 'N/A' NOT NULL;--> statement-breakpoint
+ALTER TABLE "dmc-web_shops" ADD COLUMN "primary_email" varchar(50) DEFAULT 'N/A' NOT NULL;

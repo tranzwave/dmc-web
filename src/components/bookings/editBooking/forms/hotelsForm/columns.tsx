@@ -46,7 +46,7 @@ export const columns: ColumnDef<HotelDTO>[] = [
   ];
 
 
-  export const voucherColumns: ColumnDef<HotelVoucher>[] = [
+  export const hotelVoucherColumns: ColumnDef<HotelVoucher>[] = [
     {
       accessorKey: "hotel.name",
       header: "Hotel Name",
@@ -86,5 +86,9 @@ export const columns: ColumnDef<HotelDTO>[] = [
     {
       header: "Basis",
       accessorFn: row => row.voucherLines[0]?.basis
+    },
+    {
+      header:"Status",
+      accessorFn: row => row.voucher.status ?? "Unsaved"
     }
   ];

@@ -13,11 +13,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import Voucher from "./voucherComponent";
+// import Voucher from "./voucherComponent";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import html2pdf from "html2pdf.js";
+import DeletePopup from "../deletePopup";
+import { SelectActivityVendor, SelectActivityVoucher, SelectDriver, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant, SelectRestaurantVoucher, SelectRestaurantVoucherLine, SelectShop, SelectShopVoucher, SelectTransportVoucher } from "~/server/db/schemaTypes";
+import { Phone } from "lucide-react";
 
-// Define props type for the TasksTab component
+type Vendor = SelectHotel | SelectRestaurant | SelectActivityVendor | SelectShop | SelectDriver
 interface TasksTabProps<T, L> {
   bookingLineId: string;
   columns: ColumnDef<T>[]; // Columns for the main vouchers
@@ -39,6 +42,9 @@ interface TasksTabProps<T, L> {
   ) => Promise<void>;
   updateVoucherStatus: (data: any) => Promise<boolean>;
   contactDetails?: { phone: string; email: string };
+  selectedVendor?:any
+  setSelectedVendor?: React.Dispatch<React.SetStateAction<any>>;
+
 }
 
 interface WithOptionalVoucherLine<L, T> {
@@ -57,16 +63,29 @@ const TasksTab = <
   updateVoucherLine,
   updateVoucherStatus,
   contactDetails,
+  selectedVendor,
+  setSelectedVendor,
+
 }: TasksTabProps<T, L>) => {
   const [selectedVoucher, setSelectedVoucher] = useState<any>();
   const [selectedVoucherLine, setSelectedVoucherLine] = useState<any>();
+  // const [selectedVoucher, setSelectedVoucher] = useState<any>();
+  // const [selectedVoucherLine, setSelectedVoucherLine] = useState<any>();
   const [rate, setRate] = useState<string | number>(0);
   const [statusChanged, setStatusChanged] = useState<boolean>(false);
+  const [isInprogressVoucherDelete, setIsInProgressVoucherDelete] =
+    useState(false);
+  const [isProceededVoucherDelete, setIsProceededVoucherDelete] =
+    useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { toast } = useToast();
 
   const onVoucherRowClick = (row: T) => {
     setSelectedVoucher(row);
+    if(setSelectedVendor){
+      setSelectedVendor(row)
+    }
   };
 
   const onVoucherLineRowClick = (row: L) => {
@@ -106,17 +125,17 @@ const TasksTab = <
     // Add cancellation logic here
   };
 
-  // const confirmationContent = (
-  //   <div>
-  //     <p>Confirmation</p>
-  //   </div>
-  // );
-
-  const cancelContent = (
-    <div>
-      <p>Cancel</p>
-    </div>
-  );
+  const renderCancelContent = () => {
+    if (selectedVoucher) {
+      if (selectedVoucher.status) {
+        if (selectedVoucher.status == "inprogress") {
+          setIsInProgressVoucherDelete(true);
+        } else {
+          setIsProceededVoucherDelete(true);
+        }
+      }
+    }
+  };
 
   const cancelButton = (
     <Button variant={"outline"} className="border-red-600">
@@ -150,6 +169,26 @@ const TasksTab = <
     roomType: "Deluxe Suite",
   };
 
+  const getContactDetails = () => {
+    if(!selectedVendor){
+      return {
+        phone: "",
+        email:""
+
+      }
+    }
+    return {
+      phone: hasPrimaryContactDetails(selectedVendor) ? selectedVendor.primaryContactNumber : selectedVendor.contactNumber || "N/A",
+      email: selectedVendor.primaryEmail ?? "N/A",
+    };
+  };
+  
+  function hasPrimaryContactDetails(
+    vendor: Vendor,
+  ): vendor is Vendor & { primaryContactNumber: string; primaryEmail?: string } {
+    return 'primaryContactNumber' in vendor && typeof vendor.primaryContactNumber === 'string';
+  }
+
   return (
     <div className="flex flex-col items-center justify-center gap-3">
       <div className="flex w-full flex-row justify-center gap-3">
@@ -159,17 +198,73 @@ const TasksTab = <
         <div className="card w-full space-y-6">
           <div className="card-title">Voucher Information</div>
           <DataTableWithActions
-            columns={columns}
             data={vouchers}
+            columns={columns}
             onRowClick={onVoucherRowClick}
             onView={() => alert("View action triggered")}
             onEdit={() => alert("Edit action triggered")}
             onDelete={() => alert("Delete action triggered")}
           />
-          <div className="text-sm font-normal">
-            {selectedVoucher && getFirstObjectName(selectedVoucher)
-              ? `${getFirstObjectName(selectedVoucher)} - Voucher Lines`
-              : "Voucher Lines"}
+          <div className="flex flex-row items-center justify-between">
+            <div className="text-sm font-normal">
+              {selectedVoucher && getFirstObjectName(selectedVoucher)
+                ? `${getFirstObjectName(selectedVoucher)} - Voucher Lines`
+                : "Voucher Lines"}
+            </div>
+            {selectedVoucher ? (
+              <div className="flex flex-row gap-2">
+                <Button
+                  variant={"outline"}
+                  className="border-red-600"
+                  onClick={renderCancelContent}
+                >
+                  Cancel
+                </Button>
+                {/* <Popup
+                  title="Cancel Voucher"
+                  description="This action cannot be undone"
+                  trigger={cancelButton}
+                  onConfirm={handleConfirm}
+                  onCancel={handleCancel}
+                  dialogContent={renderCancelContent()}
+                  size="small"
+                /> */}
+
+                <Popup
+                  title="Contact"
+                  description="Loading Contact Details"
+                  trigger={contactButton}
+                  onConfirm={handleConfirm}
+                  onCancel={handleCancel}
+                  dialogContent={ContactContent(getContactDetails().phone, getContactDetails().email)}
+                  size="small"
+                />
+                <DeletePopup
+                  itemName={`Voucher for ${selectedVoucher?.hotel.name}`}
+                  onDelete={() => {
+                    console.log("Deleting");
+                  }}
+                  isOpen={isInprogressVoucherDelete}
+                  setIsOpen={setIsInProgressVoucherDelete}
+                  isDeleting={isDeleting}
+                  description="You haven't sent this to the vendor yet. You can delete the
+                voucher without sending a cancellation voucher"
+                />
+                <DeletePopup
+                  itemName={`Voucher for ${selectedVoucher?.hotel.name}`}
+                  onDelete={() => {
+                    console.log("Deleting");
+                  }}
+                  isOpen={isProceededVoucherDelete}
+                  setIsOpen={setIsProceededVoucherDelete}
+                  isDeleting={isDeleting}
+                  description={`You have already proceeded with this voucher, and it's in the status of ${selectedVoucher.status} \n
+                Are you sure you want to cancel this voucher? This will give you the cancellation voucher and delete the voucher from this booking`}
+                />
+              </div>
+            ) : (
+              ""
+            )}
           </div>
 
           <DataTableWithActions
@@ -192,29 +287,6 @@ const TasksTab = <
             className={`flex flex-row items-end justify-end ${!selectedVoucher ? "hidden" : ""}`}
           >
             <div className="flex flex-row gap-2">
-              <Popup
-                title="Cancel Voucher"
-                description="This action cannot be undone"
-                trigger={cancelButton}
-                onConfirm={handleConfirm}
-                onCancel={handleCancel}
-                dialogContent={cancelContent}
-                size="small"
-              />
-
-              <Popup
-                title="Contact"
-                description="Loading Contact Details"
-                trigger={contactButton}
-                onConfirm={handleConfirm}
-                onCancel={handleCancel}
-                dialogContent={ContactContent(
-                  contactDetails?.phone ?? "",
-                  contactDetails?.phone ?? "",
-                )}
-                size="small"
-              />
-
               <Popup
                 title="Confirm Voucher"
                 description="Confirm Form"
@@ -369,7 +441,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   const downloadPDF = () => {
     // Create a temporary container to hold the entire PDF content
     const tempContainer = document.createElement("div");
-    
+
     // Create the header section
     const headerElement = document.createElement("div");
     headerElement.innerHTML = `
@@ -378,10 +450,10 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         <p style="margin: 0; font-size: 14px;">This voucher is issued for the following booking details</p>
       </div>
     `;
-  
+
     // Clone the componentRef element and add it as the main content
     const componentElement = componentRef.current?.cloneNode(true);
-  
+
     // Create an additional section (optional, modify as needed)
     const additionalElement = document.createElement("div");
     additionalElement.innerHTML = `
@@ -389,7 +461,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
 
       </div>
     `;
-  
+
     // Create the footer section
     const footerElement = document.createElement("div");
     footerElement.innerHTML = `
@@ -398,7 +470,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         <p style="margin: 0; font-size: 12px;">Email: info@touragency.com | Phone: +1 234 567 890</p>
       </div>
     `;
-  
+
     // Append header, main content, and footer to the temporary container
     tempContainer.appendChild(headerElement); // Add the header
     if (componentElement) {
@@ -406,16 +478,16 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
     }
     tempContainer.appendChild(additionalElement); // Optional section
     tempContainer.appendChild(footerElement); // Add the footer
-  
+
     // Apply some basic styling to the container for better formatting
     tempContainer.style.width = "210mm"; // Set width to A4 size (portrait)
     tempContainer.style.minHeight = "297mm"; // Minimum height of A4 size
     tempContainer.style.padding = "10mm"; // Padding for the container
     tempContainer.style.backgroundColor = "white"; // Set background to white
-  
+
     // Append the temporary container to the body (invisible)
     document.body.appendChild(tempContainer);
-  
+
     // Generate the PDF from the temporary container
     const options = {
       filename: "booking_summary.pdf",
@@ -430,8 +502,6 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         document.body.removeChild(tempContainer);
       });
   };
-  
-  
 
   const areAllFieldsFilled = () => {
     return (
@@ -489,12 +559,12 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   const handleSendVoucher = async () => {
     if (selectedVoucher?.status !== "inprogress") {
       alert("You've already downloaded sent the voucher to vendor");
-      downloadPDF()
+      downloadPDF();
       return;
     }
 
     try {
-      downloadPDF()
+      downloadPDF();
       if (selectedVoucher?.status) {
         selectedVoucher.status = "sentToVendor";
       }

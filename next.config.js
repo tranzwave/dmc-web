@@ -10,9 +10,9 @@ const config = {
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: 'xsgames.co',
+                hostname: 'img.clerk.com',
                 port: '',
-                pathname: '/randomusers/avatar.php**',
+                pathname: '/**',
             },
         ],
       },
