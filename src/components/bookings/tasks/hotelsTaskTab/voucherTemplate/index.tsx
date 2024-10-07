@@ -11,6 +11,7 @@ import {
 } from "~/server/db/schemaTypes";
 import { useUser } from "@clerk/nextjs";
 import LoadingLayout from "~/components/common/dashboardLoading";
+import { format } from "date-fns";
 
 type HotelVoucherPDFProps = {
   voucher: HotelVoucherData;
@@ -89,7 +90,7 @@ const HotelVoucherPDF = ({ voucher,cancellation }: HotelVoucherPDFProps) => {
       </div>
       <div className="p-4">
         <div className="card-title w-full text-center">
-            {cancellation ? (<div className="text-red-500">Hotel Cancellation Voucher</div>): 'Hotel Reservation Voucher'}
+            {cancellation ? (<div className="text-red-500">Cancellation Voucher</div>): 'Hotel Reservation Voucher'}
           
         </div>
         <div className="flex w-full flex-row justify-between">
@@ -104,15 +105,16 @@ const HotelVoucherPDF = ({ voucher,cancellation }: HotelVoucherPDFProps) => {
             <div>{`Kids : ${voucher.voucherLines[0]?.kidsCount}`}</div>
           </div>
           <div className="text-[13px]">
-            <div>Check In : {voucher?.voucherLines[0]?.checkInDate}</div>
-            <div>Check Out : {voucher?.voucherLines[0]?.checkOutDate}</div>
-            <div>
+            <div>Voucher ID : {voucher?.voucherLines[0]?.id}</div>
+            {/* <div>Check In : {voucher?.voucherLines[0]?.checkInDate}</div>
+            <div>Check Out : {voucher?.voucherLines[0]?.checkOutDate}</div> */}
+            {/* <div>
               Number of Nights :{" "}
               {calculateDaysBetween(
                 voucher.voucherLines[0]?.checkInDate ?? "",
                 voucher.voucherLines[0]?.checkOutDate ?? "",
               )}
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -125,6 +127,9 @@ const HotelVoucherPDF = ({ voucher,cancellation }: HotelVoucherPDFProps) => {
                 <th className="px-4 py-2 text-left font-semibold">
                   Room Category
                 </th>
+                <th className="px-4 py-2 text-left font-semibold">Check In</th>
+                <th className="px-4 py-2 text-left font-semibold">Check Out</th>
+
                 <th className="px-4 py-2 text-left font-semibold">Quantity</th>
                 <th className="px-4 py-2 text-left font-semibold">Price</th>
                 <th className="px-4 py-2 text-left font-semibold">Amount</th>
@@ -136,10 +141,12 @@ const HotelVoucherPDF = ({ voucher,cancellation }: HotelVoucherPDFProps) => {
                   <td className="px-4 py-2">{line.roomType ?? "N/A"}</td>
                   <td className="px-4 py-2">{line.basis ?? "N/A"}</td>
                   <td className="px-4 py-2">{line.roomCategory ?? "N/A"}</td>
+                  <td className="px-4 py-2">{line.checkInDate ?? "N/A"}</td>
+                  <td className="px-4 py-2">{line.checkOutDate ?? "N/A"}</td>
                   <td className="px-4 py-2">{line.roomCount}</td>
-                  <td className="px-4 py-2">{line.rate}</td>
+                  <td className="px-4 py-2">{line.rate ?? '-'}</td>
                   <td className="px-4 py-2">
-                    {line.rate ? (Number(line.rate) ?? 0 * line.roomCount).toFixed(2) : "0"}
+                    {line.rate ? (Number(line.rate) ?? 0 * line.roomCount).toFixed(2) : "-"}
                   </td>
                 </tr>
               ))}
@@ -147,12 +154,14 @@ const HotelVoucherPDF = ({ voucher,cancellation }: HotelVoucherPDFProps) => {
           </table>
         </div>
 
-        <div className="mt-4 text-[13px]">
+
+
+        {/* <div className="mt-4 text-[13px]">
           <table className="min-w-full rounded-md border bg-white">
             <thead>
               <tr className="border-b">
                 <th className="px-4 py-2 text-left font-semibold">
-                  Availability Confirmed By
+                  Availability Confirmed By 
                 </th>
                 <th className="px-4 py-2 text-left font-semibold">
                   Availability Confirmed To
@@ -178,16 +187,26 @@ const HotelVoucherPDF = ({ voucher,cancellation }: HotelVoucherPDFProps) => {
               </tr>
             </tbody>
           </table>
-        </div>
+        </div> */}
 
         <div className="flex w-full flex-row justify-end p-4 text-[13px] font-semibold">
           {`Total(USD) - ${voucher.voucherLines[0]?.rate ?? 0 * (voucher.voucherLines[0]?.roomCount ?? 0)}`}
+        </div>
+
+        <div className="text-[14px] font-normal">
+          {voucher.availabilityConfirmedTo && (
+            <div>{`Availability confirmed by ${voucher.availabilityConfirmedBy} ${voucher.availabilityConfirmedTo ? 'to ' + voucher.availabilityConfirmedTo : ''}`}</div>
+          )}
+
+          {voucher.ratesConfirmedTo && (
+            <div>{`Rates confirmed by ${voucher.ratesConfirmedBy} ${voucher.ratesConfirmedTo ? ' to ' + voucher.ratesConfirmedTo : ''}`}</div>
+          )}
         </div>
         <div className="mt-4 text-[13px]">
           <div>Special Notes : {voucher.voucherLines[0]?.remarks}</div>
         </div>
         <div className="mt-10 text-[13px]">
-          <div>Date & Time : {new Date().toISOString()}</div>
+          <div>Date : {format(Date.now(), "dd/MM/yyyy")}</div>
           <div>Prepared By : {user?.fullName ?? ""}</div>
         </div>
       </div>

@@ -48,10 +48,18 @@ import {
   DialogTitle,
 } from "~/components/ui/dialog";
 import { usePathname, useRouter } from "next/navigation";
-import { LoaderCircle } from "lucide-react";
+import { CalendarIcon, LoaderCircle } from "lucide-react";
 import { OrganizationMembershipResource } from "@clerk/types";
 import { useOrganization } from "@clerk/nextjs";
-
+import { format, parse } from "date-fns";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+import { cn } from "~/lib/utils";
+import { Calendar } from "~/components/ui/calendar";
+import { DateRange } from "react-day-picker";
 
 // Define the schema for form validation
 export const addBookingGeneralSchema = z
@@ -63,19 +71,19 @@ export const addBookingGeneralSchema = z
       .string()
       .email("Please enter a valid email")
       .optional()
-      .or(z.literal('')),
+      .or(z.literal("")),
     primaryContactNumber: z
       .string()
       .min(10, "Please enter a valid number")
       .optional()
-      .or(z.literal('')),
+      .or(z.literal("")),
     adultsCount: z.number().min(0, "Add adult count"),
     kidsCount: z.number().min(0, "Add kids count"),
     startDate: z.string().min(1, "Start date is required"),
     numberOfDays: z.number().min(1, "Number of days must be at least 1"),
     endDate: z.string().min(1, "End date is required"),
     marketingManager: z.string().min(1, "Marketing manager is required"),
-    agent: z.string().min(1, "Agent is required").optional().or(z.literal('')),
+    agent: z.string().min(1, "Agent is required").optional().or(z.literal("")),
     tourType: z.string().min(1, "Tour type is required"),
     includes: z.object({
       hotels: z.boolean(),
@@ -123,6 +131,7 @@ const GeneralForm = () => {
   const { organization, isLoaded } = useOrganization();
   const [members, setMembers] = useState<OrganizationMembershipResource[]>([]); // Correct type for members
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [date, setDate] = useState<Date | undefined>(undefined);
 
   const fetchMembers = async () => {
     if (organization) {
@@ -189,7 +198,7 @@ const GeneralForm = () => {
 
   useEffect(() => {
     fetchData();
-    fetchMembers()
+    fetchMembers();
   }, [organization]);
 
   const onSubmit: SubmitHandler<GeneralFormValues> = async (data) => {
@@ -448,7 +457,7 @@ const GeneralForm = () => {
                 )}
               />
             </div>
-            <FormField
+            {/* <FormField
               name="startDate"
               control={form.control}
               render={({ field }) => (
@@ -456,6 +465,56 @@ const GeneralForm = () => {
                   <FormLabel>Start Date</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            /> */}
+            <FormField
+              control={form.control}
+              name="startDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Start Date</FormLabel>
+                  <FormControl>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value ? (
+                            format(new Date(field.value), "LLL dd, y")
+                          ) : (
+                            <span>Pick the arrival date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          initialFocus
+                          selected={
+                            field.value
+                              ? parse(field.value, "MM/dd/yyyy", new Date())
+                              : new Date()
+                          }
+                          onSelect={(date: Date | undefined) => {
+                            const dateString = format(
+                              date ?? new Date(),
+                              "MM/dd/yyyy",
+                            );
+                            field.onChange(dateString);
+                          }}
+                          numberOfMonths={1}
+                          
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -479,17 +538,56 @@ const GeneralForm = () => {
             )}
           /> */}
             <FormField
-              name="endDate"
               control={form.control}
+              name="endDate"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>End Date</FormLabel>
                   <FormControl>
-                    <Input
-                      type="date"
-                      {...field}
-                      min={form.watch("startDate") ?? ""}
-                    />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value ? (
+                            format(new Date(field.value), "LLL dd, y")
+                          ) : (
+                            <span>Pick the departure date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          initialFocus
+                          selected={
+                            field.value
+                              ? parse(field.value, "MM/dd/yyyy", new Date())
+                              : new Date()
+                          }
+                          onSelect={(date: Date | undefined) => {
+                            const dateString = format(
+                              date ?? new Date(),
+                              "MM/dd/yyyy",
+                            );
+                            field.onChange(dateString);
+                          }}
+                          numberOfMonths={1}
+                          disabled={(date) => {
+                            const startDate = form.watch("startDate");
+                            const startParsed = startDate
+                              ? parse(startDate, "MM/dd/yyyy", new Date())
+                              : null;
+                            return startParsed ? date < startParsed : false;
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

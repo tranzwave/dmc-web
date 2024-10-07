@@ -48,7 +48,7 @@ const HotelsTab = () => {
     setActiveTab,
     editHotelVoucher,
     deleteHotelVoucher,
-    updateTriggerRefetch
+    updateTriggerRefetch,
   } = useEditBooking();
   const [loading, setLoading] = useState(false);
   const [hotels, setHotels] = useState<SelectHotel[]>([]);
@@ -64,15 +64,15 @@ const HotelsTab = () => {
   const [defaultHotel, setDefaultHotel] = useState<SelectHotel>();
   const [indexToEdit, setIndexToEdit] = useState<number>();
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [isExistingVoucherDelete, setIsExistingVoucherDelete] = useState(false)
-  const [isUnsavedVoucherDelete, setIsUnsavedVoucherDelete] = useState(false)
+  const [isExistingVoucherDelete, setIsExistingVoucherDelete] = useState(false);
+  const [isUnsavedVoucherDelete, setIsUnsavedVoucherDelete] = useState(false);
   const [selectedVoucher, setSelectedVoucher] = useState<HotelVoucher>();
   const [isDeleting, setIsDeleting] = useState(false);
-  const [triggerRefetch, setTriggerRefetch]= useState(false);
+  const [triggerRefetch, setTriggerRefetch] = useState(false);
 
   const pathname = usePathname();
   const bookingLineId = pathname.split("/")[3];
-  const updateHotels = (
+  const updateHotels = async (
     data: InsertHotelVoucherLine,
     isNewVoucher: boolean,
     hotel: SelectHotel,
@@ -94,7 +94,37 @@ const HotelsTab = () => {
         setIndexToEdit(999);
         return;
       }
-      addHotelVoucher(hotelVoucher);
+
+      try {
+        setSaving(true);
+        const newResponse = await addHotelVoucherLinesToBooking(
+          [hotelVoucher],
+          bookingLineId ?? "",
+          bookingDetails.general.marketingManager,
+        );
+
+        if (!newResponse) {
+          throw new Error(`Error: Couldn't add hotel vouchers`);
+        }
+        console.log("Fetched Hotels:", newResponse);
+
+        toast({
+          title: "Success",
+          description: "Hotel Vouchers Added!",
+        });
+        addHotelVoucher(hotelVoucher);
+        setSaving(false);
+        updateTriggerRefetch();
+      } catch (error) {
+        if (error instanceof Error) {
+        } else {
+          setError("An unknown error occurred");
+        }
+        console.error("Error:", error);
+        setSaving(false);
+      }
+
+      // onSaveClick()
     } else {
       console.log("Multiple vouchers for same hotel is not supported yet");
     }
@@ -182,7 +212,7 @@ const HotelsTab = () => {
         title: "Success",
         description: "Hotel Vouchers Added!",
       });
-      updateTriggerRefetch()
+      updateTriggerRefetch();
     } catch (error) {
       if (error instanceof Error) {
         // setError(error.message);
@@ -225,14 +255,14 @@ const HotelsTab = () => {
   const onDelete = async (data: HotelVoucher) => {
     setSelectedVoucher(data);
     if (data.voucher.status) {
-      setIsExistingVoucherDelete(true)
+      setIsExistingVoucherDelete(true);
       return;
     }
-    setIsUnsavedVoucherDelete(true)
+    setIsUnsavedVoucherDelete(true);
     setIsDeleteOpen(true);
   };
 
-  const handleExistingVoucherDelete = async() => {
+  const handleExistingVoucherDelete = async () => {
     if (selectedVoucher && selectedVoucher.voucher.status) {
       if (selectedVoucher.voucher.status != "inprogress") {
         toast({
@@ -252,8 +282,6 @@ const HotelsTab = () => {
 
         deleteVoucherLineFromLocalContext();
         setIsDeleting(false);
-
-
       } catch (error) {
         toast({
           title: "Uh Oh",
@@ -266,12 +294,12 @@ const HotelsTab = () => {
   };
 
   const deleteVoucherLineFromLocalContext = () => {
-    setIsDeleting(true)
+    setIsDeleting(true);
     const index = bookingDetails.vouchers.findIndex(
       (v) => v == selectedVoucher,
     );
     deleteHotelVoucher(index, selectedVoucher?.voucherLines[0]?.id ?? "");
-    setIsDeleting(false)
+    setIsDeleting(false);
   };
 
   return (
@@ -293,15 +321,13 @@ const HotelsTab = () => {
         <div className="card w-full space-y-6">
           <div className="flex flex-row justify-between">
             <div className="card-title">Hotel Information</div>
-            <Link href={`${pathname.split("edit")[0]}/tasks?tab=hotels`}>
-              <Button variant={"primaryGreen"}>Send Vouchers</Button>
-            </Link>
           </div>
           {hotels && (
             <HotelsForm
               onAddHotel={updateHotels}
               hotels={hotels}
               defaultValues={defaultValues}
+              isSaving={saving}
             />
           )}
         </div>
@@ -323,7 +349,10 @@ const HotelsTab = () => {
           {/* <Button variant={"primaryGreen"} onClick={onNextClick}>
             Next
           </Button> */}
-          <Button
+          <Link href={`${pathname.split("edit")[0]}/tasks?tab=hotels`}>
+            <Button variant={"primaryGreen"}>Send Vouchers</Button>
+          </Link>
+          {/* <Button
             variant={"primaryGreen"}
             onClick={onSaveClick}
             disabled={saving}
@@ -338,7 +367,7 @@ const HotelsTab = () => {
             ) : (
               "Save"
             )}
-          </Button>
+          </Button> */}
         </div>
       </div>
       <DeletePopup
@@ -346,7 +375,7 @@ const HotelsTab = () => {
         onDelete={deleteVoucherLineFromLocalContext}
         isOpen={isUnsavedVoucherDelete}
         setIsOpen={setIsUnsavedVoucherDelete}
-        isDeleting= {isDeleting}
+        isDeleting={isDeleting}
       />
 
       <DeletePopup
@@ -354,7 +383,7 @@ const HotelsTab = () => {
         onDelete={handleExistingVoucherDelete}
         isOpen={isExistingVoucherDelete}
         setIsOpen={setIsExistingVoucherDelete}
-        isDeleting= {isDeleting}
+        isDeleting={isDeleting}
       />
     </div>
   );

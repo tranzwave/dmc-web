@@ -60,6 +60,10 @@ export const columns: ColumnDef<BookingDTO>[] = [
     accessorFn: (row) => row.booking.client.name,
   },
   // {
+  //   header: "Coordinator",
+  //   accessorFn: (row) => row.booking.coordinatorId,
+  // },
+  // {
   //   header: "Country",
   //   accessorFn: (row) => row.booking.client.country,
   // },
