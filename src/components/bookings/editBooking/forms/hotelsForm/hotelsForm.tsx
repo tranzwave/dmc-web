@@ -419,7 +419,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
             />
           </div>
           <div className="flex w-full flex-row justify-end">
-            <Button variant={"primaryGreen"} type="submit" className="px-5" disabled={isUpdating || isSaving}>
+            <Button variant={"primaryGreen"} type="submit" className="px-5" disabled={isUpdating ? isUpdating : isSaving ? isSaving : false}>
               {amendment ? (
                 isUpdating ? (
                   <div className="flex flex-row gap-1 items-center">
