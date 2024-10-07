@@ -69,7 +69,7 @@ export const getBookingLineWithAllData = (id: string) => {
         with: {
           client: true,
           agent: true,
-          tenant:true
+          tenant: true
         }
       },
       hotelVouchers: {
@@ -417,7 +417,7 @@ export const insertHotelVouchersTx = async (
               checkOutTime: currentVoucherLine.checkOutTime,
               basis: currentVoucherLine.basis,
               roomType: currentVoucherLine.roomType,
-              roomCategory:currentVoucherLine.roomCategory,
+              roomCategory: currentVoucherLine.roomCategory,
               hotelVoucherId: voucherId,
             })
             .returning();
