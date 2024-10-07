@@ -1,6 +1,6 @@
 {
-  "id": "66a5f3e3-9cfc-4e14-8b00-b50deb9d8eb9",
-  "prevId": "eea38787-1d17-46a6-b6c8-abfe3f8a4322",
+  "id": "7a43ca94-d558-46ab-a89e-b6b3ee7e4803",
+  "prevId": "66a5f3e3-9cfc-4e14-8b00-b50deb9d8eb9",
   "version": "6",
   "dialect": "postgresql",
   "tables": {
@@ -2004,6 +2004,34 @@
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        },
+        "availability_confirmed_by": {
+          "name": "availability_confirmed_by",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "availability_confirmed_to": {
+          "name": "availability_confirmed_to",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "rates_confirmed_by": {
+          "name": "rates_confirmed_by",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "rates_confirmed_to": {
+          "name": "rates_confirmed_to",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
         }
       },
       "indexes": {},

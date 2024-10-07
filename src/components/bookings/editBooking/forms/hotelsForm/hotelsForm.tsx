@@ -56,6 +56,7 @@ interface HotelsFormProps {
     | undefined;
   amendment?: boolean;
   isUpdating?: boolean;
+  isSaving?:boolean
 }
 
 export const hotelsSchema = z.object({
@@ -79,6 +80,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   defaultValues,
   amendment,
   isUpdating,
+  isSaving,
 }) => {
   const [selectedHotel, setSelectedHotel] = useState<SelectHotel | null>();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -417,19 +419,22 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
             />
           </div>
           <div className="flex w-full flex-row justify-end">
-            <Button variant={"primaryGreen"} type="submit" className="px-5" disabled={isUpdating}>
+            <Button variant={"primaryGreen"} type="submit" className="px-5" disabled={isUpdating ? isUpdating : isSaving ? isSaving : false}>
               {amendment ? (
                 isUpdating ? (
-                  <div className="flex flex-row gap-1">
-                    <LoaderCircle size={15} className="animate-spin" />
+                  <div className="flex flex-row gap-1 items-center">
+                    <LoaderCircle size={16} className="animate-spin" />
                     <div>Updating</div>
                   </div>
                 ) : (
                   "Amend"
                 )
-              ) : (
-                "Add"
-              )}
+              ) : isSaving ? (
+                <div className="flex flex-row gap-1 items-center">
+                  <LoaderCircle size={16} className="animate-spin" />
+                  <div>Adding</div>
+                </div>
+              ) : ("Add")}
             </Button>
           </div>
         </form>
