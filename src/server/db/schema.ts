@@ -268,6 +268,7 @@ export const hotelVoucher = createTable("hotel_vouchers", {
   availabilityConfirmedTo: varchar("availability_confirmed_to", { length: 255 }).default(""),
   ratesConfirmedBy: varchar("rates_confirmed_by", { length: 255 }).default(""),
   ratesConfirmedTo: varchar("rates_confirmed_to", { length: 255 }).default(""),
+  reasonToAmend: varchar("reason_to_amend", { length: 255 }).default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 
@@ -350,6 +351,11 @@ export const restaurantVoucher = createTable("restaurant_vouchers", {
   status: statusEnum('status').default('inprogress'),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  availabilityConfirmedBy: varchar("availability_confirmed_by", { length: 255 }).default(""),
+  availabilityConfirmedTo: varchar("availability_confirmed_to", { length: 255 }).default(""),
+  ratesConfirmedBy: varchar("rates_confirmed_by", { length: 255 }).default(""),
+  ratesConfirmedTo: varchar("rates_confirmed_to", { length: 255 }).default(""),
+  reasonToAmend: varchar("reason_to_amend", { length: 255 }).default(""),
 });
 
 // Restaurant Voucher Lines table
@@ -654,6 +660,22 @@ export const agentRelations = relations(agent, ({ one,many }) => ({
   booking: many(booking),
   tenant: one(tenant, {
     fields: [agent.tenantId],
+    references: [tenant.id],
+  }),
+}));
+
+export const clientRelations = relations(client, ({ one,many }) => ({
+  booking: many(booking),
+  tenant: one(tenant, {
+    fields: [client.tenantId],
+    references: [tenant.id],
+  }),
+}));
+
+export const userRelations = relations(user, ({ one,many }) => ({
+  // booking: many(booking),
+  tenant: one(tenant, {
+    fields: [user.tenantId],
     references: [tenant.id],
   }),
 }));

@@ -43,6 +43,7 @@ import {
 import { RestaurantVoucherData } from "..";
 import { getAllRestaurants } from "~/server/db/queries/booking/restaurantVouchers";
 import RestaurantsVoucherForm from "../form";
+import RestaurantVoucherPDF from "../voucherTemplate";
 
 interface TasksTabProps<T, L> {
   bookingLineId: string;
@@ -812,7 +813,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
               </Button>
             </div>
             <div ref={componentRef}>
-              {/* <RestaurantVoucherPDF voucher={selectedVoucher} /> */}
+              <RestaurantVoucherPDF voucher={selectedVoucher} />
             </div>
           </AccordionContent>
         </AccordionItem>

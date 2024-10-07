@@ -85,6 +85,13 @@
       "when": 1728124512237,
       "tag": "0011_modern_thing",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1728321869252,
+      "tag": "0012_round_imperial_guard",
+      "breakpoints": true
     }
   ]
 }
