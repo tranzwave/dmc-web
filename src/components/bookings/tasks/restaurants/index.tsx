@@ -37,24 +37,28 @@ const restaurantColumns: ColumnDef<RestaurantVoucherData>[] = [
     accessorFn: (row) => row.voucherLines?.length ?? "Not found",
   },
   {
-    accessorKey: "voucherLine",
-    header: "Progress",
-    accessorFn: (row) => row.voucherLines?.length ?? "Not found",
+    accessorKey: "status",
+    header: "Status",
+    accessorFn: (row) => row.status ?? "Not found",
   },
 ];
 
 const restaurantVoucherLineColumns: ColumnDef<SelectRestaurantVoucherLine>[] = [
   {
-    header: "Head Count",
-    accessorFn: (row) => `${row.adultsCount}-Adults | ${row.kidsCount}-Kids`,
+    header: "Adults",
+    accessorFn: (row) => `${row.adultsCount}`,
+  },
+  {
+    header: "Kids",
+    accessorFn: (row) => `${row.kidsCount}`,
+  },
+  {
+    header: "Pax",
+    accessorFn: (row) => `${row.adultsCount + row.kidsCount}`,
   },
   {
     header: "Date",
     accessorFn: (row) => formatDate(row.date),
-  },
-  {
-    header: "Time",
-    accessorFn: (row) => row.time,
   },
   {
     header: "Meal Type",

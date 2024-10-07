@@ -45,12 +45,6 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 
-type Vendor =
-  | SelectHotel
-  | SelectRestaurant
-  | SelectActivityVendor
-  | SelectShop
-  | SelectDriver;
 interface TasksTabProps<T, L> {
   bookingLineId: string;
   columns: ColumnDef<HotelVoucherData>[];
@@ -824,15 +818,6 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
       </Accordion>
 
       <div>
-        {/* <Voucher
-        clientName="John Doe"
-        bookingId="AB12345"
-        hotelName="Luxury Hotel"
-        checkInDate="2024-10-05"
-        checkOutDate="2024-10-10"
-        numberOfDays={5}
-        roomType="Deluxe Suite"
-      /> */}
       </div>
     </div>
   );
