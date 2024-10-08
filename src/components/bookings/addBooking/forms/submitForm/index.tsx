@@ -15,7 +15,6 @@ import {
   DialogTitle,
 } from "~/components/ui/dialog";
 import { createNewBooking } from "~/server/db/queries/booking";
-import './pdfStyles.css'; // Import the CSS file for PDF styles
 import SummaryCard, { formatDateToWeekdayMonth } from "./summaryCard";
 
 const AddBookingSubmitTab = () => {
@@ -69,8 +68,6 @@ const AddBookingSubmitTab = () => {
     const options = {
       filename: "booking_summary.pdf",
       jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
-      html2canvas: { scale: 2 }, // Increase scale for better quality
-      margin: [10, 10, 10, 10], // Set margins for the PDF
     };
     html2pdf().set(options).from(element).save();
   };
@@ -115,7 +112,7 @@ const AddBookingSubmitTab = () => {
               )}
             </Button>
           </div>
-          <div ref={summaryRef} className="pdf-summary">
+          <div ref={summaryRef}>
             {summary.map((sum, index) => {
               return <SummaryCard summary={sum} key={index} />;
             })}
