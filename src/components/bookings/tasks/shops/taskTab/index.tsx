@@ -1,8 +1,7 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import html2pdf from "html2pdf.js";
-import React, { SetStateAction, useEffect, useRef, useState } from "react";
-import { DataTable } from "~/components/bookings/home/dataTable";
+import React, { useEffect, useRef, useState } from "react";
 import { DataTableWithActions } from "~/components/common/dataTableWithActions/index";
 import DeletePopup from "~/components/common/deletePopup";
 import Popup from "~/components/common/popup";
@@ -10,17 +9,10 @@ import { ConfirmationForm } from "~/components/common/tasksTab/confirmationForm"
 import ContactContent from "~/components/common/tasksTab/contactContent";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
-import { Input } from "~/components/ui/input";
 import { useToast } from "~/hooks/use-toast";
-import { ShopVoucherData } from "..";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "~/components/ui/accordion";
-import ShopVoucherPDF from "../voucherTemplate";
 import { updateShopVoucherStatus } from "~/server/db/queries/booking/shopsVouchers";
+import { ShopVoucherData } from "..";
+import ShopVoucherPDF from "../voucherTemplate";
 
 interface TasksTabProps {
   bookingLineId: string;
