@@ -1,0 +1,1 @@
+ALTER TABLE "dmc-web_bookings" ADD COLUMN "direct_customer" boolean DEFAULT false;
