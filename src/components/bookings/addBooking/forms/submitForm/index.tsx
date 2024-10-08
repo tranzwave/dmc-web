@@ -1,21 +1,21 @@
 "use client";
+import html2pdf from "html2pdf.js";
 import { Loader2Icon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
+import { useAddBooking } from "~/app/dashboard/bookings/add/context";
 import { Button } from "~/components/ui/button";
+import ContactBox from "~/components/ui/content-box";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "~/components/ui/dialog";
 import { createNewBooking } from "~/server/db/queries/booking";
 import SummaryCard, { formatDateToWeekdayMonth } from "./summaryCard";
-import ContactBox from "~/components/ui/content-box";
-import html2pdf from "html2pdf.js";
-import { useAddBooking } from "~/app/dashboard/bookings/add/context";
 
 const AddBookingSubmitTab = () => {
   const { bookingDetails, getBookingSummary } = useAddBooking();

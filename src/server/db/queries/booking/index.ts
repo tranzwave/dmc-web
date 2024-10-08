@@ -13,6 +13,7 @@ import { db } from "../..";
 import {
   activityVoucher,
   booking,
+  bookingAgent,
   bookingLine,
   client,
   hotelVoucher,
@@ -68,8 +69,17 @@ export const getBookingLineWithAllData = (id: string) => {
       booking: {
         with: {
           client: true,
-          agent: true,
-          tenant:true
+          tenant: true,
+          bookingAgent: {
+            with: {
+              agent: true
+            }
+          }
+          // bookingAgent:{
+          //   with:{
+          //     agent:true
+          //   }
+          // }
         }
       },
       hotelVouchers: {
@@ -165,12 +175,12 @@ export const createNewBooking = async (
         parentBooking = await tx
           .insert(booking)
           .values({
-            agentId: bookingDetails.general.agent ?? '',
             clientId: bookingClient.id,
             coordinatorId: bookingDetails.general.marketingManager,
             managerId: bookingDetails.general.marketingManager,
             tenantId: tenantId,
             tourType: bookingDetails.general.tourType,
+            directCustomer: bookingDetails.general.directCustomer
           })
           .returning();
 
@@ -187,6 +197,15 @@ export const createNewBooking = async (
       const parentBookingIdToUse = Array.isArray(parentBooking)
         ? parentBooking[0]?.id ?? ""
         : parentBooking.id;
+
+      if (bookingDetails.general.agent && !bookingDetails.general.directCustomer) {
+        await tx
+          .insert(bookingAgent)
+          .values({
+            bookingId: parentBookingIdToUse,
+            agentId: bookingDetails.general.agent
+          });
+      }
 
       const customId = await generateBookingLineId(tenantId, bookingDetails.general.country)
 
@@ -417,7 +436,7 @@ export const insertHotelVouchersTx = async (
               checkOutTime: currentVoucherLine.checkOutTime,
               basis: currentVoucherLine.basis,
               roomType: currentVoucherLine.roomType,
-              roomCategory:currentVoucherLine.roomCategory,
+              roomCategory: currentVoucherLine.roomCategory,
               hotelVoucherId: voucherId,
             })
             .returning();

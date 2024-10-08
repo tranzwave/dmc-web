@@ -1,21 +1,22 @@
 "use client";
+import html2pdf from "html2pdf.js";
 import { Loader2Icon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
+import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 import { Button } from "~/components/ui/button";
+import ContactBox from "~/components/ui/content-box";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "~/components/ui/dialog";
-import { createNewBooking } from "~/server/db/queries/booking";
 import SummaryCard, { formatDateToWeekdayMonth } from "./summaryCard";
-import ContactBox from "~/components/ui/content-box";
-import html2pdf from "html2pdf.js";
-import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
+
+import './pdfStyles.css';
 
 const AddBookingSubmitTab = () => {
   const { bookingDetails, getBookingSummary } = useEditBooking();
@@ -28,7 +29,6 @@ const AddBookingSubmitTab = () => {
   const summaryRef = useRef(null); // Ref to hold the summary section
 
   const handleSubmit = async () => {
-    console.log(bookingDetails);
     setLoading(true);
     try {
       const bookingData = {
@@ -36,18 +36,8 @@ const AddBookingSubmitTab = () => {
         generalData: bookingDetails.general,
         hotelVouchers: bookingDetails.vouchers,
       };
-
-      const createdBooking = await createNewBooking(bookingDetails);
-
-      if (createdBooking) {
-        setMessage(
-          "Booking Added! Do you want to continue finalizing the tasks for this booking?",
-        );
-        setId(createdBooking);
-        setShowModal(true);
-      }
     } catch (error) {
-      setMessage("An error occurred while adding the booking.");
+      setMessage("An error occurred while processing the booking.");
       console.error("Error in handleSubmit:", error);
     } finally {
       setLoading(false);
@@ -56,7 +46,7 @@ const AddBookingSubmitTab = () => {
 
   const handleYes = () => {
     setShowModal(false);
-    router.push(`${pathname.split("add")[0]}/${id}/tasks`);
+    router.push(`${pathname.split("add")[0]}/${id}/tasks`); // Redirect to tasks page
   };
 
   const handleNo = () => {
@@ -68,11 +58,12 @@ const AddBookingSubmitTab = () => {
     const options = {
       filename: "booking_summary.pdf",
       jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
+      html2canvas: { scale: 2 }, 
+      margin: [10, 10, 10, 10], 
     };
     html2pdf().set(options).from(element).save();
   };
 
-  const numberOfDays = bookingDetails.general?.numberOfDays ?? 0;
   const summary = getBookingSummary();
 
   return (
@@ -95,33 +86,31 @@ const AddBookingSubmitTab = () => {
         >
           <div className="card-title flex w-full flex-row justify-between">
             <div>Booking Summary</div>
-            {!pathname.includes("edit") && (
-              <Button
-                variant="primaryGreen"
-                onClick={handleSubmit}
-                disabled={loading}
-              >
-                {loading ? (
-                  <div className="flex flex-row gap-2">
-                    <div>
-                      <Loader2Icon className="animate-spin" />
-                    </div>{" "}
-                    <div> Saving </div>
-                  </div>
-                ) : (
-                  "Submit Booking"
-                )}
-              </Button>
-            )}
+            <Button
+              variant="primaryGreen"
+              onClick={handleSubmit}
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="flex flex-row gap-2">
+                  <div>
+                    <Loader2Icon className="animate-spin" />
+                  </div>{" "}
+                  <div> Saving </div>
+                </div>
+              ) : (
+                "Submit Booking"
+              )}
+            </Button>
           </div>
-          <div ref={summaryRef}>
+          <div ref={summaryRef} className="pdf-summary">
             {summary.map((sum, index) => {
               return <SummaryCard summary={sum} key={index} />;
             })}
           </div>
         </div>
       </div>
-      <div className="flex w-[20%] flex-col justify-end">
+      <div className="flex flex-col w-[20%] justify-end">
         <Button onClick={downloadPDF} variant="primaryGreen">
           Download Summary as PDF
         </Button>
@@ -133,9 +122,9 @@ const AddBookingSubmitTab = () => {
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Booking Added!</DialogTitle>
+            <DialogTitle>{pathname.includes("edit") ? "Booking Updated!" : "Booking Added!"}</DialogTitle>
             <DialogDescription>
-              Do you want to continue finalizing the tasks for this booking?
+              {message}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

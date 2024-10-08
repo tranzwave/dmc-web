@@ -20,8 +20,6 @@ interface AddShopContextProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   setGeneralDetails: (details: Shop) => void;
-
-
 }
 
 const defaultGeneral: Shop = {

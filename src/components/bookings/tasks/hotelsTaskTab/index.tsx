@@ -1,21 +1,16 @@
 import { ColumnDef } from "@tanstack/react-table";
-import HotelsVoucherForm from "./voucherForm/index";
+import { useState } from "react";
+import { useToast } from "~/hooks/use-toast";
 import { formatDate } from "~/lib/utils/index";
+import {
+  bulkUpdateHotelVoucherRates,
+  updateHotelVoucherStatus,
+} from "~/server/db/queries/booking/hotelVouchers";
 import {
   SelectHotel,
   SelectHotelVoucher,
   SelectHotelVoucherLine,
 } from "~/server/db/schemaTypes";
-import TasksTab from "~/components/common/tasksTab";
-import {
-  bulkUpdateHotelVoucherRates,
-  updateHotelVoucherStatus,
-} from "~/server/db/queries/booking/hotelVouchers";
-import { useToast } from "~/hooks/use-toast";
-import NewTasksTab, {
-  VoucherData,
-} from "~/components/common/tasksTab/newTaskTab";
-import { useState } from "react";
 import HotelVouchersTasksTab from "./taskTab";
 
 export type HotelVoucherData = SelectHotelVoucher & {

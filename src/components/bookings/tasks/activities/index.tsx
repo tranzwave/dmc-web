@@ -1,9 +1,5 @@
-import React from 'react';
-import { getActivityVouchers } from "~/server/db/queries/booking/activityVouchers";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDate } from "~/lib/utils/index";
-import TasksTab from "~/components/common/tasksTab";
-import ActivityVoucherForm from './form';
 import { SelectActivity, SelectActivityVendor, SelectActivityVoucher } from '~/server/db/schemaTypes';
 import ActivityVouchersTasksTab from './taskTab';
 
@@ -11,8 +7,6 @@ export type ActivityVoucherData = SelectActivityVoucher & {
   activity: SelectActivity,
   activityVendor: SelectActivityVendor
 }
-
-
 
 // Define specific columns for activities
 const activityColumns: ColumnDef<ActivityVoucherData>[] = [
@@ -25,20 +19,32 @@ const activityColumns: ColumnDef<ActivityVoucherData>[] = [
     accessorFn: (row) => row.activityName,
   },
   {
+    header: "City",
+    accessorFn: (row) => row.city,
+  },
+  {
+    header: "Date",
+    accessorFn: (row) => row.date,
+  },
+  {
+    header: "Pax",
+    accessorFn: (row) => row.participantsCount,
+  },
+  {
     header: "Contact Number",
     accessorFn: (row) => row.activityVendor.contactNumber,
   },
-  {
-    header: "Voucher Lines",
-    accessorFn: (row) => 1,
-  },
-  {
-    header: "Progress",
-    accessorFn: (row) => 1,
-  },
+  // {
+  //   header: "Voucher Lines",
+  //   accessorFn: (row) => 1,
+  // },
+  // {
+  //   header: "Progress",
+  //   accessorFn: (row) => 1,
+  // },
 ];
 
-const activityVoucherLineColumns: ColumnDef<SelectActivityVoucher>[] = [
+const activityVoucherLineColumns: ColumnDef<ActivityVoucherData>[] = [
   {
     header: "City",
     accessorFn: row => row.city
@@ -61,11 +67,11 @@ const activityVoucherLineColumns: ColumnDef<SelectActivityVoucher>[] = [
   },
 ];
 
-const updateVoucherLine = async(voucher:any)=>{
+const updateVoucherLine = async(voucher:ActivityVoucherData)=>{
   console.log("Updating")
 }
 
-const updateVoucherStatus = async(voucher:any)=>{
+const updateVoucherStatus = async(voucher:ActivityVoucherData)=>{
   console.log("Updating")
   return true
 }
@@ -74,11 +80,11 @@ const updateVoucherStatus = async(voucher:any)=>{
 const ActivitiesTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string ; vouchers:ActivityVoucherData[] }) => (
   <ActivityVouchersTasksTab
     bookingLineId={bookingLineId}
-    columns={activityColumns}
-    voucherColumns={activityVoucherLineColumns}
+    voucherColumns={activityColumns}
+    selectedVoucherColumns={activityVoucherLineColumns}
     vouchers={vouchers}
     updateVoucherLine={updateVoucherLine}
-    updateVoucherStatus={updateVoucherStatus}
+    // updateVoucherStatus={updateVoucherStatus}
   />
 );
 

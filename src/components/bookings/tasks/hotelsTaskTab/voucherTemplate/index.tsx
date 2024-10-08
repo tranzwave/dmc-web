@@ -1,17 +1,15 @@
 "use client";
-import Image from "next/image";
-import { HotelVoucherData } from "..";
-import { useOrganization } from "~/app/dashboard/context";
-import { calculateDaysBetween, formatDate } from "~/lib/utils/index";
-import { DataTable } from "~/components/bookings/home/dataTable";
+import { useUser } from "@clerk/nextjs";
 import { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
+import Image from "next/image";
+import { useOrganization } from "~/app/dashboard/context";
+import LoadingLayout from "~/components/common/dashboardLoading";
 import {
   SelectHotelVoucher,
   SelectHotelVoucherLine,
 } from "~/server/db/schemaTypes";
-import { useUser } from "@clerk/nextjs";
-import LoadingLayout from "~/components/common/dashboardLoading";
-import { format } from "date-fns";
+import { HotelVoucherData } from "..";
 
 type HotelVoucherPDFProps = {
   voucher: HotelVoucherData;

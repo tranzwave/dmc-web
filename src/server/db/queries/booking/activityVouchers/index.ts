@@ -13,3 +13,18 @@ export const getActivityVouchers = (bookingLineId:string) => {
         }
     })
 }
+
+export const updateActivityVoucherStatus = async (activityVoucherId: string, status: | "inprogress" | "confirmed" | "cancelled" | "sentToVendor" | "vendorConfirmed" | "sentToClient" | "amended" ) => {
+    try {
+      const updatedVoucher = await db
+        .update(activityVoucher)
+        .set({ status })
+        .where(eq(activityVoucher.id, activityVoucherId))
+        .returning();
+  
+      return updatedVoucher;
+    } catch (error) {
+      console.error("Error updating shop voucher status:", error);
+      throw new Error("Failed to update shop voucher status.");
+    }
+  };

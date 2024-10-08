@@ -1,47 +1,31 @@
 "use client";
+import { ColumnDef } from "@tanstack/react-table";
 import React, { SetStateAction, useEffect, useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
-import { DataTableWithActions } from "~/components/common/dataTableWithActions/index";
-import { ColumnDef } from "@tanstack/react-table";
 import { Input } from "~/components/ui/input";
 import { useToast } from "~/hooks/use-toast";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
 // import Voucher from "./voucherComponent";
-import { DataTable } from "~/components/bookings/home/dataTable";
 import html2pdf from "html2pdf.js";
-import {
-  SelectActivityVendor,
-  SelectActivityVoucher,
-  SelectDriver,
-  SelectHotelVoucher,
-  SelectRestaurant,
-  SelectRestaurantVoucher,
-  SelectRestaurantVoucherLine,
-  SelectShop,
-  SelectShopVoucher,
-  SelectTransportVoucher,
-} from "~/server/db/schemaTypes";
-import { Phone } from "lucide-react";
-import Popup from "~/components/common/popup";
+import { DataTable } from "~/components/bookings/home/dataTable";
 import DeletePopup from "~/components/common/deletePopup";
+import Popup from "~/components/common/popup";
 import { ConfirmationForm } from "~/components/common/tasksTab/confirmationForm";
+import {
+  SelectRestaurant,
+  SelectRestaurantVoucherLine
+} from "~/server/db/schemaTypes";
 
-import { getAllHotelsV2 } from "~/server/db/queries/hotel";
 import LoadingLayout from "~/components/common/dashboardLoading";
-import { deleteHotelVoucherLine } from "~/server/db/queries/booking";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import { RestaurantVoucherData } from "..";
+import { deleteHotelVoucherLine } from "~/server/db/queries/booking";
 import { getAllRestaurants } from "~/server/db/queries/booking/restaurantVouchers";
+import { RestaurantVoucherData } from "..";
 import RestaurantsVoucherForm from "../form";
 import RestaurantVoucherPDF from "../voucherTemplate";
 
