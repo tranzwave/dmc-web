@@ -671,11 +671,12 @@ export const tenantRelations = relations(tenant, ({ one,many }) => ({
 }));
 
 export const agentRelations = relations(agent, ({ one,many }) => ({
-  booking: many(booking),
   tenant: one(tenant, {
     fields: [agent.tenantId],
     references: [tenant.id],
   }),
+  bookingAgent: many(bookingAgent),
+
 }));
 
 export const clientRelations = relations(client, ({ one,many }) => ({
@@ -714,6 +715,17 @@ export const bookingsRelations = relations(booking, ({ one }) => ({
   manager: one(user, {
     fields: [booking.managerId],
     references: [user.id],
+  }),
+}));
+
+export const bookingAgentRelations = relations(bookingAgent, ({ one,many }) => ({
+  agent: one(agent, {
+    fields: [bookingAgent.agentId],
+    references: [agent.id],
+  }),
+  booking: one(booking, {
+    fields: [bookingAgent.bookingId],
+    references: [booking.id],
   }),
 }));
 

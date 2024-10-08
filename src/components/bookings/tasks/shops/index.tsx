@@ -18,24 +18,31 @@ const shopColumns: ColumnDef<ShopVoucherData>[] = [
     header: "Shop",
   },
   {
+    header: "Shop Type",
+    accessorFn: (row) => row.shopType,
+  },
+  {
+    header: "City",
+    accessorFn: (row) => row.city,
+  },
+  {
     accessorKey: "shop.contactNumber",
     header: "Contact Number",
     cell: (info) => info.getValue() ?? "N/A",
   },
   {
-    accessorKey: "client.name",
-    header: "Client Name",
+    header: "Date",
+    accessorFn: (row) => formatDate(row.date),
   },
   {
-    accessorKey: "voucherLine",
-    header: "Voucher Lines",
-    accessorFn: (row) => 1,
+    header: "Pax count",
+    accessorFn: (row) => row.participantsCount,
   },
   {
-    accessorKey: "voucherLine",
-    header: "Progress",
-    accessorFn: (row) => 1,
+    header: "Status",
+    accessorFn: (row) => row.status,
   },
+
 ];
 
 const shopVoucherLineColumns: ColumnDef<ShopVoucherData>[] = [
@@ -62,11 +69,11 @@ const shopVoucherLineColumns: ColumnDef<ShopVoucherData>[] = [
   },
 ];
 
-const updateVoucherLine = async (voucher: any) => {
+const updateVoucherLine = async (voucher: ShopVoucherData) => {
   console.log("Updating");
 };
 
-const updateVoucherStatus = async (voucher: any) => {
+const updateVoucherStatus = async (voucher: ShopVoucherData) => {
   console.log("Updating");
   return true;
 };
@@ -85,7 +92,6 @@ const ShopsTasksTab = ({
     selectedVoucherColumns={shopVoucherLineColumns}
     vouchers={vouchers}
     updateVoucherLine={updateVoucherLine}
-    updateVoucherStatus={updateVoucherStatus}
   />
 );
 

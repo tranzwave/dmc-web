@@ -69,7 +69,17 @@ export const getBookingLineWithAllData = (id: string) => {
       booking: {
         with: {
           client: true,
-          tenant: true
+          tenant: true,
+          bookingAgent: {
+            with: {
+              agent: true
+            }
+          }
+          // bookingAgent:{
+          //   with:{
+          //     agent:true
+          //   }
+          // }
         }
       },
       hotelVouchers: {
