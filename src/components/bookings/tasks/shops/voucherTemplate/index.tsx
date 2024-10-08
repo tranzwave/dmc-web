@@ -48,7 +48,7 @@ const ShopVoucherPDF = ({ vouchers, cancellation }: ShopVoucherPDFProps) => {
 
         <div className="flex w-full flex-row justify-between">
           <div className="text-[13px]">
-            <div>Booking Name: {vouchers[0]?.client?.name ?? "N/A"}</div>
+            {/* <div>Booking Name: {vouchers[0]?.client?.name ?? "N/A"}</div> */}
             <div>Tour ID: {vouchers[0]?.bookingLineId ?? "N/A"}</div>
             <div>Participants: {vouchers[0]?.participantsCount ?? "N/A"}</div>
           </div>
@@ -71,9 +71,9 @@ const ShopVoucherPDF = ({ vouchers, cancellation }: ShopVoucherPDFProps) => {
               </tr>
             </thead>
             <tbody>
-              {vouchers.map((v) => {
+              {vouchers.map((v,index) => {
                 return (
-                  <tr className="border-b hover:bg-gray-50 h-36">
+                  <tr className="border-b hover:bg-gray-50 h-36" key={index}>
                     <td className="px-4 py-2">{v.shop.name ?? "N/A"}</td>
                     <td className="px-4 py-2">{v.city ?? "N/A"}</td>
 
