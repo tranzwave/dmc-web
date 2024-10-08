@@ -16,6 +16,7 @@ import { EditBookingProvider, useEditBooking } from "./context";
 import { getBookingLineWithAllData } from "~/server/db/queries/booking";
 import { format } from 'date-fns';
 import LoadingLayout from "~/components/common/dashboardLoading";
+import { bookingAgent } from "~/server/db/schema";
 
 const EditBooking = ({ id }: { id: string }) => {
   const pathname = usePathname();
@@ -49,9 +50,12 @@ const EditBooking = ({ id }: { id: string }) => {
         setLoading(true)
         const selectedBookingLine = await getBookingLineWithAllData(id)
 
+
         if(!selectedBookingLine){
         throw new Error("Couldn't find booking line");
         }
+
+        console.log(selectedBookingLine)
 
         const {booking, hotelVouchers, restaurantVouchers, transportVouchers, activityVouchers, shopsVouchers, ...general} = selectedBookingLine;
         // console.log(booking, hotelVouchers,restaurantVouchers,transportVouchers,activityVouchers, shopsVouchers, general)
@@ -61,9 +65,9 @@ const EditBooking = ({ id }: { id: string }) => {
             clientName: booking.client.name,
             adultsCount:general.adultsCount,
             kidsCount:general.kidsCount,
-            directCustomer:booking.agentId ? true: false,
+            directCustomer:booking.directCustomer ?? false,
             primaryContactNumber: booking.client.primaryContactNumber ?? '',
-            agent:booking.agentId ?? '',
+            agent:booking.bookingAgent ? booking.bookingAgent.agent.id : '',
             country:booking.client.country,
             primaryEmail:booking.client.primaryEmail ?? '',
             startDate:format(new Date(general.startDate), 'yyyy-MM-dd'),
