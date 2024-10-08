@@ -9,6 +9,7 @@ import {
   SelectHotelVoucher,
   SelectHotelVoucherLine,
 } from "~/server/db/schemaTypes";
+import { HotelVoucherData } from "..";
 
 type HotelVoucherPDFProps = {
   voucher: HotelVoucherData;

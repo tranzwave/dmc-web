@@ -1,21 +1,22 @@
 "use client";
+import html2pdf from "html2pdf.js";
 import { Loader2Icon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
+import { useAddBooking } from "~/app/dashboard/bookings/add/context";
 import { Button } from "~/components/ui/button";
+import ContactBox from "~/components/ui/content-box";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "~/components/ui/dialog";
 import { createNewBooking } from "~/server/db/queries/booking";
+import './pdfStyles.css'; // Import the CSS file for PDF styles
 import SummaryCard, { formatDateToWeekdayMonth } from "./summaryCard";
-import ContactBox from "~/components/ui/content-box";
-import html2pdf from "html2pdf.js";
-import { useAddBooking } from "~/app/dashboard/bookings/add/context";
 
 const AddBookingSubmitTab = () => {
   const { bookingDetails, getBookingSummary } = useAddBooking();
@@ -68,6 +69,8 @@ const AddBookingSubmitTab = () => {
     const options = {
       filename: "booking_summary.pdf",
       jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
+      html2canvas: { scale: 2 }, // Increase scale for better quality
+      margin: [10, 10, 10, 10], // Set margins for the PDF
     };
     html2pdf().set(options).from(element).save();
   };
@@ -112,7 +115,7 @@ const AddBookingSubmitTab = () => {
               )}
             </Button>
           </div>
-          <div ref={summaryRef}>
+          <div ref={summaryRef} className="pdf-summary">
             {summary.map((sum, index) => {
               return <SummaryCard summary={sum} key={index} />;
             })}

@@ -1,14 +1,10 @@
-import React from 'react';
-import { getTransportVouchers } from "~/server/db/queries/booking/transportVouchers";
 import { ColumnDef } from "@tanstack/react-table";
-import { formatDate } from "~/lib/utils/index";
-import { SelectDriver, SelectTransportVoucher } from "~/server/db/schemaTypes";
-import TasksTab from "~/components/common/tasksTab";
-import TransportForm from './form';
+import { SelectClient, SelectDriver, SelectTransportVoucher } from "~/server/db/schemaTypes";
 import TransportVouchersTasksTab from './taskTab';
 
 export type TransportVoucherData = SelectTransportVoucher & {
   driver: SelectDriver
+  client: SelectClient; // Add client data here
 }
 
 // Define specific columns for transport
