@@ -7,7 +7,6 @@ import ShopVouchersTasksTab from "./taskTab";
 
 export type ShopVoucherData = SelectShopVoucher & {
   shop: SelectShop;
-  client: SelectClient; // Add client data here
 
 };
 

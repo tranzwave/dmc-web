@@ -1,12 +1,15 @@
-import { SelectActivity, SelectActivityVendor, SelectActivityVoucher, SelectAgent, SelectBooking, SelectBookingLine, SelectClient, SelectDriver, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant, SelectRestaurantVoucher, SelectRestaurantVoucherLine, SelectShop, SelectShopVoucher, SelectTenant, SelectTransportVoucher } from "~/server/db/schemaTypes";
+import { bookingAgent, client } from '~/server/db/schema';
+import { SelectActivity, SelectActivityVendor, SelectActivityVoucher, SelectAgent, SelectBooking, SelectBookingAgent, SelectBookingLine, SelectClient, SelectDriver, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant, SelectRestaurantVoucher, SelectRestaurantVoucherLine, SelectShop, SelectShopVoucher, SelectTenant, SelectTransportVoucher } from "~/server/db/schemaTypes";
 
 
 
 export type BookingLineWithAllData = SelectBookingLine & {
   booking: SelectBooking & {
     client: SelectClient;
-    agent:SelectAgent;
     tenant:SelectTenant
+    bookingAgent:SelectBookingAgent & {
+      agent:SelectAgent
+    }
   };
   hotelVouchers: Array<SelectHotelVoucher & {
     hotel: SelectHotel;

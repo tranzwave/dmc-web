@@ -1,24 +1,27 @@
 "use client";
-import React, { SetStateAction, useEffect, useRef, useState } from "react";
+import { ColumnDef } from "@tanstack/react-table";
+import html2pdf from "html2pdf.js";
+import React, { useEffect, useRef, useState } from "react";
+import { DataTableWithActions } from "~/components/common/dataTableWithActions/index";
+import DeletePopup from "~/components/common/deletePopup";
+import Popup from "~/components/common/popup";
+import ContactContent from "~/components/common/tasksTab/contactContent";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
-import { DataTableWithActions } from "~/components/common/dataTableWithActions/index";
-import { ColumnDef } from "@tanstack/react-table";
-import { Input } from "~/components/ui/input";
 import { useToast } from "~/hooks/use-toast";
+import { updateShopVoucherStatus } from "~/server/db/queries/booking/shopsVouchers";
+import { updateActivityVoucherStatus } from "~/server/db/queries/booking/activityVouchers";
 import { DataTable } from "~/components/bookings/home/dataTable";
-import html2pdf from "html2pdf.js";
-import {SelectActivityVoucher, SelectRestaurantVoucherLine, SelectTransportVoucher } from "~/server/db/schemaTypes";
-import Popup from "~/components/common/popup";
-import DeletePopup from "~/components/common/deletePopup";
-import { ConfirmationForm } from "~/components/common/tasksTab/confirmationForm";
 import { TransportVoucherData } from "..";
-import ContactContent from "~/components/common/tasksTab/contactContent";
+import TransportVoucherPDF from "../voucherTemplate";
+import { deleteTransportVoucher, updateTransportVoucherStatus } from "~/server/db/queries/booking/transportVouchers";
+import { LoaderCircle } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 
 interface TasksTabProps {
   bookingLineId: string;
   voucherColumns: ColumnDef<TransportVoucherData>[];
-  selectedVoucherColumns:ColumnDef<TransportVoucherData>[];
+  selectedVoucherColumns: ColumnDef<TransportVoucherData>[];
   vouchers: TransportVoucherData[];
   updateVoucherLine: (
     data: any,
@@ -29,55 +32,84 @@ interface TasksTabProps {
       ratesConfirmedTo: string;
     },
   ) => Promise<void>;
-  updateVoucherStatus: (data: any) => Promise<boolean>;
+  setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
+  statusChanged:boolean
   contactDetails?: { phone: string; email: string };
-
+  // columns: ColumnDef<ActivityVoucherData>[]; // Ensure to use the correct type
 }
 
-const TransportVouchersTasksTab = ({
+const ActivityVouchersTab = ({
   bookingLineId,
   voucherColumns,
   selectedVoucherColumns,
   vouchers,
   updateVoucherLine,
-  updateVoucherStatus,
-
+  setStatusChanged,
+  statusChanged
 }: TasksTabProps) => {
-  const [selectedVoucher, setSelectedVoucher] = useState<TransportVoucherData>();
-//   const [selectedVoucherLine, setSelectedVoucherLine] = useState<TransportVoucherData>();
+  const [selectedVoucher, setSelectedVoucher] =
+    useState<TransportVoucherData>();
   const [rate, setRate] = useState<string | number>(0);
-  const [statusChanged, setStatusChanged] = useState<boolean>(false);
-  const [isInprogressVoucherDelete, setIsInProgressVoucherDelete] =
+  
+  const [isInProgressVoucherDelete, setIsInProgressVoucherDelete] =
     useState(false);
   const [isProceededVoucherDelete, setIsProceededVoucherDelete] =
     useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const { toast } = useToast();
+  const router = useRouter()
+  const pathname = usePathname() 
 
   const onVoucherRowClick = (row: TransportVoucherData) => {
     setSelectedVoucher(row);
   };
 
-  const onVoucherLineRowClick = (row: TransportVoucherData) => {
-    console.log(row);
-    // setSelectedVoucherLine(row);
-    console.log("Updating");
-    // console.log(selectedVoucherLine);
-  };
+  const handleConfirm = async () => {
+    if (selectedVoucher) {
+      if (selectedVoucher.status === "vendorConfirmed") {
+        toast({
+          title: "Uh Oh!",
+          description: "You have already confirmed",
+        });
+        return;
+      }
 
-  const handleConfirm = () => {
-    console.log("Confirmed");
-  };
+      try {
+        setIsConfirming(true);
+        const updateResult = await updateTransportVoucherStatus(
+          selectedVoucher.id,
+          "vendorConfirmed",
+        );
 
-  const handleCancel = () => {
-    console.log("Cancelled");
+        if (!updateResult) {
+          throw new Error("Couldn't update the status");
+        }
+
+        setIsConfirming(false);
+        toast({
+          title: "Success!",
+          description: "Driver is confirmed",
+        });
+      } catch (error) {
+        console.error("Couldn't confirm this driver");
+        setIsConfirming(false);
+        toast({
+          title: "Uh Oh!",
+          description: "Couldn't confirm the driver",
+        });
+      }
+    }
+    console.log("Driver confirmed");
+    setStatusChanged(!statusChanged)
+    router.push(`${pathname}?tab=transport`)
   };
 
   const renderCancelContent = () => {
     if (selectedVoucher) {
       if (selectedVoucher.status) {
-        if (selectedVoucher.status == "inprogress") {
+        if (selectedVoucher.status === "inprogress") {
           setIsInProgressVoucherDelete(true);
         } else {
           setIsProceededVoucherDelete(true);
@@ -86,15 +118,45 @@ const TransportVouchersTasksTab = ({
     }
   };
 
-  const cancelButton = (
-    <Button variant={"outline"} className="border-red-600">
-      Cancel
-    </Button>
-  );
+  const deleteVoucher = async()=>{
+    if (selectedVoucher) {
+      if (selectedVoucher.status === "cancelled") {
+        toast({
+          title: "Uh Oh!",
+          description: "This is already cancelled",
+        });
+        return;
+      }
 
-  const addConfirmationButton = (
-    <Button variant={"primaryGreen"}>Add Confirmation</Button>
-  );
+      try {
+        setIsDeleting(true);
+        const updateResult = await deleteTransportVoucher(
+          selectedVoucher.id
+        );
+
+        if (!updateResult) {
+          throw new Error("Couldn't update the status");
+        }
+
+        setIsDeleting(false);
+        toast({
+          title: "Success!",
+          description: "Driver is deleted",
+        });
+      } catch (error) {
+        console.error("Couldn't delete this driver");
+        setIsDeleting(false);
+        toast({
+          title: "Uh Oh!",
+          description: "Couldn't delete the driver",
+        });
+      }
+    }
+    console.log("Driver Deleted");
+    setStatusChanged(!statusChanged)
+    // router.push(`${pathname}?tab=transport`)
+    router.refresh()
+  }
 
   const contactButton = (
     <Button variant={"outline"} className="border-primary-green">
@@ -102,26 +164,22 @@ const TransportVouchersTasksTab = ({
     </Button>
   );
 
-  const proceedButton = <Button variant={"primaryGreen"}>Proceed</Button>;
-
   useEffect(() => {
     console.log("Status changed");
   }, [statusChanged]);
 
   const getContactDetails = () => {
-    if(!selectedVoucher){
+    if (!selectedVoucher) {
       return {
         phone: "",
-        email:""
-
-      }
+        email: "",
+      };
     }
     return {
       phone: selectedVoucher.driver.contactNumber,
       email: selectedVoucher.driver.primaryEmail,
     };
   };
-
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">
@@ -131,114 +189,115 @@ const TransportVouchersTasksTab = ({
         </div>
         <div className="card w-full space-y-6">
           <div className="card-title">Voucher Information</div>
-          <DataTableWithActions
+          <DataTable
+            data={vouchers}
+            columns={voucherColumns}
+            onRowClick={onVoucherRowClick}
+          />
+          {/* <DataTableWithActions
             data={vouchers}
             columns={voucherColumns}
             onRowClick={onVoucherRowClick}
             onView={() => alert("View action triggered")}
             onEdit={() => alert("Edit action triggered")}
             onDelete={() => alert("Delete action triggered")}
-          />
+          /> */}
           <div className="flex flex-row items-center justify-between">
             <div className="text-sm font-normal">
               {selectedVoucher
-                ? `${selectedVoucher.driver.name} - Voucher Lines`
-                : "Voucher Lines"}
+                ? `${selectedVoucher.driver.name} - Voucher`
+                : "Select a voucher from above table"}
             </div>
-            {selectedVoucher ? (
-              <div className="flex flex-row gap-2">
-                <Button
-                  variant={"outline"}
-                  className="border-red-600"
-                  onClick={renderCancelContent}
-                >
-                  Cancel
-                </Button>
 
-                <Popup
-                  title="Contact"
-                  description="Loading Contact Details"
-                  trigger={contactButton}
-                  onConfirm={handleConfirm}
-                  onCancel={handleCancel}
-                  dialogContent={ContactContent(selectedVoucher.driver.contactNumber, selectedVoucher.driver.primaryEmail ?? "N/A")}
-                  size="small"
-                />
-                <DeletePopup
-                  itemName={`Voucher for ${selectedVoucher?.driver.name}`}
-                  onDelete={() => {
-                    console.log("Deleting");
-                  }}
-                  isOpen={isInprogressVoucherDelete}
-                  setIsOpen={setIsInProgressVoucherDelete}
-                  isDeleting={isDeleting}
-                  description="You haven't sent this to the vendor yet. You can delete the
-                voucher without sending a cancellation voucher"
-                />
-                <DeletePopup
-                  itemName={`Voucher for ${selectedVoucher?.driver.name}`}
-                  onDelete={() => {
-                    console.log("Deleting");
-                  }}
-                  isOpen={isProceededVoucherDelete}
-                  setIsOpen={setIsProceededVoucherDelete}
-                  isDeleting={isDeleting}
-                  description={`You have already proceeded with this voucher, and it's in the status of ${selectedVoucher.status} \n
-                Are you sure you want to cancel this voucher? This will give you the cancellation voucher and delete the voucher from this booking`}
-                />
-              </div>
-            ) : (
-              ""
-            )}
-          </div>
-
-          <DataTableWithActions
-            columns={selectedVoucherColumns}
-            data={selectedVoucher ? [selectedVoucher] : []}
-            onRowClick={onVoucherLineRowClick}
-            onView={() => alert("View action triggered")}
-            onEdit={() => alert("Edit action triggered")}
-            onDelete={() => alert("Delete action triggered")}
-          />
-          <div
-            className={`flex flex-row items-end justify-end ${!selectedVoucher ? "hidden" : ""}`}
-          >
-            <div className="flex flex-row gap-2">
+            {selectedVoucher && (
               <Popup
-                title="Confirm Voucher"
-                description="Confirm Form"
-                trigger={addConfirmationButton}
+                title={"Log Sheet"}
+                description="Please click on preview button to get the document"
+                trigger={<Button variant={"primaryGreen"}>Log Sheet</Button>}
                 onConfirm={handleConfirm}
-                onCancel={handleCancel}
-                dialogContent={confirmationContent(
-                  selectedVoucher,
-                  updateVoucherStatus,
-                )}
-                size="small"
-              />
-              <Popup
-                title={
-                  selectedVoucher ? `${selectedVoucher.driver.name} - Voucher`
-                    : "Select a voucher first"
-                }
-                description="Voucher Content"
-                trigger={proceedButton}
-                onConfirm={handleConfirm}
-                onCancel={handleCancel}
+                onCancel={() => console.log("Cancelled")}
                 dialogContent={
                   <ProceedContent
                     voucherColumns={voucherColumns}
-                    selectedVoucher={selectedVoucher}
-                    onVoucherLineRowClick={onVoucherLineRowClick}
-                    updateVoucherLine={updateVoucherLine}
-                    updateVoucherStatus={updateVoucherStatus}
-                    rate={rate}
-                    setRate={setRate}
+                    voucher={selectedVoucher}
                     setStatusChanged={setStatusChanged}
                   />
                 }
                 size="large"
               />
+            )}
+          </div>
+
+          <DataTable
+            columns={voucherColumns}
+            data={selectedVoucher ? [selectedVoucher] : []}
+            onRowClick={() => console.log("Row clicked")}
+          />
+
+          {/* <DataTableWithActions
+            columns={voucherColumns}
+            data={selectedVoucher ? [selectedVoucher] : []}
+            onRowClick={() => console.log("Row clicked")}
+            onView={() => alert("View action triggered")}
+            onEdit={() => alert("Edit action triggered")}
+            onDelete={() => alert("Delete action triggered")}
+          /> */}
+          <div
+            className={`flex flex-row items-end justify-end ${!selectedVoucher ? "hidden" : ""}`}
+          >
+            <div className="flex flex-row gap-2">
+              {selectedVoucher ? (
+                <div className="flex flex-row gap-2">
+                  <Button
+                    variant={"outline"}
+                    className="border-red-600"
+                    onClick={renderCancelContent}
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? (<div className="flex flex-row gap-2"><LoaderCircle size={16}/> <div>Deleting</div></div>): (<div>Delete</div>)}
+                  </Button>
+
+                  <Popup
+                    title="Contact"
+                    description="Loading Contact Details"
+                    trigger={contactButton}
+                    onConfirm={handleConfirm}
+                    onCancel={() => console.log("Cancelled")}
+                    dialogContent={ContactContent(
+                      selectedVoucher.driver.contactNumber,
+                      selectedVoucher.driver.primaryEmail ?? "N/A",
+                    )}
+                    size="small"
+                  />
+                  <Button
+                    variant={"primaryGreen"}
+                    onClick={handleConfirm}
+                    disabled={isConfirming}
+                  >
+                    Confirm Driver
+                  </Button>
+                  <DeletePopup
+                    itemName={`Voucher for ${selectedVoucher?.driver.name}`}
+                    onDelete={deleteVoucher}
+                    isOpen={isInProgressVoucherDelete}
+                    setIsOpen={setIsInProgressVoucherDelete}
+                    isDeleting={isDeleting}
+                    description="You haven't confirmed with the driver yet. You can delete the
+                voucher straight away"
+                  />
+                  <DeletePopup
+                    itemName={`Voucher for ${selectedVoucher?.driver.name}`}
+                    onDelete={deleteVoucher}
+                    isOpen={isProceededVoucherDelete}
+                    setIsOpen={setIsProceededVoucherDelete}
+                    isDeleting={isDeleting}
+                    description={`You have already proceeded with this driver/guide, and it's in the status of ${selectedVoucher.status} \n
+                Are you sure you want to cancel this driver/guide? This will delete the driver from this booking`}
+                  />
+                </div>
+              ) : (
+                ""
+              )}
             </div>
           </div>
         </div>
@@ -247,147 +306,42 @@ const TransportVouchersTasksTab = ({
   );
 };
 
-export default TransportVouchersTasksTab;
+export default ActivityVouchersTab;
 
-const CreateRateColumn = <T extends object>(
-  initialRate: number | string,
-  setRate: React.Dispatch<SetStateAction<number | string>>,
-): ColumnDef<T> => ({
-  accessorKey: "rate",
-  header: "Rate - USD",
-  cell: ({ getValue, row, column }) => {
-    // Create a separate component to handle state and rendering
-    const RateInput = () => {
-      const [rate, setLocalRate] = useState<number | string>(initialRate);
-
-      useEffect(() => {
-        setLocalRate(initialRate);
-      }, [initialRate]);
-
-      const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const inputValue = e.target.value;
-        const newRate = parseFloat(inputValue);
-
-        // Check if the newRate is a valid number
-        if (!isNaN(newRate)) {
-          setLocalRate(newRate);
-          setRate(newRate);
-        } else {
-          setLocalRate(""); // Set to '' if the input is not a valid number
-          setRate("");
-        }
-
-        // Update the row data with the new rate value
-        (row.original as Record<string, any>)[column.id] = newRate;
-      };
-
-      return (
-        <Input
-          type="number"
-          value={rate === "" ? "" : rate}
-          onChange={handleRateChange}
-          className="rounded border border-gray-300 p-1"
-          style={{ width: "80px" }}
-        />
-      );
-    };
-
-    // Render the RateInput component inside the cell
-    return <RateInput />;
-  },
-});
 interface ProceedContentProps {
   voucherColumns: any;
-  selectedVoucher: any;
-  onVoucherLineRowClick: any;
-  updateVoucherLine: any;
-  updateVoucherStatus: any;
-  rate: number | string;
-  setRate: React.Dispatch<SetStateAction<number | string>>;
+  voucher: TransportVoucherData;
   setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ProceedContent: React.FC<ProceedContentProps> = ({
   voucherColumns,
-  selectedVoucher,
-  onVoucherLineRowClick,
-  updateVoucherLine,
-  updateVoucherStatus,
-  rate,
-  setRate,
+  voucher,
   setStatusChanged,
 }) => {
-  const rateColumn = CreateRateColumn<typeof voucherColumns>(rate, setRate);
-  const VoucherLineColumnsWithRate = [...voucherColumns, rateColumn];
-
-  const [ratesConfirmedBy, setRatesConfirmedBy] = useState(
-    selectedVoucher?.ratesConfirmedBy ?? "",
-  );
-  const [ratesConfirmedTo, setRatesConfirmedTo] = useState(
-    selectedVoucher?.ratesConfirmedTo ?? "",
-  );
-  const [availabilityConfirmedBy, setAvailabilityConfirmedBy] = useState(
-    selectedVoucher?.availabilityConfirmedBy ?? "",
-  );
-  const [availabilityConfirmedTo, setAvailabilityConfirmedTo] = useState(
-    selectedVoucher?.availabilityConfirmedTo ?? "",
-  );
-
   const componentRef = useRef<HTMLDivElement>(null);
 
   const downloadPDF = () => {
-    // Create a temporary container to hold the entire PDF content
     const tempContainer = document.createElement("div");
-
-    // Create the header section
-    const headerElement = document.createElement("div");
-    headerElement.innerHTML = `
-      <div style="padding: 20px; background-color: #004080; color: white; text-align: center;">
-        <h1 style="margin: 0; font-size: 24px;">Tour Agency Hotel Voucher</h1>
-        <p style="margin: 0; font-size: 14px;">This voucher is issued for the following booking details</p>
-      </div>
-    `;
-
-    // Clone the componentRef element and add it as the main content
     const componentElement = componentRef.current?.cloneNode(true);
-
-    // Create an additional section (optional, modify as needed)
-    const additionalElement = document.createElement("div");
-    additionalElement.innerHTML = `
-      <div style="padding: 20px; background-color: #f0f0f0;">
-
-      </div>
-    `;
-
-    // Create the footer section
     const footerElement = document.createElement("div");
     footerElement.innerHTML = `
-      <div style="padding: 20px; background-color: #004080; color: white; text-align: center;">
-        <p style="margin: 0; font-size: 12px;">Tour Agency, 123 Travel Street, City, Country</p>
-        <p style="margin: 0; font-size: 12px;">Email: info@touragency.com | Phone: +1 234 567 890</p>
-      </div>
-    `;
+    <div>
+    </div>
+  `;
 
-    // Append header, main content, and footer to the temporary container
-    tempContainer.appendChild(headerElement); // Add the header
     if (componentElement) {
-      tempContainer.appendChild(componentElement); // Add the main content if available
+      tempContainer.appendChild(componentElement);
     }
-    tempContainer.appendChild(additionalElement); // Optional section
-    tempContainer.appendChild(footerElement); // Add the footer
 
-    // Apply some basic styling to the container for better formatting
     tempContainer.style.width = "210mm"; // Set width to A4 size (portrait)
     tempContainer.style.minHeight = "297mm"; // Minimum height of A4 size
     tempContainer.style.padding = "10mm"; // Padding for the container
     tempContainer.style.backgroundColor = "white"; // Set background to white
 
-    // Append the temporary container to the body (invisible)
     document.body.appendChild(tempContainer);
-
-    // Generate the PDF from the temporary container
     const options = {
-      filename: "booking_summary.pdf",
+      filename: `Activities_by_Date_${voucher.bookingLineId}.pdf`,
       jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
     };
     html2pdf()
@@ -395,186 +349,22 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
       .from(tempContainer)
       .save()
       .then(() => {
-        // Remove the temporary container after the PDF is generated
         document.body.removeChild(tempContainer);
       });
   };
 
-  const areAllFieldsFilled = () => {
-    return (
-      ratesConfirmedBy.trim() !== "" &&
-      ratesConfirmedTo.trim() !== "" &&
-      availabilityConfirmedBy.trim() !== "" &&
-      availabilityConfirmedTo.trim() !== ""
-    );
-  };
-
-  const handleSubmit = async () => {
-    if (!areAllFieldsFilled()) {
-      alert("Please fill all the required fields.");
-      return;
-    }
-
-    // Logic to check if all rates are filled
-    const areAllRatesFilled = selectedVoucher?.voucherLines?.every(
-      (line: any) => {
-        // alert(line.rate)
-        return !Number.isNaN(line.rate);
-      },
-    );
-
-    if (!areAllRatesFilled) {
-      alert("Please ensure all rates are filled.");
-      return;
-    }
-
-    // alert(availabilityConfirmedBy)
-
-    try {
-      console.log({
-        availabilityConfirmedBy: availabilityConfirmedBy,
-        availabilityConfirmedTo: availabilityConfirmedTo,
-        ratesConfirmedBy: ratesConfirmedBy,
-        ratesConfirmedTo: ratesConfirmedTo,
-      });
-      await updateVoucherLine(
-        selectedVoucher?.voucherLines ?? [selectedVoucher],
-        {
-          availabilityConfirmedBy: availabilityConfirmedBy,
-          availabilityConfirmedTo: availabilityConfirmedTo,
-          ratesConfirmedBy: ratesConfirmedBy,
-          ratesConfirmedTo: ratesConfirmedTo,
-        },
-      );
-      alert("Voucher line updated successfully!");
-    } catch (error) {
-      console.error("Failed to update voucher line:", error);
-      alert("An error occurred while updating the voucher line.");
-    }
-  };
-
-  const handleSendVoucher = async () => {
-    if (selectedVoucher?.status !== "inprogress") {
-      alert("You've already downloaded sent the voucher to vendor");
-      downloadPDF();
-      return;
-    }
-
-    try {
-      downloadPDF();
-      if (selectedVoucher?.status) {
-        selectedVoucher.status = "sentToVendor";
-      }
-      setStatusChanged(true);
-      await updateVoucherStatus(selectedVoucher);
-      alert("Voucher status updated successfully");
-    } catch (error) {
-      console.error("Failed to update voucher status:", error);
-    }
-  };
-
   return (
     <div className="mb-9 space-y-6">
-      <div ref={componentRef} className="flex flex-col gap-4 p-4">
-        <DataTable
-          columns={VoucherLineColumnsWithRate}
-          data={
-            selectedVoucher
-              ? (selectedVoucher.voucherLines ?? [selectedVoucher])
-              : []
-          }
-        />
-        {/* <DataTableWithActions
-        columns={VoucherLineColumnsWithRate}
-        data={
-          selectedVoucher
-            ? (selectedVoucher.voucherLines ?? [selectedVoucher])
-            : []
-        }
-        onRowClick={onVoucherLineRowClick}
-        onView={() => alert("View action triggered")}
-        onEdit={() => alert("Edit action triggered")}
-        onDelete={() => alert("Delete action triggered")}
-      /> */}
-
-        <div className="grid grid-cols-4 gap-2">
-          <Input
-            placeholder="Rates Confirmed By"
-            value={ratesConfirmedBy}
-            onChange={(e) => setRatesConfirmedBy(e.target.value)}
-          />
-          <Input
-            placeholder="Rates Confirmed To"
-            value={ratesConfirmedTo}
-            onChange={(e) => setRatesConfirmedTo(e.target.value)}
-          />
-          <Input
-            placeholder="Availability Confirmed By"
-            value={availabilityConfirmedBy}
-            onChange={(e) => setAvailabilityConfirmedBy(e.target.value)}
-          />
-          <Input
-            placeholder="Availability Confirmed To"
-            value={availabilityConfirmedTo}
-            onChange={(e) => setAvailabilityConfirmedTo(e.target.value)}
-          />
-        </div>
-      </div>
-
-      <div className="flex w-full flex-row justify-end gap-2">
-        <Button variant="primaryGreen" onClick={handleSendVoucher}>
-          Download Voucher
-        </Button>
-        <Button variant="primaryGreen" onClick={handleSubmit}>
-          Save Voucher Rates
+      <div className="flex flex-row justify-end">
+        <Button variant="primaryGreen" onClick={downloadPDF}>
+          Download PDF
         </Button>
       </div>
-      <div>
-        {/* <Voucher
-        clientName="John Doe"
-        bookingId="AB12345"
-        hotelName="Luxury Hotel"
-        checkInDate="2024-10-05"
-        checkOutDate="2024-10-10"
-        numberOfDays={5}
-        roomType="Deluxe Suite"
-      /> */}
+      <div ref={componentRef}>
+        {/* <ShopVoucherPDF vouchers={vouchers} /> */}
+        <TransportVoucherPDF voucher={voucher} />
       </div>
+      <div className="flex w-full flex-row justify-end gap-2"></div>
     </div>
   );
 };
-
-const confirmationContent = (
-  selectedVoucher: any,
-  updateVoucherStatus: any,
-) => {
-  if (!selectedVoucher?.status) {
-    return (
-      <div>
-        <p>Please select a voucher</p>
-      </div>
-    );
-  }
-  if (selectedVoucher?.status === "sentToVendor") {
-    return (
-      <div className="space-y-6">
-        <ConfirmationForm
-          selectedVoucher={selectedVoucher}
-          updateVoucherStatus={updateVoucherStatus}
-        />
-      </div>
-    );
-  }
-
-  if (selectedVoucher?.status === "inprogress") {
-    return (
-      <div>
-        <p>Click Proceed and send voucher first</p>
-      </div>
-    );
-  } else {
-    return <div>You have already confirmed the voucher</div>;
-  }
-};
-
-

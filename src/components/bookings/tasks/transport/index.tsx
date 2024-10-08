@@ -1,31 +1,47 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { SelectClient, SelectDriver, SelectTransportVoucher } from "~/server/db/schemaTypes";
 import TransportVouchersTasksTab from './taskTab';
+import { useEffect, useState } from "react";
 
 export type TransportVoucherData = SelectTransportVoucher & {
   driver: SelectDriver
-  client: SelectClient; // Add client data here
 }
 
 // Define specific columns for transport
 const voucherColumns: ColumnDef<TransportVoucherData>[] = [
   {
     accessorKey: "driver.name",
-    header: "Driver",
+    header: "Name",
   },
+  {
+    header: "Type",
+    accessorFn: (row) => row.driver.type,
+  },
+  {
+    header: "Vehicle",
+    accessorFn: (row) => row.vehicleType,
+  },
+  {
+    header: "Language",
+    accessorFn: (row) => row.language,
+  },
+  {
+    header: "Pickup Date",
+    accessorFn: (row) => row.startDate,
+  },
+  {
+    header: "Drop Off Date",
+    accessorFn: (row) => row.endDate,
+  },
+
   {
     accessorKey: "driver.contactNumber",
     header: "Contact Number",
     cell: (info) => info.getValue() ?? "N/A",
   },
   {
-    header: "Voucher Lines",
-    accessorFn: (row) => 1,
-  },
-  {
-    accessorKey: "voucherLine",
     header: "Progress",
-    accessorFn: (row) => 1,
+    accessorFn: (row) => row.status,
   },
 ];
 
@@ -70,16 +86,25 @@ const updateVoucherStatus = async(voucher:any)=>{
   return true
 }
 // Use TasksTab for Transport
-const TransportTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string, vouchers: TransportVoucherData[] }) => (
+const TransportTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string, vouchers: TransportVoucherData[] }) => {
+  const [statusChanged, setStatusChanged] = useState<boolean>(false);
+
+  useEffect(()=>{
+    console.log("Status changed")
+  },[statusChanged])
+
+
+  return(
   <TransportVouchersTasksTab
     bookingLineId={bookingLineId}
     voucherColumns={voucherColumns}
     selectedVoucherColumns={selectedVoucherColumns}
     vouchers={vouchers}
     updateVoucherLine={updateVoucherLine}
-    updateVoucherStatus={updateVoucherStatus}
+    statusChanged={statusChanged}
+    setStatusChanged={setStatusChanged}
 
   />
-);
+)};
 
 export default TransportTasksTab;

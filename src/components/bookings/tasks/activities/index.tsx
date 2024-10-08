@@ -19,6 +19,18 @@ const activityColumns: ColumnDef<ActivityVoucherData>[] = [
     accessorFn: (row) => row.activityName,
   },
   {
+    header: "City",
+    accessorFn: (row) => row.city,
+  },
+  {
+    header: "Date",
+    accessorFn: (row) => row.date,
+  },
+  {
+    header: "Pax",
+    accessorFn: (row) => row.participantsCount,
+  },
+  {
     header: "Contact Number",
     accessorFn: (row) => row.activityVendor.contactNumber,
   },

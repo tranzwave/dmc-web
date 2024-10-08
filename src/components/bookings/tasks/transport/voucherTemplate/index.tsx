@@ -23,28 +23,6 @@ const TransportVoucherPDF = ({
     return <LoadingLayout />;
   }
 
-  const transportDetailsColumns: ColumnDef<TransportVoucherData>[] = [
-    {
-      header: "Date",
-      accessorFn: (row) => row.driver.name ?? "N/A", // Assuming driverName is part of the voucher data
-    },
-    {
-      header: "Day by Day Running Details",
-    },
-    {
-      header: "Start",
-    },
-    {
-      header: "End",
-    },
-    {
-      header: "Kms",
-    },
-    {
-      header: "Remarks",
-    },
-  ];
-
   return (
     <div className="flex flex-col border">
       <div className="flex flex-col items-center justify-center bg-primary-green p-4">
@@ -71,9 +49,10 @@ const TransportVoucherPDF = ({
         <div className="flex w-full flex-row justify-between">
           <div className="text-[13px]">
             <div>Bill to : {organization?.name}</div>
-            <div>Client Name: {voucher.client?.name ?? "N/A"}</div>
+            {/* <div>Client Name: {voucher.client?.name ?? "N/A"}</div> */}
             <div>Tour ID : {voucher.bookingLineId}</div>
-            <div>Driver ID : {voucher.driverId}</div>
+            <div>Driver Name : {voucher.driver.name}</div>
+            <div>Transport Type : {voucher.driver.type} only</div>
             <div>Vehicle Type : {voucher.vehicleType}</div>
             <div>Language : {voucher.language}</div>
           </div>

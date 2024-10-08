@@ -12,6 +12,8 @@ import { useToast } from "~/hooks/use-toast";
 import { updateShopVoucherStatus } from "~/server/db/queries/booking/shopsVouchers";
 import { ActivityVoucherData } from "..";
 import ShopVoucherPDF from "../voucherTemplate";
+import { updateActivityVoucherStatus } from "~/server/db/queries/booking/activityVouchers";
+import { DataTable } from "~/components/bookings/home/dataTable";
 
 interface TasksTabProps {
   bookingLineId: string;
@@ -29,7 +31,6 @@ interface TasksTabProps {
   ) => Promise<void>;
   contactDetails?: { phone: string; email: string };
   // columns: ColumnDef<ActivityVoucherData>[]; // Ensure to use the correct type
-
 }
 
 const ActivityVouchersTab = ({
@@ -52,11 +53,7 @@ const ActivityVouchersTab = ({
   const { toast } = useToast();
 
   const onVoucherRowClick = (row: ActivityVoucherData) => {
-    // setSelectedVoucher(row);
-    console.log(row);
-    console.log("Updating");
-
-
+    setSelectedVoucher(row);
   };
 
   const handleConfirm = async () => {
@@ -71,7 +68,10 @@ const ActivityVouchersTab = ({
 
       try {
         setIsConfirming(true);
-        const updateResult = await updateShopVoucherStatus(selectedVoucher.id, "vendorConfirmed");
+        const updateResult = await updateActivityVoucherStatus(
+          selectedVoucher.id,
+          "vendorConfirmed",
+        );
 
         if (!updateResult) {
           throw new Error("Couldn't update the status");
@@ -137,14 +137,19 @@ const ActivityVouchersTab = ({
         </div>
         <div className="card w-full space-y-6">
           <div className="card-title">Voucher Information</div>
-          <DataTableWithActions
+          <DataTable
+            data={vouchers}
+            columns={voucherColumns}
+            onRowClick={onVoucherRowClick}
+          />
+          {/* <DataTableWithActions
             data={vouchers}
             columns={voucherColumns}
             onRowClick={onVoucherRowClick}
             onView={() => alert("View action triggered")}
             onEdit={() => alert("Edit action triggered")}
             onDelete={() => alert("Delete action triggered")}
-          />
+          /> */}
           <div className="flex flex-row items-center justify-between">
             <div className="text-sm font-normal">
               {selectedVoucher
@@ -153,9 +158,11 @@ const ActivityVouchersTab = ({
             </div>
 
             <Popup
-              title={"Amount of sales"}
+              title={"Activities by Date"}
               description="Please click on preview button to get the document"
-              trigger={<Button variant={"primaryGreen"}>Amount of Sales Document</Button>}
+              trigger={
+                <Button variant={"primaryGreen"}>Activities by Dates</Button>
+              }
               onConfirm={handleConfirm}
               onCancel={() => console.log("Cancelled")}
               dialogContent={
@@ -169,14 +176,20 @@ const ActivityVouchersTab = ({
             />
           </div>
 
-          <DataTableWithActions
+          <DataTable
+            columns={voucherColumns}
+            data={selectedVoucher ? [selectedVoucher] : []}
+            onRowClick={() => console.log("Row clicked")}
+          />
+
+          {/* <DataTableWithActions
             columns={voucherColumns}
             data={selectedVoucher ? [selectedVoucher] : []}
             onRowClick={() => console.log("Row clicked")}
             onView={() => alert("View action triggered")}
             onEdit={() => alert("Edit action triggered")}
             onDelete={() => alert("Delete action triggered")}
-          />
+          /> */}
           <div
             className={`flex flex-row items-end justify-end ${!selectedVoucher ? "hidden" : ""}`}
           >
@@ -225,7 +238,11 @@ const ActivityVouchersTab = ({
               ) : (
                 ""
               )}
-              <Button variant={"primaryGreen"} onClick={handleConfirm} disabled={isConfirming}>
+              <Button
+                variant={"primaryGreen"}
+                onClick={handleConfirm}
+                disabled={isConfirming}
+              >
                 Confirm Activity
               </Button>
             </div>
@@ -260,18 +277,18 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
     </div>
   `;
 
-  if (componentElement) {
-    tempContainer.appendChild(componentElement);
-  }
+    if (componentElement) {
+      tempContainer.appendChild(componentElement);
+    }
 
-  tempContainer.style.width = "210mm"; // Set width to A4 size (portrait)
+    tempContainer.style.width = "210mm"; // Set width to A4 size (portrait)
     tempContainer.style.minHeight = "297mm"; // Minimum height of A4 size
     tempContainer.style.padding = "10mm"; // Padding for the container
     tempContainer.style.backgroundColor = "white"; // Set background to white
 
-       document.body.appendChild(tempContainer);
+    document.body.appendChild(tempContainer);
     const options = {
-      filename: `Amount_Of_Sales_${vouchers[0]?.bookingLineId}.pdf`,
+      filename: `Activities_by_Date_${vouchers[0]?.bookingLineId}.pdf`,
       jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
     };
     html2pdf()
@@ -287,7 +304,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
     <div className="mb-9 space-y-6">
       <div className="flex flex-row justify-end">
         <Button variant="primaryGreen" onClick={downloadPDF}>
-          Download Amount Of Sales Document
+          Download PDF
         </Button>
       </div>
       <div ref={componentRef}>
