@@ -8,8 +8,6 @@ export type ActivityVoucherData = SelectActivityVoucher & {
   activityVendor: SelectActivityVendor
 }
 
-
-
 // Define specific columns for activities
 const activityColumns: ColumnDef<ActivityVoucherData>[] = [
   {
@@ -24,17 +22,17 @@ const activityColumns: ColumnDef<ActivityVoucherData>[] = [
     header: "Contact Number",
     accessorFn: (row) => row.activityVendor.contactNumber,
   },
-  {
-    header: "Voucher Lines",
-    accessorFn: (row) => 1,
-  },
-  {
-    header: "Progress",
-    accessorFn: (row) => 1,
-  },
+  // {
+  //   header: "Voucher Lines",
+  //   accessorFn: (row) => 1,
+  // },
+  // {
+  //   header: "Progress",
+  //   accessorFn: (row) => 1,
+  // },
 ];
 
-const activityVoucherLineColumns: ColumnDef<SelectActivityVoucher>[] = [
+const activityVoucherLineColumns: ColumnDef<ActivityVoucherData>[] = [
   {
     header: "City",
     accessorFn: row => row.city
@@ -57,11 +55,11 @@ const activityVoucherLineColumns: ColumnDef<SelectActivityVoucher>[] = [
   },
 ];
 
-const updateVoucherLine = async(voucher:any)=>{
+const updateVoucherLine = async(voucher:ActivityVoucherData)=>{
   console.log("Updating")
 }
 
-const updateVoucherStatus = async(voucher:any)=>{
+const updateVoucherStatus = async(voucher:ActivityVoucherData)=>{
   console.log("Updating")
   return true
 }
@@ -70,11 +68,11 @@ const updateVoucherStatus = async(voucher:any)=>{
 const ActivitiesTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string ; vouchers:ActivityVoucherData[] }) => (
   <ActivityVouchersTasksTab
     bookingLineId={bookingLineId}
-    columns={activityColumns}
-    voucherColumns={activityVoucherLineColumns}
+    voucherColumns={activityColumns}
+    selectedVoucherColumns={activityVoucherLineColumns}
     vouchers={vouchers}
     updateVoucherLine={updateVoucherLine}
-    updateVoucherStatus={updateVoucherStatus}
+    // updateVoucherStatus={updateVoucherStatus}
   />
 );
 

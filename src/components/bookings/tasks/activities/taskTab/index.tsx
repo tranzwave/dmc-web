@@ -28,6 +28,8 @@ interface TasksTabProps {
     },
   ) => Promise<void>;
   contactDetails?: { phone: string; email: string };
+  // columns: ColumnDef<ActivityVoucherData>[]; // Ensure to use the correct type
+
 }
 
 const ActivityVouchersTab = ({
@@ -50,7 +52,11 @@ const ActivityVouchersTab = ({
   const { toast } = useToast();
 
   const onVoucherRowClick = (row: ActivityVoucherData) => {
-    setSelectedVoucher(row);
+    // setSelectedVoucher(row);
+    console.log(row);
+    console.log("Updating");
+
+
   };
 
   const handleConfirm = async () => {
@@ -220,7 +226,7 @@ const ActivityVouchersTab = ({
                 ""
               )}
               <Button variant={"primaryGreen"} onClick={handleConfirm} disabled={isConfirming}>
-                Confirm Shop
+                Confirm Activity
               </Button>
             </div>
           </div>

@@ -68,7 +68,7 @@ const ActivityVoucherPDF = ({ vouchers, cancellation }: ActivityVoucherPDFProps)
               {vouchers.map((v) => {
                 return (
                   <tr className="border-b hover:bg-gray-50 h-36" key={v.id}>
-                    <td className="px-4 py-2">{v.activityVendorId ?? "N/A"}</td>
+                    <td className="px-4 py-2">{v.activityVendor.name?? "N/A"}</td>
                     <td className="px-4 py-2">{v.city ?? "N/A"}</td>
                     <td className="px-4 py-2">{v.date ?? "N/A"}</td>
                     <td className="px-4 py-2">{v.time ?? "N/A"}</td>
