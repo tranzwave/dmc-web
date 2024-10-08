@@ -1,9 +1,10 @@
 "use server"
 
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray, sql, SQL } from 'drizzle-orm';
 import { ShopDetails } from '~/app/dashboard/shops/add/context';
 import { db } from "../..";
 import { city, shop, shopShopType, shopType } from "../../schema";
+import { InsertShop, InsertShopType } from '../../schemaTypes';
 
 export const getAllShops = () => {
   return db.query.shop.findMany({
@@ -174,18 +175,103 @@ export const insertShop = async (shopDetails: ShopDetails[]) => {
   }
 };
 
+export async function updateShopAndRelatedData(
+  shopId: string,
+  updatedShop: InsertShop | null,
+  updatedShopTypes: InsertShopType[]
+) {
+  console.log(shopId);
+  console.log(updatedShop);
 
+  // Begin a transaction
+  const updated = await db.transaction(async (trx) => {
+    if (!updatedShop) {
+      throw new Error("Please provide updated data");
+    }
+
+    // Update shop details
+    const updatedShopResult = await trx
+      .update(shop)
+      .set({
+        name: updatedShop.name,
+        contactNumber: updatedShop.contactNumber,
+        streetName: updatedShop.streetName,
+        province: updatedShop.province,
+        cityId: updatedShop.cityId,
+      })
+      .where(eq(shop.id, shopId))
+      .returning({ id: shop.id });
+
+    if (updatedShopResult.length === 0) {
+      throw new Error(`Shop with id ${shopId} not found.`);
+    }
+
+    // Update related shop types
+    // const updatedShopTypesData = await updatedShopShopTypes(trx, shopId, updatedShopTypes);
+
+    return { updatedShopResult }; // Return both results
+  });
+
+  console.log(updated);
+  return updated;
+}
+
+async function updatedShopShopTypes(
+  trx: any,
+  name: string,
+  updatedShopTypes: InsertShopType[]
+) {
+  if (updatedShopTypes.length === 0) {
+    return [];
+  }
+
+  const shopTypeSqlChunks: SQL[] = [];
+  const shopIds: string[] = [];
+
+  shopTypeSqlChunks.push(sql`(case`);
+
+  for (const shopType of updatedShopTypes) {
+    shopTypeSqlChunks.push(
+      sql`when ${shopShopType.shopId} = ${shopType.name} then ${shopType}`
+    );
+    shopIds.push(shopType.name);
+  }
+
+  shopTypeSqlChunks.push(sql`end)`);
+  const finalShopTypeSql: SQL = sql.join(shopTypeSqlChunks, sql.raw(' '));
+
+  // Remove existing language relationships
+  await trx.delete(shopShopType).where(eq(shopShopType.shopId, name));
+
+  // Update language records
+  await trx
+    .update(shopShopType)
+    .set({
+      // Assuming language data can be updated as a JSON object
+      shopTypeDetails: finalShopTypeSql,
+    })
+    .where(inArray(shopShopType.shopId, shopIds));
+
+  // Reinsert driver-language relationships
+  const addedShopTypeLinks = await trx
+    .insert(shopShopType)
+    .values(
+      shopIds.map((shopTypeId) => ({
+        driverId: name,
+        shopId: shopTypeId,
+      }))
+    );
+
+  return addedShopTypeLinks;
+}
 
 export async function deleteShopCascade(shopId: string) {
   try {
-    // Start the transaction
     const deletedShopId = await db.transaction(async (trx) => {
-      // Delete related activity-activityvendor relationships
       await trx
         .delete(shopShopType)
         .where(eq(shopShopType.shopId, shopId));
 
-      // Finally, delete the activity
       const deletedShop = await trx
         .delete(shop)
         .where(eq(shop.id, shopId)).returning({ id: shop.id });
@@ -197,7 +283,6 @@ export async function deleteShopCascade(shopId: string) {
     return deletedShopId;
   } catch (error) {
     console.error("Error deleting shop and related data:", error);
-    throw error; // Re-throw the error to handle it elsewhere if needed
+    throw error;
   }
 }
-

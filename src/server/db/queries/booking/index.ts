@@ -437,7 +437,7 @@ export const insertHotelVouchersTx = async (
               checkOutTime: currentVoucherLine.checkOutTime,
               basis: currentVoucherLine.basis,
               roomType: currentVoucherLine.roomType,
-              roomCategory:currentVoucherLine.roomCategory,
+              roomCategory: currentVoucherLine.roomCategory,
               hotelVoucherId: voucherId,
             })
             .returning();

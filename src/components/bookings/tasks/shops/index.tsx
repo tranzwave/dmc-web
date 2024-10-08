@@ -1,13 +1,14 @@
-import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDate } from "~/lib/utils/index";
-import { SelectShop, SelectShopVoucher } from "~/server/db/schemaTypes";
-import TasksTab from "~/components/common/tasksTab";
-import ShopsForm from "./form";
+import { SelectClient, SelectShop, SelectShopVoucher } from "~/server/db/schemaTypes";
 import ShopVouchersTasksTab from "./taskTab";
+
+
 
 export type ShopVoucherData = SelectShopVoucher & {
   shop: SelectShop;
+  client: SelectClient; // Add client data here
+
 };
 
 // Define specific columns for shops
@@ -20,6 +21,10 @@ const shopColumns: ColumnDef<ShopVoucherData>[] = [
     accessorKey: "shop.contactNumber",
     header: "Contact Number",
     cell: (info) => info.getValue() ?? "N/A",
+  },
+  {
+    accessorKey: "client.name",
+    header: "Client Name",
   },
   {
     accessorKey: "voucherLine",

@@ -4,7 +4,7 @@ import { useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import TitleBar from "~/components/common/titleBar";
 import GeneralTab from "~/components/shops/addShop/forms/generalForm";
-import SubmitForm from "~/components/shops/addShop/forms/submitForm";
+import EditShopSubmitForm from "~/components/shops/addShop/forms/submitForm/editShopSubmitForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { getShopDataById } from "~/server/db/queries/shops";
 import { AddShopProvider, useAddShop } from "../../add/context";
@@ -29,15 +29,14 @@ const EditShop = ({ id }: { id: string }) => {
         throw new Error("Couldn't find activity vendor");
       }
 
-      const { city, shopVouchers, ...general } = selectedShop;
-      setShop(selectedShop);
+      const { city, shopTypes, shopVouchers, ...general } = selectedShop;
 
-      const formattedShopTypes = general.shopTypes && general.shopTypes.length > 0
-      ? general.shopTypes.map((shopType: any) => ({
-          id: shopType.id,
-          name: shopType.name,
-        }))
-      : [];  // Handle empty array
+      const formattedShopTypes = shopTypes.map((type: any) => ({
+        id: type.shopType.id, // Adjust according to your actual data structure
+        name: type.shopType.name,
+      }));
+  
+      setShop(selectedShop);
 
       setGeneralDetails({
         cityId: general.cityId,
@@ -51,7 +50,7 @@ const EditShop = ({ id }: { id: string }) => {
 
       });
       setIsGeneralDetailsSet(true); // Mark as ready to render GeneralTab
-
+console.log(formattedShopTypes)
       setLoading(false);
     } catch (error) {
       console.error("Failed to fetch driver details:", error);
@@ -115,7 +114,11 @@ const EditShop = ({ id }: { id: string }) => {
                 {/* <GeneralTab /> */}
               </TabsContent>
               <TabsContent value="submit">
-                <SubmitForm />
+              <EditShopSubmitForm
+                  id={id}
+                  originalShopData={shop ?? null}
+                />
+                {/* <SubmitForm /> */}
               </TabsContent>
             </Tabs>
           </div>
