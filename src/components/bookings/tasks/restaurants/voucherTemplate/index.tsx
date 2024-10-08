@@ -1,21 +1,24 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
-import { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
 import Image from "next/image";
 import { useOrganization } from "~/app/dashboard/context";
-import LoadingLayout from "~/components/common/dashboardLoading";
+import { calculateDaysBetween, formatDate } from "~/lib/utils/index";
+import { DataTable } from "~/components/bookings/home/dataTable";
+import { ColumnDef } from "@tanstack/react-table";
 import {
   SelectHotelVoucher,
   SelectHotelVoucherLine,
 } from "~/server/db/schemaTypes";
+import { useUser } from "@clerk/nextjs";
+import LoadingLayout from "~/components/common/dashboardLoading";
+import { format } from "date-fns";
+import { RestaurantVoucherData } from "..";
 
-type HotelVoucherPDFProps = {
-  voucher: HotelVoucherData;
+type RestaurantVoucherPDFProps = {
+  voucher: RestaurantVoucherData;
   cancellation?:boolean
 };
 
-const HotelVoucherPDF = ({ voucher,cancellation }: HotelVoucherPDFProps) => {
+const RestaurantVoucherPDF = ({ voucher,cancellation }: RestaurantVoucherPDFProps) => {
   const organization = useOrganization();
   const { isLoaded, user } = useUser();
 
@@ -87,13 +90,13 @@ const HotelVoucherPDF = ({ voucher,cancellation }: HotelVoucherPDFProps) => {
       </div>
       <div className="p-4">
         <div className="card-title w-full text-center">
-            {cancellation ? (<div className="text-red-500">Cancellation Voucher</div>): 'Hotel Reservation Voucher'}
+            {cancellation ? (<div className="text-red-500">Cancellation Voucher</div>): 'Restaurant Reservation Voucher'}
           
         </div>
         <div className="flex w-full flex-row justify-between">
           <div className="text-[13px]">
             <div>Bill to : {organization?.name}</div>
-            <div>Hotel Name : {voucher?.hotel.name}</div>
+            <div>Hotel Name : {voucher?.restaurant.name}</div>
             <div>Tour ID : {voucher.bookingLineId}</div>
             <div>
               Country : {voucher.bookingLineId.split("-")[1]?.split("-")[0]}
@@ -119,75 +122,31 @@ const HotelVoucherPDF = ({ voucher,cancellation }: HotelVoucherPDFProps) => {
           <table className="min-w-full rounded-md border bg-white">
             <thead>
               <tr className="border-b ">
-                <th className="px-4 py-2 text-left font-semibold">Occupancy</th>
-                <th className="px-4 py-2 text-left font-semibold">Meal Plan</th>
+                <th className="px-4 py-2 text-left font-semibold">Adults</th>
+                <th className="px-4 py-2 text-left font-semibold">Kids</th>
                 <th className="px-4 py-2 text-left font-semibold">
-                  Room Category
+                  Date
                 </th>
-                <th className="px-4 py-2 text-left font-semibold">Check In</th>
-                <th className="px-4 py-2 text-left font-semibold">Check Out</th>
-
-                <th className="px-4 py-2 text-left font-semibold">Quantity</th>
-                <th className="px-4 py-2 text-left font-semibold">Price</th>
+                <th className="px-4 py-2 text-left font-semibold">Meal</th>
                 <th className="px-4 py-2 text-left font-semibold">Amount</th>
               </tr>
             </thead>
             <tbody>
               {voucher.voucherLines?.map((line, index) => (
                 <tr key={index} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-2">{line.roomType ?? "N/A"}</td>
-                  <td className="px-4 py-2">{line.basis ?? "N/A"}</td>
-                  <td className="px-4 py-2">{line.roomCategory ?? "N/A"}</td>
-                  <td className="px-4 py-2">{line.checkInDate ?? "N/A"}</td>
-                  <td className="px-4 py-2">{line.checkOutDate ?? "N/A"}</td>
-                  <td className="px-4 py-2">{line.roomCount}</td>
-                  <td className="px-4 py-2">{line.rate ?? '-'}</td>
-                  <td className="px-4 py-2">
-                    {line.rate ? (Number(line.rate) ?? 0 * line.roomCount).toFixed(2) : "-"}
-                  </td>
+                  <td className="px-4 py-2">{line.adultsCount ?? "N/A"}</td>
+                  <td className="px-4 py-2">{line.kidsCount ?? "N/A"}</td>
+                  <td className="px-4 py-2">{line.date ?? "N/A"}</td>
+                  <td className="px-4 py-2">{line.mealType ?? "N/A"}</td>
+                  <td className="px-4 py-2">{line.rate ?? "-"}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-
-
-        {/* <div className="mt-4 text-[13px]">
-          <table className="min-w-full rounded-md border bg-white">
-            <thead>
-              <tr className="border-b">
-                <th className="px-4 py-2 text-left font-semibold">
-                  Availability Confirmed By 
-                </th>
-                <th className="px-4 py-2 text-left font-semibold">
-                  Availability Confirmed To
-                </th>
-                <th className="px-4 py-2 text-left font-semibold">
-                  Rates Confirmed By
-                </th>
-                <th className="px-4 py-2 text-left font-semibold">
-                  Rates Confirmed To
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b hover:bg-gray-50">
-                <td className="px-4 py-2">
-                  {voucher.availabilityConfirmedBy ?? ""}
-                </td>
-                <td className="px-4 py-2">
-                  {voucher.availabilityConfirmedTo ?? ""}
-                </td>
-                <td className="px-4 py-2">{voucher.ratesConfirmedBy ?? ""}</td>
-                <td className="px-4 py-2">{voucher.ratesConfirmedTo ?? ""}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div> */}
-
         <div className="flex w-full flex-row justify-end p-4 text-[13px] font-semibold">
-          {`Total(USD) - ${voucher.voucherLines[0]?.rate ?? 0 * (voucher.voucherLines[0]?.roomCount ?? 0)}`}
+          {`Total(USD) - ${voucher.voucherLines[0]?.rate ?? 0}`}
         </div>
 
         <div className="text-[14px] font-normal">
@@ -212,4 +171,4 @@ const HotelVoucherPDF = ({ voucher,cancellation }: HotelVoucherPDFProps) => {
   );
 };
 
-export default HotelVoucherPDF;
+export default RestaurantVoucherPDF;

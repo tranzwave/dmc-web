@@ -85,6 +85,34 @@
       "when": 1728124512237,
       "tag": "0011_modern_thing",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1728321869252,
+      "tag": "0012_round_imperial_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "6",
+      "when": 1728365892868,
+      "tag": "0013_thick_radioactive_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "6",
+      "when": 1728367336949,
+      "tag": "0014_premium_wild_pack",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "6",
+      "when": 1728368198319,
+      "tag": "0015_ambitious_iron_man",
+      "breakpoints": true
     }
   ]
 }

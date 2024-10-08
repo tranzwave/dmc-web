@@ -1,6 +1,6 @@
 {
-  "id": "7a43ca94-d558-46ab-a89e-b6b3ee7e4803",
-  "prevId": "66a5f3e3-9cfc-4e14-8b00-b50deb9d8eb9",
+  "id": "f781a8d3-f128-470a-a882-a28e5f9692d7",
+  "prevId": "4280a808-677a-4ab3-836d-064c70e61096",
   "version": "6",
   "dialect": "postgresql",
   "tables": {
@@ -596,12 +596,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "agent_id": {
-          "name": "agent_id",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
         "coordinator_id": {
           "name": "coordinator_id",
           "type": "varchar(255)",
@@ -649,19 +643,6 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "dmc-web_bookings_agent_id_dmc-web_agents_id_fk": {
-          "name": "dmc-web_bookings_agent_id_dmc-web_agents_id_fk",
-          "tableFrom": "dmc-web_bookings",
-          "tableTo": "dmc-web_agents",
-          "columnsFrom": [
-            "agent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
         "dmc-web_bookings_coordinator_id_dmc-web_users_id_fk": {
           "name": "dmc-web_bookings_coordinator_id_dmc-web_users_id_fk",
           "tableFrom": "dmc-web_bookings",
@@ -681,6 +662,69 @@
           "tableTo": "dmc-web_users",
           "columnsFrom": [
             "manager_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.dmc-web_booking_agent": {
+      "name": "dmc-web_booking_agent",
+      "schema": "",
+      "columns": {
+        "booking_id": {
+          "name": "booking_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "agent_id": {
+          "name": "agent_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "dmc-web_booking_agent_booking_id_dmc-web_bookings_id_fk": {
+          "name": "dmc-web_booking_agent_booking_id_dmc-web_bookings_id_fk",
+          "tableFrom": "dmc-web_booking_agent",
+          "tableTo": "dmc-web_bookings",
+          "columnsFrom": [
+            "booking_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "dmc-web_booking_agent_agent_id_dmc-web_agents_id_fk": {
+          "name": "dmc-web_booking_agent_agent_id_dmc-web_agents_id_fk",
+          "tableFrom": "dmc-web_booking_agent",
+          "tableTo": "dmc-web_agents",
+          "columnsFrom": [
+            "agent_id"
           ],
           "columnsTo": [
             "id"
@@ -1581,6 +1625,13 @@
           "notNull": false,
           "default": "''"
         },
+        "reason_to_amend": {
+          "name": "reason_to_amend",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -2028,6 +2079,13 @@
         },
         "rates_confirmed_to": {
           "name": "rates_confirmed_to",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "reason_to_amend": {
+          "name": "reason_to_amend",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false,

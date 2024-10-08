@@ -1,3 +1,4 @@
+import { nullable } from 'zod';
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
@@ -117,16 +118,29 @@ export const booking = createTable("bookings", {
   clientId: varchar("client_id", { length: 255 })
     .references(() => client.id)
     .notNull(),
-  agentId: varchar("agent_id", { length: 255 })
-    .references(() => agent.id).notNull(),
   coordinatorId: varchar("coordinator_id", { length: 255 })
     .references(() => user.id)
     .notNull(),
   managerId: varchar("manager_id", { length: 255 })
     .references(() => user.id)
     .notNull(),
-  tourType: varchar("tour_type", { length: 255 }).notNull(), // e.g., adventure, honeymoon
+  tourType: varchar("tour_type", { length: 255 }).notNull(),
+  directCustomer: boolean("direct_customer").default(false)
 });
+
+export const bookingAgent = createTable("booking_agent", {
+  bookingId: varchar("booking_id", { length: 255 })
+    .references(() => booking.id)
+    .notNull(),
+  agentId: varchar("agent_id", { length: 255 })
+    .references(() => agent.id)
+    .notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+}, (table) => ({
+  primaryKey: [table.bookingId, table.agentId],
+}));
+
 
 export const bookingLineStatus = pgEnum('status', ['inprogress', 'confirmed', 'cancelled']);
 
@@ -268,6 +282,7 @@ export const hotelVoucher = createTable("hotel_vouchers", {
   availabilityConfirmedTo: varchar("availability_confirmed_to", { length: 255 }).default(""),
   ratesConfirmedBy: varchar("rates_confirmed_by", { length: 255 }).default(""),
   ratesConfirmedTo: varchar("rates_confirmed_to", { length: 255 }).default(""),
+  reasonToAmend: varchar("reason_to_amend", { length: 255 }).default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 
@@ -350,6 +365,11 @@ export const restaurantVoucher = createTable("restaurant_vouchers", {
   status: statusEnum('status').default('inprogress'),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  availabilityConfirmedBy: varchar("availability_confirmed_by", { length: 255 }).default(""),
+  availabilityConfirmedTo: varchar("availability_confirmed_to", { length: 255 }).default(""),
+  ratesConfirmedBy: varchar("rates_confirmed_by", { length: 255 }).default(""),
+  ratesConfirmedTo: varchar("rates_confirmed_to", { length: 255 }).default(""),
+  reasonToAmend: varchar("reason_to_amend", { length: 255 }).default(""),
 });
 
 // Restaurant Voucher Lines table
@@ -658,6 +678,22 @@ export const agentRelations = relations(agent, ({ one,many }) => ({
   }),
 }));
 
+export const clientRelations = relations(client, ({ one,many }) => ({
+  booking: many(booking),
+  tenant: one(tenant, {
+    fields: [client.tenantId],
+    references: [tenant.id],
+  }),
+}));
+
+export const userRelations = relations(user, ({ one,many }) => ({
+  // booking: many(booking),
+  tenant: one(tenant, {
+    fields: [user.tenantId],
+    references: [tenant.id],
+  }),
+}));
+
 export const bookingsRelations = relations(booking, ({ one }) => ({
   tenant: one(tenant, {
     fields: [booking.tenantId],
@@ -667,9 +703,9 @@ export const bookingsRelations = relations(booking, ({ one }) => ({
     fields: [booking.clientId],
     references: [client.id],
   }),
-  agent: one(agent, {
-    fields: [booking.agentId],
-    references: [agent.id],
+  bookingAgent: one(bookingAgent, {
+    fields: [booking.id],
+    references: [bookingAgent.bookingId],
   }),
   coordinator: one(user, {
     fields: [booking.coordinatorId],

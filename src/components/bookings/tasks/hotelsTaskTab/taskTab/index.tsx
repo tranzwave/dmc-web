@@ -38,13 +38,13 @@ import HotelsVoucherForm from "../voucherForm";
 import { getAllHotelsV2 } from "~/server/db/queries/hotel";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import { deleteHotelVoucherLine } from "~/server/db/queries/booking";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
 
-type Vendor =
-  | SelectHotel
-  | SelectRestaurant
-  | SelectActivityVendor
-  | SelectShop
-  | SelectDriver;
 interface TasksTabProps<T, L> {
   bookingLineId: string;
   columns: ColumnDef<HotelVoucherData>[];
@@ -126,7 +126,7 @@ const HotelVouchersTasksTab = <
 
   const onVoucherRowClick = (row: HotelVoucherData) => {
     setSelectedVoucher(row);
-    setRate(row.voucherLines[0]?.rate ?? 0)
+    setRate(row.voucherLines[0]?.rate ?? 0);
     if (setSelectedVendor) {
       setSelectedVendor(row);
     }
@@ -518,7 +518,7 @@ const CreateRateColumn = <T extends object>(
         if (inputValue === "" || /^(\d+(\.\d{0,2})?)?$/.test(inputValue)) {
           setLocalRate(inputValue); // Set local rate directly to the input value
           const newRate = inputValue === "" ? "" : parseFloat(inputValue);
-          
+
           // Update the rate state with the new rate
           setRate(newRate);
 
@@ -746,52 +746,78 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
       /> */}
 
         <div className="grid grid-cols-4 gap-2">
-          <Input
-            placeholder="Rates Confirmed By"
-            value={ratesConfirmedBy}
-            onChange={(e) => setRatesConfirmedBy(e.target.value)}
-          />
-          <Input
-            placeholder="Rates Confirmed To"
-            value={ratesConfirmedTo}
-            onChange={(e) => setRatesConfirmedTo(e.target.value)}
-          />
-          <Input
-            placeholder="Availability Confirmed By"
-            value={availabilityConfirmedBy}
-            onChange={(e) => setAvailabilityConfirmedBy(e.target.value)}
-          />
-          <Input
-            placeholder="Availability Confirmed To"
-            value={availabilityConfirmedTo}
-            onChange={(e) => setAvailabilityConfirmedTo(e.target.value)}
-          />
+          <div>
+            <div className="text-[13px] text-neutral-900">
+              Availability confirmed by
+            </div>
+            <Input
+              placeholder="Availability Confirmed By"
+              value={availabilityConfirmedBy}
+              onChange={(e) => setAvailabilityConfirmedBy(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <div className="text-[13px] text-neutral-900">
+              Availability confirmed to
+            </div>
+            <Input
+              placeholder="Availability Confirmed To"
+              value={availabilityConfirmedTo}
+              onChange={(e) => setAvailabilityConfirmedTo(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <div className="text-[13px] text-neutral-900">
+              Rates confirmed by
+            </div>
+
+            <Input
+              placeholder="Rates Confirmed By"
+              value={ratesConfirmedBy}
+              onChange={(e) => setRatesConfirmedBy(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <div className="text-[13px] text-neutral-900">
+              Rates confirmed to
+            </div>
+            <Input
+              placeholder="Rates Confirmed To"
+              value={ratesConfirmedTo}
+              onChange={(e) => setRatesConfirmedTo(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
       <div className="flex w-full flex-row justify-end gap-2">
-        <Button variant="primaryGreen" onClick={handleSendVoucher}>
-          Download Voucher
-        </Button>
         <Button variant="primaryGreen" onClick={handleSubmit}>
           Save Voucher Rates
         </Button>
       </div>
 
-      <div ref={componentRef}>
-        <HotelVoucherPDF voucher={selectedVoucher} />
-      </div>
+      <Accordion type="single" collapsible>
+        <AccordionItem value="item-1">
+          <AccordionTrigger className="w-full justify-end">
+            <div className="text-sm font-normal text-neutral-900">Preview Voucher</div>
+          </AccordionTrigger>
+          <AccordionContent className="space-y-2">
+            <div className="flex flex-row justify-end">
+              <Button variant="primaryGreen" onClick={handleSendVoucher}>
+                Download Voucher
+              </Button>
+            </div>
+            <div ref={componentRef}>
+              <HotelVoucherPDF voucher={selectedVoucher} />
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
       <div>
-        {/* <Voucher
-        clientName="John Doe"
-        bookingId="AB12345"
-        hotelName="Luxury Hotel"
-        checkInDate="2024-10-05"
-        checkOutDate="2024-10-10"
-        numberOfDays={5}
-        roomType="Deluxe Suite"
-      /> */}
       </div>
     </div>
   );
