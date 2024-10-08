@@ -1,11 +1,10 @@
 "use client";
 import { useUser } from "@clerk/nextjs";
-import { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
 import Image from "next/image";
 import { useOrganization } from "~/app/dashboard/context";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import { ShopVoucherData } from "..";
-import { format } from "date-fns";
 
 type ShopVoucherPDFProps = {
   vouchers: ShopVoucherData[];
