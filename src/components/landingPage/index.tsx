@@ -1,7 +1,6 @@
 "use client"
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
 
 const LandingPage = () => {
     const pathname = usePathname()
@@ -9,7 +8,7 @@ const LandingPage = () => {
     <div className="flex flex-col min-h-screen bg-slate-100 text-[#111729]">
       {/* Navbar */}
       <nav className="w-full py-4 px-6 bg-[#287F71] text-white flex justify-between items-center">
-        <div className="text-xl font-bold">Tranzwave</div>
+        <div className="text-xl font-bold">COORD.TRAVEL</div>
         <ul className="flex space-x-6">
           <li><a href="#" className="hover:text-[#EB862A]">Home</a></li>
           <li><a href="#" className="hover:text-[#EB862A]">About</a></li>
@@ -34,7 +33,7 @@ const LandingPage = () => {
 
       {/* Features Section */}
       <section className="py-16 px-6 bg-slate-300 text-center">
-        <h2 className="text-4xl font-bold mb-8">Why Choose Tranzwave?</h2>
+        <h2 className="text-4xl font-bold mb-8">Why Choose COORD.TRAVEL?</h2>
         <div className="flex flex-wrap justify-center gap-8">
           <div className="bg-white rounded-lg shadow-md p-6 w-72">
             <h3 className="text-2xl font-semibold mb-4">Flexible Plans</h3>
@@ -56,7 +55,7 @@ const LandingPage = () => {
         <h2 className="text-4xl font-bold mb-8 text-[#287F71]">What Our Clients Say</h2>
         <div className="flex flex-wrap justify-center gap-8">
           <div className="bg-[#ABBDD3] rounded-lg shadow-md p-6 w-80">
-            <p className="text-lg italic">"Tranzwave made my travel planning a breeze! Highly recommended."</p>
+            <p className="text-lg italic">"COORD.TRAVEL made my travel planning a breeze! Highly recommended."</p>
             <p className="text-sm font-bold mt-4">- Sarah L.</p>
           </div>
           <div className="bg-[#ABBDD3] rounded-lg shadow-md p-6 w-80">
@@ -72,7 +71,7 @@ const LandingPage = () => {
 
       {/* Footer */}
       <footer className="mt-auto w-full py-4 bg-[#111729] text-white text-center">
-        <p className="text-sm">© 2024 Tranzwave. All rights reserved.</p>
+        <p className="text-sm">© 2024 COORD.TRAVEL. All rights reserved.</p>
       </footer>
     </div>
   );

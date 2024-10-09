@@ -1,15 +1,11 @@
 import "~/styles/globals.css";
 
-import { Roboto_Flex as FontSans } from "next/font/google";
-import { type Metadata } from "next";
-import { Toaster } from "~/components/ui/toaster";
 import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
+  ClerkProvider
 } from "@clerk/nextjs";
+import { type Metadata } from "next";
+import { Roboto_Flex as FontSans } from "next/font/google";
+import { Toaster } from "~/components/ui/toaster";
 
 const fontSans = FontSans({
   weight: ["100", "300", "400", "500", "700", "900"],
@@ -18,8 +14,8 @@ const fontSans = FontSans({
 });
 
 export const metadata: Metadata = {
-  title: "Tranzwave",
-  description: "DMC Web App for Tranzwave",
+  title: "COORD.TRAVEL",
+  description: "DMC Web App for COORD.TRAVEL",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 

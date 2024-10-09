@@ -63,14 +63,14 @@ const SideNavBar = () => {
   return (
     <div className="flex h-full flex-col gap-4 bg-primary-green text-white">
       {/* Logo Section */}
-      <div className="mb-2 flex items-center justify-center p-4">
+      <div className="flex flex-col items-center justify-center">
         <Image
-          src="/assets/logo.png"
+          src="/assets/logo-white.svg" style={{ width: '150px', height: '70px' }}
           alt="Logo"
-          width={145} // Adjust the width as per your requirement
-          height={39} // Adjust the height as per your requirement
-          className="h-auto w-auto"
+          width={20} // Adjust the width as per your requirement
+          height={20} // Adjust the height as per your requirement
         />
+        <div>COORD.TRAVEL</div>
       </div>
       {/* Navigation Links */}
       <nav className="flex-1 overflow-y-auto">
@@ -93,10 +93,10 @@ const SideNavBar = () => {
         </div>
       </nav>
       {/* Contact Us Section */}
-      <div className="mb-4 w-full rounded-lg border-t bg-white p-4">
+      <div className="w-full rounded-lg border-t bg-white p-4">
         <div className="base-text mb-3 font-medium text-primary-green">
           <div>Developed By</div>
-          <div>Tranzwave System</div>
+          <div>COORD.TRAVEL System</div>
         </div>
         <div className="base-text flex cursor-pointer items-center justify-center rounded-lg bg-primary-green px-4 py-2 font-medium text-white">
           Contact Now
