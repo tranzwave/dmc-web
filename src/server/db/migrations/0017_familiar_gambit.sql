@@ -1,0 +1,1 @@
+ALTER TABLE "dmc-web_guides" ADD COLUMN "guide_license" varchar(255);

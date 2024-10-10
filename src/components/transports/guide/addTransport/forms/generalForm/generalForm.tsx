@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useAddTransport } from "~/app/dashboard/transport/add/context";
+import { useAddGuideTransport } from "~/app/dashboard/transport/guide/add/context";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -35,10 +35,8 @@ export const generalSchema = z.object({
   streetName: z.string().min(1, "Street name is required"),
   city: z.string().min(1, "City is required"),
   province: z.string().min(1, "Province is required"),
-  type: z.string().min(1, "Type is required"),
+  type: z.string().min(1, "Type is required").default("Guide"),
   includes: z.object({
-    vehicles: z.boolean(),
-    charges: z.boolean(),
     documents: z.boolean(),
   }),
 });
@@ -59,7 +57,7 @@ const GeneralForm = () => {
   const [cities, setCities] = useState<SelectCity[]>([]);
   const [languages, setLanguages] = useState<SelectLanguage[]>([]);
   const { setGeneralDetails, transportDetails, setActiveTab } =
-    useAddTransport();
+    useAddGuideTransport();
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
     defaultValues: transportDetails.general,
@@ -68,7 +66,7 @@ const GeneralForm = () => {
   const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
     console.log(data);
     setGeneralDetails(data);
-    setActiveTab("vehicles");
+    setActiveTab("documents");
   };
 
   const fetchData = async () => {
@@ -216,86 +214,53 @@ const GeneralForm = () => {
             />
           </div>
 
-          <div className="col-span-2">
-            <div className="grid grid-cols-3 gap-4">
-              <FormField
-                name="city"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                      {/* <Input placeholder="Enter city" {...field} /> */}
-                      <Select
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                        }}
-                        value={field.value}
-                        defaultValue={form.getValues("city")}
-                      >
-                        <SelectTrigger className="bg-slate-100 shadow-md">
-                          <SelectValue placeholder="Select city" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {cities.map((city) => (
-                            <SelectItem
-                              key={city.id}
-                              value={String(city.id ?? 0) ?? "0"}
-                            >
-                              {city.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="province"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Province</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter province" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                name="type"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Type</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={(value) => field.onChange(value)}
-                        value={
-                          typeof field.value === "string"
-                            ? field.value
-                            : undefined
-                        }
-                      >
-                        <SelectTrigger className="bg-slate-100 shadow-md">
-                          <SelectValue placeholder="Select type"/>
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Driver">Driver</SelectItem>
-                          <SelectItem value="Chauffeur">Chauffeur</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
+          <FormField
+            name="city"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>City</FormLabel>
+                <FormControl>
+                  {/* <Input placeholder="Enter city" {...field} /> */}
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                    }}
+                    value={field.value}
+                    defaultValue={form.getValues("city")}
+                  >
+                    <SelectTrigger className="bg-slate-100 shadow-md">
+                      <SelectValue placeholder="Select city" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cities.map((city) => (
+                        <SelectItem
+                          key={city.id}
+                          value={String(city.id ?? 0) ?? "0"}
+                        >
+                          {city.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="province"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Province</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter province" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         <div className="flex w-full flex-row justify-end">

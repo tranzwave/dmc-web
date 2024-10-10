@@ -40,44 +40,23 @@ const defaultGeneral: General = {
 };
 
 const defaultCharges: Charges = {
-  feePerKm: 1,
-  feePerDay: 1,
+  feePerKm: 0,
+  feePerDay: 0,
   fuelAllowance: 2000,
-  accommodationAllowance: 1,
-  mealAllowance: 1,
+  accommodationAllowance: 0,
+  mealAllowance: 0,
 };
 
 const defaultDocuments: Documents = {
-  driverLicense: "N/A",
-  guideLicense: "N/A",
-  vehicleEmissionTest: "N/A",
-  insurance: "N/A",
+  driverLicense: "",
+  guideLicense: "",
+  vehicleEmissionTest: "",
+  insurance: "",
 };
-
-const generateRandomString = (length: number): string => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    result += characters[randomIndex];
-  }
-  return result;
-};
-
 
 const defaultTransportDetails: TransportDetails = {
   general: defaultGeneral,
-  vehicles: [
-    {
-      make: "N/A",
-      model: "N/A",
-      year: "2024",
-      vehicle: "N/A",
-      numberPlate: generateRandomString(7),
-      seats: 1,
-      vrl: "N/A",
-    },
-  ],
+  vehicles: [],
   charges: defaultCharges,
   documents: defaultDocuments,
 };

@@ -68,6 +68,7 @@ const EditTransport = ({ id }: { id: string }) => {
     setActiveTab,
     activeTab,
   } = useAddTransport();
+  const isDriver = transportDetails.general.type === 'Driver'
   const [data, setData] = useState<Driver[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -243,7 +244,7 @@ const EditTransport = ({ id }: { id: string }) => {
                 <ChargesTab />
               </TabsContent>
               <TabsContent value="documents">
-                <DocumentsTab />
+                <DocumentsTab isDriver={isDriver} />
               </TabsContent>
               </>
               )}

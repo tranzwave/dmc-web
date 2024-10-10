@@ -9,43 +9,13 @@ type Address = {
   province: string;
 };
 
-export enum VehicleType {
-  CAR = "CAR",
-  BUS = "BUS",
-  VAN = "VAN",
-  TUK = "TUK",
-}
-
-// Define the Vehicle type
-type Vehicle = {
-  primary: boolean;
-  vehicleType: VehicleType;
-  numberPlate: string;
-  seats: number;
-  make: string;
-  model: string;
-  year: number;
-  licenseID: string;
-};
-
-// Define the Charges type
-type Charges = {
-  feePerKm: number;
-  fuelAllowance: number;
-  accommodationAllowance: number;
-  mealAllowance: number;
-};
-
 // Define the Documents type
 type Documents = {
   driversLicense: string;
-  guideLicense: string;
-  vehicleEmissionTest: string;
-  insurance: string;
 };
 
-// Define the Driver type
-type Driver = {
+// Define the Guide type
+type Guide = {
   id: number;
   general: {
     name: string;
@@ -55,14 +25,12 @@ type Driver = {
     address: Address;
     guide: boolean;
   };
-  vehicles: Vehicle[];
-  charges: Charges;
   documents: Documents;
   languages?: SelectLanguage[];
 };
 
 
-export type DriverDTO = {
+export type GuideDTO = {
   id?: string;
   tenantId: string;
   name: string;
@@ -71,21 +39,14 @@ export type DriverDTO = {
   streetName: string;
   province: string;
   type: string;
-  feePerKM?: number | null; 
-  fuelAllowance?: number; 
-  accommodationAllowance?: number; 
-  mealAllowance?: number; 
-  driversLicense: string;
   guideLicense?: string | null;
-  insurance: string;
-  contactNumber: string;
   createdAt?: Date | null; 
   updatedAt?: Date | null; 
   city: InsertCity; // Ensure InsertCity is correctly defined
 };
 
-// Define Driver columns
-export const driverColumns: ColumnDef<DriverDTO>[] = [
+// Define Guide columns
+export const guideColumns: ColumnDef<GuideDTO>[] = [
   {
     accessorKey: "name",
     header: "Name",
@@ -119,14 +80,14 @@ export const driverColumns: ColumnDef<DriverDTO>[] = [
         <DataTableDropDown
           data={transport}
           routeBase="/transport"
-          onViewPath={(data) => `/dashboard/transport/${data.id}`}
-          onEditPath={(data) => `/dashboard/transport/${data.id}/edit`}
-          onDeletePath={(data) => `/dashboard/transport/${data.id}/delete`}
+          onViewPath={(data) => `/dashboard/transport/guide/${data.id}`}
+          onEditPath={(data) => `/dashboard/transport/guide/${data.id}/edit`}
+          onDeletePath={(data) => `/dashboard/transport/guide/${data.id}/delete`}
         />
       );
     },
   },
 ];
 
-export type { Driver };
+export type { Guide };
 
