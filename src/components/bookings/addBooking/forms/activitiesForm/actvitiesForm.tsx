@@ -345,6 +345,7 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
                     type="number"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    min={0}
                   />
                 </FormControl>
                 <FormMessage />
@@ -393,7 +394,12 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
             <FormItem>
               <FormLabel>Special Notes</FormLabel>
               <FormControl>
-                <Input placeholder="Enter any special note" {...field} />
+                {/* <Input placeholder="Enter any special note" {...field} /> */}
+                <textarea
+                      placeholder="Enter any special notes"
+                      {...field}
+                      className="h-20 w-full rounded-md border border-gray-300 p-2 text-sm"
+                    />
               </FormControl>
               <FormMessage />
             </FormItem>

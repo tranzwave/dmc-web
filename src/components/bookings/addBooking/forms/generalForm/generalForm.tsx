@@ -201,6 +201,10 @@ const GeneralForm = () => {
     fetchMembers();
   }, [organization]);
 
+  useEffect(() => {
+    router.prefetch(`${pathname.split("add")[0]}/${id}/edit`);
+  }, [id]);
+
   const onSubmit: SubmitHandler<GeneralFormValues> = async (data) => {
     setSaving(true);
     const sd = new Date(data.startDate);
@@ -273,10 +277,16 @@ const GeneralForm = () => {
     }
   };
 
-  const handleYes = () => {
-    setShowModal(false);
+  const handleYes = async() => {
     // setActiveTab("hotels");
-    router.push(`${pathname.split("add")[0]}/${id}/edit`);
+    try {
+      router.replace(`${pathname.split("add")[0]}/${id}/edit`);
+      
+    } catch (error) {
+      console.error('Failed to navigate:', error);
+    }
+
+    setShowModal(false);
   };
 
   const handleNo = () => {
@@ -432,6 +442,7 @@ const GeneralForm = () => {
                         type="number"
                         value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        min={0}
                       />
                     </FormControl>
                     <FormMessage />
@@ -450,6 +461,7 @@ const GeneralForm = () => {
                         type="number"
                         value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        min={0}
                       />
                     </FormControl>
                     <FormMessage />
