@@ -1,8 +1,8 @@
 "use client";
 import { useUser } from "@clerk/nextjs";
-import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import Image from "next/image";
+import { useState } from "react"; // Import useState
 import { useOrganization } from "~/app/dashboard/context";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import { TransportVoucherData } from ".."; // Assuming TransportVoucherData is defined in the schema types
@@ -18,6 +18,7 @@ const TransportVoucherPDF = ({
 }: TransportVoucherPDFProps) => {
   const organization = useOrganization();
   const { isLoaded, user } = useUser();
+  const [dynamicName, setDynamicName] = useState(""); // State for dynamic name
 
   if (!isLoaded) {
     return <LoadingLayout />;
@@ -47,17 +48,26 @@ const TransportVoucherPDF = ({
           )}
         </div>
         <div className="flex w-full flex-row justify-between">
+          {/* Tour Details */}
           <div className="text-[13px]">
-            <div>Bill to : {organization?.name}</div>
-            {/* <div>Client Name: {voucher.client?.name ?? "N/A"}</div> */}
-            <div>Tour ID : {voucher.bookingLineId}</div>
-            <div>Driver Name : {voucher.driver.name}</div>
-            <div>Transport Type : {voucher.driver.type} only</div>
+            <div>Client Name: {organization?.name}</div>
+            <div>Tour ID: {voucher.bookingLineId}</div>
+            <div>Transport Type : {voucher.driver.type}</div>
             <div>Vehicle Type : {voucher.vehicleType}</div>
+            <div>Driver Name : {voucher.driver.name}</div>
+            <div>No of Pax: {"N/A"}</div>
             <div>Language : {voucher.language}</div>
           </div>
+
           <div className="text-[13px]">
-            <div>Voucher ID : {voucher.id}</div>
+          <div>Voucher ID : {voucher.id}</div>
+            <div className="font-bold">Flight Details</div>
+            <div>
+              Arrival by: {voucher.startDate}
+            </div>
+            <div>
+              Departure by: {voucher.endDate}
+            </div>
           </div>
         </div>
 
@@ -65,57 +75,71 @@ const TransportVoucherPDF = ({
           <table className="min-w-full rounded-md border bg-white">
             <thead>
               <tr className="border-b">
-                <th className="px-4 py-2 text-left font-semibold">Date</th>
-                <th className="px-4 py-2 text-left font-semibold">
+                <th className="border-r px-4 py-2 text-left font-semibold">
+                  Date
+                </th>
+                <th className="border-r px-4 py-2 text-left font-semibold">
                   Day by Day Running Details
                 </th>
-                <th className="px-4 py-2 text-left font-semibold">Start</th>
-                <th className="px-4 py-2 text-left font-semibold">End</th>
+                <th className="border-r px-4 py-2 text-left font-semibold">
+                  Start
+                </th>
+                <th className="border-r px-4 py-2 text-left font-semibold">
+                  End
+                </th>
                 <th className="px-4 py-2 text-left font-semibold">Kms</th>
               </tr>
             </thead>
             <tbody>
               {[...Array(15)].map((_, index) => (
                 <tr key={index} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-2"></td>
-                  <td className="px-4 py-2"></td>
-                  <td className="px-4 py-2"></td>
-                  <td className="px-4 py-2"></td>
+                  <td className="border-r px-4 py-2"></td>
+                  <td className="border-r px-4 py-2"></td>
+                  <td className="border-r px-4 py-2"></td>
+                  <td className="border-r px-4 py-2"></td>
                   <td className="px-4 py-2"></td>
                 </tr>
               ))}
+              {/* Total Kms Row */}
+              <tr className="border-b">
+                <td
+                  colSpan={4}
+                  className="border-r px-4 py-2 text-right font-semibold"
+                >
+                  Total Kms:
+                </td>
+                <td className="px-4 py-2 font-semibold">
+                  {" "}
+                  {/* Display total Kms value here */}{" "}
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
-
+        {/* 
         <div className="flex w-full flex-row justify-end p-4 text-[13px] font-semibold">
           Total -
-        </div>
+        </div> */}
 
         <div className="mt-4 w-full border border-black p-4 text-[13px]">
           <div>
-            Total KMS: <span className="underline">......................</span>{" "}
-            x<span className="underline">.............................</span>{" "}
-            per kms =
-            <span className="underline">.............................</span>
+            Total KMS: <span>......................</span> x
+            <span>.............................</span> per kms =
+            <span>.............................</span>
           </div>
 
           <div className="mt-2">
-            BATTA: <span className="underline">......................</span> per
-            night x
-            <span className="underline">.............................</span>{" "}
-            nights =
-            <span className="underline">.............................</span>
+            BATTA: <span>......................</span> per night x
+            <span>.............................</span> nights =
+            <span>.............................</span>
           </div>
 
           <div className="mt-2">
-            Other Expenses:{" "}
-            <span className="underline">.............................</span>
+            Other Expenses: <span>.............................</span>
           </div>
 
           <div className="mt-4 font-bold">
-            TOTAL PAYABLE:{" "}
-            <span className="underline">.............................</span>
+            TOTAL PAYABLE: <span>.............................</span>
           </div>
 
           <div className="mt-2 text-xs">
@@ -125,17 +149,23 @@ const TransportVoucherPDF = ({
 
           <div className="mt-4 flex justify-between">
             <div className="text-center">
-              <div className="underline">...........................</div>
+              <div>...........................</div>
               Driver
             </div>
 
             <div className="text-center">
-              <div className="underline">...........................</div>
-              Prabath Madhanayake
+              <div>...........................</div>
+              <input
+                type="text"
+                value={dynamicName}
+                onChange={(e) => setDynamicName(e.target.value)} // Update dynamic name on change
+                className="h-10 bg-transparent text-center focus:outline-none"
+                placeholder="Enter Name"
+              />
             </div>
 
             <div className="text-center">
-              <div className="underline">...........................</div>
+              <div>...........................</div>
               Finance Department
             </div>
           </div>

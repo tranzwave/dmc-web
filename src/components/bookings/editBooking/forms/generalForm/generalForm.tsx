@@ -412,6 +412,7 @@ const GeneralForm = () => {
                         type="number"
                         value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        min={0}
                       />
                     </FormControl>
                     <FormMessage />
@@ -430,6 +431,7 @@ const GeneralForm = () => {
                         type="number"
                         value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        min={0}
                       />
                     </FormControl>
                     <FormMessage />

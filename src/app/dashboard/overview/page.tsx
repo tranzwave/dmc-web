@@ -1,16 +1,13 @@
 "use client";
-import Image from "next/image";
+import { useUser } from "@clerk/nextjs";
+import { useEffect, useState } from "react";
+import LoadingLayout from "~/components/common/dashboardLoading";
 import TitleBar from "~/components/common/titleBar";
 import Services from "~/components/overview/services";
 import StatCards from "~/components/overview/statCards";
 import TouristsByCountry, { TouristData } from "~/components/overview/touristsByCountry";
-import heroImage from "../../../../public/assets/Rectangle 47.png";
-import { useEffect, useState } from "react";
 import { useToast } from "~/hooks/use-toast";
 import { getClientCountByCountry, getStat } from "~/server/db/queries/overview";
-import Link from "next/link";
-import LoadingLayout from "~/components/common/dashboardLoading";
-import { useUser } from "@clerk/nextjs";
 type Stat = {
   title: string;
   value: number;
@@ -110,7 +107,7 @@ const Overview = () => {
       </div>
       <div className="flex w-full h-[20%] py-3 flex-col gap-2 justify-center items-center rounded-lg bg-welcome-bg bg-cover">
         <div className="text-3xl font-semibold text-[#235026]">WELCOME</div>
-        <div className="text-3xl font-semibold text-[#235026]">{user ? user.fullName?.toUpperCase() : "To Tranzwave"}</div>
+        <div className="text-3xl font-semibold text-[#235026]">{user ? user.fullName?.toUpperCase() : "To COORD.TRAVEL"}</div>
       </div>
       <div className="">
         <StatCards stats={data.stats ?? []}/>

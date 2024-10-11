@@ -56,13 +56,13 @@ interface HotelsFormProps {
     | undefined;
   amendment?: boolean;
   isUpdating?: boolean;
-  isSaving?:boolean
+  isSaving?: boolean;
 }
 
 export const hotelsSchema = z.object({
   name: z.string().min(1, "Hotel name is required"),
   adultsCount: z.number().min(1, "Quantity is required"),
-  kidsCount: z.number().min(1, "Quantity is required"),
+  kidsCount: z.number().min(0, "Quantity is required"),
   roomCount: z.number().min(1, "Room count is required"),
   checkInDate: z.string().min(1, "Check-in date is required"),
   // checkInTime: z.string().min(1, "Check-in time is required").optional(),
@@ -175,7 +175,6 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
             <FormField
               name="name"
               control={form.control}
-              
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Hotel Name</FormLabel>
@@ -205,7 +204,8 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                 </FormItem>
               )}
             />
-            <div className="flex flex-row gap-1">
+            <div className="flex flex-row gap-3">
+              <div className="w-full">
               <FormField
                 name="adultsCount"
                 control={form.control}
@@ -217,12 +217,15 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                         type="number"
                         value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        min={0}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+              </div>
+              <div className="w-full">
               <FormField
                 name="kidsCount"
                 control={form.control}
@@ -234,12 +237,14 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                         type="number"
                         value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        min={0}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+              </div>
             </div>
             <FormField
               name="roomCount"
@@ -252,6 +257,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                       type="number"
                       value={field.value ?? ""}
                       onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                      min={0}
                     />
                   </FormControl>
                   <FormMessage />
@@ -260,8 +266,9 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
             />
           </div>
           <div></div>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-row gap-3">
+              <div className="w-1/2">
               <FormField
                 name="checkInDate"
                 control={form.control}
@@ -280,6 +287,8 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                   </FormItem>
                 )}
               />
+              </div>
+              <div className="w-1/2">
               <FormField
                 name="checkOutDate"
                 control={form.control}
@@ -298,7 +307,11 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                   </FormItem>
                 )}
               />
+              </div>
+
+
             </div>
+            <div>
             <FormField
               name="roomType"
               control={form.control}
@@ -329,6 +342,12 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                 </FormItem>
               )}
             />
+            </div>
+
+
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+          <div>
             <FormField
               name="roomCategory"
               control={form.control}
@@ -359,6 +378,8 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                 </FormItem>
               )}
             />
+            </div>
+            <div>
             <FormField
               name="basis"
               control={form.control}
@@ -389,19 +410,8 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                 </FormItem>
               )}
             />
-            {/* <FormField
-              name="checkOutTime"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Check-out Time</FormLabel>
-                  <FormControl>
-                    <Input type="time" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
+            </div>
+
           </div>
           <div className="grid grid-cols-1 gap-3">
             <FormField
@@ -411,7 +421,17 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                 <FormItem>
                   <FormLabel>Special Notes</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter any special notes" {...field} />
+                    {/* <Input
+                      type="text"
+                      placeholder="Enter any special notes"
+                      {...field}
+                      className="h-28"
+                    /> */}
+                    <textarea
+                      placeholder="Enter any special notes"
+                      {...field}
+                      className="h-20 w-full rounded-md border border-gray-300 p-2 text-sm"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -419,10 +439,15 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
             />
           </div>
           <div className="flex w-full flex-row justify-end">
-            <Button variant={"primaryGreen"} type="submit" className="px-5" disabled={isUpdating ? isUpdating : isSaving ? isSaving : false}>
+            <Button
+              variant={"primaryGreen"}
+              type="submit"
+              className="px-5"
+              disabled={isUpdating ? isUpdating : isSaving ? isSaving : false}
+            >
               {amendment ? (
                 isUpdating ? (
-                  <div className="flex flex-row gap-1 items-center">
+                  <div className="flex flex-row items-center gap-1">
                     <LoaderCircle size={16} className="animate-spin" />
                     <div>Updating</div>
                   </div>
@@ -430,11 +455,13 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                   "Amend"
                 )
               ) : isSaving ? (
-                <div className="flex flex-row gap-1 items-center">
+                <div className="flex flex-row items-center gap-1">
                   <LoaderCircle size={16} className="animate-spin" />
                   <div>Adding</div>
                 </div>
-              ) : ("Add")}
+              ) : (
+                "Add"
+              )}
             </Button>
           </div>
         </form>

@@ -179,6 +179,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                         type="number"
                         value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        min={0}
                       />
                     </FormControl>
                     <FormMessage />
@@ -196,6 +197,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                         type="number"
                         value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        min={0}
                       />
                     </FormControl>
                     <FormMessage />
@@ -348,7 +350,12 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                 <FormItem>
                   <FormLabel>Special Notes</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter any special notes" {...field} />
+                    {/* <Input placeholder="Enter any special notes" {...field} /> */}
+                    <textarea
+                      placeholder="Enter any special notes"
+                      {...field}
+                      className="h-20 w-full rounded-md border border-gray-300 p-2 text-sm"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
