@@ -18,7 +18,7 @@ const StaffTab = () => {
     occupation: "",
   });
 
-  const { addHotelStaff, hotelStaff, setActiveTab, deleteStaff } =
+  const { addHotelStaff, hotelStaff, setActiveTab, deleteStaff, duplicateHotelStaff } =
     useAddHotel(); // Assuming useAddStaff context
 
   const handleAddStaff = (staff: HotelStaffType) => {
@@ -38,9 +38,14 @@ const StaffTab = () => {
     setSelectedStaff(row);
   };
 
+  const onRowDuplicate = (row: HotelStaffType) => {
+    console.log(row);
+    duplicateHotelStaff(row.name, row.email);
+  };
+
   const onRowDelete = (row: HotelStaffType) => {
     alert(row.name);
-    deleteStaff(row.name);
+    deleteStaff(row.name, row.email);
   };
 
   return (
@@ -60,7 +65,7 @@ const StaffTab = () => {
             onDelete={onRowDelete}
             onEdit={onRowEdit}
             onRowClick={onRowEdit}
-            onDuplicate={onRowEdit}
+            onDuplicate={onRowDuplicate}
           />
         </div>
         <div className="flex w-full justify-end">

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from "react";
-import { useAddHotel } from "~/app/dashboard/hotels/add/context";
+import { HotelRoom, useAddHotel } from "~/app/dashboard/hotels/add/context";
 import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 import { Button } from "~/components/ui/button";
 import { HotelRoomType } from "../generalForm/columns";
@@ -10,7 +10,7 @@ import RoomsForm from "./roomsForm";
 
 const RoomsTab = () => {
     const [addedRooms, setAddedRooms] = useState<HotelRoomType[]>([]); // State to handle added rooms
-    const { addHotelRoom, hotelRooms,setActiveTab, deleteHotel } = useAddHotel(); // Assuming similar context structure
+    const { addHotelRoom, hotelRooms,setActiveTab, deleteRoom, duplicateHotelRoom } = useAddHotel(); // Assuming similar context structure
     const [selectedHotelRoom, setSelectedHotelRoom] = useState<HotelRoomType>({
         roomType: "",
         typeName: "",
@@ -42,9 +42,13 @@ const RoomsTab = () => {
       };
 
 
+      const onRowDuplicate = (row: HotelRoom) => {
+        duplicateHotelRoom(row.typeName, row.roomType);
+    };
+
     const onRowDelete = (row: HotelRoomType) => {
         alert(row.typeName);
-        deleteHotel(row.typeName);
+        deleteRoom(row.typeName, row.roomType);
       };
 
       
@@ -62,7 +66,7 @@ const RoomsTab = () => {
                                 onDelete={onRowDelete}
                                 onEdit={onRowEdit}
                                 onRowClick={onRowEdit}
-                                onDuplicate={onRowEdit} />
+                                onDuplicate={onRowDuplicate} />
                 </div>
                 <div className="w-full flex justify-end">
                     <Button variant={"primaryGreen"} onClick={()=>{hotelRooms.length > 0 ? setActiveTab("staff"): alert("Please add rooms")}}>Next</Button>
