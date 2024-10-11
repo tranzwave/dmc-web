@@ -11,7 +11,7 @@ export type ActivityTypeDTO = InsertActivity & {
 
 export interface ActivityVendorDetails {
   general: ActivityVendorDTO;
-  activities: ActivityTypeDTO[]; // Activities array for the vendor
+  activities: ActivityTypeDTO[];
 }
 
 // Define context properties
@@ -20,8 +20,9 @@ interface AddActivityContextProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   setGeneralDetails: (details: ActivityVendorDTO) => void;
-  addActivity: (activity: ActivityTypeDTO) => void; // Method to add activities
-  deleteActivity: (name: string) => void; // New deleteActivity method
+  addActivity: (activity: ActivityTypeDTO) => void;
+  deleteActivity: (name: string, activityType:number) => void;
+  duplicateActivity: (name: string, activityType:number) => void
 
 }
 
@@ -43,7 +44,7 @@ const defaultGeneral: ActivityVendorDTO = {
 
 const defaultActivityVendorDetails: ActivityVendorDetails = {
   general: defaultGeneral,
-  activities: [], // Initialize with an empty array
+  activities: [],
 };
 
 const AddActivityContext = createContext<AddActivityContextProps | undefined>(undefined);
@@ -57,7 +58,6 @@ export const AddActivityProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   const addActivity = (activity: InsertActivity) => {
     setActivityVendorDetails((prev) => {
-      // Check if the activity already exists in the array by comparing name, activityType, and capacity
       const exists = prev.activities.some(
         (a) =>
           a.name === activity.name &&
@@ -66,11 +66,9 @@ export const AddActivityProvider: React.FC<{ children: ReactNode }> = ({ childre
       );
   
       if (exists) {
-        // If the activity already exists, return the current state without changes
         return prev;
       }
   
-      // Otherwise, add the new activity to the activities array
       return {
         ...prev,
         activities: [...prev.activities, activity],
@@ -78,14 +76,37 @@ export const AddActivityProvider: React.FC<{ children: ReactNode }> = ({ childre
     });
   };
 
-  const deleteActivity = (name: string) => {
-    alert(name)
+  const deleteActivity = (name: string, activityType: number) => {
     setActivityVendorDetails(prev => ({
       ...prev,
-      activities: prev.activities.filter(activity => activity.name !== name)
+      activities: prev.activities.filter(
+        (activity) => activity.name !== name || activity.activityType !== activityType
+      ),
     }));
   };
 
+  const duplicateActivity = (name: string, activityType: number) => {
+    const activityToDuplicate = activityVendorDetails.activities.find(
+      (activity) => activity.name === name && activity.activityType === activityType
+    );
+
+    if (activityToDuplicate) {
+      const duplicatedActivity = {
+        ...activityToDuplicate,
+        id: undefined,
+        name: `${activityToDuplicate.name}`,
+      };
+
+      setActivityVendorDetails(prev => ({
+        ...prev,
+        activities: [...prev.activities, duplicatedActivity],
+      }));
+
+      console.log('Duplicated activity added:', duplicatedActivity);
+    } else {
+      console.error(`Activity with name "${name}" and activityType "${activityType}" not found.`);
+    }
+  };
   
 
   return (
@@ -96,7 +117,8 @@ export const AddActivityProvider: React.FC<{ children: ReactNode }> = ({ childre
         addActivity,
         activeTab,
         setActiveTab,
-        deleteActivity
+        deleteActivity,
+        duplicateActivity
       }}
     >
       {children}

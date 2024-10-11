@@ -95,26 +95,28 @@ export const AddTransportProvider: React.FC<{ children: ReactNode }> = ({
     }));
   };
 
-  const duplicateVehicle = (vehicle: string) => {
-    const vehicleToDuplicate = transportDetails.vehicles.find(vehicles => vehicles.vehicle === vehicle);
+  const duplicateVehicle = (numberPlate: string) => {
+    const vehicleToDuplicate = transportDetails.vehicles.find(
+      (vehicle) => vehicle.numberPlate === numberPlate
+    );
   
     if (vehicleToDuplicate) {
       const duplicatedVehicle = {
         ...vehicleToDuplicate,
-        id: undefined,
-        vehicle: `${vehicleToDuplicate.vehicle}`, 
+        id: undefined, 
+        numberPlate: `${vehicleToDuplicate.numberPlate}`, 
       };
   
-      // Update the state with the new duplicated meal type
-      setTransportDetails(prev => ({
+      setTransportDetails((prev) => ({
         ...prev,
         vehicles: [...prev.vehicles, duplicatedVehicle],
       }));
-      console.log("Duplicated vehicle type added:", duplicatedVehicle);
+      console.log("Duplicated vehicle added:", duplicatedVehicle);
     } else {
-      console.error(`Meal type "${vehicle}" not found.`);
+      console.error(`Vehicle with number plate "${numberPlate}" not found.`);
     }
   };
+  
 
   const deleteVehicle = (numberPlate: string) => {
     alert(numberPlate);
