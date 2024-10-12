@@ -1,9 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useEffect, useState } from "react";
 import { useAddHotel } from "~/app/dashboard/hotels/add/context";
 import { Button } from "~/components/ui/button";
 import {
@@ -22,9 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { ArrowRightSquareIcon } from "lucide-react";
-import { InsertHotel, SelectCity } from "~/server/db/schemaTypes";
 import { getAllCities } from "~/server/db/queries/activities";
+import { InsertHotel, SelectCity } from "~/server/db/schemaTypes";
 
 // Define the schema for form validation
 export const hotelGeneralSchema = z.object({
@@ -57,7 +56,11 @@ type RestaurantType = z.infer<typeof restaurantSchema>;
 type RestaurantMealType = z.infer<typeof restaurantMealSchema>;
 type HotelGeneralFormData = z.infer<typeof hotelGeneralSchema>;
 
-const HotelGeneralForm = ({defaultValues}:{defaultValues:InsertHotel}) => {
+const HotelGeneralForm = ({
+  defaultValues,
+}: {
+  defaultValues: InsertHotel;
+}) => {
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState<SelectCity[]>([]);
@@ -69,7 +72,7 @@ const HotelGeneralForm = ({defaultValues}:{defaultValues:InsertHotel}) => {
     addRestaurantMeal,
     restaurants,
     restaurantMeals,
-    setActiveTab
+    setActiveTab,
   } = useAddHotel(); // Adjusted context hook
   // const [showRestaurantForm, setShowRestaurantForm] = useState<boolean>(
   //   hotelGeneral.hasRestaurant ?? false,
@@ -78,7 +81,7 @@ const HotelGeneralForm = ({defaultValues}:{defaultValues:InsertHotel}) => {
 
   const generalForm = useForm<HotelGeneralFormData>({
     resolver: zodResolver(hotelGeneralSchema),
-    defaultValues: defaultValues
+    defaultValues: defaultValues,
   });
 
   const { reset } = generalForm; // Destructure the reset method
@@ -104,7 +107,7 @@ const HotelGeneralForm = ({defaultValues}:{defaultValues:InsertHotel}) => {
       hasRestaurant: values.hasRestaurant,
     });
 
-    setActiveTab("rooms")
+    setActiveTab("rooms");
   };
 
   // const onRestaurantNameSubmit: SubmitHandler<RestaurantType> = (data) => {
@@ -151,9 +154,7 @@ const HotelGeneralForm = ({defaultValues}:{defaultValues:InsertHotel}) => {
     try {
       // Run both requests in parallel
       setLoading(true);
-      const [citiesResponse] =
-        await Promise.all([getAllCities("LK")]);
-
+      const [citiesResponse] = await Promise.all([getAllCities("LK")]);
 
       if (!citiesResponse) {
         throw new Error("Error fetching countries");
@@ -207,12 +208,27 @@ const HotelGeneralForm = ({defaultValues}:{defaultValues:InsertHotel}) => {
                 <FormItem>
                   <FormLabel>Stars</FormLabel>
                   <FormControl>
-                    <Input
+                    <Select
+                      onValueChange={(value) => field.onChange(Number(value))} // Convert the selected value to a number
+                      value={field.value?.toString() ?? ""} // Ensure the value is a string for Select
+                    >
+                      <SelectTrigger className="bg-slate-100 shadow-md">
+                        <SelectValue placeholder="Select star rating" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="2">2</SelectItem>
+                        <SelectItem value="3">3</SelectItem>
+                        <SelectItem value="4">4</SelectItem>
+                        <SelectItem value="5">5</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {/* <Input
                       type="number"
                       value={field.value ?? ""}
                       onChange={(e) => field.onChange(e.target.valueAsNumber)}
                       placeholder="Enter star rating"
-                    />
+                    /> */}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -276,26 +292,33 @@ const HotelGeneralForm = ({defaultValues}:{defaultValues:InsertHotel}) => {
                   <FormControl>
                     {/* <Input placeholder="Enter city" {...field} /> */}
                     <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
-                    value={field.value || cities.find(city => city.id === defaultValues.cityId)?.id?.toString()} // Ensure initial value is set correctly
-                    defaultValue={cities.find(city => city.id === defaultValues.cityId)?.id?.toString()} // Set the initial default value
-                  >
-                    <SelectTrigger className="bg-slate-100 shadow-md">
-                      <SelectValue placeholder="Select city" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {cities.map((city) => (
-                        <SelectItem
-                          key={city.id}
-                          value={String(city.id ?? 0) ?? "0"}
-                        >
-                          {city.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                      }}
+                      value={
+                        field.value ||
+                        cities
+                          .find((city) => city.id === defaultValues.cityId)
+                          ?.id?.toString()
+                      } // Ensure initial value is set correctly
+                      defaultValue={cities
+                        .find((city) => city.id === defaultValues.cityId)
+                        ?.id?.toString()} // Set the initial default value
+                    >
+                      <SelectTrigger className="bg-slate-100 shadow-md">
+                        <SelectValue placeholder="Select city" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {cities.map((city) => (
+                          <SelectItem
+                            key={city.id}
+                            value={String(city.id ?? 0) ?? "0"}
+                          >
+                            {city.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
