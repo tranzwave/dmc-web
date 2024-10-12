@@ -1,16 +1,14 @@
 "use client";
+import { useUser } from "@clerk/nextjs";
+import { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
 import Image from "next/image";
 import { useOrganization } from "~/app/dashboard/context";
-import { calculateDaysBetween, formatDate } from "~/lib/utils/index";
-import { DataTable } from "~/components/bookings/home/dataTable";
-import { ColumnDef } from "@tanstack/react-table";
+import LoadingLayout from "~/components/common/dashboardLoading";
 import {
   SelectHotelVoucher,
   SelectHotelVoucherLine,
 } from "~/server/db/schemaTypes";
-import { useUser } from "@clerk/nextjs";
-import LoadingLayout from "~/components/common/dashboardLoading";
-import { format } from "date-fns";
 import { RestaurantVoucherData } from "..";
 
 type RestaurantVoucherPDFProps = {
@@ -164,6 +162,7 @@ const RestaurantVoucherPDF = ({ voucher,cancellation }: RestaurantVoucherPDFProp
         <div className="mt-10 text-[13px]">
           <div>Date : {format(Date.now(), "dd/MM/yyyy")}</div>
           <div>Prepared By : {user?.fullName ?? ""}</div>
+          <div>This is a computer generated Voucher & does not require a signature</div>
         </div>
       </div>
       <div className="h-8 w-full bg-primary-green"></div>
