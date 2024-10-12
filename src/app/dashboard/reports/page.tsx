@@ -1,5 +1,5 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
+import { useOrganization, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import Pagination from "~/components/common/pagination";
@@ -40,6 +40,7 @@ const Reports = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 3;
+  const { organization, isLoaded:isOrgLoaded } = useOrganization();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,8 +48,8 @@ const Reports = () => {
         setLoading(true);
 
         const [statsData, touristsData] = await Promise.all([
-          getStat(),
-          getClientCountByCountry(),
+          getStat(organization?.id ?? ""),
+          getClientCountByCountry(organization?.id ?? ""),
         ]);
 
         const transformedStatsData = [
@@ -109,7 +110,7 @@ const Reports = () => {
       )
     : [];
 
-  if (loading || !isLoaded) {
+  if (loading || !isLoaded || !isOrgLoaded) {
     return (
       <div>
         <div className="flex w-full flex-row justify-between gap-1">

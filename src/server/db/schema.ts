@@ -34,6 +34,7 @@ export const tenant = createTable("tenants", {
     .notNull()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
+  clerkId: varchar("clerk_id", { length: 255 }).notNull().unique(),
   country: varchar("country_code", { length: 3 })
     .references(() => country.code)
     .notNull(),

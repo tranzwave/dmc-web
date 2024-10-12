@@ -8,6 +8,7 @@ import StatCards from "~/components/overview/statCards";
 import TouristsByCountry, { TouristData } from "~/components/overview/touristsByCountry";
 import { useToast } from "~/hooks/use-toast";
 import { getClientCountByCountry, getStat } from "~/server/db/queries/overview";
+import { useOrganization } from "../context";
 type Stat = {
   title: string;
   value: number;
@@ -27,6 +28,7 @@ const Overview = () => {
 
   const [loading, setLoading] = useState(true);
   const { user, isSignedIn, isLoaded } = useUser();
+  const org = useOrganization();
 
 
   useEffect(() => {
@@ -35,8 +37,8 @@ const Overview = () => {
         setLoading(true);
 
         const [statsData, touristsData] = await Promise.all([
-          getStat(),
-          getClientCountByCountry(),
+          getStat(org?.id ?? ""),
+          getClientCountByCountry(org?.id ?? ""),
         ]);
 
         // Transform statsData to match the required structure

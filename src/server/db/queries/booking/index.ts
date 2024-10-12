@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, inArray, ne } from "drizzle-orm";
 import {
   ActivityVoucher,
   BookingDetails,
@@ -38,8 +38,15 @@ export const getAllBookings = () => {
 };
 
 //TODO: Add tenant validation
-export const getAllBookingLines = () => {
-  return db.query.bookingLine.findMany({
+export const getAllBookingLines = async (orgId: string) => {
+  return await db.query.bookingLine.findMany({
+    where: inArray(
+      bookingLine.bookingId, // Assuming bookingLine has a foreign key bookingId
+      db
+        .select({ id: booking.id })
+        .from(booking)
+        .where(eq(booking.tenantId, orgId))
+    ),
     with: {
       booking: {
         with: {
@@ -133,6 +140,7 @@ async function generateBookingLineId(tenantId: string, countryCode: string): Pro
 }
 
 export const createNewBooking = async (
+  orgId:string,
   bookingDetails: BookingDetails,
   newBooking?: InsertBooking,
   generalData?: any,
@@ -145,7 +153,9 @@ export const createNewBooking = async (
   try {
     // Start a transaction
     const result = await db.transaction(async (tx) => {
-      const tenantExist = await tx.query.tenant.findFirst();
+      const tenantExist = await tx.query.tenant.findFirst({
+        where:eq(tenant.id, orgId)
+      });
 
       if (!tenantExist) {
         throw new Error("Couldn't find a tenant");

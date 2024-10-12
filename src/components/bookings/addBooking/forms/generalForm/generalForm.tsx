@@ -220,7 +220,7 @@ const GeneralForm = () => {
     try {
       // Call the createNewBooking function with the necessary data
       console.log(bookingDetails);
-      const createdBooking = await createNewBooking({
+      const createdBooking = await createNewBooking(organization ? organization?.id : "",{
         general: data,
         activities: [],
         restaurants: [],
@@ -257,7 +257,7 @@ const GeneralForm = () => {
     try {
       // Call the createNewBooking function with the necessary data
       console.log(bookingDetails);
-      const createdBooking = await createNewBooking(bookingDetails);
+      const createdBooking = await createNewBooking(organization?.id ?? "", bookingDetails);
 
       if (createdBooking) {
         // If createNewBooking succeeds, set the success message and show modal

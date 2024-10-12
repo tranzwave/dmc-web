@@ -43,7 +43,9 @@ export const OrganizationRolesAndPermissions = () => {
   }, [organization]);
 
   if (!organization) {
-    return <div>No organization selected</div>;
+    return <div>
+      <OrganizationSwitcher hidePersonal={true} hideSlug={true}/>
+    </div>;
   }
 
   if (isLoading) {

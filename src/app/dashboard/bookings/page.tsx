@@ -1,5 +1,6 @@
 "use client";
 
+import { useOrganization } from "@clerk/nextjs";
 import { Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
@@ -20,6 +21,8 @@ export default function Bookings() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { organization, isLoaded } = useOrganization();
+
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
@@ -32,7 +35,7 @@ export default function Bookings() {
   const fetchBookingLines = async () => {
     setLoading(true);
     try {
-      const result = await getAllBookingLines();
+      const result = await getAllBookingLines(organization?.id ?? "");
 
       if (!result) {
         throw new Error("Couldn't find any bookings");
@@ -99,7 +102,7 @@ export default function Bookings() {
   );
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
 
-  if (loading) {
+  if (loading || !isLoaded) {
     return (
       <div>
         <div className="flex w-full flex-row justify-between gap-1">

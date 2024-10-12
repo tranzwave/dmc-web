@@ -16,6 +16,8 @@ import {
 } from "~/components/ui/dialog";
 import { createNewBooking } from "~/server/db/queries/booking";
 import SummaryCard, { formatDateToWeekdayMonth } from "./summaryCard";
+import { useOrganization } from "@clerk/nextjs";
+import LoadingLayout from "~/components/common/dashboardLoading";
 
 const AddBookingSubmitTab = () => {
   const { bookingDetails, getBookingSummary } = useAddBooking();
@@ -26,6 +28,7 @@ const AddBookingSubmitTab = () => {
   const pathname = usePathname();
   const router = useRouter();
   const summaryRef = useRef(null); // Ref to hold the summary section
+  const { organization, isLoaded:isOrgLoaded } = useOrganization();
 
   const handleSubmit = async () => {
     console.log(bookingDetails);
@@ -37,7 +40,7 @@ const AddBookingSubmitTab = () => {
         hotelVouchers: bookingDetails.vouchers,
       };
 
-      const createdBooking = await createNewBooking(bookingDetails);
+      const createdBooking = await createNewBooking(organization?.id ?? "",bookingDetails);
 
       if (createdBooking) {
         setMessage(
@@ -74,6 +77,12 @@ const AddBookingSubmitTab = () => {
 
   const numberOfDays = bookingDetails.general?.numberOfDays ?? 0;
   const summary = getBookingSummary();
+
+  if(!isOrgLoaded){
+    return (
+      <LoadingLayout/>
+    )
+  }
 
   return (
     <div className="mt-4 flex h-full flex-col gap-3">
