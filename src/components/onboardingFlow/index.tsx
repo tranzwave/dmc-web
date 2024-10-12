@@ -261,7 +261,7 @@ const PersonalDetailsForm = ({
               <Input
                 placeholder="Name"
                 {...field}
-                value={field.value || user?.fullName || ""}
+                value={field.value ?? user?.fullName ?? ""}
                 disabled={!!user?.fullName}
               />
             </FormControl>
@@ -280,7 +280,7 @@ const PersonalDetailsForm = ({
                 placeholder="Email"
                 {...field}
                 value={
-                  field.value || user?.primaryEmailAddress?.emailAddress || ""
+                  field.value ?? user?.primaryEmailAddress?.emailAddress ?? ""
                 }
                 disabled={!!user?.primaryEmailAddress?.emailAddress}
               />

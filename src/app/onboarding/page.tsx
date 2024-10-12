@@ -21,7 +21,7 @@ const OnboardingRootPage = ()=>{
         console.log(memberships);
         console.log(userInvitations);
   
-        if (memberships[0] || userInvitations.data?.length != 0) {
+        if (memberships[0] ?? userInvitations.data?.length != 0) {
             const org = memberships?.[0]?.organization;
             if (org) {
               setOrganization(org);
