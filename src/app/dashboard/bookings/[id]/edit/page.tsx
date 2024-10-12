@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import { format } from 'date-fns';
 import { useParams, usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ActivitiesTab from "~/components/bookings/editBooking/forms/activitiesForm";
@@ -7,16 +7,13 @@ import GeneralTab from "~/components/bookings/editBooking/forms/generalForm";
 import HotelsTab from "~/components/bookings/editBooking/forms/hotelsForm";
 import RestaurantsTab from "~/components/bookings/editBooking/forms/restaurantsForm";
 import ShopsTab from "~/components/bookings/editBooking/forms/shopsForm";
-import TransportTab from "~/components/bookings/editBooking/forms/transportForm";
-import TitleBar from "~/components/common/titleBar";
-import { Button } from "~/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import AddBookingSubmitTab from "~/components/bookings/editBooking/forms/submitForm";
-import { EditBookingProvider, useEditBooking } from "./context";
-import { getBookingLineWithAllData } from "~/server/db/queries/booking";
-import { format } from 'date-fns';
+import TransportTab from "~/components/bookings/editBooking/forms/transportForm";
 import LoadingLayout from "~/components/common/dashboardLoading";
-import { bookingAgent } from "~/server/db/schema";
+import TitleBar from "~/components/common/titleBar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { getBookingLineWithAllData } from "~/server/db/queries/booking";
+import { EditBookingProvider, useEditBooking } from "./context";
 
 const EditBooking = ({ id }: { id: string }) => {
   const pathname = usePathname();
@@ -188,11 +185,11 @@ const EditBooking = ({ id }: { id: string }) => {
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title="Edit Booking" link="toeditBooking" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className="w-full">
             <Tabs
