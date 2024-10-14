@@ -1,8 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useAddBooking } from "~/app/dashboard/bookings/add/context";
+import { Button } from "~/components/ui/button";
 import {
   Form,
   FormControl,
@@ -12,7 +15,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -20,11 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { VehicleType } from "~/lib/types/driver/type";
-import { Transport } from "./columns";
 import { SelectLanguage } from "~/server/db/schemaTypes";
-import { useState } from "react";
-import { useAddBooking } from "~/app/dashboard/bookings/add/context";
+import { Transport } from "./columns";
 
 interface TransportFormProps {
   onSearchTransport: (transport: Transport) => void;
@@ -102,6 +101,28 @@ const TransportForm: React.FC<TransportFormProps> = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-3 gap-3">
+        <FormField
+            name="type"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Type</FormLabel>
+                <FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="bg-slate-100 shadow-md">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Driver">Driver</SelectItem>
+                      <SelectItem value="Chauffer">Chauffer</SelectItem>
+                      <SelectItem value="Guides">Guide</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             name="vehicle"
             control={form.control}
@@ -165,27 +186,7 @@ const TransportForm: React.FC<TransportFormProps> = ({
               </FormItem>
             )}
           />
-          <FormField
-            name="type"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Type</FormLabel>
-                <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className="bg-slate-100 shadow-md">
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Driver">Driver</SelectItem>
-                      <SelectItem value="Chauffer">Chauffer</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+         
         </div>
         <div className="grid grid-cols-3 gap-3">
           <FormField

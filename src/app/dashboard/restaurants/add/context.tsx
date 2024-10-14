@@ -22,8 +22,8 @@ interface AddRestaurantContextProps {
   setActiveTab: (tab: string) => void;
   setGeneralDetails: (details: Restaurant) => void;
   addMeals: (meal: InsertMeal) => void;
-  deleteMealType: (mealType: string) => void; // New deleteVehicle method
-  duplicateMealType:(MealType:string)=>void
+  deleteMealType: (mealType: string, startTime: string, endTime: string) => void;
+  duplicateMealType: (mealType: string, startTime: string, endTime: string) => void;
 
 }
 
@@ -78,36 +78,36 @@ export const AddRestaurantProvider: React.FC<{ children: ReactNode }> = ({ child
     });
   };
 
-  const deleteMealType = (mealType: string) => {
-    // alert(mealType)
-    setRestaurantDetails(prev => ({
+  const deleteMealType = (mealType: string, startTime: string, endTime: string) => {
+    setRestaurantDetails((prev) => ({
       ...prev,
-      mealsOffered: prev.mealsOffered.filter(mealTypes => mealTypes.mealType !== mealType)
+      mealsOffered: prev.mealsOffered.filter(
+        (meal) => meal.mealType !== mealType || meal.startTime !== startTime || meal.endTime !== endTime
+      ),
     }));
   };
 
-  const duplicateMealType = (mealType: string) => {
-    const mealToDuplicate = restaurantDetails.mealsOffered.find(meal => meal.mealType === mealType);
-  
+  const duplicateMealType = (mealType: string, startTime: string, endTime: string) => {
+    const mealToDuplicate = restaurantDetails.mealsOffered.find(
+      (meal) => meal.mealType === mealType && meal.startTime === startTime && meal.endTime === endTime
+    );
+
     if (mealToDuplicate) {
-      const duplicatedMealType = {
+      const duplicatedMeal = {
         ...mealToDuplicate,
         id: undefined,
-        mealType: `${mealToDuplicate.mealType}`, 
+        mealType: `${mealToDuplicate.mealType}`,
       };
-  
-      // Update the state with the new duplicated meal type
-      setRestaurantDetails(prev => ({
+
+      setRestaurantDetails((prev) => ({
         ...prev,
-        mealsOffered: [...prev.mealsOffered, duplicatedMealType],
+        mealsOffered: [...prev.mealsOffered, duplicatedMeal],
       }));
-      console.log("Duplicated meal type added:", duplicatedMealType);
+      console.log('Duplicated meal added:', duplicatedMeal);
     } else {
-      console.error(`Meal type "${mealType}" not found.`);
+      console.error(`Meal with type "${mealType}", startTime "${startTime}", and endTime "${endTime}" not found.`);
     }
   };
-
-  
   return (
     <AddRestaurantContext.Provider
       value={{

@@ -11,7 +11,7 @@ import { columns } from "./columns";
 
 const ActivityTab = () => {
     const [addedActivities, setAddedActivities] = useState<InsertActivity[]>([]); // State to handle added activities
-    const { addActivity, activityVendorDetails, setActiveTab, deleteActivity } = useAddActivity(); // Assuming similar context structure for activities
+    const { addActivity, activityVendorDetails, setActiveTab, deleteActivity, duplicateActivity } = useAddActivity(); // Assuming similar context structure for activities
     const [selectedActivity, setSelectedActivity] = useState<ActivityTypeDTO>({
         name: "",
         activityType: 0,
@@ -30,10 +30,15 @@ const ActivityTab = () => {
         console.log(row);
         setSelectedActivity(row);
       };
+
+      const onRowDuplicate = (row: ActivityTypeDTO) => {
+        console.log(row);
+        duplicateActivity(row.name, row.activityType);
+      };
     
       const onRowDelete = (row: ActivityTypeDTO) => {
         alert(row.name);
-        deleteActivity(row.name);
+        deleteActivity(row.name, row.activityType);
       };
 
     return (
@@ -50,7 +55,7 @@ const ActivityTab = () => {
                                 onDelete={onRowDelete}
                                 onEdit={onRowEdit}
                                 onRowClick={onRowEdit}
-                                onDuplicate={onRowEdit} /> {/* Displaying activities */}
+                                onDuplicate={onRowDuplicate} /> {/* Displaying activities */}
                 </div>
                 <div className="w-full flex justify-end">
                     <Button variant={"primaryGreen"} onClick={()=> {setActiveTab("submit")}}>Next</Button>

@@ -1,7 +1,6 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { General } from '~/components/bookings/addBooking/forms/generalForm/columns';
 import { Hotel } from '~/components/bookings/addBooking/forms/hotelsForm/columns';
-import { RestaurantData } from '~/components/bookings/addBooking/forms/restaurantsForm';
 import { Transport } from '~/components/bookings/addBooking/forms/transportForm/columns';
 import { Driver } from '~/lib/types/driver/type';
 import { InsertActivityVoucher, InsertHotelVoucher, InsertHotelVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectDriver, SelectHotel, SelectRestaurant, SelectShop } from '~/server/db/schemaTypes';

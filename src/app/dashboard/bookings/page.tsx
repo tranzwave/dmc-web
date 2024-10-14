@@ -74,7 +74,7 @@ export default function Bookings() {
     const bookingEndDate = booking.endDate;
 
     const matchesSearch =
-      booking.booking.client.id.toString().includes(searchTerm) ||
+    booking.id.toString().includes(searchTerm) ||
       booking.booking.client.name.toLowerCase().includes(searchTerm);
 
     const matchesStartDate = startDate

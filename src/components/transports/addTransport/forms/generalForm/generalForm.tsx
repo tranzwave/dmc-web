@@ -69,12 +69,6 @@ const GeneralForm = () => {
     console.log(data);
     setGeneralDetails(data);
     setActiveTab("vehicles");
-
-    if (data.type === "Guide") {
-      setActiveTab("submit");
-    } else {
-      setActiveTab("vehicles");
-    }
   };
 
   const fetchData = async () => {
@@ -293,7 +287,6 @@ const GeneralForm = () => {
                         <SelectContent>
                           <SelectItem value="Driver">Driver</SelectItem>
                           <SelectItem value="Chauffeur">Chauffeur</SelectItem>
-                          <SelectItem value="Guide">Guide</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>
