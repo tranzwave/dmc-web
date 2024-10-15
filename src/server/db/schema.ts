@@ -163,6 +163,9 @@ export const bookingLine = createTable("booking_lines", {
   startDate: timestamp("start_date").notNull(),
   endDate: timestamp("end_date").notNull(),
   status: bookingLineStatus('status').default('inprogress'),
+  createdAt: timestamp("created_at", { withTimezone: true })
+  .default(sql`CURRENT_TIMESTAMP`)
+  .notNull(),
 });
 
 export const city = createTable(

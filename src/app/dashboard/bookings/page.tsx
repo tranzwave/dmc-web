@@ -37,11 +37,21 @@ export default function Bookings() {
     try {
       const result = await getAllBookingLines(organization?.id ?? "");
 
+      
+      
       if (!result) {
         throw new Error("Couldn't find any bookings");
       }
+      
+      // Ensure that 'createdAt' is cast as a Date object properly
+    const sortedResult = result.sort((a, b) => {
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
 
-      setData(result);
+      return dateB.getTime() - dateA.getTime(); // Compare the timestamps
+    });
+
+    setData(sortedResult);
       setLoading(false);
     } catch (error) {
       console.error("Failed to fetch booking data:", error);
@@ -74,7 +84,7 @@ export default function Bookings() {
     const bookingEndDate = booking.endDate;
 
     const matchesSearch =
-    booking.id.toString().includes(searchTerm) ||
+    booking.id.toString().toLowerCase().includes(searchTerm) ||
       booking.booking.client.name.toLowerCase().includes(searchTerm);
 
     const matchesStartDate = startDate
