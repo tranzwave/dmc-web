@@ -60,6 +60,7 @@ import {
 import { cn } from "~/lib/utils";
 import { Calendar } from "~/components/ui/calendar";
 import { DateRange } from "react-day-picker";
+import LoadingLayout from "~/components/common/dashboardLoading";
 
 // Define the schema for form validation
 export const addBookingGeneralSchema = z
@@ -307,8 +308,8 @@ const GeneralForm = () => {
     setSelectedManager(manager);
   }
 
-  if (loading) {
-    return <div>Loading...</div>;
+  if (loading || !isLoaded) {
+    return <div><LoadingLayout/></div>;
   }
 
   return (
