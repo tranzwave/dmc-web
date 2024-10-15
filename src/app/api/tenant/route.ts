@@ -78,7 +78,7 @@ export async function POST(req: Request, res: NextApiResponse) {
   }
 
     // Step 4: Return the newly created organization details
-    return NextResponse.json({ tenant: dbTenant, clerkResponse: response }, { status: 200 });
+    return NextResponse.json({ tenant: dbTenant, clerkResponse: response.id }, { status: 200 });
 
   } catch (error) {
     console.error('Error:', error);
