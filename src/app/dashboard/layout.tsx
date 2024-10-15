@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useOrganizationList, useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import SideNavBar from "~/components/common/sideNavComponent";
 import TopBar from "~/components/common/topBarComponent";
 import LoadingLayout from "~/components/common/dashboardLoading";
@@ -15,8 +15,13 @@ export default function DashboardLayout({
   const { setActive, userInvitations } = useOrganizationList();
   const [organization, setOrganization] = useState<OrganizationResource | null>(null); // Use undefined as default
   const router = useRouter();
+  const searchParams = useSearchParams()
 
   useEffect(() => {
+    const orgId = searchParams.get('orgId');
+    if(orgId && setActive){
+      setActive({organization:orgId})
+    }
     if (isLoaded && isSignedIn) {
       const memberships = user?.organizationMemberships;
       console.log(memberships);
@@ -34,7 +39,7 @@ export default function DashboardLayout({
         setOrganization(org);
       }
     }
-  }, [isLoaded, isSignedIn, user, setActive, router]);
+  }, [isLoaded, isSignedIn, user, router]);
 
   if (!isLoaded || !isSignedIn || !organization) {
     return (

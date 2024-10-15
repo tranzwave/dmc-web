@@ -138,13 +138,13 @@ const OnboardingFlow = () => {
       }
 
       const createdOrg = await response.json();
-      console.log(createdOrg);
+      console.log(createdOrg?.clerkResponse);
       toast({
         title: "Success!",
         description: "Your organization has been created successfully",
       });
       setIsLoading(false);
-      router.replace("/dashboard/overview")
+      router.push(`/dashboard/overview?orgId=${createdOrg.clerkResponse}`)
     } catch (error) {
       console.log(error);
       setIsLoading(false);
