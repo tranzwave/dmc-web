@@ -307,7 +307,7 @@ const GeneralForm = () => {
     setSelectedManager(manager);
   }
 
-  if (loading) {
+  if (loading || !isLoaded) {
     return <div>Loading...</div>;
   }
 
