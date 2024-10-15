@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import { format } from 'date-fns';
 import { useParams, usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ActivitiesTab from "~/components/bookings/editBooking/forms/activitiesForm";
@@ -7,16 +7,13 @@ import GeneralTab from "~/components/bookings/editBooking/forms/generalForm";
 import HotelsTab from "~/components/bookings/editBooking/forms/hotelsForm";
 import RestaurantsTab from "~/components/bookings/editBooking/forms/restaurantsForm";
 import ShopsTab from "~/components/bookings/editBooking/forms/shopsForm";
-import TransportTab from "~/components/bookings/editBooking/forms/transportForm";
-import TitleBar from "~/components/common/titleBar";
-import { Button } from "~/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import AddBookingSubmitTab from "~/components/bookings/editBooking/forms/submitForm";
-import { EditBookingProvider, useEditBooking } from "./context";
-import { getBookingLineWithAllData } from "~/server/db/queries/booking";
-import { format } from 'date-fns';
+import TransportTab from "~/components/bookings/editBooking/forms/transportForm";
 import LoadingLayout from "~/components/common/dashboardLoading";
-import { bookingAgent } from "~/server/db/schema";
+import TitleBar from "~/components/common/titleBar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { getBookingLineWithAllData } from "~/server/db/queries/booking";
+import { EditBookingProvider, useEditBooking } from "./context";
 
 const EditBooking = ({ id }: { id: string }) => {
   const pathname = usePathname();
@@ -171,9 +168,10 @@ const EditBooking = ({ id }: { id: string }) => {
   }
 
   useEffect(() => {
+    const tab = searchParams.get("tab")
     console.log("Add Booking Component");
     fetchBookingLine()
-    setActiveTab(tabToEdit ?? "general")
+    setActiveTab(activeTab ?? "general")
   }, [id, triggerRefetch]);
 
   if(loading){
@@ -188,11 +186,11 @@ const EditBooking = ({ id }: { id: string }) => {
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title="Edit Booking" link="toeditBooking" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className="w-full">
             <Tabs
@@ -230,16 +228,6 @@ const EditBooking = ({ id }: { id: string }) => {
                   Restaurants
                 </TabsTrigger>
                 <TabsTrigger
-                  value="activities"
-                  onClick={() => setActiveTab("activities")}
-                  disabled={!bookingDetails.general.includes.activities}
-                  statusLabel={statusLabels.activities}
-                  isCompleted = {bookingDetails.activities.length > 0}
-                  inProgress = {activeTab == "activities"}
-                >
-                  Activities
-                </TabsTrigger>
-                <TabsTrigger
                   value="transport"
                   onClick={() => setActiveTab("transport")}
                   disabled={!bookingDetails.general.includes.transport}
@@ -249,6 +237,17 @@ const EditBooking = ({ id }: { id: string }) => {
                 >
                   Transport
                 </TabsTrigger>
+                <TabsTrigger
+                  value="activities"
+                  onClick={() => setActiveTab("activities")}
+                  disabled={!bookingDetails.general.includes.activities}
+                  statusLabel={statusLabels.activities}
+                  isCompleted = {bookingDetails.activities.length > 0}
+                  inProgress = {activeTab == "activities"}
+                >
+                  Activities
+                </TabsTrigger>
+
                 <TabsTrigger
                   value="shops"
                   onClick={() => setActiveTab("shops")}

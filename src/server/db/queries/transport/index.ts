@@ -2,11 +2,13 @@
 
 import { and, eq, inArray, sql, SQL } from "drizzle-orm";
 import { db } from "../..";
-import { InsertDriver, InsertLanguage, InsertVehicle } from "../../schemaTypes";
+import { InsertDriver, InsertGuide, InsertLanguage, InsertVehicle } from "../../schemaTypes";
 import {
   driver,
   driverLanguage,
   driverVehicle,
+  guide,
+  guideLanguage,
   transportVoucher,
   vehicle
 } from "./../../schema";
@@ -33,6 +35,21 @@ export const getAllLanguages = () => {
 
 export const getAllDrivers = () => {
   return db.query.driver.findMany({
+    columns: {
+      cityId: false,
+    },
+    with: {
+      city: {
+        columns: {
+          id: false,
+        },
+      },
+    },
+  });
+};
+
+export const getAllGuides = () => {
+  return db.query.guide.findMany({
     columns: {
       cityId: false,
     },
@@ -99,6 +116,22 @@ export const getDriverByIdQuery = (id: string) => {
   });
 };
 
+export const getGuideByIdQuery = (id: string) => {
+  return db.query.guide.findFirst({
+    where: eq(guide.id, id),
+    columns: {
+      cityId: false,
+    },
+    with: {
+      city: {
+        columns: {
+          id: false,
+        },
+      },
+    },
+  });
+};
+
 export const getDriverDataById = (id: string) => {
   return db.query.driver.findFirst({
     where: eq(driver.id, id),
@@ -117,6 +150,21 @@ export const getDriverDataById = (id: string) => {
     },
   });
 }
+
+export const getGuideDataById = (id: string) => {
+  return db.query.guide.findFirst({
+    where: eq(guide.id, id),
+    with: {
+      city: true,
+      languages: {
+        with: {
+          language: true
+        }
+      }
+    },
+  });
+}
+
 
 export const getTransportVouchersForDriver = (id: string) => {
   return db.query.transportVoucher.findMany({
@@ -201,7 +249,62 @@ export const insertDriver = async (
     console.error("Error in insertDriver:", error?.detail ?? error);
     throw error;
   }
-};
+}
+
+export const insertGuide = async (
+  drivers: InsertGuide[],
+  languages: InsertLanguage[]
+) => {
+  try {
+    const newGuide = await db.transaction(async (tx) => {
+      const foundTenant = await tx.query.tenant.findFirst();
+
+      if (!foundTenant) {
+        throw new Error("Couldn't find any tenant");
+      }
+
+      for (const currentGuide of drivers) {
+        const foundGuide = await tx.query.guide.findFirst({
+          where: and(
+            eq(driver.tenantId, foundTenant.id),
+            eq(driver.cityId, currentGuide.cityId),
+            eq(driver.primaryEmail, currentGuide.primaryEmail)
+          ),
+        });
+
+        if (!foundGuide) {
+          const newGuideId = await tx
+            .insert(guide)
+            .values({
+              ...currentGuide,
+              tenantId: foundTenant.id,
+            })
+            .returning({
+              id: guide.id,
+            });
+
+          if (!newGuideId[0]) {
+            throw new Error(`Couldn't add guide: ${currentGuide.name}`);
+          }
+
+          const guideLanguageLinks = languages.map((lang: InsertLanguage) => {
+            return {
+              guideId: newGuideId[0]?.id ?? "",
+              languageCode: lang.code,
+            };
+          });
+
+          await tx.insert(guideLanguage).values(guideLanguageLinks);
+          return newGuideId
+        }
+      }
+    });
+    return newGuide
+  } catch (error: any) {
+    console.error("Error in insertGuide:", error?.detail ?? error);
+    throw error;
+  }
+}
 
 export async function updateDriverAndRelatedData(
   driverId: string,
@@ -326,9 +429,6 @@ async function updateDriverVehicles(
   return vehicleIds;
 }
 
-
-
-
 // Separate function to update languages associated with a driver
 async function updateDriverLanguages(
   trx: any,
@@ -380,8 +480,98 @@ async function updateDriverLanguages(
   return addedLanguageLinks;
 }
 
+export async function updateGuideAndRelatedData(
+  guideId: string,
+  updatedGuide: InsertGuide | null,
+  updatedLanguages: InsertLanguage[]
+) {
+  console.log(guideId);
+  console.log(updatedGuide);
 
+  // Begin a transaction
+  const updated = await db.transaction(async (trx) => {
+    // Update the driver
+    if (!updatedGuide) {
+      throw new Error("Please provide updated data")
+    }
+    const updatedGuideResult = await trx
+      .update(guide)
+      .set({
+        name: updatedGuide.name,
+        primaryEmail: updatedGuide.primaryEmail,
+        primaryContactNumber: updatedGuide.primaryContactNumber,
+        streetName: updatedGuide.streetName,
+        province: updatedGuide.province,
+        type: updatedGuide.type,
+        guideLicense: updatedGuide.guideLicense,
+        cityId: updatedGuide.cityId,
+      })
+      .where(eq(guide.id, guideId))
+      .returning({ updatedId: guide.id });
 
+    if (updatedGuideResult.length === 0) {
+      throw new Error(`Guide with id ${guideId} not found.`);
+    }
+
+    // Update related languages
+    // const updatedLanguagesData = await updateGuideLanguages(trx, guideId, updatedLanguages);
+
+    return { updatedGuideResult: updatedGuideResult };
+  });
+
+  console.log(updated);
+  return updated;
+}
+
+async function updateGuideLanguages(
+  trx: any,
+  guideId: string,
+  updatedLanguages: InsertLanguage[]
+) {
+  // If there are no languages to update, return early
+  if (updatedLanguages.length === 0) {
+    return [];
+  }
+
+  const languageSqlChunks: SQL[] = [];
+  const languageCodes: string[] = [];
+
+  languageSqlChunks.push(sql`(case`);
+
+  for (const language of updatedLanguages) {
+    languageSqlChunks.push(
+      sql`when ${guideLanguage.languageCode} = ${language.code} then ${language}`
+    );
+    languageCodes.push(language.code);
+  }
+
+  languageSqlChunks.push(sql`end)`);
+  const finalLanguageSql: SQL = sql.join(languageSqlChunks, sql.raw(' '));
+
+  // Remove existing language relationships
+  await trx.delete(guideLanguage).where(eq(guideLanguage.guideId, guideId));
+
+  // Update language records
+  await trx
+    .update(guideLanguage)
+    .set({
+      // Assuming language data can be updated as a JSON object
+      languageDetails: finalLanguageSql,
+    })
+    .where(inArray(guideLanguage.languageCode, languageCodes));
+
+  // Reinsert driver-language relationships
+  const addedLanguageLinks = await trx
+    .insert(guideLanguage)
+    .values(
+      languageCodes.map((code) => ({
+        guideId,
+        languageCode: code,
+      }))
+    );
+
+  return addedLanguageLinks;
+}
 
 export async function deleteDriverCascade(driverId: string) {
   try {
@@ -407,6 +597,30 @@ export async function deleteDriverCascade(driverId: string) {
 
     console.log("Driver and related data deleted successfully");
     return deletedDriverId;
+  } catch (error) {
+    console.error("Error deleting driver and related data:", error);
+    throw error; // Re-throw the error to handle it elsewhere if needed
+  }
+}
+
+export async function deleteGuideCascade(guideId: string) {
+  try {
+    // Start the transaction
+    const deletedGuideId = await db.transaction(async (trx) => {
+      await trx
+        .delete(guideLanguage)
+        .where(eq(guideLanguage.guideId, guideId));
+
+      // Finally, delete the driver
+      const deletedGuide = await trx
+        .delete(guide)
+        .where(eq(guide.id, guideId)).returning({ id: guide.id });
+
+      return deletedGuide;
+    });
+
+    console.log("Driver and related data deleted successfully");
+    return deletedGuideId;
   } catch (error) {
     console.error("Error deleting driver and related data:", error);
     throw error; // Re-throw the error to handle it elsewhere if needed

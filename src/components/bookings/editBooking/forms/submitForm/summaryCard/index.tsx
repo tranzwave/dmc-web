@@ -28,7 +28,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ summary }) => {
       <AccordionItem value={dateValue}>
         <AccordionTrigger className="">
           <div className="items-start justify-start space-y-0 w-[10%]">
-            <div className="text-base font-bold bg-primary-green text-white px-1 rounded-t-lg text-center">
+            <div className="text-base font-bold bg-primary-green text-white px-2 pb-3 pt-1 rounded-t-lg text-center">
               Day {day}
             </div>
             <div className="items-start text-xs text-zinc-800">

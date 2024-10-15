@@ -13,7 +13,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { HotelRoomType } from "../roomsForm/columns";
 import {
   Select,
   SelectContent,
@@ -22,6 +21,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { hotelRoomCategories, hotelRoomTypes } from "~/lib/constants";
+import { HotelRoomType } from "../roomsForm/columns";
 
 interface RoomsFormProps {
   onAddRoom: (room: HotelRoomType) => void;
@@ -32,10 +32,26 @@ interface RoomsFormProps {
 export const roomsSchema = z.object({
   roomType: z.string().min(1, "Room type is required"),
   typeName: z.string().min(1, "Type name is required"),
-  count: z.number().min(1, "Count must be 1 or higher").optional().or(z.literal('')), // Optional field
-  amenities: z.string().min(1, "Amenities are required").optional().or(z.literal('')), // Optional field
-  floor: z.number().min(0, "Floor must be 0 or higher").optional().or(z.literal('')), // Optional field
-  bedCount: z.number().min(1, "Bed count is required").optional().or(z.literal('')), // Optional field
+  count: z
+    .number()
+    .min(1, "Count must be 1 or higher")
+    .optional()
+    .or(z.literal("")), // Optional field
+  amenities: z
+    .string()
+    .min(1, "Amenities are required")
+    .optional()
+    .or(z.literal("")), // Optional field
+  floor: z
+    .number()
+    .min(0, "Floor must be 0 or higher")
+    .optional()
+    .or(z.literal("")), // Optional field
+  bedCount: z
+    .number()
+    .min(1, "Bed count is required")
+    .optional()
+    .or(z.literal("")), // Optional field
   additionalComments: z.string().optional(), // Optional field
 });
 
@@ -112,35 +128,35 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom }) => {
               </FormItem>
             )}
           />
-<FormField
-  name="typeName"
-  control={roomsForm.control}
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Room Type Name</FormLabel>
-      <FormControl>
-        <Select
-          onValueChange={(value) => {
-            field.onChange(value);
-          }}
-          value={field.value || ""} // Ensure initial value is set correctly
-        >
-          <SelectTrigger className="bg-slate-100 shadow-md">
-            <SelectValue placeholder="Select room type" />
-          </SelectTrigger>
-          <SelectContent>
-            {hotelRoomCategories.map((type) => (
-              <SelectItem key={type} value={type}>
-                {type}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
+          <FormField
+            name="typeName"
+            control={roomsForm.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Room Type Name</FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                    }}
+                    value={field.value || ""} // Ensure initial value is set correctly
+                  >
+                    <SelectTrigger className="bg-slate-100 shadow-md">
+                      <SelectValue placeholder="Select room type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {hotelRoomCategories.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             name="count"

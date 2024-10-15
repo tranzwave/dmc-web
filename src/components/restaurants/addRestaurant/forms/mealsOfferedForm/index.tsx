@@ -41,11 +41,11 @@ const MealsOfferedTab = () => {
   };
 
   const onRowDuplicate = (row: MealType) => {
-    duplicateMealType(row.mealType);
+    duplicateMealType(row.mealType, row.startTime, row.endTime);
   };
 
   const onRowDelete = (row: MealType) => {
-    deleteMealType(row.mealType);
+    deleteMealType(row.mealType, row.startTime, row.endTime);
   };
 
   return (

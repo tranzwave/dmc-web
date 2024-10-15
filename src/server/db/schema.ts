@@ -1,4 +1,3 @@
-import { nullable } from 'zod';
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
@@ -81,7 +80,7 @@ export const client = createTable("clients", {
     .notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   primaryEmail: varchar("primary_email", { length: 100 }),
-  primaryContactNumber:varchar("primary_contact", { length: 14 }),
+  primaryContactNumber: varchar("primary_contact", { length: 14 }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
@@ -164,6 +163,9 @@ export const bookingLine = createTable("booking_lines", {
   startDate: timestamp("start_date").notNull(),
   endDate: timestamp("end_date").notNull(),
   status: bookingLineStatus('status').default('inprogress'),
+  createdAt: timestamp("created_at", { withTimezone: true })
+  .default(sql`CURRENT_TIMESTAMP`)
+  .notNull(),
 });
 
 export const city = createTable(
@@ -490,6 +492,49 @@ export const driverLanguage = createTable(
   },
 );
 
+//Guides table
+export const guide = createTable("guides", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  tenantId: varchar("tenant_id", { length: 255 })
+    .references(() => tenant.id)
+    .notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  primaryEmail: varchar("primary_email", { length: 255 }).notNull(),
+  primaryContactNumber: varchar("primary_contact_number", {
+    length: 20,
+  }).notNull(),
+  streetName: varchar("street_name", { length: 255 }).notNull(),
+  province: varchar("province", { length: 255 }).notNull(),
+  type: varchar("type", { length: 255 }).notNull(),
+  guideLicense: varchar("guide_license", { length: 255 }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  cityId: integer("city_id")
+    .references(() => city.id)
+    .notNull(),
+});
+
+// Guide-Language join table
+export const guideLanguage = createTable(
+  "guide_languages",
+  {
+    guideId: varchar("guide_id", { length: 255 })
+      .references(() => guide.id)
+      .notNull(),
+    languageCode: varchar("language_code", { length: 255 })
+      .references(() => language.code)
+      .notNull(),
+  },
+  (table) => {
+    return {
+      pk: primaryKey({ columns: [table.guideId, table.languageCode] }),
+    };
+  },
+);
+
 // Transport Vouchers table
 export const transportVoucher = createTable("transport_vouchers", {
   id: varchar("id", { length: 255 })
@@ -664,14 +709,14 @@ export const shopVoucher = createTable("shop_vouchers", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
-export const tenantRelations = relations(tenant, ({ one,many }) => ({
+export const tenantRelations = relations(tenant, ({ one, many }) => ({
   booking: many(booking),
   client: many(client),
   agent: many(agent),
   coordinator: many(user)
 }));
 
-export const agentRelations = relations(agent, ({ one,many }) => ({
+export const agentRelations = relations(agent, ({ one, many }) => ({
   tenant: one(tenant, {
     fields: [agent.tenantId],
     references: [tenant.id],
@@ -680,7 +725,7 @@ export const agentRelations = relations(agent, ({ one,many }) => ({
 
 }));
 
-export const clientRelations = relations(client, ({ one,many }) => ({
+export const clientRelations = relations(client, ({ one, many }) => ({
   booking: many(booking),
   tenant: one(tenant, {
     fields: [client.tenantId],
@@ -688,7 +733,7 @@ export const clientRelations = relations(client, ({ one,many }) => ({
   }),
 }));
 
-export const userRelations = relations(user, ({ one,many }) => ({
+export const userRelations = relations(user, ({ one, many }) => ({
   // booking: many(booking),
   tenant: one(tenant, {
     fields: [user.tenantId],
@@ -719,7 +764,7 @@ export const bookingsRelations = relations(booking, ({ one }) => ({
   }),
 }));
 
-export const bookingAgentRelations = relations(bookingAgent, ({ one,many }) => ({
+export const bookingAgentRelations = relations(bookingAgent, ({ one, many }) => ({
   agent: one(agent, {
     fields: [bookingAgent.agentId],
     references: [agent.id],
@@ -842,6 +887,7 @@ export const restaurantVoucherLinesRelations = relations(
 // Languages table relations
 export const languageRelations = relations(language, ({ many }) => ({
   drivers: many(driverLanguage),
+  guides: many(guideLanguage),
 }));
 
 // Vehicles table relations
@@ -864,6 +910,19 @@ export const driverRelations = relations(driver, ({ many, one }) => ({
   transportVouchers: many(transportVoucher),
 }));
 
+// Guides table relations
+export const guideRelations = relations(guide, ({ many, one }) => ({
+  tenant: one(tenant, {
+    fields: [guide.tenantId],
+    references: [tenant.id],
+  }),
+  city: one(city, {
+    fields: [guide.cityId],
+    references: [city.id],
+  }),
+  languages: many(guideLanguage),
+}));
+
 // Driver-Vehicle join table relations
 export const driverVehicleRelations = relations(driverVehicle, ({ one }) => ({
   driver: one(driver, {
@@ -884,6 +943,18 @@ export const driverLanguageRelations = relations(driverLanguage, ({ one }) => ({
   }),
   language: one(language, {
     fields: [driverLanguage.languageCode],
+    references: [language.code],
+  }),
+}));
+
+// Driver-Language join table relations
+export const guideLanguageRelations = relations(guideLanguage, ({ one }) => ({
+  guide: one(guide, {
+    fields: [guideLanguage.guideId],
+    references: [guide.id],
+  }),
+  language: one(language, {
+    fields: [guideLanguage.languageCode],
     references: [language.code],
   }),
 }));

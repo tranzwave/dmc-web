@@ -12,39 +12,15 @@ import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { AddTransportProvider, useAddTransport } from "./context";
 
-// const SubmitForm = () => {
-//   const { transportDetails } = useAddTransport();
-
-//   const handleSubmit = () => {
-//     // Handle the submission of activityDetails
-//     console.log('Submitting booking details:', transportDetails);
-//   };
-
-//   return (
-//     <div className='flex flex-col gap-3'>
-//       <div className='card w-full h-10'>
-//         <p>Review all the details and submit your activity.</p>
-//       </div>
-//       <div className='flex w-full justify-center'>
-//         <Button variant="primaryGreen" onClick={handleSubmit}>
-//           Submit
-//         </Button>
-//       </div>
-
-//     </div>
-//   );
-// };
-
 const AddTransport = () => {
   const pathname = usePathname();
   const { setGeneralDetails, activeTab, setActiveTab, transportDetails } =
     useAddTransport();
 
+    const isDriver = transportDetails.general.type === 'Driver'
   useEffect(() => {
     console.log("Add Transport Component");
   }, []);
-
-  const isGuide = transportDetails.general?.type === "Guide";
 
   return (
     <div className="flex">
@@ -59,7 +35,11 @@ const AddTransport = () => {
             </div>
           </div>
           <div className="w-full">
-            <Tabs defaultValue="general" className="w-full border" value={activeTab}>
+            <Tabs
+              defaultValue="general"
+              className="w-full border"
+              value={activeTab}
+            >
               <TabsList className="flex w-full justify-evenly">
                 <TabsTrigger
                   value="general"
@@ -69,42 +49,40 @@ const AddTransport = () => {
                 >
                   General
                 </TabsTrigger>
-                {!isGuide && (
-                  <>
-                    <TabsTrigger
-                      value="vehicles"
-                      statusLabel="Mandatory"
-                      isCompleted={transportDetails.vehicles.length > 0}
-                      inProgress={activeTab === "vehicles"}
-                      disabled={!transportDetails.general.name}
-                    >
-                      Vehicles
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="charges"
-                      statusLabel="Mandatory"
-                      isCompleted={transportDetails.charges.feePerKm > 0}
-                      inProgress={activeTab === "charges"}
-                      disabled={transportDetails.vehicles.length === 0}
-                    >
-                      Charges
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="documents"
-                      statusLabel="Mandatory"
-                      isCompleted={transportDetails.documents.vehicleEmissionTest.length > 1}
-                      inProgress={activeTab === "documents"}
-                      disabled={
-                        transportDetails.charges.accommodationAllowance <= 0 ||
-                        transportDetails.charges.feePerKm === 0 ||
-                        transportDetails.charges.fuelAllowance <= 0 ||
-                        transportDetails.charges.mealAllowance <= 0
-                      }
-                    >
-                      Documents
-                    </TabsTrigger>
-                  </>
-                )}
+                <TabsTrigger
+                  value="vehicles"
+                  statusLabel="Mandatory"
+                  isCompleted={transportDetails.vehicles.length > 0}
+                  inProgress={activeTab === "vehicles"}
+                  disabled={!transportDetails.general.name}
+                >
+                  Vehicles
+                </TabsTrigger>
+                <TabsTrigger
+                  value="charges"
+                  statusLabel="Mandatory"
+                  isCompleted={transportDetails.charges.feePerKm > 0}
+                  inProgress={activeTab === "charges"}
+                  disabled={transportDetails.vehicles.length === 0}
+                >
+                  Charges
+                </TabsTrigger>
+                <TabsTrigger
+                  value="documents"
+                  statusLabel="Mandatory"
+                  isCompleted={
+                    transportDetails.documents.vehicleEmissionTest.length > 1
+                  }
+                  inProgress={activeTab === "documents"}
+                  disabled={
+                    transportDetails.charges.accommodationAllowance <= 0 ||
+                    transportDetails.charges.feePerKm === 0 ||
+                    transportDetails.charges.fuelAllowance <= 0 ||
+                    transportDetails.charges.mealAllowance <= 0
+                  }
+                >
+                  Documents
+                </TabsTrigger>
                 <TabsTrigger
                   value="submit"
                   isCompleted={transportDetails.vehicles.length > 0}
@@ -120,19 +98,16 @@ const AddTransport = () => {
               <TabsContent value="general">
                 <GeneralTab />
               </TabsContent>
-              {!isGuide && (
-                <>
-                  <TabsContent value="vehicles">
-                    <VehiclesTab />
-                  </TabsContent>
-                  <TabsContent value="charges">
-                    <ChargesTab />
-                  </TabsContent>
-                  <TabsContent value="documents">
-                    <DocumentsTab />
-                  </TabsContent>
-                </>
-              )}
+
+              <TabsContent value="vehicles">
+                <VehiclesTab />
+              </TabsContent>
+              <TabsContent value="charges">
+                <ChargesTab />
+              </TabsContent>
+              <TabsContent value="documents">
+                <DocumentsTab isDriver={isDriver}/>
+              </TabsContent>
               <TabsContent value="submit">
                 <SubmitForm />
               </TabsContent>
@@ -143,7 +118,6 @@ const AddTransport = () => {
     </div>
   );
 };
-
 
 export default function WrappedAddTransport() {
   return (

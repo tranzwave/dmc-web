@@ -40,7 +40,7 @@ const VehiclesTab = () => {
   };
 
   const onRowDuplicate = (row: Vehicles) => {
-    duplicateVehicle(row.vehicle);
+    duplicateVehicle(row.numberPlate);
   };
 
   const onRowDelete = (row: Vehicles) => {

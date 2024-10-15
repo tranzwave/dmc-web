@@ -57,6 +57,8 @@ const RestaurantsTab = () => {
     };
 
     addRestaurantVoucher(restaurantVoucher);
+
+    onSaveClick();
   };
 
   const getRestaurants = async () => {

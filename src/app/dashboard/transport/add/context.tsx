@@ -40,44 +40,23 @@ const defaultGeneral: General = {
 };
 
 const defaultCharges: Charges = {
-  feePerKm: 1,
-  feePerDay: 1,
+  feePerKm: 0,
+  feePerDay: 0,
   fuelAllowance: 2000,
-  accommodationAllowance: 1,
-  mealAllowance: 1,
+  accommodationAllowance: 0,
+  mealAllowance: 0,
 };
 
 const defaultDocuments: Documents = {
-  driverLicense: "N/A",
-  guideLicense: "N/A",
-  vehicleEmissionTest: "N/A",
-  insurance: "N/A",
+  driverLicense: "",
+  guideLicense: "",
+  vehicleEmissionTest: "",
+  insurance: "",
 };
-
-const generateRandomString = (length: number): string => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    result += characters[randomIndex];
-  }
-  return result;
-};
-
 
 const defaultTransportDetails: TransportDetails = {
   general: defaultGeneral,
-  vehicles: [
-    {
-      make: "N/A",
-      model: "N/A",
-      year: "2024",
-      vehicle: "N/A",
-      numberPlate: generateRandomString(7),
-      seats: 1,
-      vrl: "N/A",
-    },
-  ],
+  vehicles: [],
   charges: defaultCharges,
   documents: defaultDocuments,
 };
@@ -116,26 +95,28 @@ export const AddTransportProvider: React.FC<{ children: ReactNode }> = ({
     }));
   };
 
-  const duplicateVehicle = (vehicle: string) => {
-    const vehicleToDuplicate = transportDetails.vehicles.find(vehicles => vehicles.vehicle === vehicle);
+  const duplicateVehicle = (numberPlate: string) => {
+    const vehicleToDuplicate = transportDetails.vehicles.find(
+      (vehicle) => vehicle.numberPlate === numberPlate
+    );
   
     if (vehicleToDuplicate) {
       const duplicatedVehicle = {
         ...vehicleToDuplicate,
-        id: undefined,
-        vehicle: `${vehicleToDuplicate.vehicle}`, 
+        id: undefined, 
+        numberPlate: `${vehicleToDuplicate.numberPlate}`, 
       };
   
-      // Update the state with the new duplicated meal type
-      setTransportDetails(prev => ({
+      setTransportDetails((prev) => ({
         ...prev,
         vehicles: [...prev.vehicles, duplicatedVehicle],
       }));
-      console.log("Duplicated vehicle type added:", duplicatedVehicle);
+      console.log("Duplicated vehicle added:", duplicatedVehicle);
     } else {
-      console.error(`Meal type "${vehicle}" not found.`);
+      console.error(`Vehicle with number plate "${numberPlate}" not found.`);
     }
   };
+  
 
   const deleteVehicle = (numberPlate: string) => {
     alert(numberPlate);

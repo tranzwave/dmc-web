@@ -6,7 +6,6 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Collapsible, CollapsibleTrigger } from "~/components/ui/collapsible";
 
 import {
   Table,

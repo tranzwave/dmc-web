@@ -1,5 +1,5 @@
 {
-  "id": "319f9ddc-1436-46f0-b4de-36fb35bda533",
+  "id": "00e8f209-2c11-4be5-bd01-405fb0c21430",
   "prevId": "e929aabd-b85e-4fa0-b9a2-67e8611ba24c",
   "version": "6",
   "dialect": "postgresql",
@@ -1285,6 +1285,168 @@
           "columns": [
             "driver_id",
             "vehicle_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "public.dmc-web_guides": {
+      "name": "dmc-web_guides",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(255)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "primary_email": {
+          "name": "primary_email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "primary_contact_number": {
+          "name": "primary_contact_number",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "street_name": {
+          "name": "street_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "province": {
+          "name": "province",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "city_id": {
+          "name": "city_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "dmc-web_guides_tenant_id_dmc-web_tenants_id_fk": {
+          "name": "dmc-web_guides_tenant_id_dmc-web_tenants_id_fk",
+          "tableFrom": "dmc-web_guides",
+          "tableTo": "dmc-web_tenants",
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "dmc-web_guides_city_id_dmc-web_cities_id_fk": {
+          "name": "dmc-web_guides_city_id_dmc-web_cities_id_fk",
+          "tableFrom": "dmc-web_guides",
+          "tableTo": "dmc-web_cities",
+          "columnsFrom": [
+            "city_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.dmc-web_guide_languages": {
+      "name": "dmc-web_guide_languages",
+      "schema": "",
+      "columns": {
+        "guide_id": {
+          "name": "guide_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "language_code": {
+          "name": "language_code",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "dmc-web_guide_languages_guide_id_dmc-web_guides_id_fk": {
+          "name": "dmc-web_guide_languages_guide_id_dmc-web_guides_id_fk",
+          "tableFrom": "dmc-web_guide_languages",
+          "tableTo": "dmc-web_guides",
+          "columnsFrom": [
+            "guide_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "dmc-web_guide_languages_language_code_dmc-web_languages_code_fk": {
+          "name": "dmc-web_guide_languages_language_code_dmc-web_languages_code_fk",
+          "tableFrom": "dmc-web_guide_languages",
+          "tableTo": "dmc-web_languages",
+          "columnsFrom": [
+            "language_code"
+          ],
+          "columnsTo": [
+            "code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "dmc-web_guide_languages_guide_id_language_code_pk": {
+          "name": "dmc-web_guide_languages_guide_id_language_code_pk",
+          "columns": [
+            "guide_id",
+            "language_code"
           ]
         }
       },

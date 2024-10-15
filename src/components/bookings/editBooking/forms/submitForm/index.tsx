@@ -86,7 +86,7 @@ const AddBookingSubmitTab = () => {
         >
           <div className="card-title flex w-full flex-row justify-between">
             <div>Booking Summary</div>
-            <Button
+            {/* <Button
               variant="primaryGreen"
               onClick={handleSubmit}
               disabled={loading}
@@ -101,7 +101,7 @@ const AddBookingSubmitTab = () => {
               ) : (
                 "Submit Booking"
               )}
-            </Button>
+            </Button> */}
           </div>
           <div ref={summaryRef} className="pdf-summary">
             {summary.map((sum, index) => {
