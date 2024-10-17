@@ -221,14 +221,17 @@ const GeneralForm = () => {
     try {
       // Call the createNewBooking function with the necessary data
       console.log(bookingDetails);
-      const createdBooking = await createNewBooking(organization ? organization?.id : "",{
-        general: data,
-        activities: [],
-        restaurants: [],
-        shops: [],
-        transport: [],
-        vouchers: [],
-      });
+      const createdBooking = await createNewBooking(
+        organization ? organization?.id : "",
+        {
+          general: data,
+          activities: [],
+          restaurants: [],
+          shops: [],
+          transport: [],
+          vouchers: [],
+        },
+      );
 
       if (createdBooking) {
         // If createNewBooking succeeds, set the success message and show modal
@@ -258,7 +261,10 @@ const GeneralForm = () => {
     try {
       // Call the createNewBooking function with the necessary data
       console.log(bookingDetails);
-      const createdBooking = await createNewBooking(organization?.id ?? "", bookingDetails);
+      const createdBooking = await createNewBooking(
+        organization?.id ?? "",
+        bookingDetails,
+      );
 
       if (createdBooking) {
         // If createNewBooking succeeds, set the success message and show modal
@@ -278,13 +284,12 @@ const GeneralForm = () => {
     }
   };
 
-  const handleYes = async() => {
+  const handleYes = async () => {
     // setActiveTab("hotels");
     try {
       router.replace(`${pathname.split("add")[0]}/${id}/edit`);
-      
     } catch (error) {
-      console.error('Failed to navigate:', error);
+      console.error("Failed to navigate:", error);
     }
 
     setShowModal(false);
@@ -309,7 +314,11 @@ const GeneralForm = () => {
   }
 
   if (loading || !isLoaded) {
-    return <div><LoadingLayout/></div>;
+    return (
+      <div>
+        <LoadingLayout />
+      </div>
+    );
   }
 
   return (
@@ -523,8 +532,12 @@ const GeneralForm = () => {
                             );
                             field.onChange(dateString);
                           }}
+                          disabled={(date) => {
+                            let today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            return date < today;
+                          }}
                           numberOfMonths={1}
-                          
                         />
                       </PopoverContent>
                     </Popover>
