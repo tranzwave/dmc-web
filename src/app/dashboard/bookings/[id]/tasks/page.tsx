@@ -1,18 +1,18 @@
 "use client";
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import ActivitiesTasksTab from "~/components/bookings/tasks/activities";
+import HotelsTasksTab from "~/components/bookings/tasks/hotelsTaskTab";
+import RestaurantsTasksTab from "~/components/bookings/tasks/restaurants";
+import ShopsTasksTab from "~/components/bookings/tasks/shops";
+import TransportTasksTab from "~/components/bookings/tasks/transport";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { BookingLineWithAllData } from "~/lib/types/booking";
 import { getBookingLineWithAllData } from "~/server/db/queries/booking";
 import { SelectBookingLine } from "~/server/db/schemaTypes";
-import HotelsTasksTab from "~/components/bookings/tasks/hotelsTaskTab";
-import RestaurantsTasksTab from "~/components/bookings/tasks/restaurants";
-import ActivitiesTasksTab from "~/components/bookings/tasks/activities";
-import ShopsTasksTab from "~/components/bookings/tasks/shops";
-import TransportTasksTab from "~/components/bookings/tasks/transport";
-import { BookingLineWithAllData } from "~/lib/types/booking";
 import { AddBookingProvider } from "../../add/context";
 
 const Page = ({ params }: { params: { id: string } }) => {

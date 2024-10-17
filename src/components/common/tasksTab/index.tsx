@@ -1,24 +1,18 @@
 "use client";
+import { ColumnDef } from "@tanstack/react-table";
 import React, { SetStateAction, useEffect, useRef, useState } from "react";
+import { DataTableWithActions } from "~/components/common/dataTableWithActions/index";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
-import { DataTableWithActions } from "~/components/common/dataTableWithActions/index";
-import { ColumnDef } from "@tanstack/react-table";
-import Popup from "../popup";
 import { Input } from "~/components/ui/input";
 import { useToast } from "~/hooks/use-toast";
+import Popup from "../popup";
 import { ConfirmationForm } from "./confirmationForm";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
 // import Voucher from "./voucherComponent";
-import { DataTable } from "~/components/bookings/home/dataTable";
 import html2pdf from "html2pdf.js";
+import { DataTable } from "~/components/bookings/home/dataTable";
+import { SelectActivityVendor, SelectDriver, SelectHotel, SelectRestaurant, SelectShop } from "~/server/db/schemaTypes";
 import DeletePopup from "../deletePopup";
-import { SelectActivityVendor, SelectActivityVoucher, SelectDriver, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant, SelectRestaurantVoucher, SelectRestaurantVoucherLine, SelectShop, SelectShopVoucher, SelectTransportVoucher } from "~/server/db/schemaTypes";
-import { Phone } from "lucide-react";
 
 type Vendor = SelectHotel | SelectRestaurant | SelectActivityVendor | SelectShop | SelectDriver
 interface TasksTabProps<T, L> {
@@ -197,6 +191,7 @@ const TasksTab = <
         </div>
         <div className="card w-full space-y-6">
           <div className="card-title">Voucher Information</div>
+          <div className="text-sm font-normal">Click the line to send the voucher</div>
           <DataTableWithActions
             data={vouchers}
             columns={columns}

@@ -2,18 +2,16 @@
 import { ColumnDef } from "@tanstack/react-table";
 import html2pdf from "html2pdf.js";
 import React, { useEffect, useRef, useState } from "react";
-import { DataTableWithActions } from "~/components/common/dataTableWithActions/index";
+import { DataTable } from "~/components/bookings/home/dataTable";
 import DeletePopup from "~/components/common/deletePopup";
 import Popup from "~/components/common/popup";
 import ContactContent from "~/components/common/tasksTab/contactContent";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { useToast } from "~/hooks/use-toast";
-import { updateShopVoucherStatus } from "~/server/db/queries/booking/shopsVouchers";
+import { updateActivityVoucherStatus } from "~/server/db/queries/booking/activityVouchers";
 import { ActivityVoucherData } from "..";
 import ShopVoucherPDF from "../voucherTemplate";
-import { updateActivityVoucherStatus } from "~/server/db/queries/booking/activityVouchers";
-import { DataTable } from "~/components/bookings/home/dataTable";
 
 interface TasksTabProps {
   bookingLineId: string;
@@ -137,6 +135,7 @@ const ActivityVouchersTab = ({
         </div>
         <div className="card w-full space-y-6">
           <div className="card-title">Voucher Information</div>
+          <div className="text-sm font-normal">Click the line to send the voucher</div>
           <DataTable
             data={vouchers}
             columns={voucherColumns}

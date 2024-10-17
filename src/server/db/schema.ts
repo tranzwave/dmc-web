@@ -531,6 +531,7 @@ export const guideLanguage = createTable(
   },
 );
 
+
 // Transport Vouchers table
 export const transportVoucher = createTable("transport_vouchers", {
   id: varchar("id", { length: 255 })
@@ -541,21 +542,57 @@ export const transportVoucher = createTable("transport_vouchers", {
     .references(() => bookingLine.id)
     .notNull(),
   driverId: varchar("driver_id", { length: 255 })
-    .references(() => driver.id)
-    .notNull(),
+    .references(() => driver.id),
+  guideId: varchar("guide_id", { length: 255 })
+    .references(() => guide.id),
   coordinatorId: varchar("coordinator_id", { length: 255 })
-    .references(() => user.id)
-    .notNull(),
+    .references(() => user.id),
   status: statusEnum('status').default('inprogress'),
   rate: numeric('rate', { precision: 4 }),
   startDate: varchar("start_date", { length: 100 }).notNull(),
   endDate: varchar("end_date", { length: 100 }).notNull(),
   language: varchar("languages", { length: 255 }).notNull(),
-  vehicleType: varchar("vehicle_type", { length: 255 }),
+  // vehicleType: varchar("vehicle_type", { length: 255 }),
   remarks: varchar("remarks", { length: 255 }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
+
+export const driverVoucherLine = createTable("driver_voucher_lines", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  transportVoucherId: varchar("transport_voucher_id", { length: 255 })
+    .references(() => transportVoucher.id)
+    .notNull(),
+  vehicleType: varchar("vehicle_type", { length: 255 }).notNull(),
+  // language: varchar("languages", { length: 255 }).notNull(),
+  // startDate: varchar("start_date", { length: 100 }).notNull(),
+  // endDate: varchar("end_date", { length: 100 }).notNull(),
+  // remarks: varchar("remarks", { length: 255 }),
+  // status: statusEnum('status').default('inprogress'), // Tracks the status of the voucher
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
+export const guideVoucherLine = createTable("guide_voucher_lines", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  transportVoucherId: varchar("transport_voucher_id", { length: 255 })
+    .references(() => transportVoucher.id)
+    .notNull(),
+  // language: varchar("languages", { length: 255 }).notNull(),
+  // startDate: varchar("start_date", { length: 100 }).notNull(),
+  // endDate: varchar("end_date", { length: 100 }).notNull(),
+  // remarks: varchar("remarks", { length: 255 }),
+  // status: statusEnum('status').default('inprogress'), // Tracks the status of the voucher
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
 
 // Activity Vendors table
 export const activityVendor = createTable("activity_vendors", {
@@ -917,6 +954,7 @@ export const guideRelations = relations(guide, ({ many, one }) => ({
     references: [city.id],
   }),
   languages: many(guideLanguage),
+  transportVouchers: many(transportVoucher),
 }));
 
 // Driver-Vehicle join table relations
@@ -955,8 +993,25 @@ export const guideLanguageRelations = relations(guideLanguage, ({ one }) => ({
   }),
 }));
 
+// DriverVoucherLine table relations
+export const driverVoucherLineRelations = relations(driverVoucherLine, ({ one }) => ({
+  transportVoucher: one(transportVoucher, {
+    fields: [driverVoucherLine.transportVoucherId],
+    references: [transportVoucher.id],
+  }),
+}));
+
+// GuideVoucherLine table relations
+export const guideVoucherLineRelations = relations(guideVoucherLine, ({ one }) => ({
+  transportVoucher: one(transportVoucher, {
+    fields: [guideVoucherLine.transportVoucherId],
+    references: [transportVoucher.id],
+  }),
+}));
+
+
 // Transport Vouchers table relations
-export const transportVoucherRelations = relations(transportVoucher, ({ one }) => ({
+export const transportVouchersRelations = relations(transportVoucher, ({ one, many }) => ({
   bookingLine: one(bookingLine, {
     fields: [transportVoucher.bookingLineId],
     references: [bookingLine.id],
@@ -965,10 +1020,13 @@ export const transportVoucherRelations = relations(transportVoucher, ({ one }) =
     fields: [transportVoucher.driverId],
     references: [driver.id],
   }),
-  coordinator: one(user, {
-    fields: [transportVoucher.coordinatorId],
-    references: [user.id],
+  guide: one(guide, {
+    fields: [transportVoucher.guideId],
+    references: [guide.id],
   }),
+  driverVoucherLines: many(driverVoucherLine),
+  guideVoucherLines: many(guideVoucherLine),
+
 }));
 
 
@@ -1048,7 +1106,6 @@ export const shopVouchersRelations = relations(shopVoucher, ({ one }) => ({
     references: [user.id],
   }),
 }));
-
 
 export const accounts = createTable(
   "account",

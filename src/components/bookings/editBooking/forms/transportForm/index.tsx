@@ -1,15 +1,18 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, SearchIcon } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { useToast } from "~/hooks/use-toast";
-import { DriverSearchParams } from "~/lib/api";
+import { DriverSearchParams, GuideSearchParams } from "~/lib/api";
+import { addTransportVouchersToBooking } from "~/server/db/queries/booking";
 import {
   getAllDriversByVehicleTypeAndLanguage,
+  getAllGuidesByLanguage,
   getAllLanguages,
   getAllVehicleTypes,
 } from "~/server/db/queries/transport";
@@ -17,18 +20,20 @@ import {
   SelectDriver,
   SelectDriverLanguage,
   SelectDriverVehicle,
+  SelectGuide,
+  SelectGuideLanguage,
   SelectLanguage,
   SelectVehicle,
 } from "~/server/db/schemaTypes";
 import { columns, Transport } from "./columns";
 import TransportForm from "./transportsForm";
-import { usePathname } from "next/navigation";
-import { addTransportVouchersToBooking } from "~/server/db/queries/booking";
 
 type DriverWithoutVehiclesAndLanguages = Omit<
   DriverData,
   "languages" | "vehicles"
 >;
+
+type GuideWithoutLanguages = Omit<GuideData, "languages">;
 
 export type DriverData = SelectDriver & {
   vehicles: (SelectDriverVehicle & {
@@ -39,9 +44,19 @@ export type DriverData = SelectDriver & {
   })[];
 };
 
+export type GuideData = SelectGuide & {
+  languages: (SelectGuideLanguage & {
+    language: SelectLanguage;
+  })[];
+};
+
 const TransportTab = () => {
   const { addTransport, bookingDetails, setActiveTab } = useEditBooking();
   const [drivers, setDrivers] = useState<DriverData[]>([]);
+  const [guides, setGuides] = useState<GuideData[]>([]);
+  const [currentSearchType, setCurrentSearchType] = useState<
+    "Driver" | "Guide" | null
+  >(null);
   const [searchDetails, setSearchDetails] = useState<Transport | null>(null);
   const [error, setError] = useState<string | null>();
   const [loading, setLoading] = useState(false);
@@ -49,10 +64,10 @@ const TransportTab = () => {
   const [languages, setLanguages] = useState<SelectLanguage[]>([]);
   const { toast } = useToast();
 
-  const [saving, setSaving] = useState(false)
+  const [saving, setSaving] = useState(false);
 
-  const pathname = usePathname()
-  const bookingLineId = pathname.split("/")[3]
+  const pathname = usePathname();
+  const bookingLineId = pathname.split("/")[3];
 
   const fetchData = async () => {
     try {
@@ -92,44 +107,67 @@ const TransportTab = () => {
   };
 
   useEffect(() => {
-    if(!bookingDetails.general.includes.transport){
-      setActiveTab("shops")
-      return ()=>{console.log("Return")};
+    if (!bookingDetails.general.includes.transport) {
+      setActiveTab("shops");
+      return () => {
+        console.log("Return");
+      };
     }
     fetchData();
   }, []);
 
-  const handleRowClick = (driver: DriverData) => {
+  const handleRowClick = (type: DriverData | GuideData) => {
     const {
       vehicles,
       languages,
-      ...driverWithoutVehiclesAndLanguages
-    }: DriverWithoutVehiclesAndLanguages | any = driver;
+      ...driverOrGuideWithoutExtraFields
+    }: DriverWithoutVehiclesAndLanguages | GuideWithoutLanguages | any = type;
+  
     if (searchDetails) {
+      const isDriver = "vehicles" in type; 
       addTransport({
-        driver: driverWithoutVehiclesAndLanguages,
+        driver: isDriver ? driverOrGuideWithoutExtraFields : null,
+        guide: isDriver ? null : driverOrGuideWithoutExtraFields,
         voucher: {
-          bookingLineId: "",
+          bookingLineId: bookingLineId ?? "",
           coordinatorId: bookingDetails.general.marketingManager,
-          driverId: driver.id,
+          driverId: isDriver ? type.id : undefined,
+          guideId: !isDriver ? type.id : undefined, 
           startDate: searchDetails.startDate,
           endDate: searchDetails.endDate,
           language: searchDetails.languageCode,
-          vehicleType: searchDetails.vehicleType,
           remarks: searchDetails.remarks,
         },
+        driverVoucherLine: isDriver
+          ? {
+              transportVoucherId: 'transportVoucher.id',
+              vehicleType: searchDetails.vehicleType,
+            }
+          : undefined, 
+        guideVoucherLine: !isDriver 
+          ? {
+              transportVoucherId: 'transportVoucher.id',
+            } 
+          : undefined,
       });
     }
   };
 
   const updateSearchData = (transport: Transport) => {
     setSearchDetails(transport);
-    const searchParams: DriverSearchParams = {
+    const searchParams = {
       vehicleType: transport.vehicleType,
       language: transport.languageCode,
       type: transport.type,
     };
-    searchDrivers(searchParams);
+
+    if (transport.type === "Guide") {
+      setCurrentSearchType("Guide");
+      searchGuides({ language: transport.languageCode, type: transport.type });
+    } else {
+      setCurrentSearchType("Driver");
+      searchDrivers(searchParams);
+    }
   };
 
   // Function to search for drivers based on transport data
@@ -157,6 +195,23 @@ const TransportTab = () => {
     }
   };
 
+  const searchGuides = async (searchParams: GuideSearchParams) => {
+    console.log(searchParams);
+    try {
+      const results = await getAllGuidesByLanguage(searchParams.language);
+
+      console.log(results);
+      const filteredGuides = results.filter((guide) => {
+        return guide.type;
+      });
+
+      console.log(filteredGuides);
+      setGuides(filteredGuides);
+    } catch (error) {
+      console.error("Error searching for guides:", error);
+    }
+  };
+
   const onNextClick = () => {
     console.log(bookingDetails);
     if (bookingDetails.transport.length > 0) {
@@ -169,21 +224,35 @@ const TransportTab = () => {
     }
   };
 
-  const onSaveClick = async()=>{
-    console.log(bookingDetails.transport)
-    const newVouchers = bookingDetails.transport.filter(v => v.voucher?.id ? false : true);
+  const onSaveClick = async () => {
+    console.log(bookingDetails.transport);
+    const newVouchers = bookingDetails.transport.filter((v) => ({
+      ...v,
+  // v.voucher?.id ? false : true,
+  driverId: v.driver?.id,
+  guideId: v.guide?.id,
+  vehicleType: v.driverVoucherLine?.vehicleType,
+    })
+    
+    );
 
-    if(newVouchers.length == 0){
+    if (newVouchers.length == 0) {
       toast({
         title: "Uh Oh!",
         description: "No new vouchers to add!",
       });
 
-      return
+      return;
     }
     try {
-      setSaving(true)
-      const newResponse = await addTransportVouchersToBooking(newVouchers,bookingLineId ?? "", bookingDetails.general.marketingManager);
+      setSaving(true);
+      const newResponse = await addTransportVouchersToBooking(
+        newVouchers,
+        bookingLineId ?? "",
+        // coordinatorId,
+        bookingDetails.general.marketingManager,
+
+      );
 
       if (!newResponse) {
         throw new Error(`Error: Couldn't add transport vouchers`);
@@ -202,28 +271,27 @@ const TransportTab = () => {
         setError("An unknown error occurred");
       }
       console.error("Error:", error);
-      setSaving(false)
+      setSaving(false);
       toast({
         title: "Uh Oh!",
         description: "Couldn't add transport!",
       });
     }
-
-  }
+  };
 
   return (
     <div className="flex flex-col gap-3">
       <div className="mx-9 flex flex-row justify-center gap-3">
         <div className="flex flex-col gap-3">
-        <Calendar
-          mode="range"
-          selected={{
-            from: new Date(bookingDetails.general.startDate),
-            to: new Date(bookingDetails.general.endDate),
-          }}
-          className="rounded-md"
-        />
-        {/* <div className="border card"></div> */}
+          <Calendar
+            mode="range"
+            selected={{
+              from: new Date(bookingDetails.general.startDate),
+              to: new Date(bookingDetails.general.endDate),
+            }}
+            className="rounded-md"
+          />
+          {/* <div className="border card"></div> */}
         </div>
         <div className="card w-full space-y-6">
           <div className="card-title">Transport Information</div>
@@ -245,18 +313,37 @@ const TransportTab = () => {
               </div>
             </div>
             <DataTable
-              columns={driverDataColumns}
-              data={drivers}
-              onRowClick={handleRowClick}
+              columns={dataColumns}
+              data={
+                currentSearchType === "Driver"
+                  ? drivers
+                  : currentSearchType === "Guide"
+                    ? guides
+                    : []
+              }
+              onRowClick={handleRowClick} // onRowClick={handleRowClick}
             />
           </div>
           <div className="w-full">
-            <DataTable columns={columns} data={bookingDetails.transport} />
+            <DataTable columns={columns} data={bookingDetails.transport} />            
           </div>
           <div className="flex w-full justify-end">
-          <Button variant={"primaryGreen"} onClick={onSaveClick} disabled={saving}>
-            {saving ? (<div className="flex flex-row gap-1"><div><LoaderCircle className="animate-spin" size={10}/></div>Saving</div>): ('Save')}
-          </Button>
+            <Button
+              variant={"primaryGreen"}
+              onClick={onSaveClick}
+              disabled={saving}
+            >
+              {saving ? (
+                <div className="flex flex-row gap-1">
+                  <div>
+                    <LoaderCircle className="animate-spin" size={10} />
+                  </div>
+                  Saving
+                </div>
+              ) : (
+                "Save"
+              )}
+            </Button>
           </div>
         </div>
       </div>
@@ -266,8 +353,22 @@ const TransportTab = () => {
 
 export default TransportTab;
 
+export const dataColumns: ColumnDef<DriverData | GuideData>[] = [
+  {
+    accessorKey: "name",
+    header: "Name",
+  },
+  {
+    accessorKey: "primaryEmail",
+    header: "Primary Email",
+  },
+  {
+    accessorKey: "primaryContactNumber",
+    header: "Primary Contact Number",
+  },
+];
 
-export const driverDataColumns: ColumnDef<DriverData>[] = [
+export const guideDataColumns: ColumnDef<GuideData>[] = [
   {
     accessorKey: "name",
     header: "Name",

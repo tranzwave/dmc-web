@@ -29,7 +29,7 @@ import { SelectCity, SelectLanguage } from "~/server/db/schemaTypes";
 // Define the schema for form validation
 export const generalSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  language: z.string().min(1, "Activity is required"),
+  language: z.string().min(1, "Language is required"),
   primaryEmail: z.string().email("Invalid email address"),
   primaryContactNumber: z.string().min(1, "Contact number is required"),
   streetName: z.string().min(1, "Street name is required"),

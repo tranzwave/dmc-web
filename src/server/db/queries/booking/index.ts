@@ -16,6 +16,8 @@ import {
   bookingAgent,
   bookingLine,
   client,
+  driverVoucherLine,
+  guideVoucherLine,
   hotelVoucher,
   hotelVoucherLine,
   restaurantVoucher,
@@ -96,8 +98,11 @@ export const getBookingLineWithAllData = (id: string) => {
       },
       transportVouchers: {
         with: {
-          driver: true
-        }
+          driver: true,
+          guide: true,
+          guideVoucherLines: true,
+          driverVoucherLines: true
+        },
       },
       activityVouchers: {
         with: {
@@ -113,6 +118,57 @@ export const getBookingLineWithAllData = (id: string) => {
     }
   })
 }
+
+
+// export const getBookingLineWithAllData = (id: string) => {
+//   return db.query.bookingLine.findFirst({
+//     where: eq(bookingLine.id, id),
+//     with: {
+//       booking: {
+//         with: {
+//           client: true,
+//           tenant: true,
+//           bookingAgent: {
+//             with: {
+//               agent: true,
+//             },
+//           },
+//         },
+//       },
+//       hotelVouchers: {
+//         with: {
+//           hotel: true,
+//           voucherLines: true,
+//         },
+//       },
+//       restaurantVouchers: {
+//         with: {
+//           restaurant: true,
+//           voucherLines: true,
+//         },
+//       },
+//       transportVouchers: {
+//         with: {
+//           driver: true,
+//           guide: true,
+//           guideVoucherLines: true,
+//           driverVoucherLines: true, // Add this to include the missing field
+//         },
+//       },
+//       activityVouchers: {
+//         with: {
+//           activity: true,
+//           activityVendor: true,
+//         },
+//       },
+//       shopsVouchers: {
+//         with: {
+//           shop: true,
+//         },
+//       },
+//     },
+//   });
+// };
 
 async function generateBookingLineId(tenantId: string, countryCode: string): Promise<string> {
   // Fetch tenant name and country based on tenantId
@@ -756,8 +812,56 @@ export const insertShopVouchersTx = async (
   return shopVouchers;
 };
 
+// export const addTransportVouchersToBooking = async (
+//   vouchers: TransportVoucher[],
+//   newBookingLineId: string,
+//   coordinatorId: string,
+// ) => {
+//   const result = await db.transaction(async (trx) => {
+//     try {
+//       const insertedVouchers = await insertTransportVoucherTx(trx, vouchers, newBookingLineId, coordinatorId);
+//       return insertedVouchers;
+//     } catch (error) {
+//       console.error('Error while inserting transport vouchers:', error);
+//       throw error;
+//     }
+//   });
+
+//   return result;
+// };
+
+// export const insertTransportVoucherTx = async (
+//   trx: any,
+//   vouchers: TransportVoucher[],
+//   newBookingLineId: string,
+//   coordinatorId: string,
+// ) => {
+//   const transportVouchers = await Promise.all(
+//     vouchers.map(async (currentVoucher) => {
+//       const newVoucher = await trx
+//         .insert(transportVoucher)
+//         .values({
+//           ...currentVoucher.voucher,
+//           coordinatorId: coordinatorId,
+//           bookingLineId: newBookingLineId,
+//         })
+//         .returning();
+
+//       if (!newVoucher || !newVoucher[0]?.id) {
+//         throw new Error("Couldn't add transport voucher");
+//       }
+
+//       const voucherId = newVoucher[0]?.id;
+
+//       return voucherId;
+//     }),
+//   );
+//   return transportVouchers;
+// };
+
+
 export const addTransportVouchersToBooking = async (
-  vouchers: TransportVoucher[],
+  vouchers: TransportVoucher[],  // TransportVoucher should have a field to indicate type (e.g., 'guide' or 'driver')
   newBookingLineId: string,
   coordinatorId: string,
 ) => {
@@ -782,6 +886,7 @@ export const insertTransportVoucherTx = async (
 ) => {
   const transportVouchers = await Promise.all(
     vouchers.map(async (currentVoucher) => {
+      // Insert into the transport_voucher table
       const newVoucher = await trx
         .insert(transportVoucher)
         .values({
@@ -797,11 +902,33 @@ export const insertTransportVoucherTx = async (
 
       const voucherId = newVoucher[0]?.id;
 
+      // Check the type of voucher and insert accordingly
+      if (currentVoucher.driver?.type === 'driver' || currentVoucher.driver?.type === 'chauffer') {
+        // Insert into driver_voucher_lines table
+        await trx
+          .insert(driverVoucherLine)
+          .values({
+            transportVoucherId: voucherId,
+            vehicleType: currentVoucher.driverVoucherLine?.vehicleType,  // assuming vehicleType is part of the driver info
+          })
+          .returning();
+      } else {
+        // Insert into guide_voucher_lines table
+        await trx
+          .insert(guideVoucherLine)
+          .values({
+            transportVoucherId: voucherId,
+            // You can add additional fields related to guide vouchers here
+          })
+          .returning();
+      }
+
       return voucherId;
     }),
   );
   return transportVouchers;
 };
+
 
 export const updateBookingLine = async (
   bookingLineId: string,

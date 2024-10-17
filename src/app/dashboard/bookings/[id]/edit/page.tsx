@@ -227,16 +227,6 @@ const EditBooking = ({ id }: { id: string }) => {
                   Restaurants
                 </TabsTrigger>
                 <TabsTrigger
-                  value="activities"
-                  onClick={() => setActiveTab("activities")}
-                  disabled={!bookingDetails.general.includes.activities}
-                  statusLabel={statusLabels.activities}
-                  isCompleted = {bookingDetails.activities.length > 0}
-                  inProgress = {activeTab == "activities"}
-                >
-                  Activities
-                </TabsTrigger>
-                <TabsTrigger
                   value="transport"
                   onClick={() => setActiveTab("transport")}
                   disabled={!bookingDetails.general.includes.transport}
@@ -246,6 +236,17 @@ const EditBooking = ({ id }: { id: string }) => {
                 >
                   Transport
                 </TabsTrigger>
+                <TabsTrigger
+                  value="activities"
+                  onClick={() => setActiveTab("activities")}
+                  disabled={!bookingDetails.general.includes.activities}
+                  statusLabel={statusLabels.activities}
+                  isCompleted = {bookingDetails.activities.length > 0}
+                  inProgress = {activeTab == "activities"}
+                >
+                  Activities
+                </TabsTrigger>
+                
                 <TabsTrigger
                   value="shops"
                   onClick={() => setActiveTab("shops")}
