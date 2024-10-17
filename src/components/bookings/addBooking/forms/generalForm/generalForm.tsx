@@ -1,17 +1,30 @@
 "use client";
 
+import { useOrganization } from "@clerk/nextjs";
+import { OrganizationMembershipResource } from "@clerk/types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { format, parse } from "date-fns";
+import { CalendarIcon, LoaderCircle } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useEffect, useState } from "react";
 import {
-  defaultGeneral,
-  StatusKey,
   StatusLabels,
-  useAddBooking,
+  useAddBooking
 } from "~/app/dashboard/bookings/add/context";
+import LoadingLayout from "~/components/common/dashboardLoading";
 import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
 import { Checkbox } from "~/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -23,12 +36,10 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import {
-  SelectAgent,
-  SelectCountry,
-  SelectUser,
-} from "~/server/db/schemaTypes";
-import { getAllAgents } from "~/server/db/queries/agents";
-import { getAllUsers } from "~/server/db/queries/users";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -36,31 +47,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { getAllCountries } from "~/server/db/queries/countries";
 import { tourTypes } from "~/lib/constants";
-import { createNewBooking } from "~/server/db/queries/booking";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "~/components/ui/dialog";
-import { usePathname, useRouter } from "next/navigation";
-import { CalendarIcon, LoaderCircle } from "lucide-react";
-import { OrganizationMembershipResource } from "@clerk/types";
-import { useOrganization } from "@clerk/nextjs";
-import { format, parse } from "date-fns";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
 import { cn } from "~/lib/utils";
-import { Calendar } from "~/components/ui/calendar";
-import { DateRange } from "react-day-picker";
-import LoadingLayout from "~/components/common/dashboardLoading";
+import { getAllAgents } from "~/server/db/queries/agents";
+import { createNewBooking } from "~/server/db/queries/booking";
+import { getAllCountries } from "~/server/db/queries/countries";
+import { getAllUsers } from "~/server/db/queries/users";
+import {
+  SelectAgent,
+  SelectCountry,
+  SelectUser,
+} from "~/server/db/schemaTypes";
 
 // Define the schema for form validation
 export const addBookingGeneralSchema = z
@@ -83,7 +80,7 @@ export const addBookingGeneralSchema = z
     startDate: z.string().min(1, "Start date is required"),
     numberOfDays: z.number().min(1, "Number of days must be at least 1"),
     endDate: z.string().min(1, "End date is required"),
-    marketingManager: z.string().min(1, "Marketing manager is required"),
+    marketingManager: z.string().min(1, "Manager is required"),
     agent: z.string().min(1, "Agent is required").optional().or(z.literal("")),
     tourType: z.string().min(1, "Tour type is required"),
     includes: z.object({
@@ -221,14 +218,17 @@ const GeneralForm = () => {
     try {
       // Call the createNewBooking function with the necessary data
       console.log(bookingDetails);
-      const createdBooking = await createNewBooking(organization ? organization?.id : "",{
-        general: data,
-        activities: [],
-        restaurants: [],
-        shops: [],
-        transport: [],
-        vouchers: [],
-      });
+      const createdBooking = await createNewBooking(
+        organization ? organization?.id : "",
+        {
+          general: data,
+          activities: [],
+          restaurants: [],
+          shops: [],
+          transport: [],
+          vouchers: [],
+        },
+      );
 
       if (createdBooking) {
         // If createNewBooking succeeds, set the success message and show modal
@@ -258,7 +258,10 @@ const GeneralForm = () => {
     try {
       // Call the createNewBooking function with the necessary data
       console.log(bookingDetails);
-      const createdBooking = await createNewBooking(organization?.id ?? "", bookingDetails);
+      const createdBooking = await createNewBooking(
+        organization?.id ?? "",
+        bookingDetails,
+      );
 
       if (createdBooking) {
         // If createNewBooking succeeds, set the success message and show modal
@@ -278,13 +281,12 @@ const GeneralForm = () => {
     }
   };
 
-  const handleYes = async() => {
+  const handleYes = async () => {
     // setActiveTab("hotels");
     try {
       router.replace(`${pathname.split("add")[0]}/${id}/edit`);
-      
     } catch (error) {
-      console.error('Failed to navigate:', error);
+      console.error("Failed to navigate:", error);
     }
 
     setShowModal(false);
@@ -309,7 +311,11 @@ const GeneralForm = () => {
   }
 
   if (loading || !isLoaded) {
-    return <div><LoadingLayout/></div>;
+    return (
+      <div>
+        <LoadingLayout />
+      </div>
+    );
   }
 
   return (
@@ -363,71 +369,7 @@ const GeneralForm = () => {
                 </FormItem>
               )}
             />
-            <FormField
-              name="directCustomer"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Direct Customer</FormLabel>
-                  <FormControl>
-                    {/* <Input placeholder="Select Country" {...field} /> */}
-                    <Select
-                      onValueChange={(value) => field.onChange(value === "Yes")}
-                      value={field.value ? "Yes" : "No"}
-                    >
-                      <SelectTrigger className="bg-slate-100 shadow-md">
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={"Yes"}>Yes</SelectItem>
-                        <SelectItem value={"No"}>No</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {form.watch("directCustomer") == true ? (
-              <div>
-                <FormField
-                  name="primaryEmail"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Primary Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="Enter primary email"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="primaryContactNumber"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Primary Contact Number</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="tel"
-                          placeholder="Enter primary contact number"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            ) : (
-              ""
-            )}
+
           </div>
 
           <div className="grid grid-cols-3 gap-4">
@@ -523,8 +465,12 @@ const GeneralForm = () => {
                             );
                             field.onChange(dateString);
                           }}
+                          disabled={(date) => {
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            return date < today;
+                          }}
                           numberOfMonths={1}
-                          
                         />
                       </PopoverContent>
                     </Popover>
@@ -608,13 +554,81 @@ const GeneralForm = () => {
             />
           </div>
 
+          <div className="grid grid-cols-4 gap-4">
+          <FormField
+              name="directCustomer"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem className="col-span-1">
+                  <FormLabel>Direct Customer</FormLabel>
+                  <FormControl>
+                    {/* <Input placeholder="Select Country" {...field} /> */}
+                    <Select
+                      onValueChange={(value) => field.onChange(value === "Yes")}
+                      value={field.value ? "Yes" : "No"}
+                    >
+                      <SelectTrigger className="bg-slate-100 shadow-md">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={"Yes"}>Yes</SelectItem>
+                        <SelectItem value={"No"}>No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {form.watch("directCustomer") == true ? (
+              <div className="grid grid-cols-2 gap-4 col-span-3">
+                <FormField
+                  name="primaryEmail"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Primary Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="Enter primary email"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="primaryContactNumber"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Primary Contact Number</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="tel"
+                          placeholder="Enter primary contact number"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            ) : (
+              ""
+            )}
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <FormField
               name="marketingManager"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Marketing Manager</FormLabel>
+                  <FormLabel>Manager</FormLabel>
                   <FormControl>
                     {/* <Input placeholder="Enter marketing manager's name" {...field} /> */}
                     <Select

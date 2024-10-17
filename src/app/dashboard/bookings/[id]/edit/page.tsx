@@ -247,7 +247,7 @@ const EditBooking = ({ id }: { id: string }) => {
                 >
                   Activities
                 </TabsTrigger>
-
+                
                 <TabsTrigger
                   value="shops"
                   onClick={() => setActiveTab("shops")}

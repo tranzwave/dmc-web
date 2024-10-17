@@ -100,6 +100,33 @@ export const getAllDriversByVehicleTypeAndLanguage = async (
   return filteredDrivers;
 };
 
+export const getAllGuidesByLanguage = async (
+  languageCode: string,
+) => {
+  const guides = await db.query.guide.findMany({
+    with: {
+      languages: {
+        with: {
+          language: true,
+        },
+      },
+    },
+  });
+
+  console.log(guides);
+
+  const filteredGuides = guides.filter((guide) => {
+
+    const speaksLanguage = guide.languages.some(
+      (language) => language.language.code === languageCode,
+    );
+
+    return speaksLanguage;
+  });
+
+  return filteredGuides;
+};
+
 export const getDriverByIdQuery = (id: string) => {
   return db.query.driver.findFirst({
     where: eq(driver.id, id),

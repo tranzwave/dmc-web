@@ -126,7 +126,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ summary }) => {
                 transport.map((trans, index) => (
                   <div key={index} className="mb-2">
                     <h4 className="text-base font-medium text-gray-800">
-                      Driver: {trans.driver.name}
+                      Driver: {trans.driver?.name ?? trans.guide?.name}
                     </h4>
                     <p className="text-gray-600">
                       Transport Date:{" "}

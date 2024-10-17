@@ -69,6 +69,7 @@ const HotelsTab = () => {
   const [selectedVoucher, setSelectedVoucher] = useState<HotelVoucher>();
   const [isDeleting, setIsDeleting] = useState(false);
   const [triggerRefetch, setTriggerRefetch] = useState(false);
+  const [voucherToEdit, setVoucherToEdit] = useState<HotelVoucher | null>()
 
   const pathname = usePathname();
   const bookingLineId = pathname.split("/")[3];
@@ -77,6 +78,10 @@ const HotelsTab = () => {
     isNewVoucher: boolean,
     hotel: SelectHotel,
   ) => {
+    if(voucherToEdit !== null){
+      handleExistingVoucherDelete()
+      setVoucherToEdit(null)
+    }
     console.log(data);
     const voucher: InsertHotelVoucher = {
       hotelId: hotel.id,
@@ -243,6 +248,13 @@ const HotelsTab = () => {
   ];
 
   const onEdit = (data: HotelVoucher) => {
+    if(data.voucher.status !== "inprogress"){
+      toast({
+        title: "Uh Oh!",
+        description: "You've already proceeded with this voucher. Please go to send vouchers and amend!",
+      });
+    }
+    setSelectedVoucher(data)
     const index = bookingDetails.vouchers.findIndex((v) => v == data);
     setIndexToEdit(index);
     if (!data.voucherLines[0]) {
@@ -250,6 +262,7 @@ const HotelsTab = () => {
     }
     setDefaultValues({ ...data.voucherLines[0], hotel: data.hotel });
     setDefaultHotel(data.hotel);
+
   };
 
   const onDelete = async (data: HotelVoucher) => {

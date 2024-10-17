@@ -1,6 +1,6 @@
 {
-  "id": "91cf0a56-4348-4a74-a32a-a1b8d16b2367",
-  "prevId": "6353b7eb-c213-4e4d-a0b5-5868b183b4a2",
+  "id": "e0d02598-8ff4-491b-a89c-a7fcb7a625a5",
+  "prevId": "3cb55032-0bb4-4928-9fff-3a305025f0e3",
   "version": "6",
   "dialect": "postgresql",
   "tables": {
@@ -796,6 +796,13 @@
           "primaryKey": false,
           "notNull": false,
           "default": "'inprogress'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
         }
       },
       "indexes": {},
@@ -1310,7 +1317,7 @@
           "name": "vehicle_type",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -2893,6 +2900,12 @@
           "primaryKey": true,
           "notNull": true
         },
+        "clerk_id": {
+          "name": "clerk_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
         "country_code": {
           "name": "country_code",
           "type": "varchar(3)",
@@ -2957,6 +2970,13 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
+        "dmc-web_tenants_clerk_id_unique": {
+          "name": "dmc-web_tenants_clerk_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "clerk_id"
+          ]
+        },
         "dmc-web_tenants_name_unique": {
           "name": "dmc-web_tenants_name_unique",
           "nullsNotDistinct": false,
@@ -2993,19 +3013,19 @@
           "name": "driver_id",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "guide_id": {
           "name": "guide_id",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "coordinator_id": {
           "name": "coordinator_id",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "status": {
           "name": "status",

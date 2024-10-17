@@ -16,6 +16,8 @@ import {
   bookingAgent,
   bookingLine,
   client,
+  driverVoucherLine,
+  guideVoucherLine,
   hotelVoucher,
   hotelVoucherLine,
   restaurantVoucher,
@@ -103,8 +105,11 @@ export const getBookingLineWithAllData = (id: string) => {
       },
       transportVouchers: {
         with: {
-          driver: true
-        }
+          driver: true,
+          guide: true,
+          guideVoucherLines: true,
+          driverVoucherLines: true
+        },
       },
       activityVouchers: {
         with: {
@@ -120,6 +125,57 @@ export const getBookingLineWithAllData = (id: string) => {
     }
   })
 }
+
+
+// export const getBookingLineWithAllData = (id: string) => {
+//   return db.query.bookingLine.findFirst({
+//     where: eq(bookingLine.id, id),
+//     with: {
+//       booking: {
+//         with: {
+//           client: true,
+//           tenant: true,
+//           bookingAgent: {
+//             with: {
+//               agent: true,
+//             },
+//           },
+//         },
+//       },
+//       hotelVouchers: {
+//         with: {
+//           hotel: true,
+//           voucherLines: true,
+//         },
+//       },
+//       restaurantVouchers: {
+//         with: {
+//           restaurant: true,
+//           voucherLines: true,
+//         },
+//       },
+//       transportVouchers: {
+//         with: {
+//           driver: true,
+//           guide: true,
+//           guideVoucherLines: true,
+//           driverVoucherLines: true, // Add this to include the missing field
+//         },
+//       },
+//       activityVouchers: {
+//         with: {
+//           activity: true,
+//           activityVendor: true,
+//         },
+//       },
+//       shopsVouchers: {
+//         with: {
+//           shop: true,
+//         },
+//       },
+//     },
+//   });
+// };
 
 async function generateBookingLineId(tenantId: string, countryCode: string): Promise<string> {
   // Fetch tenant name and country based on tenantId
@@ -600,15 +656,20 @@ export const addRestaurantVoucherLinesToBooking = async (
   newBookingLineId: string,
   coordinatorId: string,
 ) => {
+
   const result = await db.transaction(async (trx) => {
+    if(!vouchers){
+      throw new Error("No vouchers were sent")
+    }
     try {
+      // Wait for all voucher inserts before proceeding
       const insertedVouchers = await insertRestaurantVouchersTx(trx, vouchers, newBookingLineId, coordinatorId);
-
-
+      
+      // Return the result after all inserts are done
       return insertedVouchers;
     } catch (error) {
-      console.error('Error while inserting restaurant vouchers:', error);
-      throw error;
+      console.error('Error during transaction:', error);
+      throw error; // Transaction will be rolled back
     }
   });
 
@@ -621,56 +682,75 @@ export const insertRestaurantVouchersTx = async (
   newBookingLineId: string,
   coordinatorId: string,
 ) => {
-  const restaurantVouchers = await Promise.all(
-    vouchers.map(async (currentVoucher) => {
-      // Add a voucher
-      const newVoucher = await trx
-        .insert(restaurantVoucher)
+  console.log('Number of vouchers:', vouchers.length);
+
+  // Use a for loop to ensure sequential processing, avoiding any premature commits or errors
+  const restaurantVouchers = [];
+  
+  for (let i = 0; i < vouchers.length; i++) {
+
+    const currentVoucher = vouchers[i];
+    if(!currentVoucher){
+      throw new Error("Voucher is undefined");
+    }
+    console.log(`Processing voucher ${i + 1}`);
+
+    // Insert a restaurant voucher
+    const newVoucher = await trx
+      .insert(restaurantVoucher)
+      .values({
+        bookingLineId: newBookingLineId,
+        coordinatorId: coordinatorId,
+        restaurantId: currentVoucher?.restaurant.id,
+      })
+      .returning();
+
+    if (!newVoucher || !newVoucher[0]?.id) {
+      throw new Error("Couldn't add restaurant voucher");
+    }
+
+    const voucherId = newVoucher[0]?.id;
+    console.log(`Inserted voucher ID: ${voucherId}`);
+
+    // Insert restaurant voucher lines
+    const voucherLines = [];
+    
+    for (let j = 0; j < currentVoucher.voucherLines.length; j++) {
+      const currentVoucherLine = currentVoucher.voucherLines[j];
+      if(!currentVoucherLine){
+        throw new Error("Voucher is undefined");
+      }
+      console.log(`Processing voucher line ${j + 1} for voucher ${voucherId}`);
+
+      const newVoucherLine = await trx
+        .insert(restaurantVoucherLine)
         .values({
-          bookingLineId: newBookingLineId,
-          coordinatorId: coordinatorId,
-          restaurantId: currentVoucher.restaurant.id,
+          adultsCount: currentVoucherLine.adultsCount,
+          kidsCount: currentVoucherLine.kidsCount,
+          mealType: currentVoucherLine.mealType,
+          date: currentVoucherLine.date,
+          time: currentVoucherLine.time ?? "12:00",
+          restaurantVoucherId: voucherId,
+          remarks: currentVoucherLine.remarks,
         })
         .returning();
 
-      if (!newVoucher || !newVoucher[0]?.id) {
-        throw new Error("Couldn't add restaurant voucher");
+      if (!newVoucherLine || !newVoucherLine[0]?.id) {
+        throw new Error("Couldn't add restaurant voucher line");
       }
 
-      const voucherId = newVoucher[0]?.id;
+      voucherLines.push(newVoucherLine[0].id); // Save the new voucher line id
+      console.log(`Inserted voucher line ID: ${newVoucherLine[0].id}`);
+    }
 
-      // Add voucher lines
-      const voucherLines = await Promise.all(
-        currentVoucher.voucherLines.map(async (currentVoucherLine) => {
-          const newVoucherLine = await trx
-            .insert(restaurantVoucherLine)
-            .values({
-              adultsCount: currentVoucherLine.adultsCount,
-              kidsCount: currentVoucherLine.kidsCount,
-              mealType: currentVoucherLine.mealType,
-              date: currentVoucherLine.date,
-              time: currentVoucherLine.time ?? "12:00",
-              restaurantVoucherId: voucherId,
-              remarks: currentVoucherLine.remarks,
+    restaurantVouchers.push({ voucherId, voucherLines }); // Add voucher and lines to the result array
+  }
 
-            })
-            .returning();
-
-          if (!newVoucherLine || !newVoucherLine[0]?.id) {
-            throw new Error("Couldn't add restaurant voucher line");
-          }
-
-          return newVoucherLine[0].id;
-        }),
-      );
-
-      // Return a map of voucherId to voucherLineIds
-      return { voucherId, voucherLines };
-    }),
-  );
-
-  return restaurantVouchers;
+  return restaurantVouchers; // Return all vouchers and their lines
 };
+
+
+
 
 export const addActivityVouchersToBooking = async (
   vouchers: ActivityVoucher[],
@@ -766,8 +846,56 @@ export const insertShopVouchersTx = async (
   return shopVouchers;
 };
 
+// export const addTransportVouchersToBooking = async (
+//   vouchers: TransportVoucher[],
+//   newBookingLineId: string,
+//   coordinatorId: string,
+// ) => {
+//   const result = await db.transaction(async (trx) => {
+//     try {
+//       const insertedVouchers = await insertTransportVoucherTx(trx, vouchers, newBookingLineId, coordinatorId);
+//       return insertedVouchers;
+//     } catch (error) {
+//       console.error('Error while inserting transport vouchers:', error);
+//       throw error;
+//     }
+//   });
+
+//   return result;
+// };
+
+// export const insertTransportVoucherTx = async (
+//   trx: any,
+//   vouchers: TransportVoucher[],
+//   newBookingLineId: string,
+//   coordinatorId: string,
+// ) => {
+//   const transportVouchers = await Promise.all(
+//     vouchers.map(async (currentVoucher) => {
+//       const newVoucher = await trx
+//         .insert(transportVoucher)
+//         .values({
+//           ...currentVoucher.voucher,
+//           coordinatorId: coordinatorId,
+//           bookingLineId: newBookingLineId,
+//         })
+//         .returning();
+
+//       if (!newVoucher || !newVoucher[0]?.id) {
+//         throw new Error("Couldn't add transport voucher");
+//       }
+
+//       const voucherId = newVoucher[0]?.id;
+
+//       return voucherId;
+//     }),
+//   );
+//   return transportVouchers;
+// };
+
+
 export const addTransportVouchersToBooking = async (
-  vouchers: TransportVoucher[],
+  vouchers: TransportVoucher[],  // TransportVoucher should have a field to indicate type (e.g., 'guide' or 'driver')
   newBookingLineId: string,
   coordinatorId: string,
 ) => {
@@ -792,6 +920,7 @@ export const insertTransportVoucherTx = async (
 ) => {
   const transportVouchers = await Promise.all(
     vouchers.map(async (currentVoucher) => {
+      // Insert into the transport_voucher table
       const newVoucher = await trx
         .insert(transportVoucher)
         .values({
@@ -807,11 +936,33 @@ export const insertTransportVoucherTx = async (
 
       const voucherId = newVoucher[0]?.id;
 
+      // Check the type of voucher and insert accordingly
+      if (currentVoucher.driver?.type === 'driver' || currentVoucher.driver?.type === 'chauffer') {
+        // Insert into driver_voucher_lines table
+        await trx
+          .insert(driverVoucherLine)
+          .values({
+            transportVoucherId: voucherId,
+            vehicleType: currentVoucher.driverVoucherLine?.vehicleType,  // assuming vehicleType is part of the driver info
+          })
+          .returning();
+      } else {
+        // Insert into guide_voucher_lines table
+        await trx
+          .insert(guideVoucherLine)
+          .values({
+            transportVoucherId: voucherId,
+            // You can add additional fields related to guide vouchers here
+          })
+          .returning();
+      }
+
       return voucherId;
     }),
   );
   return transportVouchers;
 };
+
 
 export const updateBookingLine = async (
   bookingLineId: string,

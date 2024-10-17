@@ -13,7 +13,10 @@ import { getAllRestaurants } from "~/server/db/queries/booking/restaurantVoucher
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
 import { Calendar } from "~/components/ui/calendar";
-import { RestaurantVoucher,useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
+import {
+  RestaurantVoucher,
+  useEditBooking,
+} from "~/app/dashboard/bookings/[id]/edit/context";
 import { LoaderCircle } from "lucide-react";
 import { addRestaurantVoucherLinesToBooking } from "~/server/db/queries/booking";
 import { usePathname } from "next/navigation";
@@ -31,10 +34,11 @@ const RestaurantsTab = () => {
   const [restaurants, setRestaurants] = useState<RestaurantData[]>([]);
   const [error, setError] = useState<string | null>();
   const { toast } = useToast();
-  const [saving, setSaving] = useState(false)
+  const [saving, setSaving] = useState(false);
+  const [voucherIdToEdit, setVoucherIdToEdit] = useState<string>()
 
-  const pathname = usePathname()
-  const bookingLineId = pathname.split("/")[3]
+  const pathname = usePathname();
+  const bookingLineId = pathname.split("/")[3];
 
   const updateRestaurants = (
     data: InsertRestaurantVoucherLine,
@@ -58,7 +62,7 @@ const RestaurantsTab = () => {
 
     addRestaurantVoucher(restaurantVoucher);
 
-    onSaveClick();
+    // onSaveClick();
   };
 
   const getRestaurants = async () => {
@@ -85,9 +89,11 @@ const RestaurantsTab = () => {
   };
 
   useEffect(() => {
-    if(!bookingDetails.general.includes.restaurants){
-      setActiveTab("activities")
-      return ()=>{console.log("Return")};
+    if (!bookingDetails.general.includes.restaurants) {
+      setActiveTab("activities");
+      return () => {
+        console.log("Return");
+      };
     }
     getRestaurants();
   }, []);
@@ -104,21 +110,28 @@ const RestaurantsTab = () => {
     }
   };
 
-  const onSaveClick = async()=>{
-    console.log(bookingDetails.restaurants)
-    const newVouchers = bookingDetails.restaurants.filter(v => v.voucherLines[0]?.id ? false : true);
+  const onSaveClick = async () => {
+    console.log(bookingDetails.restaurants);
+    const newVouchers = bookingDetails.restaurants.filter((v) =>
+      v.voucherLines[0]?.id ? false : true,
+    );
 
-    if(newVouchers.length == 0){
+    if (newVouchers.length == 0) {
       toast({
         title: "Uh Oh!",
         description: "No new vouchers to add!",
       });
 
-      return
+      return;
     }
     try {
-      setSaving(true)
-      const newResponse = await addRestaurantVoucherLinesToBooking(newVouchers,bookingLineId ?? "", bookingDetails.general.marketingManager);
+      setSaving(true);
+      console.log(newVouchers)
+      const newResponse = await addRestaurantVoucherLinesToBooking(
+        newVouchers,
+        bookingLineId ?? "",
+        bookingDetails.general.marketingManager,
+      );
 
       if (!newResponse) {
         throw new Error(`Error: Couldn't add restaurant vouchers`);
@@ -137,10 +150,9 @@ const RestaurantsTab = () => {
         setError("An unknown error occurred");
       }
       console.error("Error:", error);
-      setSaving(false)
+      setSaving(false);
     }
-
-  }
+  };
 
   if (loading) {
     return <div>Loading</div>;
@@ -148,14 +160,14 @@ const RestaurantsTab = () => {
   return (
     <div className="flex flex-col items-center justify-center gap-3">
       <div className="flex w-full flex-row justify-center gap-3">
-      <Calendar
-              mode="range"
-              selected={{
-                from: new Date(bookingDetails.general.startDate),
-                to: new Date(bookingDetails.general.endDate),
-              }}
-              className="rounded-md"
-            />
+        <Calendar
+          mode="range"
+          selected={{
+            from: new Date(bookingDetails.general.startDate),
+            to: new Date(bookingDetails.general.endDate),
+          }}
+          className="rounded-md"
+        />
         <div className="card w-full space-y-6">
           <div className="card-title">Restaurants Information</div>
           {restaurants && (

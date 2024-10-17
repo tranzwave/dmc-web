@@ -1,49 +1,32 @@
 "use client";
+import { ColumnDef } from "@tanstack/react-table";
 import React, { SetStateAction, useEffect, useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
-import { DataTableWithActions } from "~/components/common/dataTableWithActions/index";
-import { ColumnDef } from "@tanstack/react-table";
 import { Input } from "~/components/ui/input";
 import { useToast } from "~/hooks/use-toast";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
 // import Voucher from "./voucherComponent";
-import { DataTable } from "~/components/bookings/home/dataTable";
 import html2pdf from "html2pdf.js";
-import {
-  SelectActivityVendor,
-  SelectActivityVoucher,
-  SelectDriver,
-  SelectHotel,
-  SelectHotelVoucher,
-  SelectHotelVoucherLine,
-  SelectRestaurant,
-  SelectRestaurantVoucher,
-  SelectRestaurantVoucherLine,
-  SelectShop,
-  SelectShopVoucher,
-  SelectTransportVoucher,
-} from "~/server/db/schemaTypes";
-import { Phone } from "lucide-react";
-import Popup from "~/components/common/popup";
-import DeletePopup from "~/components/common/deletePopup";
-import { ConfirmationForm } from "~/components/common/tasksTab/confirmationForm";
-import { HotelVoucherData } from "..";
-import HotelVoucherPDF from "../voucherTemplate";
-import HotelsVoucherForm from "../voucherForm";
-import { getAllHotelsV2 } from "~/server/db/queries/hotel";
+import { DataTable } from "~/components/bookings/home/dataTable";
 import LoadingLayout from "~/components/common/dashboardLoading";
-import { deleteHotelVoucherLine } from "~/server/db/queries/booking";
+import DeletePopup from "~/components/common/deletePopup";
+import Popup from "~/components/common/popup";
+import { ConfirmationForm } from "~/components/common/tasksTab/confirmationForm";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
+import { deleteHotelVoucherLine } from "~/server/db/queries/booking";
+import { getAllHotelsV2 } from "~/server/db/queries/hotel";
+import {
+  SelectHotel,
+  SelectHotelVoucherLine
+} from "~/server/db/schemaTypes";
+import { HotelVoucherData } from "..";
+import HotelsVoucherForm from "../voucherForm";
+import HotelVoucherPDF from "../voucherTemplate";
 
 interface TasksTabProps<T, L> {
   bookingLineId: string;
@@ -298,6 +281,7 @@ const HotelVouchersTasksTab = <
         </div>
         <div className="card w-full space-y-6">
           <div className="card-title">Voucher Information</div>
+          <div className="text-sm font-normal">Click the line to send the voucher</div>
           {/* <DataTableWithActions
             data={vouchers}
             columns={columns}

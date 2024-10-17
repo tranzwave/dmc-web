@@ -1,6 +1,6 @@
 {
-  "id": "91cf0a56-4348-4a74-a32a-a1b8d16b2367",
-  "prevId": "6353b7eb-c213-4e4d-a0b5-5868b183b4a2",
+  "id": "3cb55032-0bb4-4928-9fff-3a305025f0e3",
+  "prevId": "4f561a4c-e435-47a1-849a-c02e8106b38d",
   "version": "6",
   "dialect": "postgresql",
   "tables": {
@@ -1310,7 +1310,7 @@
           "name": "vehicle_type",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -2993,19 +2993,19 @@
           "name": "driver_id",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "guide_id": {
           "name": "guide_id",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "coordinator_id": {
           "name": "coordinator_id",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "status": {
           "name": "status",

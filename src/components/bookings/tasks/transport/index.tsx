@@ -1,25 +1,28 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { SelectClient, SelectDriver, SelectTransportVoucher } from "~/server/db/schemaTypes";
-import TransportVouchersTasksTab from './taskTab';
 import { useEffect, useState } from "react";
+import { SelectDriver, SelectDriverVoucherLine, SelectGuide, SelectGuideVoucherLine, SelectTransportVoucher } from "~/server/db/schemaTypes";
+import TransportVouchersTasksTab from './taskTab';
 
 export type TransportVoucherData = SelectTransportVoucher & {
-  driver: SelectDriver
+  driver: SelectDriver | null
+  guide: SelectGuide | null
+  driverVoucherLines: SelectDriverVoucherLine[]
+  guideVoucherLines: SelectGuideVoucherLine[]
 }
 
 // Define specific columns for transport
 const voucherColumns: ColumnDef<TransportVoucherData>[] = [
   {
-    accessorKey: "driver.name",
+    accessorFn: (row) => row.driver?.name ?? row.guide?.name,
     header: "Name",
   },
   {
     header: "Type",
-    accessorFn: (row) => row.driver.type,
+    accessorFn: (row) => row.driver?.type ?? row.guide?.type,
   },
   {
     header: "Vehicle",
-    accessorFn: (row) => row.vehicleType,
+    accessorFn: (row) => row.driverVoucherLines.map((type)=>{type.vehicleType}),
   },
   {
     header: "Language",
@@ -35,7 +38,7 @@ const voucherColumns: ColumnDef<TransportVoucherData>[] = [
   },
 
   {
-    accessorKey: "driver.contactNumber",
+    accessorFn: (row) => row.driver?.contactNumber ?? row.guide?.primaryContactNumber,
     header: "Contact Number",
     cell: (info) => info.getValue() ?? "N/A",
   },
@@ -49,16 +52,16 @@ const selectedVoucherColumns: ColumnDef<TransportVoucherData>[] = [
   {
     accessorKey: "driver.name",
     header: "Driver",
-    accessorFn: (row) => `${row.driver.name}`,
+    accessorFn: (row) => `${row.driver?.name}`,
   },
   {
     accessorKey: "driver.contactNumber",
     header: "Contact Number",
-    accessorFn: (row) => `${row.driver.primaryContactNumber}`,
+    accessorFn: (row) => `${row.driver?.primaryContactNumber}`,
   },
   {
     header: "Vehicle",
-    accessorFn: (row) => `${row.vehicleType}`,
+    accessorFn: (row) => `${row.driverVoucherLines[0]?.vehicleType ?? ""}`,
   },
   {
     header: "Language",

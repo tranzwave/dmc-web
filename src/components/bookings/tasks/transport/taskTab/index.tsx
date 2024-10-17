@@ -1,22 +1,20 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import html2pdf from "html2pdf.js";
+import { LoaderCircle } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
-import { DataTableWithActions } from "~/components/common/dataTableWithActions/index";
+import { DataTable } from "~/components/bookings/home/dataTable";
 import DeletePopup from "~/components/common/deletePopup";
 import Popup from "~/components/common/popup";
 import ContactContent from "~/components/common/tasksTab/contactContent";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { useToast } from "~/hooks/use-toast";
-import { updateShopVoucherStatus } from "~/server/db/queries/booking/shopsVouchers";
-import { updateActivityVoucherStatus } from "~/server/db/queries/booking/activityVouchers";
-import { DataTable } from "~/components/bookings/home/dataTable";
-import { TransportVoucherData } from "..";
-import TransportVoucherPDF from "../voucherTemplate";
 import { deleteTransportVoucher, updateTransportVoucherStatus } from "~/server/db/queries/booking/transportVouchers";
-import { LoaderCircle } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { TransportVoucherData } from "..";
+import DriverTransportVoucherPDF from "../driverVoucherTemplate";
+import GuideTransportVoucherPDF from "../guideVoucherTemplate";
 
 interface TasksTabProps {
   bookingLineId: string;
@@ -64,6 +62,7 @@ const ActivityVouchersTab = ({
 
   const onVoucherRowClick = (row: TransportVoucherData) => {
     setSelectedVoucher(row);
+    console.log(selectedVoucher)
   };
 
   const handleConfirm = async () => {
@@ -176,8 +175,8 @@ const ActivityVouchersTab = ({
       };
     }
     return {
-      phone: selectedVoucher.driver.contactNumber,
-      email: selectedVoucher.driver.primaryEmail,
+      phone: selectedVoucher?.driver?.contactNumber ?? selectedVoucher?.guide?.primaryContactNumber,
+      email: selectedVoucher?.driver?.primaryEmail ?? selectedVoucher?.guide?.primaryEmail,
     };
   };
 
@@ -189,6 +188,7 @@ const ActivityVouchersTab = ({
         </div>
         <div className="card w-full space-y-6">
           <div className="card-title">Voucher Information</div>
+          <div className="text-sm font-normal">Click the line to send the voucher</div>
           <DataTable
             data={vouchers}
             columns={voucherColumns}
@@ -205,7 +205,7 @@ const ActivityVouchersTab = ({
           <div className="flex flex-row items-center justify-between">
             <div className="text-sm font-normal">
               {selectedVoucher
-                ? `${selectedVoucher.driver.name} - Voucher`
+                ? `${selectedVoucher.driver?.name ?? selectedVoucher.guide?.name} - Voucher`
                 : "Select a voucher from above table"}
             </div>
 
@@ -264,8 +264,8 @@ const ActivityVouchersTab = ({
                     onConfirm={handleConfirm}
                     onCancel={() => console.log("Cancelled")}
                     dialogContent={ContactContent(
-                      selectedVoucher.driver.contactNumber,
-                      selectedVoucher.driver.primaryEmail ?? "N/A",
+                      selectedVoucher?.driver?.primaryContactNumber ?? selectedVoucher?.guide?.primaryContactNumber ?? "N/A" ,
+                      selectedVoucher?.driver?.primaryEmail ?? selectedVoucher?.guide?.primaryEmail ?? "N/A",
                     )}
                     size="small"
                   />
@@ -277,7 +277,7 @@ const ActivityVouchersTab = ({
                     Confirm Driver
                   </Button>
                   <DeletePopup
-                    itemName={`Voucher for ${selectedVoucher?.driver.name}`}
+                    itemName={`Voucher for ${selectedVoucher?.driver?.name}`}
                     onDelete={deleteVoucher}
                     isOpen={isInProgressVoucherDelete}
                     setIsOpen={setIsInProgressVoucherDelete}
@@ -286,7 +286,7 @@ const ActivityVouchersTab = ({
                 voucher straight away"
                   />
                   <DeletePopup
-                    itemName={`Voucher for ${selectedVoucher?.driver.name}`}
+                    itemName={`Voucher for ${selectedVoucher?.driver?.name}`}
                     onDelete={deleteVoucher}
                     isOpen={isProceededVoucherDelete}
                     setIsOpen={setIsProceededVoucherDelete}
@@ -361,8 +361,11 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         </Button>
       </div>
       <div ref={componentRef}>
-        {/* <ShopVoucherPDF vouchers={vouchers} /> */}
-        <TransportVoucherPDF voucher={voucher} />
+      {voucher.driver?.type === 'driver' ? (
+    <DriverTransportVoucherPDF voucher={voucher} />
+  ) : (
+    <GuideTransportVoucherPDF voucher={voucher} />
+  )}
       </div>
       <div className="flex w-full flex-row justify-end gap-2"></div>
     </div>
