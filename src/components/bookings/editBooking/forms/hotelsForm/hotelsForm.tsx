@@ -70,7 +70,7 @@ export const hotelsSchema = z.object({
   roomType: z.string().min(1, "Room type is required"),
   roomCategory: z.string().min(1, "Room category is required"),
   basis: z.string().min(1, "Basis is required"),
-  remarks: z.string().min(1, "Remarks required"), // Optional field
+  remarks: z.string().min(0, "Remarks required").default("-"), // Optional field
 });
 
 const HotelsForm: React.FC<HotelsFormProps> = ({

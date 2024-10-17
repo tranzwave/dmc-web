@@ -2,6 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { ShopVoucher } from "~/app/dashboard/bookings/add/context";
+import { formatDate } from "~/lib/utils/index";
 
 export type Shop = {
   shopType: string;
@@ -29,7 +30,9 @@ export const columns: ColumnDef<ShopVoucher>[] = [
   },
   {
     header: "Date",
-    accessorFn: row => row.voucher.date
+    // accessorFn: row => row.voucher.date
+    accessorFn: row => formatDate(row.voucher?.date ?? ""),
+
   },
   {
     header: "Time",

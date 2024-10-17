@@ -44,13 +44,13 @@ export const columns: ColumnDef<TransportVoucher, unknown>[] = [
     header: "Remarks",
     accessorFn: row => row.voucher.remarks
   },
-  {
-    id: "actions",
-    header: "",
-    cell: ({ row }) => (
-      <ActionsDropdown row={row.original} />
-    ),
-  },
+  // {
+  //   id: "actions",
+  //   header: "",
+  //   cell: ({ row }) => (
+  //     <ActionsDropdown row={row.original} />
+  //   ),
+  // },
 ];
 
 const ActionsDropdown = ({ row }: { row: TransportVoucher }) => {
