@@ -282,6 +282,7 @@ const RestaurantVouchersTasksTab = <
         </div>
         <div className="card w-full space-y-6">
           <div className="card-title">Voucher Information</div>
+          <div className="text-sm font-normal">Click the line to send the voucher</div>
           {/* <DataTableWithActions
             data={vouchers}
             columns={columns}

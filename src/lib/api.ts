@@ -1,12 +1,8 @@
 // lib/api.ts
 import { BookingDetails } from "~/app/dashboard/bookings/add/context";
-import { Hotel } from "~/components/bookings/addBooking/forms/hotelsForm/columns";
-import { Shop } from "~/components/bookings/addBooking/forms/shopsForm/columns";
-import { Booking } from "~/components/bookings/home/columns";
-import { driversMockData, hotelsMockData, shopsMockData } from "./mockData";
 import { Activity } from "./types/activity/type";
-import { Agent } from "./types/agent/type";
-import { Driver, VehicleType } from "./types/driver/type";
+import { Driver } from "./types/driver/type";
+import { Guide } from "./types/guide/type";
 
 export interface BookingSchema extends BookingDetails {
   createdAt: number,
@@ -676,6 +672,11 @@ export type DriverSearchParams = {
   type: string
 }
 
+export type GuideSearchParams = {
+  language: string;
+  type: string
+}
+
 // export async function searchDriverData(searchParams: DriverSearchParams): Promise<Driver[]> {
 //   // Simulate a delay for the async function
 //   await new Promise(resolve => setTimeout(resolve, 500));
@@ -801,5 +802,5 @@ export type ShopsSearchParams = {
 
 export type { Activity };
 
-export type { Driver };
+export type { Driver, Guide };
 

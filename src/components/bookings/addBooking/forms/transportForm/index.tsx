@@ -1,6 +1,7 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { SearchIcon } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAddBooking } from "~/app/dashboard/bookings/add/context";
 import { DataTable } from "~/components/bookings/home/dataTable";
@@ -17,6 +18,8 @@ import {
   SelectDriver,
   SelectDriverLanguage,
   SelectDriverVehicle,
+  SelectGuide,
+  SelectGuideLanguage,
   SelectLanguage,
   SelectVehicle,
 } from "~/server/db/schemaTypes";
@@ -28,6 +31,8 @@ type DriverWithoutVehiclesAndLanguages = Omit<
   "languages" | "vehicles"
 >;
 
+type GuideWithoutLanguages = Omit<GuideData, "languages">;
+
 export type DriverData = SelectDriver & {
   vehicles: (SelectDriverVehicle & {
     vehicle: SelectVehicle;
@@ -37,15 +42,30 @@ export type DriverData = SelectDriver & {
   })[];
 };
 
+export type GuideData = SelectGuide & {
+  languages: (SelectGuideLanguage & {
+    language: SelectLanguage;
+  })[];
+};
+
 const TransportTab = () => {
   const { addTransport, bookingDetails, setActiveTab } = useAddBooking();
   const [drivers, setDrivers] = useState<DriverData[]>([]);
+  const [guides, setGuides] = useState<GuideData[]>([]);
+  const [currentSearchType, setCurrentSearchType] = useState<
+    "Driver" | "Guide" | null
+  >(null);
   const [searchDetails, setSearchDetails] = useState<Transport | null>(null);
   const [error, setError] = useState<string | null>();
   const [loading, setLoading] = useState(false);
   const [vehicleTypes, setVehicleTypes] = useState<string[]>([]);
   const [languages, setLanguages] = useState<SelectLanguage[]>([]);
   const { toast } = useToast();
+
+  const [saving, setSaving] = useState(false);
+
+  const pathname = usePathname();
+  const bookingLineId = pathname.split("/")[3];
 
   const fetchData = async () => {
     try {
@@ -92,25 +112,40 @@ const TransportTab = () => {
     fetchData();
   }, []);
 
-  const handleRowClick = (driver: DriverData) => {
+  const handleRowClick = (type: DriverData | GuideData) => {
     const {
       vehicles,
       languages,
-      ...driverWithoutVehiclesAndLanguages
-    }: DriverWithoutVehiclesAndLanguages | any = driver;
+      ...driverOrGuideWithoutExtraFields
+    }: DriverWithoutVehiclesAndLanguages | GuideWithoutLanguages | any = type;
+  
     if (searchDetails) {
+      const isDriver = "vehicles" in type;
       addTransport({
-        driver: driverWithoutVehiclesAndLanguages,
+        driver: isDriver ? driverOrGuideWithoutExtraFields : null,
+        guide: isDriver ? null : driverOrGuideWithoutExtraFields,
         voucher: {
-          bookingLineId: "",
+          bookingLineId: bookingLineId ?? "",
           coordinatorId: bookingDetails.general.marketingManager,
-          driverId: driver.id,
+          driverId: isDriver ? type.id : undefined,
+          guideId: !isDriver ? type.id : undefined,
           startDate: searchDetails.startDate,
           endDate: searchDetails.endDate,
           language: searchDetails.languageCode,
-          vehicleType: searchDetails.vehicleType,
           remarks: searchDetails.remarks,
         },
+        driverVoucherLine: isDriver
+          ? {
+              transportVoucherId: 'transportVoucher.id',
+              vehicleType: searchDetails?.vehicleType,
+            }
+          : undefined,
+        guideVoucherLine: !isDriver 
+          ? {
+              transportVoucherId: 'transportVoucher.id',
+         
+            } 
+          : undefined,
       });
     }
   };
@@ -196,13 +231,19 @@ const TransportTab = () => {
               </div>
             </div>
             <DataTable
-              columns={driverDataColumns}
-              data={drivers}
-              onRowClick={handleRowClick}
+              columns={dataColumns}
+              data={
+                currentSearchType === "Driver"
+                  ? drivers
+                  : currentSearchType === "Guide"
+                    ? guides
+                    : []
+              }
+              onRowClick={handleRowClick} // onRowClick={handleRowClick}
             />
           </div>
           <div className="w-full">
-            <DataTable columns={columns} data={bookingDetails.transport} />
+          <DataTable columns={columns} data={bookingDetails.transport} />
           </div>
           <div className="flex w-full justify-end">
             <Button variant={"primaryGreen"} onClick={onNextClick}>
@@ -218,7 +259,22 @@ const TransportTab = () => {
 export default TransportTab;
 
 
-export const driverDataColumns: ColumnDef<DriverData>[] = [
+export const dataColumns: ColumnDef<DriverData | GuideData>[] = [
+  {
+    accessorKey: "name",
+    header: "Name",
+  },
+  {
+    accessorKey: "primaryEmail",
+    header: "Primary Email",
+  },
+  {
+    accessorKey: "primaryContactNumber",
+    header: "Primary Contact Number",
+  },
+];
+
+export const guideDataColumns: ColumnDef<GuideData>[] = [
   {
     accessorKey: "name",
     header: "Name",

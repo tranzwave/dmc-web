@@ -1,15 +1,12 @@
-import { bookingAgent, client } from '~/server/db/schema';
-import { SelectActivity, SelectActivityVendor, SelectActivityVoucher, SelectAgent, SelectBooking, SelectBookingAgent, SelectBookingLine, SelectClient, SelectDriver, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant, SelectRestaurantVoucher, SelectRestaurantVoucherLine, SelectShop, SelectShopVoucher, SelectTenant, SelectTransportVoucher } from "~/server/db/schemaTypes";
-
-
+import { SelectActivity, SelectActivityVendor, SelectActivityVoucher, SelectAgent, SelectBooking, SelectBookingAgent, SelectBookingLine, SelectClient, SelectDriver, SelectDriverVoucherLine, SelectGuide, SelectGuideVoucherLine, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant, SelectRestaurantVoucher, SelectRestaurantVoucherLine, SelectShop, SelectShopVoucher, SelectTenant, SelectTransportVoucher } from "~/server/db/schemaTypes";
 
 export type BookingLineWithAllData = SelectBookingLine & {
   booking: SelectBooking & {
     client: SelectClient;
-    tenant:SelectTenant
-    bookingAgent:SelectBookingAgent & {
-      agent:SelectAgent
-    }
+    tenant: SelectTenant;
+    bookingAgent: SelectBookingAgent & {
+      agent: SelectAgent;
+    };
   };
   hotelVouchers: Array<SelectHotelVoucher & {
     hotel: SelectHotel;
@@ -20,7 +17,10 @@ export type BookingLineWithAllData = SelectBookingLine & {
     voucherLines: SelectRestaurantVoucherLine[];
   }>;
   transportVouchers: Array<SelectTransportVoucher & {
-    driver: SelectDriver;
+    driver: SelectDriver | null;
+    guide: SelectGuide | null;
+    driverVoucherLines: SelectDriverVoucherLine[];
+    guideVoucherLines: SelectGuideVoucherLine[];
   }>;
   activityVouchers: Array<SelectActivityVoucher & {
     activity: SelectActivity;
@@ -34,12 +34,13 @@ export type BookingLineWithAllData = SelectBookingLine & {
 
 
 
+
 export type BookingDTO = {
-    id: string;
-    tenantId: string;
-    clientId: string;
-    agentId: string;
-    coordinatorId: string;
-    managerId: string;
-    tourType: string;
+  id: string;
+  tenantId: string;
+  clientId: string;
+  agentId: string;
+  coordinatorId: string;
+  managerId: string;
+  tourType: string;
 }

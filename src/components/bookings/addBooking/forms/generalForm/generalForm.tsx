@@ -1,17 +1,30 @@
 "use client";
 
+import { useOrganization } from "@clerk/nextjs";
+import { OrganizationMembershipResource } from "@clerk/types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { format, parse } from "date-fns";
+import { CalendarIcon, LoaderCircle } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useEffect, useState } from "react";
 import {
-  defaultGeneral,
-  StatusKey,
   StatusLabels,
-  useAddBooking,
+  useAddBooking
 } from "~/app/dashboard/bookings/add/context";
+import LoadingLayout from "~/components/common/dashboardLoading";
 import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
 import { Checkbox } from "~/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -23,12 +36,10 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import {
-  SelectAgent,
-  SelectCountry,
-  SelectUser,
-} from "~/server/db/schemaTypes";
-import { getAllAgents } from "~/server/db/queries/agents";
-import { getAllUsers } from "~/server/db/queries/users";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -36,31 +47,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { getAllCountries } from "~/server/db/queries/countries";
 import { tourTypes } from "~/lib/constants";
-import { createNewBooking } from "~/server/db/queries/booking";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "~/components/ui/dialog";
-import { usePathname, useRouter } from "next/navigation";
-import { CalendarIcon, LoaderCircle } from "lucide-react";
-import { OrganizationMembershipResource } from "@clerk/types";
-import { useOrganization } from "@clerk/nextjs";
-import { format, parse } from "date-fns";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
 import { cn } from "~/lib/utils";
-import { Calendar } from "~/components/ui/calendar";
-import { DateRange } from "react-day-picker";
-import LoadingLayout from "~/components/common/dashboardLoading";
+import { getAllAgents } from "~/server/db/queries/agents";
+import { createNewBooking } from "~/server/db/queries/booking";
+import { getAllCountries } from "~/server/db/queries/countries";
+import { getAllUsers } from "~/server/db/queries/users";
+import {
+  SelectAgent,
+  SelectCountry,
+  SelectUser,
+} from "~/server/db/schemaTypes";
 
 // Define the schema for form validation
 export const addBookingGeneralSchema = z
@@ -83,7 +80,7 @@ export const addBookingGeneralSchema = z
     startDate: z.string().min(1, "Start date is required"),
     numberOfDays: z.number().min(1, "Number of days must be at least 1"),
     endDate: z.string().min(1, "End date is required"),
-    marketingManager: z.string().min(1, "Marketing manager is required"),
+    marketingManager: z.string().min(1, "Manager is required"),
     agent: z.string().min(1, "Agent is required").optional().or(z.literal("")),
     tourType: z.string().min(1, "Tour type is required"),
     includes: z.object({
@@ -627,7 +624,7 @@ const GeneralForm = () => {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Marketing Manager</FormLabel>
+                  <FormLabel>Manager</FormLabel>
                   <FormControl>
                     {/* <Input placeholder="Enter marketing manager's name" {...field} /> */}
                     <Select

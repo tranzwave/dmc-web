@@ -1,27 +1,28 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { EllipsisVertical } from "lucide-react";
-import { TransportVoucher } from "~/app/dashboard/bookings/add/context";
+import { TransportVoucher } from "~/app/dashboard/bookings/[id]/edit/context";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
 import { Driver } from "~/lib/types/driver/type";
+import { Guide } from "~/lib/types/guide/type";
 
 export type Transport = {
-  driver: Driver | null;
+  transportType: Driver | Guide | null;
   vehicleType: string;
   startDate: string;
   endDate: string;
   languageCode: string;
-  type: "Driver" | "Chauffer";
+  type: "Driver" | "Chauffer" | "Guide";
   remarks?: string; // Optional field
 };
 
-export const columns: ColumnDef<TransportVoucher>[] = [
+export const columns: ColumnDef<TransportVoucher, unknown>[] = [
   {
     header: "Name",
-    accessorFn: row => row.driver.name
+    accessorFn: row => row.driver?.name || row.guide?.name || "-",
   },
   {
     header: "Vehicle",
-    accessorFn: row => row.voucher.vehicleType
+    accessorFn: row => row.driverVoucherLine?.vehicleType || "-"
   },
   {
     header: "Start Date",
@@ -37,7 +38,7 @@ export const columns: ColumnDef<TransportVoucher>[] = [
   },
   {
     header: "Type",
-    accessorFn: row => row.driver.type ? "Chauffer" : "Driver"
+    accessorFn: row => row.driver?.type || row.guide?.type || "-"
   },
   {
     header: "Remarks",

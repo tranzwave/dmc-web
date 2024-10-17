@@ -1,12 +1,27 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useEffect, useState } from "react";
 
+import { LoaderCircle } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  StatusLabels,
+  useEditBooking
+} from "~/app/dashboard/bookings/[id]/edit/context";
+import { addBookingGeneralSchema } from "~/components/bookings/addBooking/forms/generalForm/generalForm";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -18,39 +33,22 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import {
-  SelectAgent,
-  SelectCountry,
-  SelectUser,
-} from "~/server/db/schemaTypes";
-import { getAllAgents } from "~/server/db/queries/agents";
-import { getAllUsers } from "~/server/db/queries/users";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { getAllCountries } from "~/server/db/queries/countries";
 import { tourTypes } from "~/lib/constants";
-import { createNewBooking, updateBookingLine, updateClient } from "~/server/db/queries/booking";
+import { getAllAgents } from "~/server/db/queries/agents";
+import { updateBookingLine } from "~/server/db/queries/booking";
+import { getAllCountries } from "~/server/db/queries/countries";
+import { getAllUsers } from "~/server/db/queries/users";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "~/components/ui/dialog";
-import { usePathname, useRouter } from "next/navigation";
-import { LoaderCircle } from "lucide-react";
-import {
-  useEditBooking,
-  defaultGeneral,
-  StatusKey,
-  StatusLabels,
-} from "~/app/dashboard/bookings/[id]/edit/context";
-import { addBookingGeneralSchema } from "~/components/bookings/addBooking/forms/generalForm/generalForm";
+  SelectAgent,
+  SelectCountry,
+  SelectUser,
+} from "~/server/db/schemaTypes";
 
 // Define the schema for form validation
 // export const generalSchema = z
@@ -494,7 +492,7 @@ const GeneralForm = () => {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Marketing Manager</FormLabel>
+                  <FormLabel>Manager</FormLabel>
                   <FormControl>
                     {/* <Input placeholder="Enter marketing manager's name" {...field} /> */}
                     <Select

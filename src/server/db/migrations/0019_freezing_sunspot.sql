@@ -1,0 +1,1 @@
+ALTER TABLE "dmc-web_transport_vouchers" ALTER COLUMN "driver_id" DROP NOT NULL;

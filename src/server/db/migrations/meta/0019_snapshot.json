@@ -1,6 +1,6 @@
 {
-  "id": "91cf0a56-4348-4a74-a32a-a1b8d16b2367",
-  "prevId": "6353b7eb-c213-4e4d-a0b5-5868b183b4a2",
+  "id": "4f561a4c-e435-47a1-849a-c02e8106b38d",
+  "prevId": "91cf0a56-4348-4a74-a32a-a1b8d16b2367",
   "version": "6",
   "dialect": "postgresql",
   "tables": {
@@ -2993,7 +2993,7 @@
           "name": "driver_id",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "guide_id": {
           "name": "guide_id",

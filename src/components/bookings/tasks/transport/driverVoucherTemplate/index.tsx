@@ -12,7 +12,7 @@ type TransportVoucherPDFProps = {
   cancellation?: boolean;
 };
 
-const TransportVoucherPDF = ({
+const DriverTransportVoucherPDF = ({
   voucher,
   cancellation,
 }: TransportVoucherPDFProps) => {
@@ -52,9 +52,9 @@ const TransportVoucherPDF = ({
           <div className="text-[13px]">
             <div>Client Name: {organization?.name}</div>
             <div>Tour ID: {voucher.bookingLineId}</div>
-            <div>Transport Type : {voucher.driver.type}</div>
-            <div>Vehicle Type : {voucher.vehicleType}</div>
-            <div>Driver Name : {voucher.driver.name}</div>
+            <div>Transport Type : {voucher.driver?.type}</div>
+            <div>Vehicle Type : {voucher.driverVoucherLines.map((type)=>type.vehicleType)}</div>
+            <div>Driver Name : {voucher.driver?.name}</div>
             <div>No of Pax: {"N/A"}</div>
             <div>Language : {voucher.language}</div>
           </div>
@@ -100,7 +100,6 @@ const TransportVoucherPDF = ({
                   <td className="px-4 py-2"></td>
                 </tr>
               ))}
-              {/* Total Kms Row */}
               <tr className="border-b">
                 <td
                   colSpan={4}
@@ -110,7 +109,6 @@ const TransportVoucherPDF = ({
                 </td>
                 <td className="px-4 py-2 font-semibold">
                   {" "}
-                  {/* Display total Kms value here */}{" "}
                 </td>
               </tr>
             </tbody>
@@ -181,4 +179,4 @@ const TransportVoucherPDF = ({
   );
 };
 
-export default TransportVoucherPDF;
+export default DriverTransportVoucherPDF;
