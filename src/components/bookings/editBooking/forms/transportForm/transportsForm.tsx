@@ -32,19 +32,19 @@ interface TransportFormProps {
 }
 
 export const transportSchema = z.object({
-  driver: z.nullable(z.any()),
+  transportType: z.nullable(z.any()),
   vehicle: z.string().min(1, "Vehicle type is required"),
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
   language: z.string().min(1, "Languages are required"),
-  type: z.enum(["Driver", "Chauffer"], {
+  type: z.enum(["Driver", "Chauffer", "Guide"], {
     required_error: "Type is required",
   }),
   remarks: z.string().optional(),
 });
 
 const TransportForm: React.FC<TransportFormProps> = ({
-  onSearchTransport,
+  onSearchTransport: onSearchDriver,
   vehicleTypes,
   languages,
 }) => {
@@ -61,7 +61,7 @@ const TransportForm: React.FC<TransportFormProps> = ({
   const form = useForm<z.infer<typeof transportSchema>>({
     resolver: zodResolver(transportSchema),
     defaultValues: {
-      driver: null,
+      transportType: null,
       vehicle: "",
       startDate: bookingDetails.general.startDate,
       endDate: bookingDetails.general.endDate,
@@ -72,8 +72,8 @@ const TransportForm: React.FC<TransportFormProps> = ({
   });
 
   const onSubmit = (values: z.infer<typeof transportSchema>) => {
-    onSearchTransport({
-      driver: null,
+    onSearchDriver({
+      transportType: null,
       startDate: values.startDate,
       endDate:values.endDate,
       languageCode:values.language,

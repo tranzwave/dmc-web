@@ -68,7 +68,7 @@ const Page = ({ params }: { params: { id: string } }) => {
       header: "End Date",
       accessorFn: (row) => formatDate(row.endDate.toString()),
     },
-    { header: "Vehicle Type", accessorFn: (row) => row.vehicleType },
+    // { header: "Vehicle Type", accessorFn: (row) => row.vehicleType },
     { header: "Remarks", accessorFn: (row) => row.remarks },
     { header: "Rate", accessorFn: (row) => row.rate },
   ];

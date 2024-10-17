@@ -1,13 +1,10 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { General } from '~/components/bookings/addBooking/forms/generalForm/columns';
 import { Hotel } from '~/components/bookings/addBooking/forms/hotelsForm/columns';
-import { RestaurantData } from '~/components/bookings/addBooking/forms/restaurantsForm';
-import { Restaurant } from '~/components/bookings/addBooking/forms/restaurantsForm/columns';
-import { Shop } from '~/components/bookings/addBooking/forms/shopsForm/columns';
 import { Transport } from '~/components/bookings/addBooking/forms/transportForm/columns';
 import { Driver } from '~/lib/types/driver/type';
 import { calculateDaysBetween } from '~/lib/utils/index';
-import { InsertActivityVoucher, InsertHotelVoucher, InsertHotelVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectActivityVoucher, SelectDriver, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant, SelectShop, SelectShopVoucher } from '~/server/db/schemaTypes';
+import { InsertActivityVoucher, InsertDriverVoucherLine, InsertGuideVoucherLine, InsertHotelVoucher, InsertHotelVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectDriver, SelectGuide, SelectHotel, SelectRestaurant, SelectShop } from '~/server/db/schemaTypes';
 
 export interface TransportWithDriver {
   transport: Transport;
@@ -37,9 +34,13 @@ export type ShopVoucher = {
 }
 
 export type TransportVoucher = {
-  driver: SelectDriver;
+  driver?: SelectDriver | null; 
+  guide?: SelectGuide | null;
   voucher: InsertTransportVoucher;
+  driverVoucherLine?: InsertDriverVoucherLine;
+  guideVoucherLine?: InsertGuideVoucherLine;
 }
+
 
 export interface BookingDetails {
   general: General; 
@@ -181,9 +182,6 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
       vouchers: prev.vouchers.filter((voucher, i) => !(i === index && voucher.voucherLines[0]?.id === id)),
     }));
   };
-  
-  
-  
 
   const addRestaurantVoucher = (restaurantVoucher: RestaurantVoucher) => {
     setBookingDetails(prev => ({ ...prev, restaurants: [...prev.restaurants, restaurantVoucher] }));
@@ -201,8 +199,8 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
     setBookingDetails(prev => ({ ...prev, activities: vouchers }));
   };
 
-  const addTransport = (transportWithDriver: TransportVoucher) => {
-    setBookingDetails(prev => ({ ...prev, transport: [...prev.transport, transportWithDriver] }));
+  const addTransport = (transport: TransportVoucher) => {
+    setBookingDetails(prev => ({ ...prev, transport: [...prev.transport, transport] }));
   };
 
   const addTransportVouchers = (vouchers: TransportVoucher[]) => {
