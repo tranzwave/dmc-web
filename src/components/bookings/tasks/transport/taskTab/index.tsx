@@ -175,8 +175,8 @@ const ActivityVouchersTab = ({
       };
     }
     return {
-      phone: selectedVoucher?.driver?.contactNumber || selectedVoucher?.guide?.primaryContactNumber,
-      email: selectedVoucher?.driver?.primaryEmail || selectedVoucher?.guide?.primaryEmail,
+      phone: selectedVoucher?.driver?.contactNumber ?? selectedVoucher?.guide?.primaryContactNumber,
+      email: selectedVoucher?.driver?.primaryEmail ?? selectedVoucher?.guide?.primaryEmail,
     };
   };
 
@@ -205,7 +205,7 @@ const ActivityVouchersTab = ({
           <div className="flex flex-row items-center justify-between">
             <div className="text-sm font-normal">
               {selectedVoucher
-                ? `${selectedVoucher.driver?.name || selectedVoucher.guide?.name} - Voucher`
+                ? `${selectedVoucher.driver?.name ?? selectedVoucher.guide?.name} - Voucher`
                 : "Select a voucher from above table"}
             </div>
 

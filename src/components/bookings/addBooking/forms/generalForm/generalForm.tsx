@@ -369,71 +369,7 @@ const GeneralForm = () => {
                 </FormItem>
               )}
             />
-            <FormField
-              name="directCustomer"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Direct Customer</FormLabel>
-                  <FormControl>
-                    {/* <Input placeholder="Select Country" {...field} /> */}
-                    <Select
-                      onValueChange={(value) => field.onChange(value === "Yes")}
-                      value={field.value ? "Yes" : "No"}
-                    >
-                      <SelectTrigger className="bg-slate-100 shadow-md">
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={"Yes"}>Yes</SelectItem>
-                        <SelectItem value={"No"}>No</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {form.watch("directCustomer") == true ? (
-              <div>
-                <FormField
-                  name="primaryEmail"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Primary Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="Enter primary email"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="primaryContactNumber"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Primary Contact Number</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="tel"
-                          placeholder="Enter primary contact number"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            ) : (
-              ""
-            )}
+
           </div>
 
           <div className="grid grid-cols-3 gap-4">
@@ -530,7 +466,7 @@ const GeneralForm = () => {
                             field.onChange(dateString);
                           }}
                           disabled={(date) => {
-                            let today = new Date();
+                            const today = new Date();
                             today.setHours(0, 0, 0, 0);
                             return date < today;
                           }}
@@ -616,6 +552,74 @@ const GeneralForm = () => {
                 </FormItem>
               )}
             />
+          </div>
+
+          <div className="grid grid-cols-4 gap-4">
+          <FormField
+              name="directCustomer"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem className="col-span-1">
+                  <FormLabel>Direct Customer</FormLabel>
+                  <FormControl>
+                    {/* <Input placeholder="Select Country" {...field} /> */}
+                    <Select
+                      onValueChange={(value) => field.onChange(value === "Yes")}
+                      value={field.value ? "Yes" : "No"}
+                    >
+                      <SelectTrigger className="bg-slate-100 shadow-md">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={"Yes"}>Yes</SelectItem>
+                        <SelectItem value={"No"}>No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {form.watch("directCustomer") == true ? (
+              <div className="grid grid-cols-2 gap-4 col-span-3">
+                <FormField
+                  name="primaryEmail"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Primary Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="Enter primary email"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="primaryContactNumber"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Primary Contact Number</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="tel"
+                          placeholder="Enter primary contact number"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            ) : (
+              ""
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
