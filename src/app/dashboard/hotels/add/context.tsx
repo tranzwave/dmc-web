@@ -29,14 +29,14 @@ interface AddHotelContextProps {
   restaurantMeals: InsertMeal[];
   activeTab: string;
   deleteStaff: (name:string, email: string) => void;
-  deleteRoom: (typeName: string, roomType: string) => void;
+  deleteRoom: (typeName: string, roomType: string, count:number, amenities:string, floor:number, bedCount:number) => void;
   setActiveTab: (tab: string) => void;
   setHotelGeneral: (hotel: InsertHotel) => void;
   addHotelRoom: (room: InsertHotelRoom) => void;
   addHotelStaff: (staff: InsertHotelStaff) => void;
   addRestaurant: (restaurant: InsertRestaurant) => void;
   addRestaurantMeal: (meal: InsertMeal, restaurantName:string) => void;
-  duplicateHotelRoom: (typeName: string, roomType: string) => void;
+  duplicateHotelRoom: (typeName: string, roomType: string, count:number, amenities:string, floor:number, bedCount:number) => void;
   duplicateHotelStaff: (name:string, email: string)=>void
 }
 
@@ -117,9 +117,9 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
   
 
-  const duplicateHotelRoom = (typeName: string, roomType: string) => {
+  const duplicateHotelRoom = (typeName: string, roomType: string, count:number, amenities:string, floor:number, bedCount:number) => {
     const hotelRoomToDuplicate = hotelRooms.find(
-      (room) => room.typeName === typeName && room.roomType === roomType
+      (room) => room.typeName === typeName && room.roomType === roomType  && room.count === count  && room.amenities === amenities && room.floor === floor && room.bedCount === bedCount
     );
   
     if (hotelRoomToDuplicate) {
@@ -138,7 +138,7 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
   
 
-  const duplicateHotelStaff = (name: string, email: string) => {
+  const duplicateHotelStaff = (name: string, email: string,) => {
     const hotelStaffToDuplicate = hotelStaff.find(
       (staff) => staff.name === name && staff.email === email
     );
@@ -158,9 +158,9 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   };
 
-  const deleteRoom = (typeName: string, roomType: string) => {
+  const deleteRoom = (typeName: string, roomType: string, count:number, amenities:string, floor:number, bedCount:number) => {
     alert(`Deleting room with typeName: ${typeName}, roomType: ${roomType}`);
-    setHotelRooms((prev) => prev.filter((room) => !(room.typeName === typeName && room.roomType === roomType)));
+    setHotelRooms((prev) => prev.filter((room) => !(room.typeName === typeName && room.roomType === roomType && room.count === count  && room.amenities === amenities && room.floor === floor && room.bedCount === bedCount)));
   };
 
   const deleteStaff = (name: string, email: string) => {
