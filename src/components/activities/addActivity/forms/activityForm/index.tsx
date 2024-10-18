@@ -33,12 +33,12 @@ const ActivityTab = () => {
 
       const onRowDuplicate = (row: ActivityTypeDTO) => {
         console.log(row);
-        duplicateActivity(row.name, row.activityType);
+        duplicateActivity(row.name, row.activityType, row.capacity);
       };
     
       const onRowDelete = (row: ActivityTypeDTO) => {
         alert(row.name);
-        deleteActivity(row.name, row.activityType);
+        deleteActivity(row.name, row.activityType, row.capacity);
       };
 
     return (
