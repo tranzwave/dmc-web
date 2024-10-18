@@ -28,7 +28,7 @@ export const CalendarV2: React.FC<CalendarProps> = ({ dateRanges }) => {
   // Generate the calendar days for the current month
   useEffect(() => {
     console.log(dateRanges)
-    const startDate = startOfWeek(startOfMonth(currentMonth));
+    const startDate = startOfWeek(startOfMonth(currentMonth))
     const endDate = endOfWeek(endOfMonth(currentMonth));
 
     const days: Date[] = [];

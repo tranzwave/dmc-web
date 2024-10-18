@@ -174,67 +174,6 @@ const HotelsTab = () => {
     return <div>Loading</div>;
   }
 
-  const onNextClick = () => {
-    console.log(bookingDetails);
-    if (bookingDetails.vouchers.length > 0) {
-      setActiveTab("restaurants");
-    } else {
-      toast({
-        title: "Uh Oh!",
-        description: "You must add hotel vouchers to continue",
-      });
-    }
-  };
-
-  const onSaveClick = async () => {
-    console.log(bookingDetails.vouchers);
-    const newVouchers = bookingDetails.vouchers.filter((v) =>
-      v.voucherLines[0]?.id ? false : true,
-    );
-
-    if (newVouchers.length == 0) {
-      toast({
-        title: "Uh Oh!",
-        description: "No new vouchers to add!",
-      });
-
-      return;
-    }
-    try {
-      setSaving(true);
-      const newResponse = await addHotelVoucherLinesToBooking(
-        newVouchers,
-        bookingLineId ?? "",
-        bookingDetails.general.marketingManager,
-      );
-
-      if (!newResponse) {
-        throw new Error(`Error: Couldn't add hotel vouchers`);
-      }
-      console.log("Fetched Hotels:", newResponse);
-      setSaving(false);
-      toast({
-        title: "Success",
-        description: "Hotel Vouchers Added!",
-      });
-      updateTriggerRefetch();
-    } catch (error) {
-      if (error instanceof Error) {
-        // setError(error.message);
-      } else {
-        setError("An unknown error occurred");
-      }
-      console.error("Error:", error);
-      setSaving(false);
-    }
-  };
-
-  // const dateRanges: DateRange[] = [
-  //   { start: "2024-09-03", end: "2024-09-07" }, // No color provided
-  //   // { start: "2024-09-01", end: "2024-09-05", color: "bg-blue-300" },
-  //   // { start: "2024-09-20", end: "2024-09-22", color: "bg-red-300" },
-  // ];
-
   const dateRanges = [
     {
       start: bookingDetails.general.startDate,
@@ -253,6 +192,7 @@ const HotelsTab = () => {
         title: "Uh Oh!",
         description: "You've already proceeded with this voucher. Please go to send vouchers and amend!",
       });
+      return
     }
     setSelectedVoucher(data)
     const index = bookingDetails.vouchers.findIndex((v) => v == data);

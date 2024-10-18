@@ -749,6 +749,66 @@ export const insertRestaurantVouchersTx = async (
   return restaurantVouchers; // Return all vouchers and their lines
 };
 
+export const deleteRestaurantVoucherLine = async (
+  voucherLineId: string,
+) => {
+  try {
+    const result = await db.transaction(async (trx) => {
+      // Fetch the restaurant voucher line to check if it exists
+      const voucherLine = await trx
+        .select()
+        .from(restaurantVoucherLine)
+        .where(eq(restaurantVoucherLine.id, voucherLineId))
+        .execute();
+
+      if (!voucherLine || !voucherLine[0]?.restaurantVoucherId) {
+        throw new Error(`No restaurant voucher line found with ID: ${voucherLineId}`);
+      }
+
+      const restaurantVoucherId = voucherLine[0]?.restaurantVoucherId;
+
+      // Check if there are other lines associated with this voucher
+      const remainingVoucherLines = await trx
+        .select()
+        .from(restaurantVoucherLine)
+        .where(
+          and(eq(restaurantVoucherLine.restaurantVoucherId, restaurantVoucherId), ne(restaurantVoucherLine.id, voucherLineId))
+        )
+        .execute();
+
+      // Delete the specified restaurant voucher line
+      const deletedVoucherLine = await trx
+        .delete(restaurantVoucherLine)
+        .where(eq(restaurantVoucherLine.id, voucherLineId))
+        .returning()
+        .execute();
+
+      if (!deletedVoucherLine || !deletedVoucherLine[0]?.id) {
+        throw new Error(`Failed to delete restaurant voucher line with ID: ${voucherLineId}`);
+      }
+
+      let deletedVoucher = null;
+      // If no more voucher lines remain, delete the associated restaurant voucher
+      if (remainingVoucherLines.length === 0) {
+        deletedVoucher = await trx
+          .delete(restaurantVoucher)
+          .where(eq(restaurantVoucher.id, restaurantVoucherId))
+          .returning()
+          .execute();
+      }
+
+      // Return the deleted voucher line and potentially the deleted voucher
+      return { deletedVoucherLine: deletedVoucherLine[0], deletedVoucher: deletedVoucher ? deletedVoucher[0] : null };
+    });
+
+    return result;
+  } catch (error) {
+    throw new Error(`Transaction error`);
+  }
+};
+
+
+
 
 
 

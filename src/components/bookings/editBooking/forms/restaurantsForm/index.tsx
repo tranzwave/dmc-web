@@ -18,8 +18,11 @@ import {
   useEditBooking,
 } from "~/app/dashboard/bookings/[id]/edit/context";
 import { LoaderCircle } from "lucide-react";
-import { addRestaurantVoucherLinesToBooking } from "~/server/db/queries/booking";
-import { usePathname } from "next/navigation";
+import { addRestaurantVoucherLinesToBooking, deleteRestaurantVoucherLine } from "~/server/db/queries/booking";
+import { usePathname, useRouter } from "next/navigation";
+import { DataTableWithActions } from "~/components/common/dataTableWithActions";
+import DeletePopup from "~/components/common/deletePopup";
+import Link from "next/link";
 
 export type RestaurantData = SelectRestaurant & {
   restaurantMeal: SelectMeal[];
@@ -28,7 +31,7 @@ const RestaurantsTab = () => {
   const [addedRestaurants, setAddedRestaurants] = useState<RestaurantVoucher[]>(
     [],
   );
-  const { addRestaurantVoucher, bookingDetails, setActiveTab } =
+  const { addRestaurantVoucher, bookingDetails, setActiveTab, editRestaurantVoucher, deleteRestaurantVoucher, updateTriggerRefetch } =
     useEditBooking();
   const [loading, setLoading] = useState(false);
   const [restaurants, setRestaurants] = useState<RestaurantData[]>([]);
@@ -37,13 +40,33 @@ const RestaurantsTab = () => {
   const [saving, setSaving] = useState(false);
   const [voucherIdToEdit, setVoucherIdToEdit] = useState<string>()
 
+  const [indexToEdit, setIndexToEdit] = useState<number>();
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isExistingVoucherDelete, setIsExistingVoucherDelete] = useState(false);
+  const [isUnsavedVoucherDelete, setIsUnsavedVoucherDelete] = useState(false);
+  const [selectedVoucher, setSelectedVoucher] = useState<RestaurantVoucher>();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [triggerRefetch, setTriggerRefetch] = useState(false);
+  const [voucherToEdit, setVoucherToEdit] = useState<RestaurantVoucher | null>()
+  const [defaultValues, setDefaultValues] = useState<
+  | (InsertRestaurantVoucherLine & {
+      restaurant: SelectRestaurant;
+    })
+  | null
+>();
+
   const pathname = usePathname();
   const bookingLineId = pathname.split("/")[3];
+  const router = useRouter()
 
-  const updateRestaurants = (
+  const updateRestaurants = async(
     data: InsertRestaurantVoucherLine,
     restaurant: RestaurantData,
   ) => {
+    if(voucherToEdit !== null){
+      handleExistingVoucherDelete()
+      setVoucherToEdit(null)
+    }
     // setAddedRestaurants((prev) => [...prev, restaurant]);
     // addRestaurant(restaurant)
     console.log(data);
@@ -62,7 +85,50 @@ const RestaurantsTab = () => {
 
     addRestaurantVoucher(restaurantVoucher);
 
+    try {
+      setSaving(true)
+      const newResponse = await addRestaurantVoucherLinesToBooking(
+        [restaurantVoucher],
+        bookingLineId ?? "",
+        bookingDetails.general.marketingManager,
+      )
+
+      if(!newResponse){
+        throw new Error(`Couldn't add restaurant voucher`)
+      }
+      toast({
+        title: "Success",
+        description: "Hotel Vouchers Added!",
+      });
+      setSaving(false);
+        updateTriggerRefetch();
+    } catch (error) {
+      if (error instanceof Error) {
+      } else {
+        setError("An unknown error occurred");
+      }
+      console.error("Error:", error);
+      setSaving(false);
+    }
+
     // onSaveClick();
+  };
+  const onEdit = (data: RestaurantVoucher) => {
+    if(data.voucher.status !== "inprogress"){
+      toast({
+        title: "Uh Oh!",
+        description: "You've already proceeded with this voucher. Please go to send vouchers and amend!",
+      });
+      return
+    }
+    setSelectedVoucher(data)
+    const index = bookingDetails.restaurants.findIndex((v) => v == data);
+    setIndexToEdit(index);
+    if (!data.voucherLines[0]) {
+      return;
+    }
+    setDefaultValues({ ...data.voucherLines[0], restaurant: data.restaurant });
+
   };
 
   const getRestaurants = async () => {
@@ -96,19 +162,7 @@ const RestaurantsTab = () => {
       };
     }
     getRestaurants();
-  }, []);
-
-  const onNextClick = () => {
-    console.log(bookingDetails);
-    if (bookingDetails.restaurants.length > 0) {
-      setActiveTab("activities");
-    } else {
-      toast({
-        title: "Uh Oh!",
-        description: "You must add restaurants to continue",
-      });
-    }
-  };
+  }, [router]);
 
   const onSaveClick = async () => {
     console.log(bookingDetails.restaurants);
@@ -154,6 +208,64 @@ const RestaurantsTab = () => {
     }
   };
 
+  const onDelete = async (data: RestaurantVoucher) => {
+    setSelectedVoucher(data);
+    if (data.voucher.status) {
+      setIsExistingVoucherDelete(true);
+      return;
+    }
+    setIsUnsavedVoucherDelete(true);
+    setIsDeleteOpen(true);
+  };
+
+  const handleExistingVoucherDelete = async () => {
+    if (selectedVoucher && selectedVoucher.voucher.status) {
+      if (selectedVoucher.voucher.status != "inprogress") {
+        toast({
+          title: "Uh Oh",
+          description: `You cant delete this voucher. It's already ${selectedVoucher.voucher.status}!. Please go to proceed vouchers and send the cancellation voucher first`,
+        });
+        return;
+      }
+      try {
+        setIsDeleting(true);
+        const deletedData = await deleteRestaurantVoucherLine(
+          selectedVoucher?.voucherLines[0]?.id ?? "",
+        );
+        if (!deletedData) {
+          throw new Error("Couldn't delete voucher");
+        }
+
+        deleteVoucherLineFromLocalContext();
+        setIsDeleting(false);
+        toast({
+          title: "Success",
+          description: `Successfully deleted the voucher`,
+        });
+        
+        
+      } catch (error) {
+        toast({
+          title: "Uh Oh",
+          description: `Couldn't delete this voucher`,
+        });
+        setIsDeleting(false);
+      }
+      return;
+    }
+  };
+
+  const deleteVoucherLineFromLocalContext = () => {
+    setIsDeleting(true);
+    const index = bookingDetails.restaurants.findIndex(
+      (v) => v == selectedVoucher,
+    );
+    deleteRestaurantVoucher(index, selectedVoucher?.voucherLines[0]?.id ?? "");
+    // deleteHotelVoucher(index, selectedVoucher?.voucherLines[0]?.id ?? "");
+    
+    setIsDeleting(false);
+  };
+
   if (loading) {
     return <div>Loading</div>;
   }
@@ -174,24 +286,49 @@ const RestaurantsTab = () => {
             <RestaurantForm
               onAddRestaurant={updateRestaurants}
               restaurants={restaurants}
-              defaultValues={null}
+              defaultValues={defaultValues}
+              lockedVendorId={selectedVoucher?.restaurant.id ?? ""}
             />
           )}
         </div>
       </div>
       <div className="flex w-full flex-col items-center justify-center gap-3">
         <div className="w-full">
-          <DataTable
+          {/* <DataTable
             columns={restaurantVoucherColumns}
             data={bookingDetails.restaurants}
+          /> */}
+          <DataTableWithActions
+          columns={restaurantVoucherColumns}
+          data={bookingDetails.restaurants}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onRowClick={() => {
+            console.log("row");
+          }}
           />
         </div>
         <div className="flex w-full justify-end">
-        <Button variant={"primaryGreen"} onClick={onSaveClick} disabled={saving}>
-            {saving ? (<div className="flex flex-row gap-1"><div><LoaderCircle className="animate-spin" size={10}/></div>Saving</div>): ('Save')}
-          </Button>
+        <Link href={`${pathname.split("edit")[0]}/tasks?tab=restaurants`}>
+            <Button variant={"primaryGreen"}>Send Vouchers</Button>
+          </Link>
         </div>
       </div>
+      <DeletePopup
+        itemName={`Voucher for ${selectedVoucher?.restaurant.name}`}
+        onDelete={deleteVoucherLineFromLocalContext}
+        isOpen={isUnsavedVoucherDelete}
+        setIsOpen={setIsUnsavedVoucherDelete}
+        isDeleting={isDeleting}
+      />
+
+      <DeletePopup
+        itemName={`Voucher for ${selectedVoucher?.restaurant.name}`}
+        onDelete={handleExistingVoucherDelete}
+        isOpen={isExistingVoucherDelete}
+        setIsOpen={setIsExistingVoucherDelete}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 };

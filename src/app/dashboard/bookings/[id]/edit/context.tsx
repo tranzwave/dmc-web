@@ -72,25 +72,28 @@ interface EditBookingContextProps {
   bookingDetails: BookingDetails;
   setGeneralDetails: (details: General) => void;
   addHotelVoucher: (hotel: HotelVoucher) => void;
-  addHotelVouchers: (vouchers:HotelVoucher[]) => void;
-  editHotelVoucher: (voucher:HotelVoucher, index:number, id:string) => void,
-  deleteHotelVoucher: (index:number, id:string ) => void,
+  addHotelVouchers: (vouchers: HotelVoucher[]) => void;
+  editHotelVoucher: (voucher: HotelVoucher, index: number, id: string) => void;
+  deleteHotelVoucher: (index: number, id: string) => void;
   addRestaurantVoucher: (restaurant: RestaurantVoucher) => void;
   addRestaurantVouchers: (vouchers: RestaurantVoucher[]) => void;
+  editRestaurantVoucher: (voucher: RestaurantVoucher, index: number, id: string) => void; // Added method
+  deleteRestaurantVoucher: (index: number, id: string) => void; // Added method
   addActivity: (activity: ActivityVoucher) => void;
   addActivityVouchers: (activity: ActivityVoucher[]) => void;
   addTransport: (transport: TransportVoucher) => void;
-  addTransportVouchers: (vouchers: TransportVoucher[])=>void;
+  addTransportVouchers: (vouchers: TransportVoucher[]) => void;
   addShop: (shop: ShopVoucher) => void;
-  addShopVouchers: (vouchers:ShopVoucher[]) => void; 
+  addShopVouchers: (vouchers: ShopVoucher[]) => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   statusLabels: StatusLabels;
   setStatusLabels: React.Dispatch<React.SetStateAction<StatusLabels>>;
   getBookingSummary: () => BookingSummary[];
-  triggerRefetch: boolean,
-  updateTriggerRefetch: ()=>void;
+  triggerRefetch: boolean;
+  updateTriggerRefetch: () => void;
 }
+
 
 // Provide default values
 export const defaultGeneral: General = {
@@ -183,6 +186,8 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
     }));
   };
 
+
+
   const addRestaurantVoucher = (restaurantVoucher: RestaurantVoucher) => {
     setBookingDetails(prev => ({ ...prev, restaurants: [...prev.restaurants, restaurantVoucher] }));
   };
@@ -190,6 +195,28 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
   const addRestaurantVouchers = (vouchers: RestaurantVoucher[]) => {
     setBookingDetails(prev => ({ ...prev, restaurants: vouchers }));
   };
+
+  const editRestaurantVoucher = (updatedVoucher: RestaurantVoucher, index: number, id: string) => {
+    setBookingDetails((prev) => ({
+      ...prev,
+      restaurants: prev.restaurants.map((voucher, i) =>
+        i === index && voucher.voucherLines[0]?.id === id ? updatedVoucher : voucher
+      ),
+    }));
+  };
+
+  const deleteRestaurantVoucher = (index: number, id: string) => {
+    setBookingDetails((prev) => ({
+      ...prev,
+      restaurants: prev.restaurants.filter((voucher, i) => !(i === index && voucher.voucherLines[0]?.id === id)),
+    }));
+  };
+  
+  
+
+
+
+
 
   const addActivity = (activity: ActivityVoucher) => {
     setBookingDetails(prev => ({ ...prev, activities: [...prev.activities, activity] }));
@@ -264,6 +291,10 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
 
         addRestaurantVoucher,
         addRestaurantVouchers,
+        editRestaurantVoucher,
+        deleteRestaurantVoucher,
+
+
         addActivity,
         addActivityVouchers,
         addTransport,
