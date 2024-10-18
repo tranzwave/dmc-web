@@ -13,12 +13,12 @@ export type TransportVoucherData = SelectTransportVoucher & {
 // Define specific columns for transport
 const voucherColumns: ColumnDef<TransportVoucherData>[] = [
   {
-    accessorFn: (row) => row.driver?.name || row.guide?.name,
+    accessorFn: (row) => row.driver?.name ?? row.guide?.name,
     header: "Name",
   },
   {
     header: "Type",
-    accessorFn: (row) => row.driver?.type || row.guide?.type,
+    accessorFn: (row) => row.driver?.type ?? row.guide?.type,
   },
   {
     header: "Vehicle",
@@ -38,7 +38,7 @@ const voucherColumns: ColumnDef<TransportVoucherData>[] = [
   },
 
   {
-    accessorFn: (row) => row.driver?.contactNumber || row.guide?.primaryContactNumber,
+    accessorFn: (row) => row.driver?.contactNumber ?? row.guide?.primaryContactNumber,
     header: "Contact Number",
     cell: (info) => info.getValue() ?? "N/A",
   },
@@ -61,7 +61,7 @@ const selectedVoucherColumns: ColumnDef<TransportVoucherData>[] = [
   },
   {
     header: "Vehicle",
-    accessorFn: (row) => `${row.driver}`,
+    accessorFn: (row) => `${row.driverVoucherLines[0]?.vehicleType ?? ""}`,
   },
   {
     header: "Language",

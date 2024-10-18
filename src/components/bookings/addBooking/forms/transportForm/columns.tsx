@@ -38,7 +38,7 @@ export const columns: ColumnDef<TransportVoucher>[] = [
   },
   {
     header: "Type",
-    accessorFn: row => row.driver?.type || row.guide?.type
+    accessorFn: row => row.driver?.type ?? row.guide?.type
   },
   {
     header: "Remarks",

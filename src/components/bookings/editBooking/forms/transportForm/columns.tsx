@@ -18,11 +18,11 @@ export type Transport = {
 export const columns: ColumnDef<TransportVoucher, unknown>[] = [
   {
     header: "Name",
-    accessorFn: row => row.driver?.name || row.guide?.name || "-",
+    accessorFn: row => row.driver?.name ?? row.guide?.name ?? "-",
   },
   {
     header: "Vehicle",
-    accessorFn: row => row.driverVoucherLine?.vehicleType || "-"
+    accessorFn: row => row.driverVoucherLine?.vehicleType ?? "-"
   },
   {
     header: "Start Date",
@@ -38,7 +38,7 @@ export const columns: ColumnDef<TransportVoucher, unknown>[] = [
   },
   {
     header: "Type",
-    accessorFn: row => row.driver?.type || row.guide?.type || "-"
+    accessorFn: row => row.driver?.type ?? row.guide?.type ?? "-"
   },
   {
     header: "Remarks",
