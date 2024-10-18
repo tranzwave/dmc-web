@@ -43,12 +43,12 @@ const RoomsTab = () => {
 
 
       const onRowDuplicate = (row: HotelRoom) => {
-        duplicateHotelRoom(row.typeName, row.roomType);
+        duplicateHotelRoom(row.typeName, row.roomType, row.count, row.amenities, row.floor, row.bedCount);
     };
 
     const onRowDelete = (row: HotelRoomType) => {
         alert(row.typeName);
-        deleteRoom(row.typeName, row.roomType);
+        deleteRoom(row.typeName, row.roomType, row.count, row.amenities, row.floor, row.bedCount);
       };
 
       

@@ -21,8 +21,8 @@ interface AddActivityContextProps {
   setActiveTab: (tab: string) => void;
   setGeneralDetails: (details: ActivityVendorDTO) => void;
   addActivity: (activity: ActivityTypeDTO) => void;
-  deleteActivity: (name: string, activityType:number) => void;
-  duplicateActivity: (name: string, activityType:number) => void
+  deleteActivity: (name: string, activityType:number, capacity:number) => void;
+  duplicateActivity: (name: string, activityType:number, capacity:number) => void
 
 }
 
@@ -76,18 +76,28 @@ export const AddActivityProvider: React.FC<{ children: ReactNode }> = ({ childre
     });
   };
 
-  const deleteActivity = (name: string, activityType: number) => {
+  // const deleteActivity = (name: string, activityType: number) => {
+  //   setActivityVendorDetails(prev => ({
+  //     ...prev,
+  //     activities: prev.activities.filter(
+  //       (activity) => activity.name !== name && activity.activityType !== activityType
+  //     ),
+  //   }));
+  // };
+
+  const deleteActivity = (name: string, activityType: number, capacity:number) => {
     setActivityVendorDetails(prev => ({
       ...prev,
       activities: prev.activities.filter(
-        (activity) => activity.name !== name || activity.activityType !== activityType
+        (activity) => !(activity.name === name && activity.activityType === activityType && activity.capacity === capacity)
       ),
     }));
   };
 
-  const duplicateActivity = (name: string, activityType: number) => {
+  
+  const duplicateActivity = (name: string, activityType: number, capacity: number) => {
     const activityToDuplicate = activityVendorDetails.activities.find(
-      (activity) => activity.name === name && activity.activityType === activityType
+      (activity) => activity.name === name && activity.activityType === activityType && activity.capacity === capacity
     );
 
     if (activityToDuplicate) {

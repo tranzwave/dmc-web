@@ -41,4 +41,8 @@ export const restaurantVoucherColumns: ColumnDef<RestaurantVoucher>[] = [
     header: "Remarks",
     accessorFn: (row) => row.voucherLines[0]?.remarks
   },
+  {
+    header: "Status",
+    accessorFn: (row) => row.voucher.status
+  },
 ];

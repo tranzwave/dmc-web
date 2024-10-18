@@ -1,6 +1,6 @@
 "use client";
 import { format } from 'date-fns';
-import { useParams, usePathname, useSearchParams } from "next/navigation";
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ActivitiesTab from "~/components/bookings/editBooking/forms/activitiesForm";
 import GeneralTab from "~/components/bookings/editBooking/forms/generalForm";
@@ -41,6 +41,7 @@ const EditBooking = ({ id }: { id: string }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isGeneralDetailsSet, setIsGeneralDetailsSet] = useState<boolean>(false);
+  const router = useRouter()
 
   const fetchBookingLine = async ()=>{
     try {
@@ -171,7 +172,8 @@ const EditBooking = ({ id }: { id: string }) => {
     const tab = searchParams.get("tab")
     console.log("Add Booking Component");
     fetchBookingLine()
-    setActiveTab(activeTab ?? "general")
+    // setActiveTab(activeTab ?? "general")
+    setActiveTab(tab ?? "general")
   }, [id, triggerRefetch]);
 
   if(loading){
@@ -201,7 +203,10 @@ const EditBooking = ({ id }: { id: string }) => {
               <TabsList className="flex w-full justify-evenly">
                 <TabsTrigger
                   value="general"
-                  onClick={() => setActiveTab("general")}
+                  onClick={() => {
+                    router.push(`${pathname}?tab=${"general"}`)
+                    setActiveTab("general")}
+                  }
                   isCompleted = {false}
                   inProgress = {activeTab == "general"}
                 >
@@ -209,7 +214,10 @@ const EditBooking = ({ id }: { id: string }) => {
                 </TabsTrigger>
                 <TabsTrigger
                   value="hotels"
-                  onClick={() => setActiveTab("hotels")}
+                  onClick={() => {
+                    router.push(`${pathname}?tab=${"hotels"}`)
+                    setActiveTab("hotels")}
+                  }
                   disabled={!bookingDetails.general.includes.hotels}
                   statusLabel={statusLabels.hotels}
                   isCompleted = {bookingDetails.vouchers.length > 0}
@@ -219,7 +227,10 @@ const EditBooking = ({ id }: { id: string }) => {
                 </TabsTrigger>
                 <TabsTrigger
                   value="restaurants"
-                  onClick={() => setActiveTab("restaurants")}
+                  onClick={() => {
+                    router.push(`${pathname}?tab=${"restaurants"}`)
+                    setActiveTab("restaurants")}
+                  }
                   disabled={!bookingDetails.general.includes.hotels}
                   statusLabel={statusLabels.restaurants}
                   isCompleted = {bookingDetails.restaurants.length > 0}
@@ -229,7 +240,12 @@ const EditBooking = ({ id }: { id: string }) => {
                 </TabsTrigger>
                 <TabsTrigger
                   value="transport"
-                  onClick={() => setActiveTab("transport")}
+                  onClick={
+                    () => {
+                      router.push(`${pathname}?tab=${"transport"}`)
+                      setActiveTab("transport")
+                    }
+                  }
                   disabled={!bookingDetails.general.includes.transport}
                   statusLabel={statusLabels.transport}
                   isCompleted = {bookingDetails.transport.length > 0}
@@ -239,7 +255,11 @@ const EditBooking = ({ id }: { id: string }) => {
                 </TabsTrigger>
                 <TabsTrigger
                   value="activities"
-                  onClick={() => setActiveTab("activities")}
+                  onClick={() => {
+                    setActiveTab("activities")
+                    router.push(`${pathname}?tab=${"activities"}`)
+                  }
+                }
                   disabled={!bookingDetails.general.includes.activities}
                   statusLabel={statusLabels.activities}
                   isCompleted = {bookingDetails.activities.length > 0}
@@ -250,7 +270,10 @@ const EditBooking = ({ id }: { id: string }) => {
                 
                 <TabsTrigger
                   value="shops"
-                  onClick={() => setActiveTab("shops")}
+                  onClick={() => {
+                    setActiveTab("shops")
+                    router.push(`${pathname}?tab=${"shops"}`)
+                  }}
                   disabled={!bookingDetails.general.includes.shops}
                   statusLabel={statusLabels.shops}
                   isCompleted = {bookingDetails.shops.length > 0}

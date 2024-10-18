@@ -1,6 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircle } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
+import {
+  ShopVoucher,
+} from "~/app/dashboard/bookings/add/context";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -11,14 +17,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Shop } from "./columns";
-import {
-  SelectCity,
-  SelectShop,
-  SelectShopShopType,
-  SelectShopType,
-} from "~/server/db/schemaTypes";
-import { useState } from "react";
 import {
   Select,
   SelectContent,
@@ -26,13 +24,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { LoaderCircle } from "lucide-react";
 import { getShopsByTypeAndCity } from "~/server/db/queries/shops";
 import {
-  ShopVoucher,
-} from "~/app/dashboard/bookings/add/context";
-import { booking } from "~/server/db/schema";
-import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
+  SelectCity,
+  SelectShop,
+  SelectShopType
+} from "~/server/db/schemaTypes";
 
 export type ShopsData = SelectShop & {
   shopTypes: {
@@ -295,7 +292,13 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
               <FormItem>
                 <FormLabel>Date</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  {/* <Input type="date" {...field} /> */}
+                  <Input
+                        type="date"
+                        {...field}
+                        min={bookingDetails.general.startDate ?? ""}
+                        max={bookingDetails.general.endDate ?? ""}
+                      />
                 </FormControl>
                 <FormMessage />
               </FormItem>

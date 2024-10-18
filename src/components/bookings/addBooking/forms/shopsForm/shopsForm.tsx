@@ -1,6 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircle } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import {
+  ShopVoucher,
+  useAddBooking,
+} from "~/app/dashboard/bookings/add/context";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -11,14 +17,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Shop } from "./columns";
-import {
-  SelectCity,
-  SelectShop,
-  SelectShopShopType,
-  SelectShopType,
-} from "~/server/db/schemaTypes";
-import { useState } from "react";
 import {
   Select,
   SelectContent,
@@ -26,13 +24,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { LoaderCircle } from "lucide-react";
 import { getShopsByTypeAndCity } from "~/server/db/queries/shops";
 import {
-  ShopVoucher,
-  useAddBooking,
-} from "~/app/dashboard/bookings/add/context";
-import { booking } from "~/server/db/schema";
+  SelectCity,
+  SelectShop,
+  SelectShopType
+} from "~/server/db/schemaTypes";
 
 export type ShopsData = SelectShop & {
   shopTypes: {

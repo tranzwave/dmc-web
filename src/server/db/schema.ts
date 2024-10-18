@@ -23,7 +23,7 @@ export const createTable = pgTableCreator((name) => `dmc-web_${name}`);
 export const country = createTable("countries", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull().unique(), // Country name
-  code: varchar("code", { length: 3 }).notNull().unique(), // ISO 3166-1 alpha-3 code
+  code: varchar("code", { length: 3 }).notNull().unique(), // ISO 3166-1 alpha-2 code
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });

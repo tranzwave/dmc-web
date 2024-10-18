@@ -39,7 +39,12 @@ interface RestaurantFormProps {
     restaurant: RestaurantData,
   ) => void;
   restaurants: RestaurantData[];
-  defaultValues: InsertRestaurantVoucherLine | null;
+  defaultValues:
+  | (InsertRestaurantVoucherLine & {
+      restaurant: SelectRestaurant;
+    })
+  | null
+  | undefined;
   lockedVendorId?: string;
 }
 
@@ -75,13 +80,18 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
   // };
   const form = useForm<z.infer<typeof restaurantSchema>>({
     resolver: zodResolver(restaurantSchema),
-    defaultValues: {
-      date: defaultValues?.date,
-      mealType: defaultValues?.mealType,
-      name: defaultValues?.restaurantVoucherId,
+    defaultValues:{
+      ...defaultValues,
+      remarks:defaultValues?.remarks ?? "No",
+      name:defaultValues?.restaurant.name,
+    },
+    values: {
+      date: defaultValues?.date ?? "",
+      mealType: defaultValues?.mealType ?? "",
+      name: defaultValues?.restaurant.name ?? "",
       quantity: {
-        adults: defaultValues?.adultsCount,
-        kids: defaultValues?.kidsCount,
+        adults: defaultValues?.adultsCount ?? bookingDetails.general.adultsCount ?? 0,
+        kids: defaultValues?.kidsCount ?? bookingDetails.general.kidsCount ?? 0,
       },
       remarks: defaultValues?.remarks ?? "",
       time: defaultValues?.time ?? "",

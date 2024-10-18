@@ -1,6 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircle } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
+import {
+  ActivityVoucher
+} from "~/app/dashboard/bookings/add/context";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -11,14 +17,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Activity } from "./columns";
-import {
-  SelectActivity,
-  SelectActivityType,
-  SelectActivityVendor,
-  SelectActivityVoucher,
-  SelectCity,
-} from "~/server/db/schemaTypes";
 import {
   Select,
   SelectContent,
@@ -26,14 +24,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { useState } from "react";
 import { getActivitiesByTypeAndCity } from "~/server/db/queries/activities";
-import { LoaderCircle } from "lucide-react";
 import {
-  ActivityVoucher,
-  useAddBooking,
-} from "~/app/dashboard/bookings/add/context";
-import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
+  SelectActivity,
+  SelectActivityType,
+  SelectActivityVendor,
+  SelectCity
+} from "~/server/db/schemaTypes";
 
 export type ActivityData = SelectActivity & {
   activityVendor: SelectActivityVendor & {
@@ -316,7 +313,13 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
               <FormItem>
                 <FormLabel>Check-in Date</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  {/* <Input type="date" {...field} /> */}
+                  <Input
+                        type="date"
+                        {...field}
+                        min={bookingDetails.general.startDate ?? ""}
+                        max={bookingDetails.general.endDate ?? ""}
+                      />
                 </FormControl>
                 <FormMessage />
               </FormItem>
