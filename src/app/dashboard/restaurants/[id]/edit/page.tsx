@@ -1,11 +1,9 @@
 "use client";
-import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import TitleBar from "~/components/common/titleBar";
 import GeneralTab from "~/components/restaurants/addRestaurant/forms/generalForm";
 import MealsOfferedTab from "~/components/restaurants/addRestaurant/forms/mealsOfferedForm";
-import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { getRestaurantVendorById } from "~/server/db/queries/restaurants";
 import { AddRestaurantProvider, useAddRestaurant } from "../../add/context";
@@ -90,11 +88,11 @@ const EditRestaurant = ({ id }: { id: string }) => {
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title={`Edit Activity Vendor - ${restaurantVendor?.name ?? ""}`} link="toAddActivity" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className="w-full">
             <Tabs defaultValue="general" className="w-full border" value={activeTab}>

@@ -1,19 +1,15 @@
 "use client";
-import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import LoadingLayout from "~/components/common/dashboardLoading";
 import TitleBar from "~/components/common/titleBar";
 import HotelGeneralTab from "~/components/hotels/addHotel/forms/generalForm";
-import { Button } from "~/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import RoomsTab from "~/components/hotels/addHotel/forms/roomsForm";
 import StaffTab from "~/components/hotels/addHotel/forms/staffForm";
-import AddHotelSubmitView from "~/components/hotels/addHotel/forms/submitForm";
-import { AddHotelProvider, useAddHotel } from "../../add/context";
-import { SelectHotel } from "~/server/db/schemaTypes";
-import { CompleteHotel, getHotelByIdQuery, getRawHotelById } from "~/server/db/queries/hotel";
-import LoadingLayout from "~/components/common/dashboardLoading";
 import EditHotelSubmitView from "~/components/hotels/addHotel/forms/submitForm/editHotelSubmit";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { CompleteHotel, getRawHotelById } from "~/server/db/queries/hotel";
+import { AddHotelProvider, useAddHotel } from "../../add/context";
 
 
 
@@ -84,11 +80,11 @@ const EditHotel = ({ id }: { id: string }) => {
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title={`Edit Hotel - ${hotel?.hotel.name}`} link="toAddBooking" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className="w-full">
             <Tabs

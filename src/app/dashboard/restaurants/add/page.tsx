@@ -1,12 +1,10 @@
 "use client";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import TitleBar from "~/components/common/titleBar";
 import GeneralTab from "~/components/restaurants/addRestaurant/forms/generalForm";
 import MealsOfferedTab from "~/components/restaurants/addRestaurant/forms/mealsOfferedForm";
 import SubmitForm from "~/components/restaurants/addRestaurant/forms/submitForm";
-import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { AddRestaurantProvider, useAddRestaurant } from "./context";
 
@@ -24,11 +22,11 @@ const AddRestaurant = () => {
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title="Add Restaurant" link="toAddRestaurant" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className="w-full">
             <Tabs

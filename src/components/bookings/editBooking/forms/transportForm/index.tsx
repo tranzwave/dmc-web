@@ -11,6 +11,7 @@ import { useToast } from "~/hooks/use-toast";
 import { DriverSearchParams, GuideSearchParams } from "~/lib/api";
 import { addTransportVouchersToBooking } from "~/server/db/queries/booking";
 import {
+  getAllChauffeurByVehicleTypeAndLanguage,
   getAllDriversByVehicleTypeAndLanguage,
   getAllGuidesByLanguage,
   getAllLanguages,
@@ -55,7 +56,7 @@ const TransportTab = () => {
   const [drivers, setDrivers] = useState<DriverData[]>([]);
   const [guides, setGuides] = useState<GuideData[]>([]);
   const [currentSearchType, setCurrentSearchType] = useState<
-    "Driver" | "Guide" | null
+    "Driver" | "Guide" | "Chauffeur" | null
   >(null);
   const [searchDetails, setSearchDetails] = useState<Transport | null>(null);
   const [error, setError] = useState<string | null>();
@@ -164,9 +165,12 @@ const TransportTab = () => {
     if (transport.type === "Guide") {
       setCurrentSearchType("Guide");
       searchGuides({ language: transport.languageCode, type: transport.type });
-    } else {
+    } else if(transport.type === "Driver") {
       setCurrentSearchType("Driver");
       searchDrivers(searchParams);
+    }else if(transport.type === "Chauffeur") {
+      setCurrentSearchType("Chauffeur");
+      searchChauffeur(searchParams);
     }
   };
 
@@ -181,7 +185,7 @@ const TransportTab = () => {
 
       console.log(results);
       const filteredDrivers = results.filter((driver) => {
-        if (searchParams.type === "Chauffer") {
+        if (searchParams.type === "Driver") {
           return driver.type;
         } else {
           return !driver.type;
@@ -192,6 +196,30 @@ const TransportTab = () => {
       setDrivers(filteredDrivers);
     } catch (error) {
       console.error("Error searching for drivers:", error);
+    }
+  };
+
+  const searchChauffeur = async (searchParams: DriverSearchParams) => {
+    console.log(searchParams);
+    try {
+      const results = await getAllChauffeurByVehicleTypeAndLanguage(
+        searchParams.vehicleType,
+        searchParams.language,
+      );
+
+      console.log(results);
+      const filteredChauffeurs = results.filter((driver) => {
+        if (searchParams.type === "Chauffeur") {
+          return driver.type;
+        } else {
+          return !driver.type;
+        }
+      });
+
+      console.log(filteredChauffeurs);
+      setDrivers(filteredChauffeurs);
+    } catch (error) {
+      console.error("Error searching for Chauffeurs:", error);
     }
   };
 
@@ -257,8 +285,8 @@ const TransportTab = () => {
       if (!newResponse) {
         throw new Error(`Error: Couldn't add transport vouchers`);
       }
+      
       console.log("Fetched Transport:", newResponse);
-
       setSaving(false);
       toast({
         title: "Success",
@@ -302,9 +330,14 @@ const TransportTab = () => {
           />
           <div className="w-full space-y-2">
             <div className="flex flex-row items-center justify-between">
+              {searchDetails?.type !== "Guide" ? (
               <div>
                 {searchDetails?.type} - {searchDetails?.vehicleType}
               </div>
+              ) : (
+                <div>{searchDetails?.type}</div>
+              )
+}
               <div className="flex flex-row items-center gap-2 rounded-lg border px-4 py-2">
                 <SearchIcon size={18} color="#697077" />
                 <div className="font-sans text-sm font-light text-[#697077]">
@@ -316,6 +349,8 @@ const TransportTab = () => {
               columns={dataColumns}
               data={
                 currentSearchType === "Driver"
+                  ? drivers
+                  : currentSearchType === "Chauffeur"
                   ? drivers
                   : currentSearchType === "Guide"
                     ? guides

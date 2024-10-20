@@ -284,7 +284,8 @@ const GeneralForm = () => {
   const handleYes = async () => {
     // setActiveTab("hotels");
     try {
-      router.replace(`${pathname.split("add")[0]}/${id}/edit`);
+      router.replace(`${pathname.split("add")[0]}/${id}/edit?tab=hotels`);
+      
     } catch (error) {
       console.error("Failed to navigate:", error);
     }

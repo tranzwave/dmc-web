@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import TitleBar from "~/components/common/titleBar";
@@ -8,7 +7,6 @@ import DocumentsTab from "~/components/transports/addTransport/forms/documentsFo
 import GeneralTab from "~/components/transports/addTransport/forms/generalForm";
 import SubmitForm from "~/components/transports/addTransport/forms/submitForm";
 import VehiclesTab from "~/components/transports/addTransport/forms/vehiclesForm";
-import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { AddTransportProvider, useAddTransport } from "./context";
 
@@ -28,11 +26,11 @@ const AddTransport = () => {
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title="Add Driver" link="toAddTransport" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className="w-full">
             <Tabs

@@ -80,6 +80,50 @@ export const getAllDriversByVehicleTypeAndLanguage = async (
         },
       },
     },
+    // where: (fields, operators) => operators.eq(fields.type, 'Driver'),
+    where: (fields, operators) =>
+      operators.eq(operators.sql`LOWER(${fields.type})`, 'driver'),
+
+  });
+
+  console.log(drivers);
+
+  // Filter drivers based on vehicle type and language code
+  const filteredDrivers = drivers.filter((driver) => {
+    const hasMatchingVehicle = driver.vehicles.some(
+      (vehicle) => vehicle.vehicle.vehicleType === vehicleType,
+    );
+
+    const speaksLanguage = driver.languages.some(
+      (language) => language.language.code === languageCode,
+    );
+
+    return hasMatchingVehicle && speaksLanguage;
+  });
+
+  return filteredDrivers;
+};
+
+export const getAllChauffeurByVehicleTypeAndLanguage = async (
+  vehicleType: string,
+  languageCode: string,
+) => {
+  const drivers = await db.query.driver.findMany({
+    with: {
+      vehicles: {
+        with: {
+          vehicle: true,
+        },
+      },
+      languages: {
+        with: {
+          language: true,
+        },
+      },
+    },
+    // where: (fields, operators) => operators.eq(fields.type, 'chauffeur'),
+    where: (fields, operators) =>
+      operators.eq(operators.sql`LOWER(${fields.type})`, 'chauffeur'),
   });
 
   console.log(drivers);

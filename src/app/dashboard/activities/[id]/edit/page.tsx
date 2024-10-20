@@ -1,12 +1,10 @@
 "use client";
-import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ActivityTab from "~/components/activities/addActivity/forms/activityForm";
 import GeneralTab from "~/components/activities/addActivity/forms/generalForm";
 import EditActivitySubmitForm from "~/components/activities/addActivity/forms/submitForm/editActivitySubmit";
 import TitleBar from "~/components/common/titleBar";
-import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { getActivityVendorDataById } from "~/server/db/queries/activities";
 import { AddActivityProvider, useAddActivity } from "../../add/context";
@@ -78,11 +76,11 @@ const EditActivityVendor = ({ id }: { id: string }) => {
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title={`Edit Activity Vendor - ${activityVendor?.name ?? ""}`} link="toAddActivity" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className="w-full">
             <Tabs defaultValue="general" className="w-full border" value={activeTab}>

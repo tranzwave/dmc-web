@@ -11,7 +11,7 @@ export type Transport = {
   startDate: string;
   endDate: string;
   languageCode: string;
-  type: "Driver" | "Chauffer";
+  type: "Driver" | "Chauffeur";
   remarks?: string; // Optional field
 };
 

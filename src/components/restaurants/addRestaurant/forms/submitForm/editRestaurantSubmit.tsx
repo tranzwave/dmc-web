@@ -115,9 +115,9 @@ const EditRestaurantSubmitForm = ({id,originalDriverData}:{id:string,originalDri
                 </table>
             </div>
 
-            {/* Vehicles Section */}
+            {/* Meal Offered Section */}
             <div className="bg-primary-green text-white font-bold text-sm p-1 rounded-t-xl w-24 flex justify-center items-center">
-                <div>Vehicles</div>
+                <div>Meal Offered</div>
             </div>
             <div className="border rounded-lg mb-2 shadow-md">
                 <table className="min-w-full text-xs">
@@ -126,7 +126,7 @@ const EditRestaurantSubmitForm = ({id,originalDriverData}:{id:string,originalDri
                             mealsOffered.map((meal, index) => (
                                 <React.Fragment key={index}>
                                     <tr>
-                                        <th className=" px-4 py-2 text-primary-green bg-secondary-green text-sm  font-bold" colSpan={2}>Vehicle {index + 1}</th>
+                                        <th className=" px-4 py-2 text-primary-green bg-secondary-green text-sm  font-bold" colSpan={2}>Meal Offered {index + 1}</th>
                                     </tr>
                                     <tr className="grid-cols-2">
                                         <td className="border px-4 py-2 font-bold w-1/2 ">Meal Type:</td>
@@ -144,7 +144,7 @@ const EditRestaurantSubmitForm = ({id,originalDriverData}:{id:string,originalDri
                             ))
                         ) : (
                             <tr>
-                                <td className="border px-4 py-2" colSpan={2}>No vehicles added</td>
+                                <td className="border px-4 py-2" colSpan={2}>No meal offered added</td>
                             </tr>
                         )}
                     </tbody>

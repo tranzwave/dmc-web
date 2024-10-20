@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import TitleBar from "~/components/common/titleBar";
@@ -7,7 +6,6 @@ import HotelGeneralTab from "~/components/hotels/addHotel/forms/generalForm";
 import RoomsTab from "~/components/hotels/addHotel/forms/roomsForm";
 import StaffTab from "~/components/hotels/addHotel/forms/staffForm";
 import AddHotelSubmitView from "~/components/hotels/addHotel/forms/submitForm";
-import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { AddHotelProvider, useAddHotel } from "./context";
 
@@ -25,11 +23,11 @@ const AddHotel = () => {
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title="Add Hotel" link="toAddBooking" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className="w-full">
             <Tabs defaultValue="general" className="w-full border" value={activeTab}>

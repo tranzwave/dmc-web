@@ -37,7 +37,7 @@ export const transportSchema = z.object({
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
   language: z.string().min(1, "Languages are required"),
-  type: z.enum(["Driver", "Chauffer"], {
+  type: z.enum(["Driver", "Chauffeur"], {
     required_error: "Type is required",
   }),
   remarks: z.string().optional(),
@@ -114,7 +114,7 @@ const TransportForm: React.FC<TransportFormProps> = ({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Driver">Driver</SelectItem>
-                      <SelectItem value="Chauffer">Chauffer</SelectItem>
+                      <SelectItem value="Chauffeur">Chauffeur</SelectItem>
                       <SelectItem value="Guides">Guide</SelectItem>
                     </SelectContent>
                   </Select>

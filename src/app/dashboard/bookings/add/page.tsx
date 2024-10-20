@@ -21,7 +21,6 @@ import { useEffect } from "react";
 // import ShopsTab from "~/components/bookings/addBooking/forms/shopsForm";
 // import TransportTab from "~/components/bookings/addBooking/forms/transportForm";
 import TitleBar from "~/components/common/titleBar";
-import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { AddBookingProvider, useAddBooking } from "./context";
 // import AddBookingSubmitTab from "~/components/bookings/addBooking/forms/submitForm";
@@ -51,11 +50,11 @@ const AddBooking = () => {
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title="Add Booking" link="toAddBooking" />
-            <div>
-              {/* <Link href={`${pathname}`}>
+            {/* <div>
+              <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
-              </Link> */}
-            </div>
+              </Link>
+            </div> */}
           </div>
           <div className="w-full">
             <Tabs

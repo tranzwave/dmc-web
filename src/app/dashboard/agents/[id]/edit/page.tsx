@@ -1,12 +1,10 @@
 'use client'
-import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import GeneralTab from '~/components/agents/addAgent/forms/generalForm';
 import EditAgentSubmitForm from '~/components/agents/addAgent/forms/submitForm/editAgentSubmit';
 import LoadingLayout from '~/components/common/dashboardLoading';
 import TitleBar from '~/components/common/titleBar';
-import { Button } from '~/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { Agent } from '~/lib/types/agent/type';
 import { getAgentVendorById } from '~/server/db/queries/agents';
@@ -93,11 +91,11 @@ const EditAgent = ({ id }: { id: string }) => {
         <div className="flex flex-col gap-3">
           <div className="flex flex-row gap-1 w-full justify-between">
             <TitleBar title="Edit Agent" link="toEditAgent" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className='w-full'>
             <Tabs defaultValue="general" className="w-full border" value={activeTab}>

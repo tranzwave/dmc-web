@@ -11,18 +11,18 @@ export type Transport = {
   startDate: string;
   endDate: string;
   languageCode: string;
-  type: "Driver" | "Chauffer" | "Guide";
+  type: "Driver" | "Chauffeur" | "Guide";
   remarks?: string; // Optional field
 };
 
 export const columns: ColumnDef<TransportVoucher, unknown>[] = [
   {
     header: "Name",
-    accessorFn: row => row.driver?.name ?? row.guide?.name ?? "-",
+    accessorFn: row => row.driver?.name || row.guide?.name || "-",
   },
   {
     header: "Vehicle",
-    accessorFn: row => row.driverVoucherLine?.vehicleType ?? "-"
+    accessorFn: row => row.driverVoucherLine?.vehicleType || "-"
   },
   {
     header: "Start Date",

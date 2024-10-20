@@ -1,11 +1,9 @@
 'use client'
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import GeneralTab from '~/components/agents/addAgent/forms/generalForm';
 import SubmitForm from '~/components/agents/addAgent/forms/submitForm';
 import TitleBar from '~/components/common/titleBar';
-import { Button } from '~/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { AddAgentProvider, useAddAgent } from './context';
 
@@ -45,11 +43,11 @@ const AddAgent = () => {
         <div className="flex flex-col gap-3">
           <div className="flex flex-row gap-1 w-full justify-between">
             <TitleBar title="Add Agent" link="toAddAgent" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className='w-full'>
             <Tabs defaultValue="general" className="w-full border" value={activeTab}>

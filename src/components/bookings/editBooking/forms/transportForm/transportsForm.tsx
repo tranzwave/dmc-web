@@ -37,7 +37,7 @@ export const transportSchema = z.object({
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
   language: z.string().min(1, "Languages are required"),
-  type: z.enum(["Driver", "Chauffer", "Guide"], {
+  type: z.enum(["Driver", "Chauffeur", "Guide"], {
     required_error: "Type is required",
   }),
   remarks: z.string().optional(),
@@ -62,7 +62,7 @@ const TransportForm: React.FC<TransportFormProps> = ({
     resolver: zodResolver(transportSchema),
     defaultValues: {
       transportType: null,
-      vehicle: "",
+      vehicle: "Van",
       startDate: bookingDetails.general.startDate,
       endDate: bookingDetails.general.endDate,
       language: "",
@@ -75,11 +75,11 @@ const TransportForm: React.FC<TransportFormProps> = ({
     onSearchDriver({
       transportType: null,
       startDate: values.startDate,
-      endDate:values.endDate,
-      languageCode:values.language,
-      type:values.type,
-      vehicleType:values.vehicle,
-      remarks:values.remarks
+      endDate: values.endDate,
+      languageCode: values.language,
+      type: values.type,
+      vehicleType: values.vehicle,
+      remarks: values.remarks,
     });
   };
 
@@ -101,7 +101,7 @@ const TransportForm: React.FC<TransportFormProps> = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-3 gap-3">
-        <FormField
+          <FormField
             name="type"
             control={form.control}
             render={({ field }) => (
@@ -114,7 +114,7 @@ const TransportForm: React.FC<TransportFormProps> = ({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Driver">Driver</SelectItem>
-                      <SelectItem value="Chauffer">Chauffer</SelectItem>
+                      <SelectItem value="Chauffeur">Chauffeur</SelectItem>
                       <SelectItem value="Guide">Guide</SelectItem>
                     </SelectContent>
                   </Select>
@@ -123,6 +123,7 @@ const TransportForm: React.FC<TransportFormProps> = ({
               </FormItem>
             )}
           />
+          {form.watch("type") === "Driver" || form.watch("type") === "Chauffeur" ? (
           <FormField
             name="vehicle"
             control={form.control}
@@ -154,6 +155,9 @@ const TransportForm: React.FC<TransportFormProps> = ({
               </FormItem>
             )}
           />
+        ): (
+          ""
+        )}
           <FormField
             name="language"
             control={form.control}
@@ -186,7 +190,6 @@ const TransportForm: React.FC<TransportFormProps> = ({
               </FormItem>
             )}
           />
-          
         </div>
         <div className="grid grid-cols-3 gap-3">
           <FormField
@@ -196,7 +199,13 @@ const TransportForm: React.FC<TransportFormProps> = ({
               <FormItem>
                 <FormLabel>Start Date</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  {/* <Input type="date" {...field} /> */}
+                  <Input
+                    type="date"
+                    {...field}
+                    min={bookingDetails.general.startDate ?? ""}
+                    max={bookingDetails.general.endDate ?? ""}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -209,7 +218,13 @@ const TransportForm: React.FC<TransportFormProps> = ({
               <FormItem>
                 <FormLabel>End Date</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  {/* <Input type="date" {...field} /> */}
+                  <Input
+                    type="date"
+                    {...field}
+                    min={form.watch("startDate") ?? ""}
+                    max={bookingDetails.general.endDate ?? ""}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -225,10 +240,10 @@ const TransportForm: React.FC<TransportFormProps> = ({
                 <FormControl>
                   {/* <Input placeholder="Enter any special note" {...field} /> */}
                   <textarea
-                      placeholder="Enter any special notes"
-                      {...field}
-                      className="h-20 w-full rounded-md border border-gray-300 p-2 text-sm"
-                    />
+                    placeholder="Enter any special notes"
+                    {...field}
+                    className="h-20 w-full rounded-md border border-gray-300 p-2 text-sm"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
