@@ -13,7 +13,7 @@ import Popup from "~/components/common/popup";
 import { ConfirmationForm } from "~/components/common/tasksTab/confirmationForm";
 import {
   SelectRestaurant,
-  SelectRestaurantVoucherLine
+  SelectRestaurantVoucherLine,
 } from "~/server/db/schemaTypes";
 
 import LoadingLayout from "~/components/common/dashboardLoading";
@@ -23,7 +23,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import { deleteHotelVoucherLine } from "~/server/db/queries/booking";
+import {
+  deleteHotelVoucherLine,
+  deleteRestaurantVoucherLine,
+} from "~/server/db/queries/booking";
 import { getAllRestaurants } from "~/server/db/queries/booking/restaurantVouchers";
 import { RestaurantVoucherData } from "..";
 import RestaurantsVoucherForm from "../form";
@@ -67,7 +70,8 @@ const RestaurantVouchersTasksTab = <
   selectedVendor,
   setSelectedVendor,
 }: TasksTabProps<T, L>) => {
-  const [selectedVoucher, setSelectedVoucher] = useState<RestaurantVoucherData>();
+  const [selectedVoucher, setSelectedVoucher] =
+    useState<RestaurantVoucherData>();
   const [selectedVoucherLine, setSelectedVoucherLine] =
     useState<SelectRestaurantVoucherLine>();
   const [rate, setRate] = useState<string | number>(0);
@@ -228,12 +232,16 @@ const RestaurantVouchersTasksTab = <
     if (selectedVoucher && selectedVoucher.status) {
       try {
         setIsDeleting(true);
-        const deletedData = await deleteHotelVoucherLine(
+        const deletedData = await deleteRestaurantVoucherLine(
           selectedVoucher.voucherLines[0]?.id ?? "",
         );
         if (!deletedData) {
           throw new Error("Couldn't delete voucher");
         }
+        toast({
+          title: "Success",
+          description: `Successfully cancelled the voucher! Pleas refresh!`,
+        });
 
         // deleteVoucherLineFromLocalContext();
         setIsDeleting(false);
@@ -254,13 +262,17 @@ const RestaurantVouchersTasksTab = <
         downloadPDF();
 
         setIsDeleting(true);
-        const deletedData = await deleteHotelVoucherLine(
+        const deletedData = await deleteRestaurantVoucherLine(
           selectedVoucher.voucherLines[0]?.id ?? "",
         );
         if (!deletedData) {
           throw new Error("Couldn't delete voucher");
         }
 
+        toast({
+          title: "Success",
+          description: `Successfully cancelled the voucher! Pleas refresh!`,
+        });
         // deleteVoucherLineFromLocalContext();
         setIsDeleting(false);
       } catch (error) {
@@ -282,7 +294,9 @@ const RestaurantVouchersTasksTab = <
         </div>
         <div className="card w-full space-y-6">
           <div className="card-title">Voucher Information</div>
-          <div className="text-sm font-normal">Click the line to send the voucher</div>
+          <div className="text-sm font-normal">
+            Click the line to send the voucher
+          </div>
           {/* <DataTableWithActions
             data={vouchers}
             columns={columns}
@@ -348,6 +362,11 @@ const RestaurantVouchersTasksTab = <
                     cancellation={true}
                     key={selectedVoucher.restaurantId}
                   /> */}
+                  <RestaurantVoucherPDF
+                    voucher={selectedVoucher}
+                    cancellation={true}
+                    key={selectedVoucher.restaurantId}
+                  />
                 </div>
 
                 <DeletePopup
@@ -789,7 +808,9 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
       <Accordion type="single" collapsible>
         <AccordionItem value="item-1">
           <AccordionTrigger className="w-full justify-end">
-            <div className="text-sm font-normal text-neutral-900">Preview Voucher</div>
+            <div className="text-sm font-normal text-neutral-900">
+              Preview Voucher
+            </div>
           </AccordionTrigger>
           <AccordionContent className="space-y-2">
             <div className="flex flex-row justify-end">
@@ -804,8 +825,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         </AccordionItem>
       </Accordion>
 
-      <div>
-      </div>
+      <div></div>
     </div>
   );
 };

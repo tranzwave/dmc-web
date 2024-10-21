@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ActivitiesTasksTab from "~/components/bookings/tasks/activities";
@@ -8,7 +7,6 @@ import RestaurantsTasksTab from "~/components/bookings/tasks/restaurants";
 import ShopsTasksTab from "~/components/bookings/tasks/shops";
 import TransportTasksTab from "~/components/bookings/tasks/transport";
 import TitleBar from "~/components/common/titleBar";
-import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { BookingLineWithAllData } from "~/lib/types/booking";
 import { getBookingLineWithAllData } from "~/server/db/queries/booking";
@@ -64,11 +62,11 @@ const Page = ({ params }: { params: { id: string } }) => {
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title={`${bookingLine.id} - Tasks`} link="toAddBooking" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className="w-full">
             <Tabs defaultValue={tab ?? "hotels"} className="w-full border">

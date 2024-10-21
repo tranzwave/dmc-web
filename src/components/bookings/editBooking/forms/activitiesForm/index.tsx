@@ -1,27 +1,26 @@
 "use client";
+import { LoaderCircle } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { DataTable } from "~/components/bookings/home/dataTable";
-import { columns, Activity } from "./columns";
-import ActivitiesForm from "./actvitiesForm";
+import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 import {
   ActivityVoucher
 } from "~/app/dashboard/bookings/add/context";
-import {
-  SelectActivity,
-  SelectActivityType,
-  SelectCity,
-} from "~/server/db/schemaTypes";
+import { DataTable } from "~/components/bookings/home/dataTable";
+import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
+import { useToast } from "~/hooks/use-toast";
 import {
   getAllActivityTypes,
   getAllCities,
 } from "~/server/db/queries/activities";
-import { Divide, LoaderCircle } from "lucide-react";
-import { Button } from "~/components/ui/button";
-import { useToast } from "~/hooks/use-toast";
-import { Calendar } from "~/components/ui/calendar";
-import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
-import { usePathname } from "next/navigation";
 import { addActivityVouchersToBooking } from "~/server/db/queries/booking";
+import {
+  SelectActivityType,
+  SelectCity
+} from "~/server/db/schemaTypes";
+import ActivitiesForm from "./actvitiesForm";
+import { columns } from "./columns";
 
 const ActivitiesTab = () => {
   const [addedActivities, setAddedActivities] = useState<ActivityVoucher[]>([]);

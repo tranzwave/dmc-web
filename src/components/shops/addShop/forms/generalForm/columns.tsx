@@ -8,7 +8,7 @@ export type General = {
   streetName: string;
   city: string;
   province: string;
-  shopTypes?: { id: number; name: string; }[]; // Possible structure
+  shopTypes?: { id: number; name: string; }[]; 
 };
 
 export const generalColumns: ColumnDef<General>[] = [

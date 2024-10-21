@@ -11,7 +11,7 @@ import { Calendar } from "~/components/ui/calendar";
 import { useToast } from "~/hooks/use-toast";
 import { updateActivityVoucherStatus } from "~/server/db/queries/booking/activityVouchers";
 import { ActivityVoucherData } from "..";
-import ShopVoucherPDF from "../voucherTemplate";
+import ActivityVoucherPDF from "../voucherTemplate";
 
 interface TasksTabProps {
   bookingLineId: string;
@@ -78,14 +78,14 @@ const ActivityVouchersTab = ({
         setIsConfirming(false);
         toast({
           title: "Success!",
-          description: "Shop is confirmed",
+          description: "Activity is confirmed",
         });
       } catch (error) {
-        console.error("Couldn't confirm this shop");
+        console.error("Couldn't confirm this activity");
         setIsConfirming(false);
         toast({
           title: "Uh Oh!",
-          description: "Couldn't confirm the shop",
+          description: "Couldn't confirm the activity",
         });
       }
     }
@@ -307,7 +307,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         </Button>
       </div>
       <div ref={componentRef}>
-        <ShopVoucherPDF vouchers={vouchers} />
+        <ActivityVoucherPDF vouchers={vouchers} />
       </div>
       <div className="flex w-full flex-row justify-end gap-2"></div>
     </div>

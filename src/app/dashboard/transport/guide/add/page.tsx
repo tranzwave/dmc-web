@@ -1,12 +1,10 @@
 "use client";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import TitleBar from "~/components/common/titleBar";
 import DocumentsTab from "~/components/transports/guide/addTransport/forms/documentsForm";
 import GeneralTab from "~/components/transports/guide/addTransport/forms/generalForm";
 import SubmitForm from "~/components/transports/guide/addTransport/forms/submitForm";
-import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { AddGuideTransportProvider, useAddGuideTransport } from "./context";
 
@@ -25,11 +23,11 @@ const AddGuideTransport = () => {
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title="Add Guide" link="toAddTransport" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className="w-full">
             <Tabs defaultValue="general" className="w-full border" value={activeTab}>

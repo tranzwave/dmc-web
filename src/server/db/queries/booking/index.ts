@@ -196,7 +196,7 @@ async function generateBookingLineId(tenantId: string, countryCode: string): Pro
 }
 
 export const createNewBooking = async (
-  orgId:string,
+  orgId: string,
   bookingDetails: BookingDetails,
   newBooking?: InsertBooking,
   generalData?: any,
@@ -210,7 +210,7 @@ export const createNewBooking = async (
     // Start a transaction
     const result = await db.transaction(async (tx) => {
       const tenantExist = await tx.query.tenant.findFirst({
-        where:eq(tenant.id, orgId)
+        where: eq(tenant.id, orgId)
       });
 
       if (!tenantExist) {
@@ -658,13 +658,13 @@ export const addRestaurantVoucherLinesToBooking = async (
 ) => {
 
   const result = await db.transaction(async (trx) => {
-    if(!vouchers){
+    if (!vouchers) {
       throw new Error("No vouchers were sent")
     }
     try {
       // Wait for all voucher inserts before proceeding
       const insertedVouchers = await insertRestaurantVouchersTx(trx, vouchers, newBookingLineId, coordinatorId);
-      
+
       // Return the result after all inserts are done
       return insertedVouchers;
     } catch (error) {
@@ -686,11 +686,11 @@ export const insertRestaurantVouchersTx = async (
 
   // Use a for loop to ensure sequential processing, avoiding any premature commits or errors
   const restaurantVouchers = [];
-  
+
   for (let i = 0; i < vouchers.length; i++) {
 
     const currentVoucher = vouchers[i];
-    if(!currentVoucher){
+    if (!currentVoucher) {
       throw new Error("Voucher is undefined");
     }
     console.log(`Processing voucher ${i + 1}`);
@@ -714,10 +714,10 @@ export const insertRestaurantVouchersTx = async (
 
     // Insert restaurant voucher lines
     const voucherLines = [];
-    
+
     for (let j = 0; j < currentVoucher.voucherLines.length; j++) {
       const currentVoucherLine = currentVoucher.voucherLines[j];
-      if(!currentVoucherLine){
+      if (!currentVoucherLine) {
         throw new Error("Voucher is undefined");
       }
       console.log(`Processing voucher line ${j + 1} for voucher ${voucherId}`);

@@ -7,9 +7,9 @@ import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
 import { insertDriver } from "~/server/db/queries/transport";
 import {
-    InsertDriver,
-    InsertLanguage,
-    InsertVehicle,
+  InsertDriver,
+  InsertLanguage,
+  InsertVehicle,
 } from "~/server/db/schemaTypes";
 
 const SubmitForm = () => {

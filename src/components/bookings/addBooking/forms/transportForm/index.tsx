@@ -171,7 +171,7 @@ const TransportTab = () => {
 
       console.log(results);
       const filteredDrivers = results.filter((driver) => {
-        if (searchParams.type === "Chauffer") {
+        if (searchParams.type === "Chauffeur") {
           return driver.type;
         } else {
           return !driver.type;

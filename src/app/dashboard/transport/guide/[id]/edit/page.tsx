@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import LoadingLayout from "~/components/common/dashboardLoading";
@@ -7,7 +6,6 @@ import TitleBar from "~/components/common/titleBar";
 import DocumentsTab from "~/components/transports/guide/addTransport/forms/documentsForm";
 import GeneralTab from "~/components/transports/guide/addTransport/forms/generalForm";
 import EditTransportSubmitForm from "~/components/transports/guide/addTransport/forms/submitForm/editTransportSubmit";
-import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { getGuideDataById } from "~/server/db/queries/transport";
 import {
@@ -116,11 +114,11 @@ const EditTransport = ({ id }: { id: string }) => {
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title="Add Driver" link="toAddTransport" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className="w-full">
             <Tabs
