@@ -1,28 +1,26 @@
 "use client";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { DataTable } from "~/components/bookings/home/dataTable";
-import { restaurantVoucherColumns, Restaurant } from "./columns";
-import RestaurantForm from "./restaurantsForm";
+import {
+  RestaurantVoucher,
+  useEditBooking,
+} from "~/app/dashboard/bookings/[id]/edit/context";
+import { DataTableWithActions } from "~/components/common/dataTableWithActions";
+import DeletePopup from "~/components/common/deletePopup";
+import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
+import { useToast } from "~/hooks/use-toast";
+import { addRestaurantVoucherLinesToBooking, deleteRestaurantVoucherLine } from "~/server/db/queries/booking";
+import { getAllRestaurants } from "~/server/db/queries/booking/restaurantVouchers";
 import {
   InsertRestaurantVoucher,
   InsertRestaurantVoucherLine,
   SelectMeal,
   SelectRestaurant,
 } from "~/server/db/schemaTypes";
-import { getAllRestaurants } from "~/server/db/queries/booking/restaurantVouchers";
-import { Button } from "~/components/ui/button";
-import { useToast } from "~/hooks/use-toast";
-import { Calendar } from "~/components/ui/calendar";
-import {
-  RestaurantVoucher,
-  useEditBooking,
-} from "~/app/dashboard/bookings/[id]/edit/context";
-import { LoaderCircle } from "lucide-react";
-import { addRestaurantVoucherLinesToBooking, deleteRestaurantVoucherLine } from "~/server/db/queries/booking";
-import { usePathname, useRouter } from "next/navigation";
-import { DataTableWithActions } from "~/components/common/dataTableWithActions";
-import DeletePopup from "~/components/common/deletePopup";
-import Link from "next/link";
+import { restaurantVoucherColumns } from "./columns";
+import RestaurantForm from "./restaurantsForm";
 
 export type RestaurantData = SelectRestaurant & {
   restaurantMeal: SelectMeal[];
@@ -98,7 +96,7 @@ const RestaurantsTab = () => {
       }
       toast({
         title: "Success",
-        description: "Hotel Vouchers Added!",
+        description: "Restaurant Vouchers Added!",
       });
       setSaving(false);
         updateTriggerRefetch();

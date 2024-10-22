@@ -24,8 +24,7 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 import {
-  deleteHotelVoucherLine,
-  deleteRestaurantVoucherLine,
+  deleteRestaurantVoucherLine
 } from "~/server/db/queries/booking";
 import { getAllRestaurants } from "~/server/db/queries/booking/restaurantVouchers";
 import { RestaurantVoucherData } from "..";
@@ -95,9 +94,9 @@ const RestaurantVouchersTasksTab = <
       const newResponse = await getAllRestaurants();
 
       if (!newResponse) {
-        throw new Error(`Error: Couldn't get hotels`);
+        throw new Error(`Error: Couldn't get restaurants`);
       }
-      console.log("Fetched Hotels:", newResponse);
+      console.log("Fetched Restaurants:", newResponse);
 
       setRestaurants(newResponse);
       setLoading(false);
