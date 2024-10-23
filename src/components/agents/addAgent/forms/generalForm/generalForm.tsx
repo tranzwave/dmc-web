@@ -170,7 +170,7 @@ const GeneralForm = () => {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Agency</FormLabel>
+                  <FormLabel>Organization Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter Agency" {...field} />
                   </FormControl>

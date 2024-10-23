@@ -206,7 +206,7 @@ const HotelGeneralForm = ({
               control={generalForm.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Stars</FormLabel>
+                  <FormLabel>Star Category</FormLabel>
                   <FormControl>
                     <Select
                       onValueChange={(value) => field.onChange(Number(value))} // Convert the selected value to a number

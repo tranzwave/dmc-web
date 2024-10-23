@@ -1,5 +1,6 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
@@ -12,14 +13,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Restaurant } from "./columns";
-import {
-  InsertRestaurantVoucherLine,
-  SelectMeal,
-  SelectRestaurant,
-  SelectRestaurantVoucherLine,
-} from "~/server/db/schemaTypes";
-import { restaurant } from "~/server/db/schema";
 import {
   Select,
   SelectContent,
@@ -27,10 +20,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { useEffect, useState } from "react";
-import { getMeals } from "~/server/db/queries/booking/restaurantVouchers";
+import {
+  InsertRestaurantVoucherLine,
+  SelectMeal
+} from "~/server/db/schemaTypes";
 import { RestaurantData } from ".";
-import { RestaurantVoucher } from "~/app/dashboard/bookings/add/context";
 
 interface RestaurantFormProps {
   onAddRestaurant: (
@@ -40,6 +34,9 @@ interface RestaurantFormProps {
   restaurants: RestaurantData[];
   defaultValues: InsertRestaurantVoucherLine | null;
   lockedVendorId?: string;
+  amendment?: boolean;  // Add this to include 'amendment'
+  isUpdating?: boolean
+
 }
 
 export const restaurantSchema = z.object({

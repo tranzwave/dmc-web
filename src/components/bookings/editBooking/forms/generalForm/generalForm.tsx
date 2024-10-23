@@ -289,7 +289,7 @@ const GeneralForm = () => {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Client Name</FormLabel>
+                  <FormLabel>Booking Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter client name" {...field} />
                   </FormControl>
@@ -527,7 +527,7 @@ const GeneralForm = () => {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Agent</FormLabel>
+                    <FormLabel>Travel Agent</FormLabel>
                     <FormControl>
                       {/* <Input placeholder="Enter agent's name" {...field} /> */}
                       <Select

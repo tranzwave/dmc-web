@@ -416,13 +416,13 @@ const RestaurantVouchersTasksTab = <
                       onSave={() => {
                         console.log("saving");
                       }}
-                      selectedItem={selectedVoucher.voucherLines[0]}
+                      // selectedItem={selectedVoucher.voucherLines[0]}
                       vendor={selectedVoucher}
-                      // defaultValues={{
-                      //   restaurant: selectedVoucher?.restaurant,
-                      //   ...selectedVoucher.voucherLines[0],
-                      // }}
-                      // restaurants={restaurants}
+                      defaultValues={{
+                        restaurant: selectedVoucher?.restaurant,
+                        ...selectedVoucher.voucherLines[0],
+                      }}
+                      restaurant={restaurants}
                     />
                   }
                   size="large"
