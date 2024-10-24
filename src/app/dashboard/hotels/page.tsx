@@ -23,7 +23,7 @@ const HotelsHome = () => {
         },
         {
           accessorKey: "stars",
-          header: "Stars",
+          header: "Star Category",
         },
         {
           accessorKey: "primaryContactNumber",

@@ -113,6 +113,7 @@ const VehiclesForm: React.FC<VehiclesFormProps> = ({ onAddVehicles,selectedVehic
                       placeholder="Enter number of seats"
                       value={field.value ?? ""}
                       onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                      min={0}
                     />
                   </FormControl>
                   <FormMessage />

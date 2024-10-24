@@ -1,8 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { parsePhoneNumberFromString } from "libphonenumber-js"; // Correct import for parsing
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import { z } from "zod";
 import { useAddShop } from "~/app/dashboard/shops/add/context";
 import { Button } from "~/components/ui/button";
@@ -25,10 +28,17 @@ import {
 import { getAllCities, getAllShopTypes } from "~/server/db/queries/shops";
 import { SelectCity, SelectShopType } from "~/server/db/schemaTypes";
 
+
 // Define the schema using Zod for validation
 export const generalSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  contactNumber: z.string().min(1, "Contact number is required"),
+  contactNumber:  z.string().refine(
+    (value) => {
+      const phoneNumber = parsePhoneNumberFromString(value);
+      return phoneNumber?.isValid() ?? false;
+    },
+    { message: "Invalid phone number" },
+  ),
   streetName: z.string().min(1, "Street name is required"),
   province: z.string().min(1, "Province is required"),
   cityName: z.string().min(1, "City is required"),
@@ -190,10 +200,12 @@ const GeneralForm = () => {
               <FormItem>
                 <FormLabel>Contact Number</FormLabel>
                 <FormControl>
-                  <Input
-                    type="text"
-                    placeholder="Enter contact number"
-                    {...field}
+                <PhoneInput
+                    country={"us"}
+                    value={field.value}
+                    onChange={(phone) => field.onChange(`+${phone}`)}
+                    inputClass="w-full shadow-md"
+                    inputStyle={{ width: "inherit" }}
                   />
                 </FormControl>
                 <FormMessage />

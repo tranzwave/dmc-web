@@ -24,7 +24,7 @@ const AgentHome = () => {
       accessorFn: (row) => row.countryCode,
     },
     {
-      header: "Agency",
+      header: "Organization Name",
       accessorFn: (row) => row.agency,
     },
     {
