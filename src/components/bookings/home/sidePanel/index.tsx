@@ -1,23 +1,22 @@
 "use client";
 
+import { Lock } from "lucide-react"; // Import the lock icon
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
-  Booking,
   BookingDTO,
-  CategoryDetails,
+  CategoryDetails
 } from "~/components/bookings/home/columns";
 import { Button } from "~/components/ui/button";
 import { Progress } from "~/components/ui/progress";
-import { Lock } from "lucide-react"; // Import the lock icon
-import { useEffect, useState } from "react";
-import { getHotelVouchers } from "~/server/db/queries/booking/hotelVouchers";
-import { getTransportVouchers } from "~/server/db/queries/booking/transportVouchers";
 import { getActivityVouchers } from "~/server/db/queries/booking/activityVouchers";
-import { getShopsVouchers } from "~/server/db/queries/booking/shopsVouchers";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { getHotelVouchers } from "~/server/db/queries/booking/hotelVouchers";
 import { getCoordinatorAndManager, getRestaurantVouchers } from "~/server/db/queries/booking/restaurantVouchers";
-import { HotelVoucherData } from "../../tasks/hotelsTaskTab";
+import { getShopsVouchers } from "~/server/db/queries/booking/shopsVouchers";
+import { getTransportVouchers } from "~/server/db/queries/booking/transportVouchers";
 import { SelectUser } from "~/server/db/schemaTypes";
+import { HotelVoucherData } from "../../tasks/hotelsTaskTab";
 
 interface SidePanelProps {
   booking: BookingDTO | null;
@@ -179,7 +178,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
             </div>
           </div>
         </div>
-        <div className="w-1/5 ml-2">
+        <div className="xl::w-1/5 xs:2/5 ml-2">
           <div className="flex h-full items-end justify-end">
             <Link
               href={`${pathname}/${booking.id}/tasks?tab=${category.title.toLowerCase()}`}
