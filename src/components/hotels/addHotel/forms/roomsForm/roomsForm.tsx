@@ -133,7 +133,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom }) => {
             control={roomsForm.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Room Type Name</FormLabel>
+                <FormLabel>Room Type</FormLabel>
                 <FormControl>
                   <Select
                     onValueChange={(value) => {

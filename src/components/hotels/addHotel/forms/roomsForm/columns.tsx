@@ -4,12 +4,12 @@ import { HotelRoomType } from "../generalForm/columns";
 export const columns: ColumnDef<HotelRoomType>[] = [
   {
     accessorKey: "roomType",
-    header: "Room Type",
+    header: "Room Category",
     cell: ({ row }) => <span>{row.original.roomType}</span>,
   },
   {
     accessorKey: "typeName",
-    header: "Type Name",
+    header: "Room Type",
     cell: ({ row }) => <span>{row.original.typeName}</span>,
   },
   {

@@ -301,24 +301,34 @@ const HotelVouchersTasksTab = <
                 ? `${getFirstObjectName(selectedVoucher)} - Voucher Lines`
                 : "Voucher Lines"}
             </div>
-            {selectedVoucher ? (
-              <div className="flex flex-row gap-2">
-                <Button
+          </div>
+
+          {/* <DataTableWithActions
+            columns={voucherColumns}
+            data={selectedVoucher?.voucherLines ?? []}
+            onRowClick={onVoucherLineRowClick}
+            onView={() => alert("View action triggered")}
+            onEdit={() => alert("Edit action triggered")}
+            onDelete={() => alert("Delete action triggered")}
+          /> */}
+          <DataTable
+            columns={voucherColumns}
+            data={selectedVoucher?.voucherLines ?? []}
+            onRowClick={onVoucherLineRowClick}
+          />
+          <div
+            className={`flex flex-row items-end justify-end ${!selectedVoucher ? "hidden" : ""}`}
+          >
+            <div className="flex flex-row gap-2">
+              {selectedVoucher && selectedVoucher.voucherLines[0] && (
+                <div className="flex flex-row gap-2">
+                   <Button
                   variant={"outline"}
                   className="border-red-600"
                   onClick={renderCancelContent}
                 >
                   Cancel
                 </Button>
-                {/* <Popup
-                  title="Cancel Voucher"
-                  description="This action cannot be undone"
-                  trigger={cancelButton}
-                  onConfirm={handleConfirm}
-                  onCancel={handleCancel}
-                  dialogContent={renderCancelContent()}
-                  size="small"
-                /> */}
 
                 <Popup
                   title="Contact"
@@ -341,47 +351,8 @@ const HotelVouchersTasksTab = <
                   description="You haven't sent this to the vendor yet. You can delete the
                 voucher without sending a cancellation voucher"
                 />
-                <div ref={deleteVoucherRef} style={{ display: "none" }}>
-                  <HotelVoucherPDF
-                    voucher={selectedVoucher}
-                    cancellation={true}
-                    key={selectedVoucher.hotelId}
-                  />
-                </div>
 
-                <DeletePopup
-                  itemName={`Voucher for ${selectedVoucher?.hotel.name}`}
-                  onDelete={handleProceededVoucherDelete}
-                  isOpen={isProceededVoucherDelete}
-                  setIsOpen={setIsProceededVoucherDelete}
-                  isDeleting={isDeleting}
-                  description={`You have already proceeded with this voucher, and it's in the status of ${selectedVoucher.status} \n
-                Are you sure you want to cancel this voucher? This will give you the cancellation voucher and delete the voucher from this booking`}
-                />
-              </div>
-            ) : (
-              ""
-            )}
-          </div>
 
-          {/* <DataTableWithActions
-            columns={voucherColumns}
-            data={selectedVoucher?.voucherLines ?? []}
-            onRowClick={onVoucherLineRowClick}
-            onView={() => alert("View action triggered")}
-            onEdit={() => alert("Edit action triggered")}
-            onDelete={() => alert("Delete action triggered")}
-          /> */}
-          <DataTable
-            columns={voucherColumns}
-            data={selectedVoucher?.voucherLines ?? []}
-            onRowClick={onVoucherLineRowClick}
-          />
-          <div
-            className={`flex flex-row items-end justify-end ${!selectedVoucher ? "hidden" : ""}`}
-          >
-            <div className="flex flex-row gap-2">
-              {selectedVoucher && selectedVoucher.voucherLines[0] && (
                 <Popup
                   title={
                     selectedVoucher && getFirstObjectName(selectedVoucher)
@@ -406,6 +377,8 @@ const HotelVouchersTasksTab = <
                   }
                   size="large"
                 />
+                </div>
+
               )}
 
               <Popup

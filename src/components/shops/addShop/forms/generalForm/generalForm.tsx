@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { parsePhoneNumberFromString } from "libphonenumber-js"; // Correct import for parsing
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import PhoneInput from "react-phone-input-2";
@@ -165,16 +165,14 @@ const GeneralForm = () => {
                 <FormControl>
                   <Select
                     onValueChange={(valueFromSelection) => {
-                      // Update the field value in the form control
                       field.onChange(valueFromSelection);
 
-                      // Set the selected shop type
                       const selectedType = shopTypes.find(
                         (s) => s.name === valueFromSelection,
                       );
                       setSelectedShopType(selectedType);
                     }}
-                    value={field.value} // Ensure this reflects the selected shop type name
+                    value={field.value}
                   >
                     <SelectTrigger className="bg-slate-100 shadow-md">
                       <SelectValue placeholder="Select shop type" />

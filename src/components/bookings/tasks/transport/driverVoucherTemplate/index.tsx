@@ -170,7 +170,7 @@ const DriverTransportVoucherPDF = ({
         </div>
 
         <div className="mt-10 text-[13px]">
-          <div>Date : {format(Date.now(), "dd/MM/yyyy")}</div>
+          <div>Printed Date : {format(Date.now(), "dd/MM/yyyy")}</div>
           <div>Prepared By : {user?.fullName ?? ""}</div>
           <div>This is a computer generated Voucher & does not require a signature</div>
         </div>

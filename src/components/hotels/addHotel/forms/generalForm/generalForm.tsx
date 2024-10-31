@@ -1,8 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import { z } from "zod";
 import { useAddHotel } from "~/app/dashboard/hotels/add/context";
 import { Button } from "~/components/ui/button";
@@ -30,7 +33,13 @@ export const hotelGeneralSchema = z.object({
   name: z.string().min(1, "Hotel name is required"),
   stars: z.number().min(1, "Star rating is required"),
   primaryEmail: z.string().email("Invalid email address"),
-  primaryContactNumber: z.string().min(1, "Primary contact number is required"),
+  primaryContactNumber: z.string().refine(
+    (value) => {
+      const phoneNumber = parsePhoneNumberFromString(value);
+      return phoneNumber?.isValid() ?? false;
+    },
+    { message: "Invalid phone number" },
+  ),
   streetName: z.string().min(1, "Street name is required"),
   city: z.string().min(1, "City is required"),
   province: z.string().min(1, "Province is required"),
@@ -258,10 +267,13 @@ const HotelGeneralForm = ({
                 <FormItem>
                   <FormLabel>Primary Contact Number</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Enter primary contact number"
-                      {...field}
-                    />
+                  <PhoneInput
+                    country={"us"}
+                    value={field.value}
+                    onChange={(phone) => field.onChange(`+${phone}`)}
+                    inputClass="w-full shadow-md"
+                    inputStyle={{ width: "inherit" }}
+                  />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

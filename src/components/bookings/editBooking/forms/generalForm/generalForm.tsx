@@ -5,8 +5,11 @@ import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { LoaderCircle } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import {
   StatusLabels,
   useEditBooking
@@ -51,31 +54,38 @@ import {
 } from "~/server/db/schemaTypes";
 
 // Define the schema for form validation
-// export const generalSchema = z
-//   .object({
-//     clientName: z.string().min(1, "Client name is required"),
-//     country: z.string().min(1, "Country is required"),
-//     primaryEmail: z.string().email("Invalid email address"),
-//     adultsCount: z.number().min(0, "Add adult count"),
-//     kidsCount: z.number().min(0, "Add kids count"),
-//     startDate: z.string().min(1, "Start date is required"),
-//     numberOfDays: z.number().min(1, "Number of days must be at least 1"),
-//     endDate: z.string().min(1, "End date is required"),
-//     marketingManager: z.string().min(1, "Marketing manager is required"),
-//     agent: z.string().min(1, "Agent is required"),
-//     tourType: z.string().min(1, "Tour type is required"),
-//     includes: z.object({
-//       hotels: z.boolean(),
-//       restaurants: z.boolean(),
-//       transport: z.boolean(),
-//       activities: z.boolean(),
-//       shops: z.boolean(),
-//     }),
-//   })
-//   .refine((data) => new Date(data.endDate) >= new Date(data.startDate), {
-//     message: "End date cannot be earlier than start date",
-//     path: ["endDate"],
-//   });
+export const generalSchema = z
+  .object({
+    clientName: z.string().min(1, "Client name is required"),
+    country: z.string().min(1, "Country is required"),
+    primaryEmail: z.string().email("Invalid email address"),
+    primaryContactNumber: z.string().refine(
+      (value) => {
+        const phoneNumber = parsePhoneNumberFromString(value);
+        return phoneNumber?.isValid() ?? false;
+      },
+      { message: "Invalid phone number" },
+    ),
+    adultsCount: z.number().min(0, "Add adult count"),
+    kidsCount: z.number().min(0, "Add kids count"),
+    startDate: z.string().min(1, "Start date is required"),
+    numberOfDays: z.number().min(1, "Number of days must be at least 1"),
+    endDate: z.string().min(1, "End date is required"),
+    marketingManager: z.string().min(1, "Marketing manager is required"),
+    agent: z.string().min(1, "Agent is required"),
+    tourType: z.string().min(1, "Tour type is required"),
+    includes: z.object({
+      hotels: z.boolean(),
+      restaurants: z.boolean(),
+      transport: z.boolean(),
+      activities: z.boolean(),
+      shops: z.boolean(),
+    }),
+  })
+  .refine((data) => new Date(data.endDate) >= new Date(data.startDate), {
+    message: "End date cannot be earlier than start date",
+    path: ["endDate"],
+  });
 
 // Define the type of the form values
 type GeneralFormValues = z.infer<typeof addBookingGeneralSchema>;
@@ -381,11 +391,14 @@ const GeneralForm = () => {
                     <FormItem>
                       <FormLabel>Primary Contact Number</FormLabel>
                       <FormControl>
-                        <Input
-                          type="tel"
-                          placeholder="Enter primary contact number"
-                          {...field}
-                        />
+                      <PhoneInput
+                    country={"us"}
+                    value={field.value}
+                    onChange={(phone) => field.onChange(`+${phone}`)}
+                    inputClass="w-full shadow-md"
+                    inputStyle={{ width: "inherit" }}
+                  />
+                        
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -542,7 +555,7 @@ const GeneralForm = () => {
                         <SelectContent>
                           {agents.map((agent) => (
                             <SelectItem key={agent.id} value={agent?.id ?? ""}>
-                              {agent.name}
+                              {agent.name} - {agent.agency}
                             </SelectItem>
                           ))}
                         </SelectContent>
