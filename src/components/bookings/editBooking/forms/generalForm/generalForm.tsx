@@ -5,8 +5,9 @@ import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { format, parse } from "date-fns";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
-import { LoaderCircle } from "lucide-react";
+import { CalendarIcon, LoaderCircle } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -16,6 +17,7 @@ import {
 } from "~/app/dashboard/bookings/[id]/edit/context";
 import { addBookingGeneralSchema } from "~/components/bookings/addBooking/forms/generalForm/generalForm";
 import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
 import { Checkbox } from "~/components/ui/checkbox";
 import {
   Dialog,
@@ -35,6 +37,7 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -43,6 +46,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { tourTypes } from "~/lib/constants";
+import { cn } from "~/lib/utils";
 import { getAllAgents } from "~/server/db/queries/agents";
 import { updateBookingLine } from "~/server/db/queries/booking";
 import { getAllCountries } from "~/server/db/queries/countries";
@@ -457,7 +461,48 @@ const GeneralForm = () => {
                 <FormItem>
                   <FormLabel>Start Date</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                  <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value ? (
+                            format(new Date(field.value), "LLL dd, y")
+                          ) : (
+                            <span>Pick the arrival date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          initialFocus
+                          selected={
+                            field.value
+                              ? parse(field.value, "MM/dd/yyyy", new Date())
+                              : new Date()
+                          }
+                          onSelect={(date: Date | undefined) => {
+                            const dateString = format(
+                              date ?? new Date(),
+                              "MM/dd/yyyy",
+                            );
+                            field.onChange(dateString);
+                          }}
+                          disabled={(date) => {
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            return date < today;
+                          }}
+                          numberOfMonths={1}
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -487,11 +532,50 @@ const GeneralForm = () => {
                 <FormItem>
                   <FormLabel>End Date</FormLabel>
                   <FormControl>
-                    <Input
-                      type="date"
-                      {...field}
-                      min={form.watch("startDate") ?? ""}
-                    />
+                  <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value ? (
+                            format(new Date(field.value), "LLL dd, y")
+                          ) : (
+                            <span>Pick the departure date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          initialFocus
+                          selected={
+                            field.value
+                              ? parse(field.value, "MM/dd/yyyy", new Date())
+                              : new Date()
+                          }
+                          onSelect={(date: Date | undefined) => {
+                            const dateString = format(
+                              date ?? new Date(),
+                              "MM/dd/yyyy",
+                            );
+                            field.onChange(dateString);
+                          }}
+                          numberOfMonths={1}
+                          disabled={(date) => {
+                            const startDate = form.watch("startDate");
+                            const startParsed = startDate
+                              ? parse(startDate, "MM/dd/yyyy", new Date())
+                              : null;
+                            return startParsed ? date < startParsed : false;
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
