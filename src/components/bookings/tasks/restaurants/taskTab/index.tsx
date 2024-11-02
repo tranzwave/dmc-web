@@ -86,7 +86,6 @@ const RestaurantVouchersTasksTab = <
   const deleteVoucherRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
-
   const { toast } = useToast();
 
   const getHotels = async () => {
