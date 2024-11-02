@@ -84,6 +84,8 @@ const RestaurantVouchersTasksTab = <
   const [restaurants, setRestaurants] = useState<SelectRestaurant[]>([]);
   const [error, setError] = useState<string | null>();
   const deleteVoucherRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
 
   const { toast } = useToast();
 
@@ -284,8 +286,6 @@ const RestaurantVouchersTasksTab = <
       return;
     }
   };
-
-  const pathname = usePathname();
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">

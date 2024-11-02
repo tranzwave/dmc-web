@@ -79,6 +79,7 @@ const HotelVouchersTasksTab = <
   const [hotels, setHotels] = useState<SelectHotel[]>([]);
   const [error, setError] = useState<string | null>();
   const deleteVoucherRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   const { toast } = useToast();
 
@@ -271,7 +272,6 @@ const HotelVouchersTasksTab = <
       return;
     }
   };
-  const pathname = usePathname();
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">
@@ -285,6 +285,7 @@ const HotelVouchersTasksTab = <
             <Link href={`${pathname.replace("/tasks", "")}/edit?tab=hotels`}>
               <Button variant={"outline"}>Add Vouchers</Button>
             </Link>
+          </div>
           </div>
           <div className="text-sm font-normal">
             Click the line to send the voucher
@@ -451,7 +452,6 @@ const HotelVouchersTasksTab = <
           /> */}
         </div>
       </div>
-    </div>
   );
 };
 
