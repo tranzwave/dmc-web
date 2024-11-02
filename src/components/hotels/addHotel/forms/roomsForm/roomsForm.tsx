@@ -31,7 +31,7 @@ interface RoomsFormProps {
 // Define the schema for room details
 export const roomsSchema = z.object({
   roomType: z.string().min(1, "Room type is required"),
-  typeName: z.string().min(1, "Type name is required"),
+  typeName: z.string().min(0, "Type name is required"),
   count: z
     .number()
     .min(1, "Count must be 1 or higher")
@@ -146,7 +146,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom }) => {
                     </SelectTrigger>
                     <SelectContent>
                       {hotelRoomCategories.map((type) => (
-                        <SelectItem key={type} value={type}>
+                        <SelectItem key={type} value={type}  disabled>
                           {type}
                         </SelectItem>
                       ))}

@@ -7,6 +7,8 @@ import { Input } from "~/components/ui/input";
 import { useToast } from "~/hooks/use-toast";
 // import Voucher from "./voucherComponent";
 import html2pdf from "html2pdf.js";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import DeletePopup from "~/components/common/deletePopup";
@@ -20,10 +22,7 @@ import {
 } from "~/components/ui/accordion";
 import { deleteHotelVoucherLine } from "~/server/db/queries/booking";
 import { getAllHotelsV2 } from "~/server/db/queries/hotel";
-import {
-  SelectHotel,
-  SelectHotelVoucherLine
-} from "~/server/db/schemaTypes";
+import { SelectHotel, SelectHotelVoucherLine } from "~/server/db/schemaTypes";
 import { HotelVoucherData } from "..";
 import HotelsVoucherForm from "../voucherForm";
 import HotelVoucherPDF from "../voucherTemplate";
@@ -272,6 +271,7 @@ const HotelVouchersTasksTab = <
       return;
     }
   };
+  const pathname = usePathname();
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">
@@ -280,8 +280,15 @@ const HotelVouchersTasksTab = <
           <Calendar />
         </div>
         <div className="card w-full space-y-6">
-          <div className="card-title">Voucher Information</div>
-          <div className="text-sm font-normal">Click the line to send the voucher</div>
+          <div className="flex justify-between">
+            <div className="card-title">Voucher Information</div>
+            <Link href={`${pathname.replace("/tasks", "")}/edit?tab=hotels`}>
+              <Button variant={"outline"}>Add Vouchers</Button>
+            </Link>
+          </div>
+          <div className="text-sm font-normal">
+            Click the line to send the voucher
+          </div>
           {/* <DataTableWithActions
             data={vouchers}
             columns={columns}
@@ -322,63 +329,61 @@ const HotelVouchersTasksTab = <
             <div className="flex flex-row gap-2">
               {selectedVoucher && selectedVoucher.voucherLines[0] && (
                 <div className="flex flex-row gap-2">
-                   <Button
-                  variant={"outline"}
-                  className="border-red-600"
-                  onClick={renderCancelContent}
-                >
-                  Cancel
-                </Button>
+                  <Button
+                    variant={"outline"}
+                    className="border-red-600"
+                    onClick={renderCancelContent}
+                  >
+                    Cancel
+                  </Button>
 
-                <Popup
-                  title="Contact"
-                  description="Loading Contact Details"
-                  trigger={contactButton}
-                  onConfirm={handleConfirm}
-                  onCancel={handleCancel}
-                  dialogContent={ContactContent(
-                    selectedVoucher.hotel.primaryContactNumber,
-                    selectedVoucher.hotel.primaryEmail,
-                  )}
-                  size="small"
-                />
-                <DeletePopup
-                  itemName={`Voucher for ${selectedVoucher?.hotel.name}`}
-                  onDelete={handleInProgressVoucherDelete}
-                  isOpen={isInprogressVoucherDelete}
-                  setIsOpen={setIsInProgressVoucherDelete}
-                  isDeleting={isDeleting}
-                  description="You haven't sent this to the vendor yet. You can delete the
+                  <Popup
+                    title="Contact"
+                    description="Loading Contact Details"
+                    trigger={contactButton}
+                    onConfirm={handleConfirm}
+                    onCancel={handleCancel}
+                    dialogContent={ContactContent(
+                      selectedVoucher.hotel.primaryContactNumber,
+                      selectedVoucher.hotel.primaryEmail,
+                    )}
+                    size="small"
+                  />
+                  <DeletePopup
+                    itemName={`Voucher for ${selectedVoucher?.hotel.name}`}
+                    onDelete={handleInProgressVoucherDelete}
+                    isOpen={isInprogressVoucherDelete}
+                    setIsOpen={setIsInProgressVoucherDelete}
+                    isDeleting={isDeleting}
+                    description="You haven't sent this to the vendor yet. You can delete the
                 voucher without sending a cancellation voucher"
-                />
+                  />
 
-
-                <Popup
-                  title={
-                    selectedVoucher && getFirstObjectName(selectedVoucher)
-                      ? `${getFirstObjectName(selectedVoucher)} - Voucher`
-                      : "Select a voucher first"
-                  }
-                  description="Amend Voucher"
-                  trigger={amendButton}
-                  onConfirm={handleConfirm}
-                  onCancel={handleCancel}
-                  dialogContent={
-                    <HotelsVoucherForm
-                      onSave={() => {
-                        console.log("saving");
-                      }}
-                      defaultValues={{
-                        hotel: selectedVoucher?.hotel,
-                        ...selectedVoucher.voucherLines[0],
-                      }}
-                      hotels={hotels}
-                    />
-                  }
-                  size="large"
-                />
+                  <Popup
+                    title={
+                      selectedVoucher && getFirstObjectName(selectedVoucher)
+                        ? `${getFirstObjectName(selectedVoucher)} - Voucher`
+                        : "Select a voucher first"
+                    }
+                    description="Amend Voucher"
+                    trigger={amendButton}
+                    onConfirm={handleConfirm}
+                    onCancel={handleCancel}
+                    dialogContent={
+                      <HotelsVoucherForm
+                        onSave={() => {
+                          console.log("saving");
+                        }}
+                        defaultValues={{
+                          hotel: selectedVoucher?.hotel,
+                          ...selectedVoucher.voucherLines[0],
+                        }}
+                        hotels={hotels}
+                      />
+                    }
+                    size="large"
+                  />
                 </div>
-
               )}
 
               <Popup
@@ -759,7 +764,9 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
       <Accordion type="single" collapsible>
         <AccordionItem value="item-1">
           <AccordionTrigger className="w-full justify-end">
-            <div className="text-sm font-normal text-neutral-900">Preview Voucher</div>
+            <div className="text-sm font-normal text-neutral-900">
+              Preview Voucher
+            </div>
           </AccordionTrigger>
           <AccordionContent className="space-y-2">
             <div className="flex flex-row justify-end">
@@ -774,8 +781,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         </AccordionItem>
       </Accordion>
 
-      <div>
-      </div>
+      <div></div>
     </div>
   );
 };

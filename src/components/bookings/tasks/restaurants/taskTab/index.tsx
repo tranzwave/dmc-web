@@ -16,6 +16,8 @@ import {
   SelectRestaurantVoucherLine,
 } from "~/server/db/schemaTypes";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import {
   Accordion,
@@ -23,9 +25,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import {
-  deleteRestaurantVoucherLine
-} from "~/server/db/queries/booking";
+import { deleteRestaurantVoucherLine } from "~/server/db/queries/booking";
 import { getAllRestaurants } from "~/server/db/queries/booking/restaurantVouchers";
 import { RestaurantVoucherData } from "..";
 import RestaurantsVoucherForm from "../form";
@@ -285,6 +285,8 @@ const RestaurantVouchersTasksTab = <
     }
   };
 
+  const pathname = usePathname();
+
   return (
     <div className="flex flex-col items-center justify-center gap-3">
       <div className="flex w-full flex-row justify-center gap-3">
@@ -292,7 +294,14 @@ const RestaurantVouchersTasksTab = <
           <Calendar />
         </div>
         <div className="card w-full space-y-6">
-          <div className="card-title">Voucher Information</div>
+          <div className="flex justify-between">
+            <div className="card-title">Voucher Information</div>
+            <Link
+              href={`${pathname.replace("/tasks", "")}/edit?tab=restaurants`}
+            >
+              <Button variant={"outline"}>Add Vouchers</Button>
+            </Link>
+          </div>
           <div className="text-sm font-normal">
             Click the line to send the voucher
           </div>

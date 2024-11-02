@@ -358,7 +358,7 @@ const HotelGeneralForm = ({
                   <FormControl>
                     <Select
                       onValueChange={handleHasRestaurantChange}
-                      value={field.value ? "true" : "false"}
+                      value={field.value ? "false" : "true"}
                     >
                       <SelectTrigger className="bg-slate-100 shadow-md">
                         <SelectValue placeholder="Select" />

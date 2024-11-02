@@ -93,7 +93,7 @@ const RestaurantVoucherPDF = ({ voucher,cancellation }: RestaurantVoucherPDFProp
         </div>
         <div className="flex w-full flex-row justify-between">
           <div className="text-[13px]">
-            <div>Bill to : {organization?.name}</div>
+            {/* <div>Bill to : {organization?.name}</div> */}
             <div>Hotel Name : {voucher?.restaurant.name}</div>
             <div>Tour ID : {voucher.bookingLineId}</div>
             <div>

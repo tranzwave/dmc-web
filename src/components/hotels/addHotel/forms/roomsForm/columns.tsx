@@ -7,11 +7,11 @@ export const columns: ColumnDef<HotelRoomType>[] = [
     header: "Room Category",
     cell: ({ row }) => <span>{row.original.roomType}</span>,
   },
-  {
-    accessorKey: "typeName",
-    header: "Room Type",
-    cell: ({ row }) => <span>{row.original.typeName}</span>,
-  },
+  // {
+  //   accessorKey: "typeName",
+  //   header: "Room Type",
+  //   cell: ({ row }) => <span>{row.original.typeName}</span>,
+  // },
   {
     accessorKey: "count",
     header: "Count",
