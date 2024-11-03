@@ -73,6 +73,7 @@ const HotelGeneralForm = ({
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState<SelectCity[]>([]);
+  const [selectedCity, setSelectedCity] = useState(0);
 
   const {
     setHotelGeneral,
@@ -82,25 +83,23 @@ const HotelGeneralForm = ({
     restaurants,
     restaurantMeals,
     setActiveTab,
-  } = useAddHotel(); // Adjusted context hook
-  // const [showRestaurantForm, setShowRestaurantForm] = useState<boolean>(
-  //   hotelGeneral.hasRestaurant ?? false,
-  // );
-  // const [showMealForm, setShowMealForm] = useState<boolean>(false)
+  } = useAddHotel();
 
   const generalForm = useForm<HotelGeneralFormData>({
     resolver: zodResolver(hotelGeneralSchema),
-    defaultValues: defaultValues,
+    defaultValues: {
+      name: defaultValues.name,
+      stars: defaultValues.stars,
+      primaryEmail: defaultValues.primaryEmail,
+      primaryContactNumber: defaultValues.primaryContactNumber,
+      streetName: defaultValues.streetName,
+      city: defaultValues.cityId.toString(),
+      province: defaultValues.province,
+      hasRestaurant: defaultValues.hasRestaurant
+    },
   });
 
   const { reset } = generalForm; // Destructure the reset method
-  // const restaurantForm = useForm<typeof restaurantSchema>({
-  //   resolver: zodResolver(restaurantSchema),
-  // });
-
-  // const restaurantMealForm = useForm<typeof restaurantMealSchema>({
-  //   resolver: zodResolver(restaurantMealSchema),
-  // });
 
   const onGeneralSubmit: SubmitHandler<HotelGeneralFormData> = (values) => {
     console.log(values);
@@ -118,40 +117,6 @@ const HotelGeneralForm = ({
 
     setActiveTab("rooms");
   };
-
-  // const onRestaurantNameSubmit: SubmitHandler<RestaurantType> = (data) => {
-  //   console.log(restaurants)
-  //   console.log(data)
-  //   const existingRestaurant = restaurants.find(
-  //     (res) => res.restaurant?.name === data.name
-  //   );
-
-  //   if (existingRestaurant) {
-  //     console.log("Existing restaurant")
-  //   } else {
-  //     // Add a new restaurant
-  //     addRestaurant({
-  //       restaurant: data,
-  //       meals: [],
-  //     });
-  //   }
-
-  //   setShowMealForm(true);
-  // };
-
-  // const onRestaurantMealSubmit: SubmitHandler<RestaurantMealType> = (data) => {
-  //   console.log(data);
-  //   const existingRestaurant = restaurants.find(
-  //     (res) => res.restaurant?.name === restaurantForm.getValues("name")
-  //   );
-  //   if(existingRestaurant){
-  //     addRestaurantMeal(data,existingRestaurant.restaurant.name);
-  //   }
-  //   setShowMealForm(false)
-  //   restaurantMealForm.reset();
-  //   // Optionally handle restaurant submission here if needed
-  //   console.log(restaurants)
-  // };
 
   const handleHasRestaurantChange = (value: string) => {
     if (value === "true") {
@@ -186,6 +151,12 @@ const HotelGeneralForm = ({
 
   useEffect(() => {
     fetchData();
+    if (defaultValues) {
+      console.log(defaultValues)
+      setSelectedCity(defaultValues.cityId)
+      alert("here")
+      console.log(generalForm.getValues())
+    }
     reset(defaultValues);
   }, [hotelGeneral]);
 
@@ -267,13 +238,13 @@ const HotelGeneralForm = ({
                 <FormItem>
                   <FormLabel>Primary Contact Number</FormLabel>
                   <FormControl>
-                  <PhoneInput
-                    country={"us"}
-                    value={field.value}
-                    onChange={(phone) => field.onChange(`+${phone}`)}
-                    inputClass="w-full shadow-md"
-                    inputStyle={{ width: "inherit" }}
-                  />
+                    <PhoneInput
+                      country={"us"}
+                      value={field.value}
+                      onChange={(phone) => field.onChange(`+${phone}`)}
+                      inputClass="w-full shadow-md"
+                      inputStyle={{ width: "inherit" }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -295,47 +266,50 @@ const HotelGeneralForm = ({
                 </FormItem>
               )}
             />
-            <FormField
-              name="city"
-              control={generalForm.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>City</FormLabel>
-                  <FormControl>
-                    {/* <Input placeholder="Enter city" {...field} /> */}
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                      }}
-                      value={
-                        field.value ||
-                        cities
-                          .find((city) => city.id === defaultValues.cityId)
-                          ?.id?.toString()
-                      } // Ensure initial value is set correctly
-                      defaultValue={cities
-                        .find((city) => city.id === defaultValues.cityId)
-                        ?.id?.toString()} // Set the initial default value
-                    >
-                      <SelectTrigger className="bg-slate-100 shadow-md">
-                        <SelectValue placeholder="Select city" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {cities.map((city) => (
-                          <SelectItem
-                            key={city.id}
-                            value={String(city.id ?? 0) ?? "0"}
-                          >
-                            {city.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {cities && (
+              <FormField
+                name="city"
+                control={generalForm.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>City</FormLabel>
+                    <FormControl>
+                      {/* <Input placeholder="Enter city" {...field} /> */}
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                        }}
+                        value={
+                          field.value ||
+                          cities
+                            .find((city) => city.id === selectedCity)
+                            ?.id?.toString()
+                        } // Ensure initial value is set correctly
+                        defaultValue={cities
+                          .find((city) => city.id === selectedCity)
+                          ?.id?.toString()} // Set the initial default value
+                      >
+                        <SelectTrigger className="bg-slate-100 shadow-md">
+                          <SelectValue placeholder="Select city" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {cities.map((city) => (
+                            <SelectItem
+                              key={city.id}
+                              value={String(city.id ?? 0) ?? "0"}
+                            >
+                              {city.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             <FormField
               name="province"
               control={generalForm.control}
@@ -381,111 +355,6 @@ const HotelGeneralForm = ({
           </div>
         </form>
       </Form>
-
-      {/* <div>
-        {showRestaurantForm && (
-          <div className="mt-4">
-            <h2 className="card-title mb-4">Restaurant Details</h2>
-            <div className="flex flex-row gap-1 w-full">
-              <div className="w-1/3">              
-                <Form {...restaurantForm}>
-                  <form
-                    onSubmit={restaurantForm.handleSubmit(onRestaurantNameSubmit)}
-                    className="flex flex-row gap-2 space-y-8 w-full"
-                  >
-                    <FormField
-                      name="name"
-                      control={restaurantForm.control}
-                      render={({ field }) => (
-                        <FormItem className="w-4/5">
-                          <FormLabel>Restaurant Name</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter restaurant name"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <Button type="submit" variant={"primaryGreen"}>
-                      <ArrowRightSquareIcon />
-                    </Button>
-                  </form>
-                </Form>
-              </div>
-              <div className="w-2/3">
-              {showMealForm && (
-                <Form {...restaurantMealForm}>
-                  <form
-                    onSubmit={restaurantMealForm.handleSubmit(
-                      onRestaurantMealSubmit,
-                    )}
-                    className="flex flex-row items-start gap-2 w-full"
-                  >
-                    <div className="w-2/5">
-                      <FormField
-                        name="mealType"
-                        control={restaurantMealForm.control}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Meal Type</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Enter restaurant name"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="w-1/5">
-                      <FormField
-                        name="startTime"
-                        control={restaurantMealForm.control}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Start Time</FormLabel>
-                            <FormControl>
-                              <Input type="time" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="w-1/5">
-                      <FormField
-                        name="endTime"
-                        control={restaurantMealForm.control}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>End Time</FormLabel>
-                            <FormControl>
-                              <Input type="time" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="mt-8">
-                      <Button type="submit" variant={"primaryGreen"}>
-                        Add
-                      </Button>
-                    </div>
-
-                  </form>
-                </Form>
-              )}
-              </div>
-            </div>
-          </div>
-        )}
-      </div> */}
     </div>
   );
 };
