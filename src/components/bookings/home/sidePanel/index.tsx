@@ -84,7 +84,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
         throw new Error("Error fetching restaurant vouchers");
       }
 
-      if(!coordinatorAndManagerResponse) {
+      if (!coordinatorAndManagerResponse) {
         throw new Error("Couldn't find the coordinator")
       }
 
@@ -127,15 +127,15 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
 
   if (loading) return <div>Loading...</div>;
 
-  const getStatusesCount = (voucherList:any[])=>{
+  const getStatusesCount = (voucherList: any[]) => {
     return {
-      inprogress: voucherList.filter(v=>v.status == 'inprogress').length,
-      sentToVendor:voucherList.filter(v=>v.status == 'sentToVendor').length,
-      vendorConfirmed:voucherList.filter(v=>v.status == 'vendorConfirmed').length,
-      sentToClient:voucherList.filter(v=>v.status == 'sentToClient').length,
-      amended:voucherList.filter(v=>v.status == 'amended').length,
-      confirmed:voucherList.filter(v=>v.status == 'confirmed').length,
-      cancelled:voucherList.filter(v=>v.status == 'cancelled').length
+      inprogress: voucherList.filter(v => v.status == 'inprogress').length,
+      sentToVendor: voucherList.filter(v => v.status == 'sentToVendor').length,
+      vendorConfirmed: voucherList.filter(v => v.status == 'vendorConfirmed').length,
+      sentToClient: voucherList.filter(v => v.status == 'sentToClient').length,
+      amended: voucherList.filter(v => v.status == 'amended').length,
+      confirmed: voucherList.filter(v => v.status == 'confirmed').length,
+      cancelled: voucherList.filter(v => v.status == 'cancelled').length
 
     }
   }
@@ -156,23 +156,22 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
         <div className="flex w-4/5 flex-col gap-4">
           <div>
             <div className="text-sm font-normal text-[#21272A]">
-              {category.totalVouchers - (category.statusCount.confirmed + category.statusCount.cancelled)} Vouchers to finalize
+              {`${category.totalVouchers !== 0 ? `${category.statusCount.inprogress}/` : ''}${category.totalVouchers} vouchers to be finalized`}
             </div>
             <div>
               <Progress
-                value={(category.done / category.totalVouchers) * 100}
+                value={category.totalVouchers !== 0 ? (((category.totalVouchers - category.statusCount.inprogress) / category.totalVouchers) * 100) : 0}
                 className="h-2"
               />
             </div>
           </div>
           <div>
             <div className="text-sm font-normal text-[#21272A]">
-              {category.statusCount.confirmed} done | {category.totalVouchers - category.statusCount.confirmed}{" "}
-              vouchers to confirm
+            {`${category.totalVouchers !== 0 ? `${category.totalVouchers - category.statusCount.vendorConfirmed}/` : ''}${category.totalVouchers} vouchers to be confirmed by vendor`}
             </div>
             <div>
               <Progress
-                value={(category.done / category.totalVouchers) * 100}
+                value={category.totalVouchers !== 0 ? ((category.statusCount.vendorConfirmed / category.totalVouchers) * 100) : 0}
                 className="h-2"
               />
             </div>
@@ -200,8 +199,8 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
     <div className="card h-auto w-full gap-4 rounded-lg border border-primary-borderGray shadow-md">
       <div className="flex flex-row items-center justify-between">
         <div>
-        <div className="card-title">Booking - {booking.id}</div>
-        <div className="text-xs text-neutral-500">{`Coordinator - ${coordinatorAndManager[0]?.name ?? ""} | Manager - ${coordinatorAndManager[0]?.name ?? ""}`}</div>
+          <div className="card-title">Booking - {booking.id}</div>
+          <div className="text-xs text-neutral-500">{`Coordinator - ${coordinatorAndManager[0]?.name ?? ""} | Manager - ${coordinatorAndManager[0]?.name ?? ""}`}</div>
         </div>
 
         <Link href={`${pathname}/${booking.id}/edit?tab=submit`}>
