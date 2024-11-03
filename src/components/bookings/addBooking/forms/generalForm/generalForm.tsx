@@ -79,7 +79,7 @@ export const addBookingGeneralSchema = z
         return phoneNumber?.isValid() ?? false;
       },
       { message: "Invalid phone number" },
-    ),
+    ).optional().or(z.literal('')),
     adultsCount: z.number().min(0, "Add adult count"),
     kidsCount: z.number().min(0, "Add kids count"),
     startDate: z.string().min(1, "Start date is required"),
