@@ -318,8 +318,10 @@ const GeneralForm = () => {
 
   if (loading || !isLoaded) {
     return (
-      <div>
+      <div className="flex justify-center items-center">
+        <div>
         <LoadingLayout />
+        </div>
       </div>
     );
   }
