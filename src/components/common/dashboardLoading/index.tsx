@@ -4,7 +4,7 @@ import LoadingImage from "../../../../public/assets/icons/loader icon.png"
 
 const LoadingLayout = ()=>{
     return (
-        <div className="h-full bg-primarySub-200 flex items-center flex-col justify-center text-center mt-20">
+        <div className="h-full bg-primarySub-200 flex items-center flex-col justify-center text-center">
       <div className="mb-2">
         <Image width={100} alt="loadingLogo" src={LoadingImage} className="animate-pulse"/>
       </div>

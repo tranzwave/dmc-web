@@ -286,18 +286,9 @@ const HotelVouchersTasksTab = <
               <Button variant={"outline"}>Add Vouchers</Button>
             </Link>
           </div>
-          </div>
           <div className="text-sm font-normal">
             Click the line to send the voucher
           </div>
-          {/* <DataTableWithActions
-            data={vouchers}
-            columns={columns}
-            onRowClick={onVoucherRowClick}
-            onView={() => alert("View action triggered")}
-            onEdit={() => alert("Edit action triggered")}
-            onDelete={() => alert("Delete action triggered")}
-          /> */}
           <DataTable
             data={vouchers}
             columns={columns}
@@ -450,6 +441,7 @@ const HotelVouchersTasksTab = <
             onSave={() => console.log("Saved")}
             vendor={selectedVoucher}
           /> */}
+        </div>
         </div>
       </div>
   );
