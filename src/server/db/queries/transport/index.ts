@@ -305,6 +305,7 @@ export const insertDriver = async (
             }))
           );
 
+          // Insert driver language associations
           const driverLanguageLinks = languages.map((lang) => ({
             driverId: newDriver.id,
             languageCode: lang.code,
