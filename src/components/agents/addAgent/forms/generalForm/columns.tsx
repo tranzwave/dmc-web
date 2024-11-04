@@ -32,7 +32,7 @@ export const generalColumns: ColumnDef<General>[] = [
   },
   {
     accessorKey: "agency",
-    header: "Agency",
+    header: "Organization Name",
   },
   // {
   //   accessorKey: "feild1",

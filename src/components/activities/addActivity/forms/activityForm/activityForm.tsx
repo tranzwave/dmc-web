@@ -168,6 +168,7 @@ const VendorActivityForm: React.FC<ActivityFormProps> = ({ onAddActivity, select
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                     placeholder="Enter capacity"
+                    min={0}
                   />
                 </FormControl>
                 <FormMessage />

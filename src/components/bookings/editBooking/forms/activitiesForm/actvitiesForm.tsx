@@ -349,6 +349,7 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
                     type="number"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    min={0}
                   />
                 </FormControl>
                 <FormMessage />
@@ -366,6 +367,7 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
                     type="number"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    min={0}
                   />
                 </FormControl>
                 <FormMessage />

@@ -93,7 +93,7 @@ const HotelVoucherPDF = ({ voucher,cancellation }: HotelVoucherPDFProps) => {
         </div>
         <div className="flex w-full flex-row justify-between">
           <div className="text-[13px]">
-            <div>Bill to : {organization?.name}</div>
+            {/* <div>Bill to : {organization?.name}</div> */}
             <div>Hotel Name : {voucher?.hotel.name}</div>
             <div>Tour ID : {voucher.bookingLineId}</div>
             <div>
@@ -204,7 +204,7 @@ const HotelVoucherPDF = ({ voucher,cancellation }: HotelVoucherPDFProps) => {
           <div>Special Notes : {voucher.voucherLines[0]?.remarks}</div>
         </div>
         <div className="mt-10 text-[13px]">
-          <div>Date : {format(Date.now(), "dd/MM/yyyy")}</div>
+          <div>Printed Date : {format(Date.now(), "dd/MM/yyyy")}</div>
           <div>Prepared By : {user?.fullName ?? ""}</div>
           <div>This is a computer generated Voucher & does not require a signature</div>
         </div>

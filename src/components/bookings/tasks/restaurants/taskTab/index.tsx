@@ -16,6 +16,8 @@ import {
   SelectRestaurantVoucherLine,
 } from "~/server/db/schemaTypes";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import {
   Accordion,
@@ -23,10 +25,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import {
-  deleteHotelVoucherLine,
-  deleteRestaurantVoucherLine,
-} from "~/server/db/queries/booking";
+import { deleteRestaurantVoucherLine } from "~/server/db/queries/booking";
 import { getAllRestaurants } from "~/server/db/queries/booking/restaurantVouchers";
 import { RestaurantVoucherData } from "..";
 import RestaurantsVoucherForm from "../form";
@@ -85,6 +84,7 @@ const RestaurantVouchersTasksTab = <
   const [restaurants, setRestaurants] = useState<SelectRestaurant[]>([]);
   const [error, setError] = useState<string | null>();
   const deleteVoucherRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   const { toast } = useToast();
 
@@ -95,9 +95,9 @@ const RestaurantVouchersTasksTab = <
       const newResponse = await getAllRestaurants();
 
       if (!newResponse) {
-        throw new Error(`Error: Couldn't get hotels`);
+        throw new Error(`Error: Couldn't get restaurants`);
       }
-      console.log("Fetched Hotels:", newResponse);
+      console.log("Fetched Restaurants:", newResponse);
 
       setRestaurants(newResponse);
       setLoading(false);
@@ -293,7 +293,14 @@ const RestaurantVouchersTasksTab = <
           <Calendar />
         </div>
         <div className="card w-full space-y-6">
-          <div className="card-title">Voucher Information</div>
+          <div className="flex justify-between">
+            <div className="card-title">Voucher Information</div>
+            <Link
+              href={`${pathname.replace("/tasks", "")}/edit?tab=restaurants`}
+            >
+              <Button variant={"outline"}>Add Vouchers</Button>
+            </Link>
+          </div>
           <div className="text-sm font-normal">
             Click the line to send the voucher
           </div>
@@ -417,13 +424,13 @@ const RestaurantVouchersTasksTab = <
                       onSave={() => {
                         console.log("saving");
                       }}
-                      selectedItem={selectedVoucher.voucherLines[0]}
+                      // selectedItem={selectedVoucher.voucherLines[0]}
                       vendor={selectedVoucher}
-                      // defaultValues={{
-                      //   restaurant: selectedVoucher?.restaurant,
-                      //   ...selectedVoucher.voucherLines[0],
-                      // }}
-                      // restaurants={restaurants}
+                      defaultValues={{
+                        restaurant: selectedVoucher?.restaurant,
+                        ...selectedVoucher.voucherLines[0],
+                      }}
+                      restaurant={restaurants}
                     />
                   }
                   size="large"

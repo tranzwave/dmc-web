@@ -1,6 +1,8 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import html2pdf from "html2pdf.js";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import DeletePopup from "~/components/common/deletePopup";
@@ -126,6 +128,8 @@ const ActivityVouchersTab = ({
       email: selectedVoucher.activityVendor.primaryEmail,
     };
   };
+  const pathname = usePathname();
+
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">
@@ -134,8 +138,14 @@ const ActivityVouchersTab = ({
           <Calendar />
         </div>
         <div className="card w-full space-y-6">
-          <div className="card-title">Voucher Information</div>
-          <div className="text-sm font-normal">Click the line to send the voucher</div>
+        <div className="flex justify-between">
+            <div className="card-title">Voucher Information</div>
+            <Link
+              href={`${pathname.replace("/tasks", "")}/edit?tab=activities`}
+            >
+              <Button variant={"outline"}>Add Vouchers</Button>
+            </Link>
+          </div>          <div className="text-sm font-normal">Click the line to send the voucher</div>
           <DataTable
             data={vouchers}
             columns={voucherColumns}

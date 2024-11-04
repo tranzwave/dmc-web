@@ -36,9 +36,6 @@ export default function Bookings() {
     setLoading(true);
     try {
       const result = await getAllBookingLines(organization?.id ?? "");
-
-      
-      
       if (!result) {
         throw new Error("Couldn't find any bookings");
       }

@@ -1,7 +1,9 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -12,14 +14,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Restaurant } from "./columns";
-import {
-  InsertRestaurantVoucherLine,
-  SelectMeal,
-  SelectRestaurant,
-  SelectRestaurantVoucherLine,
-} from "~/server/db/schemaTypes";
-import { restaurant } from "~/server/db/schema";
 import {
   Select,
   SelectContent,
@@ -27,11 +21,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { useEffect, useState } from "react";
-import { getMeals } from "~/server/db/queries/booking/restaurantVouchers";
+import {
+  InsertRestaurantVoucherLine,
+  SelectMeal,
+  SelectRestaurant
+} from "~/server/db/schemaTypes";
 import { RestaurantData } from ".";
-import { RestaurantVoucher } from "~/app/dashboard/bookings/add/context";
-import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 
 interface RestaurantFormProps {
   onAddRestaurant: (
@@ -191,6 +186,7 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
                     type="number"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    min={0}
                   />
                 </FormControl>
                 <FormMessage />
@@ -208,6 +204,7 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
                     type="number"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    min={0}
                   />
                 </FormControl>
                 <FormMessage />

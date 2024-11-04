@@ -1,11 +1,13 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoaderCircle } from "lucide-react";
+import { format, parse } from "date-fns";
+import { CalendarIcon, LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +25,11 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -34,6 +41,7 @@ import {
   hotelRoomCategories,
   hotelRoomTypes,
 } from "~/lib/constants";
+import { cn } from "~/lib/utils";
 import {
   InsertHotelVoucherLine,
   SelectHotel,
@@ -275,12 +283,56 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                   <FormItem>
                     <FormLabel>Check-in Date</FormLabel>
                     <FormControl>
-                      <Input
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value ? (
+                            format(new Date(field.value), "LLL dd, y")
+                          ) : (
+                            <span>Pick the arrival date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          initialFocus
+                          selected={
+                            field.value
+                              ? parse(field.value, "MM/dd/yyyy", new Date())
+                              : new Date()
+                          }
+                          onSelect={(date: Date | undefined) => {
+                            const dateString = format(
+                              date ?? new Date(),
+                              "MM/dd/yyyy",
+                            );
+                            field.onChange(dateString);
+                          }}
+                          disabled={(date) => {
+                            const min = new Date(bookingDetails.general.startDate);
+                            const max = new Date(bookingDetails.general.endDate)
+                            min.setHours(0, 0, 0, 0);
+                            max.setHours(0, 0, 0, 0)
+                            return date < min || date > max;
+                          }}
+                          numberOfMonths={1}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                      {/* <Input
                         type="date"
                         {...field}
                         min={bookingDetails.general.startDate ?? ""}
                         max={bookingDetails.general.endDate ?? ""}
-                      />
+                      /> */}
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -295,12 +347,56 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                   <FormItem>
                     <FormLabel>Check-out Date</FormLabel>
                     <FormControl>
-                      <Input
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value ? (
+                            format(new Date(field.value), "LLL dd, y")
+                          ) : (
+                            <span>Pick the arrival date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          initialFocus
+                          selected={
+                            field.value
+                              ? parse(field.value, "MM/dd/yyyy", new Date())
+                              : new Date()
+                          }
+                          onSelect={(date: Date | undefined) => {
+                            const dateString = format(
+                              date ?? new Date(),
+                              "MM/dd/yyyy",
+                            );
+                            field.onChange(dateString);
+                          }}
+                          disabled={(date) => {
+                            const min = new Date(form.watch("checkInDate"));
+                            const max = new Date(bookingDetails.general.endDate)
+                            min.setHours(0, 0, 0, 0);
+                            max.setHours(0, 0, 0, 0)
+                            return date < min || date > max;
+                          }}
+                          numberOfMonths={1}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                      {/* <Input
                         type="date"
                         {...field}
                         min={form.watch("checkInDate") ?? ""}
                         max={bookingDetails.general.endDate ?? ""}
-                      />
+                      /> */}
                     </FormControl>
                     <FormMessage />
                   </FormItem>

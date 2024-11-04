@@ -4,10 +4,13 @@ import { useOrganization } from "@clerk/nextjs";
 import { OrganizationMembershipResource } from "@clerk/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, parse } from "date-fns";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { CalendarIcon, LoaderCircle } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import { z } from "zod";
 import {
   StatusLabels,
@@ -70,11 +73,13 @@ export const addBookingGeneralSchema = z
       .email("Please enter a valid email")
       .optional()
       .or(z.literal("")),
-    primaryContactNumber: z
-      .string()
-      .min(10, "Please enter a valid number")
-      .optional()
-      .or(z.literal("")),
+    primaryContactNumber: z.string().refine(
+      (value) => {
+        const phoneNumber = parsePhoneNumberFromString(value);
+        return phoneNumber?.isValid() ?? false;
+      },
+      { message: "Invalid phone number" },
+    ).optional().or(z.literal('')),
     adultsCount: z.number().min(0, "Add adult count"),
     kidsCount: z.number().min(0, "Add kids count"),
     startDate: z.string().min(1, "Start date is required"),
@@ -313,8 +318,10 @@ const GeneralForm = () => {
 
   if (loading || !isLoaded) {
     return (
-      <div>
+      <div className="flex justify-center items-center">
+        <div>
         <LoadingLayout />
+        </div>
       </div>
     );
   }
@@ -329,7 +336,7 @@ const GeneralForm = () => {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Client Name</FormLabel>
+                  <FormLabel>Booking Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter client name" {...field} />
                   </FormControl>
@@ -607,11 +614,14 @@ const GeneralForm = () => {
                     <FormItem>
                       <FormLabel>Primary Contact Number</FormLabel>
                       <FormControl>
-                        <Input
-                          type="tel"
-                          placeholder="Enter primary contact number"
-                          {...field}
-                        />
+                      <PhoneInput
+                    country={"us"}
+                    value={field.value}
+                    onChange={(phone) => field.onChange(`+${phone}`)}
+                    inputClass="w-full shadow-md"
+                    inputStyle={{ width: "inherit" }}
+                  />
+                        
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -664,7 +674,7 @@ const GeneralForm = () => {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Agent</FormLabel>
+                    <FormLabel>Travel Agent</FormLabel>
                     <FormControl>
                       {/* <Input placeholder="Enter agent's name" {...field} /> */}
                       <Select
@@ -679,7 +689,7 @@ const GeneralForm = () => {
                         <SelectContent>
                           {agents.map((agent) => (
                             <SelectItem key={agent.id} value={agent?.id ?? ""}>
-                              {agent.name}
+                              {agent.name} - {agent.agency}
                             </SelectItem>
                           ))}
                         </SelectContent>

@@ -32,7 +32,9 @@ import {
   InsertBookingLine,
   InsertClient,
   SelectHotelVoucher,
-  SelectHotelVoucherLine
+  SelectHotelVoucherLine,
+  SelectRestaurantVoucher,
+  SelectRestaurantVoucherLine
 } from "../../schemaTypes";
 
 export const getAllBookings = () => {
@@ -634,6 +636,52 @@ export const updateHotelVoucherAndLine = async (
 
         if (!updatedVoucherLine || !updatedVoucherLine[0]?.id) {
           throw new Error(`Couldn't update hotel voucher line with ID: ${voucherLineId}`);
+        }
+
+        return updatedVoucherLine[0]; // Return the updated voucher line
+      }
+
+      // If neither voucher nor voucher line was updated, return a message
+      return { message: 'No updates applied to voucher or voucher line' };
+    } catch (error) {
+      console.error('Error while updating hotel voucher or voucher line:', error);
+      throw error; // Rethrow the error to trigger transaction rollback
+    }
+  });
+};
+
+export const updateRestaurantVoucherAndLine = async (
+  voucherId: string, // ID of the voucher to be updated
+  voucherLineId: string, // ID of the voucher line to be updated
+  updatedVoucherData: Partial<SelectRestaurantVoucher> = {}, // Partial fields to update on the hotel voucher
+  updatedVoucherLineData: Partial<SelectRestaurantVoucherLine> = {}, // Partial fields to update on the voucher line
+) => {
+  // Start a transaction using Drizzle ORM's `db.transaction`
+  return await db.transaction(async (trx) => {
+    try {
+      // Update the parent hotel voucher if any fields are provided
+      if (Object.keys(updatedVoucherData).length > 0) {
+        const updatedVoucher = await trx
+          .update(restaurantVoucher)
+          .set(updatedVoucherData)
+          .where(eq(restaurantVoucher.id, voucherId))
+          .returning();
+
+        if (!updatedVoucher || !updatedVoucher[0]?.id) {
+          throw new Error(`Couldn't update restaurant voucher with ID: ${voucherId}`);
+        }
+      }
+
+      // Update the single hotel voucher line if any fields are provided
+      if (Object.keys(updatedVoucherLineData).length > 0) {
+        const updatedVoucherLine = await trx
+          .update(restaurantVoucherLine)
+          .set(updatedVoucherLineData)
+          .where(and(eq(restaurantVoucherLine.id, voucherLineId), eq(restaurantVoucherLine.restaurantVoucherId, voucherId)))
+          .returning();
+
+        if (!updatedVoucherLine || !updatedVoucherLine[0]?.id) {
+          throw new Error(`Couldn't update restaurant voucher line with ID: ${voucherLineId}`);
         }
 
         return updatedVoucherLine[0]; // Return the updated voucher line

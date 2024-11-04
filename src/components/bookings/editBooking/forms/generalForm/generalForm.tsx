@@ -5,14 +5,19 @@ import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { LoaderCircle } from "lucide-react";
+import { format, parse } from "date-fns";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
+import { CalendarIcon, LoaderCircle } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import {
   StatusLabels,
   useEditBooking
 } from "~/app/dashboard/bookings/[id]/edit/context";
 import { addBookingGeneralSchema } from "~/components/bookings/addBooking/forms/generalForm/generalForm";
 import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
 import { Checkbox } from "~/components/ui/checkbox";
 import {
   Dialog,
@@ -32,6 +37,7 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -40,6 +46,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { tourTypes } from "~/lib/constants";
+import { cn } from "~/lib/utils";
 import { getAllAgents } from "~/server/db/queries/agents";
 import { updateBookingLine } from "~/server/db/queries/booking";
 import { getAllCountries } from "~/server/db/queries/countries";
@@ -51,31 +58,38 @@ import {
 } from "~/server/db/schemaTypes";
 
 // Define the schema for form validation
-// export const generalSchema = z
-//   .object({
-//     clientName: z.string().min(1, "Client name is required"),
-//     country: z.string().min(1, "Country is required"),
-//     primaryEmail: z.string().email("Invalid email address"),
-//     adultsCount: z.number().min(0, "Add adult count"),
-//     kidsCount: z.number().min(0, "Add kids count"),
-//     startDate: z.string().min(1, "Start date is required"),
-//     numberOfDays: z.number().min(1, "Number of days must be at least 1"),
-//     endDate: z.string().min(1, "End date is required"),
-//     marketingManager: z.string().min(1, "Marketing manager is required"),
-//     agent: z.string().min(1, "Agent is required"),
-//     tourType: z.string().min(1, "Tour type is required"),
-//     includes: z.object({
-//       hotels: z.boolean(),
-//       restaurants: z.boolean(),
-//       transport: z.boolean(),
-//       activities: z.boolean(),
-//       shops: z.boolean(),
-//     }),
-//   })
-//   .refine((data) => new Date(data.endDate) >= new Date(data.startDate), {
-//     message: "End date cannot be earlier than start date",
-//     path: ["endDate"],
-//   });
+export const generalSchema = z
+  .object({
+    clientName: z.string().min(1, "Client name is required"),
+    country: z.string().min(1, "Country is required"),
+    primaryEmail: z.string().email("Invalid email address"),
+    primaryContactNumber: z.string().refine(
+      (value) => {
+        const phoneNumber = parsePhoneNumberFromString(value);
+        return phoneNumber?.isValid() ?? false;
+      },
+      { message: "Invalid phone number" },
+    ),
+    adultsCount: z.number().min(0, "Add adult count"),
+    kidsCount: z.number().min(0, "Add kids count"),
+    startDate: z.string().min(1, "Start date is required"),
+    numberOfDays: z.number().min(1, "Number of days must be at least 1"),
+    endDate: z.string().min(1, "End date is required"),
+    marketingManager: z.string().min(1, "Marketing manager is required"),
+    agent: z.string().min(1, "Agent is required"),
+    tourType: z.string().min(1, "Tour type is required"),
+    includes: z.object({
+      hotels: z.boolean(),
+      restaurants: z.boolean(),
+      transport: z.boolean(),
+      activities: z.boolean(),
+      shops: z.boolean(),
+    }),
+  })
+  .refine((data) => new Date(data.endDate) >= new Date(data.startDate), {
+    message: "End date cannot be earlier than start date",
+    path: ["endDate"],
+  });
 
 // Define the type of the form values
 type GeneralFormValues = z.infer<typeof addBookingGeneralSchema>;
@@ -289,7 +303,7 @@ const GeneralForm = () => {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Client Name</FormLabel>
+                  <FormLabel>Booking Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter client name" {...field} />
                   </FormControl>
@@ -381,11 +395,14 @@ const GeneralForm = () => {
                     <FormItem>
                       <FormLabel>Primary Contact Number</FormLabel>
                       <FormControl>
-                        <Input
-                          type="tel"
-                          placeholder="Enter primary contact number"
-                          {...field}
-                        />
+                      <PhoneInput
+                    country={"us"}
+                    value={field.value}
+                    onChange={(phone) => field.onChange(`+${phone}`)}
+                    inputClass="w-full shadow-md"
+                    inputStyle={{ width: "inherit" }}
+                  />
+                        
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -444,7 +461,48 @@ const GeneralForm = () => {
                 <FormItem>
                   <FormLabel>Start Date</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                  <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value ? (
+                            format(new Date(field.value), "LLL dd, y")
+                          ) : (
+                            <span>Pick the arrival date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          initialFocus
+                          selected={
+                            field.value
+                              ? parse(field.value, "MM/dd/yyyy", new Date())
+                              : new Date()
+                          }
+                          onSelect={(date: Date | undefined) => {
+                            const dateString = format(
+                              date ?? new Date(),
+                              "MM/dd/yyyy",
+                            );
+                            field.onChange(dateString);
+                          }}
+                          disabled={(date) => {
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            return date < today;
+                          }}
+                          numberOfMonths={1}
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -474,11 +532,50 @@ const GeneralForm = () => {
                 <FormItem>
                   <FormLabel>End Date</FormLabel>
                   <FormControl>
-                    <Input
-                      type="date"
-                      {...field}
-                      min={form.watch("startDate") ?? ""}
-                    />
+                  <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value ? (
+                            format(new Date(field.value), "LLL dd, y")
+                          ) : (
+                            <span>Pick the departure date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          initialFocus
+                          selected={
+                            field.value
+                              ? parse(field.value, "MM/dd/yyyy", new Date())
+                              : new Date()
+                          }
+                          onSelect={(date: Date | undefined) => {
+                            const dateString = format(
+                              date ?? new Date(),
+                              "MM/dd/yyyy",
+                            );
+                            field.onChange(dateString);
+                          }}
+                          numberOfMonths={1}
+                          disabled={(date) => {
+                            const startDate = form.watch("startDate");
+                            const startParsed = startDate
+                              ? parse(startDate, "MM/dd/yyyy", new Date())
+                              : null;
+                            return startParsed ? date < startParsed : false;
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -527,7 +624,7 @@ const GeneralForm = () => {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Agent</FormLabel>
+                    <FormLabel>Travel Agent</FormLabel>
                     <FormControl>
                       {/* <Input placeholder="Enter agent's name" {...field} /> */}
                       <Select
@@ -542,7 +639,7 @@ const GeneralForm = () => {
                         <SelectContent>
                           {agents.map((agent) => (
                             <SelectItem key={agent.id} value={agent?.id ?? ""}>
-                              {agent.name}
+                              {agent.name} - {agent.agency}
                             </SelectItem>
                           ))}
                         </SelectContent>

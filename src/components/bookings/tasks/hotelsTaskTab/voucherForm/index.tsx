@@ -2,19 +2,15 @@
 // HotelsForm.tsx
 
 import React, { useEffect, useState } from "react";
-import { HotelVoucherData } from "..";
+import { EditBookingProvider } from "~/app/dashboard/bookings/[id]/edit/context";
+import HotelsForm from "~/components/bookings/editBooking/forms/hotelsForm/hotelsForm";
+import { Input } from "~/components/ui/input";
+import { useToast } from "~/hooks/use-toast";
+import { updateHotelVoucherAndLine } from "~/server/db/queries/booking";
 import {
   InsertHotelVoucherLine,
-  SelectHotel,
-  SelectHotelVoucherLine,
+  SelectHotel
 } from "~/server/db/schemaTypes";
-import HotelsForm from "~/components/bookings/editBooking/forms/hotelsForm/hotelsForm";
-import { EditBookingProvider } from "~/app/dashboard/bookings/[id]/edit/context";
-import { getAllHotelsV2 } from "~/server/db/queries/hotel";
-import { updateHotelVoucherAndLine } from "~/server/db/queries/booking";
-import { useToast } from "~/hooks/use-toast";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
-import { Input } from "~/components/ui/input";
 
 interface HotelsFormProps {
   defaultValues:
