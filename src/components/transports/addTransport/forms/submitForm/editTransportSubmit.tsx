@@ -243,6 +243,8 @@ const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriv
                             <td className="border px-4 py-2 font-bold w-1/2 ">Driver License:</td>
                             <td className="border px-4 py-2 w-1/2 ">{documents.driverLicense}</td>
                         </tr>
+                        {general.type !== "Driver" && (
+                            <>
                         <tr>
                             <td className="border px-4 py-2 font-bold">Guide License:</td>
                             <td className="border px-4 py-2">{documents.guideLicense}</td>
@@ -255,6 +257,8 @@ const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriv
                             <td className="border px-4 py-2 font-bold">Insurance:</td>
                             <td className="border px-4 py-2">{documents.insurance}</td>
                         </tr>
+                        </>
+                        )}
                     </tbody>
                 </table>
             </div>
