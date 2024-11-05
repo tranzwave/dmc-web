@@ -24,8 +24,7 @@ import {
   restaurantVoucherLine,
   shopVoucher,
   tenant,
-
-  transportVoucher
+  transportVoucher,
 } from "../../schema";
 import {
   InsertBooking,
@@ -34,7 +33,7 @@ import {
   SelectHotelVoucher,
   SelectHotelVoucherLine,
   SelectRestaurantVoucher,
-  SelectRestaurantVoucherLine
+  SelectRestaurantVoucherLine,
 } from "../../schemaTypes";
 
 export const getAllBookings = () => {
@@ -49,7 +48,7 @@ export const getAllBookingLines = async (orgId: string) => {
       db
         .select({ id: booking.id })
         .from(booking)
-        .where(eq(booking.tenantId, orgId))
+        .where(eq(booking.tenantId, orgId)),
     ),
     with: {
       booking: {
@@ -83,51 +82,50 @@ export const getBookingLineWithAllData = (id: string) => {
           tenant: true,
           bookingAgent: {
             with: {
-              agent: true
-            }
-          }
+              agent: true,
+            },
+          },
           // bookingAgent:{
           //   with:{
           //     agent:true
           //   }
           // }
-        }
+        },
       },
       hotelVouchers: {
         with: {
           hotel: true,
-          voucherLines: true
-        }
+          voucherLines: true,
+        },
       },
       restaurantVouchers: {
         with: {
           restaurant: true,
-          voucherLines: true
-        }
+          voucherLines: true,
+        },
       },
       transportVouchers: {
         with: {
           driver: true,
           guide: true,
           guideVoucherLines: true,
-          driverVoucherLines: true
+          driverVoucherLines: true,
         },
       },
       activityVouchers: {
         with: {
           activity: true,
-          activityVendor: true
-        }
+          activityVendor: true,
+        },
       },
       shopsVouchers: {
         with: {
-          shop: true
-        }
-      }
-    }
-  })
-}
-
+          shop: true,
+        },
+      },
+    },
+  });
+};
 
 // export const getBookingLineWithAllData = (id: string) => {
 //   return db.query.bookingLine.findFirst({
@@ -179,23 +177,36 @@ export const getBookingLineWithAllData = (id: string) => {
 //   });
 // };
 
-async function generateBookingLineId(tenantId: string, countryCode: string): Promise<string> {
+async function generateBookingLineId(
+  tenantId: string,
+  countryCode: string,
+): Promise<string> {
   // Fetch tenant name and country based on tenantId
   const tenantData = await db.query.tenant.findFirst({
-    where: eq(tenant.id, tenantId)
-  })
+    where: eq(tenant.id, tenantId),
+  });
 
   if (!tenantData) {
     throw new Error(`Tenant with ID ${tenantId} not found`);
   }
 
-
   // Helper function to generate a 6-digit random number
-  const generate6DigitNumber = () => Math.floor(100000 + Math.random() * 900000).toString();
+  const generate6DigitNumber = () =>
+    Math.floor(100000 + Math.random() * 900000).toString();
 
   // Format the ID: <tenantName>-<country>-<6 digits>
   return `${tenantData.name.toUpperCase().slice(0, 3)}-${countryCode}-${generate6DigitNumber()}`;
 }
+
+export const generateVoucherLineId = (
+  prefix: string,
+  bookingLineId: string,
+  index: number,
+) => {
+  const id = `${bookingLineId}-${prefix}/${index}`;
+
+  return id;
+};
 
 export const createNewBooking = async (
   orgId: string,
@@ -212,7 +223,7 @@ export const createNewBooking = async (
     // Start a transaction
     const result = await db.transaction(async (tx) => {
       const tenantExist = await tx.query.tenant.findFirst({
-        where: eq(tenant.id, orgId)
+        where: eq(tenant.id, orgId),
       });
 
       if (!tenantExist) {
@@ -248,7 +259,7 @@ export const createNewBooking = async (
             managerId: bookingDetails.general.marketingManager,
             tenantId: tenantId,
             tourType: bookingDetails.general.tourType,
-            directCustomer: bookingDetails.general.directCustomer
+            directCustomer: bookingDetails.general.directCustomer,
           })
           .returning();
 
@@ -263,19 +274,23 @@ export const createNewBooking = async (
 
       // Now we know parentBooking is an array with at least one item
       const parentBookingIdToUse = Array.isArray(parentBooking)
-        ? parentBooking[0]?.id ?? ""
+        ? (parentBooking[0]?.id ?? "")
         : parentBooking.id;
 
-      if (bookingDetails.general.agent && !bookingDetails.general.directCustomer) {
-        await tx
-          .insert(bookingAgent)
-          .values({
-            bookingId: parentBookingIdToUse,
-            agentId: bookingDetails.general.agent
-          });
+      if (
+        bookingDetails.general.agent &&
+        !bookingDetails.general.directCustomer
+      ) {
+        await tx.insert(bookingAgent).values({
+          bookingId: parentBookingIdToUse,
+          agentId: bookingDetails.general.agent,
+        });
       }
 
-      const customId = await generateBookingLineId(tenantId, bookingDetails.general.country)
+      const customId = await generateBookingLineId(
+        tenantId,
+        bookingDetails.general.country,
+      );
 
       // Create a new booking line within the transaction
       const newBookingLineGeneral: InsertBookingLine = {
@@ -290,7 +305,7 @@ export const createNewBooking = async (
           restaurants: bookingDetails.general.includes.restaurants,
           transport: bookingDetails.general.includes.transport,
           activities: bookingDetails.general.includes.activities,
-          shops: bookingDetails.general.includes.shops
+          shops: bookingDetails.general.includes.shops,
         },
       };
 
@@ -389,7 +404,7 @@ export const createClientTx = async (tx: any, data: InsertClient) => {
 export const updateClient = async (
   tx: any,
   clientId: string,
-  updateData: Partial<InsertClient>
+  updateData: Partial<InsertClient>,
 ) => {
   try {
     // Validate that the client exists before attempting an update
@@ -408,7 +423,8 @@ export const updateClient = async (
         name: updateData.name ?? existingClient.name,
         primaryEmail: updateData.primaryEmail ?? existingClient.primaryEmail,
         primaryContactNumber:
-          updateData.primaryContactNumber ?? existingClient.primaryContactNumber,
+          updateData.primaryContactNumber ??
+          existingClient.primaryContactNumber,
         country: updateData.country ?? existingClient.country,
         // updatedAt: new Date(), // Update the `updatedAt` timestamp to the current time
       })
@@ -448,13 +464,18 @@ export const addHotelVoucherLinesToBooking = async (
   const result = await db.transaction(async (trx) => {
     try {
       // Call the insertHotelVouchersTx function inside this transaction
-      const insertedVouchers = await insertHotelVouchersTx(trx, vouchers, newBookingLineId, coordinatorId);
+      const insertedVouchers = await insertHotelVouchersTx(
+        trx,
+        vouchers,
+        newBookingLineId,
+        coordinatorId,
+      );
 
       // If there are additional inserts/updates, you can perform them here using the same trx.
 
       return insertedVouchers;
     } catch (error) {
-      console.error('Error while inserting hotel vouchers:', error);
+      console.error("Error while inserting hotel vouchers:", error);
       throw error; // Rethrow to trigger transaction rollback
     }
   });
@@ -488,13 +509,16 @@ export const insertHotelVouchersTx = async (
 
       // Add voucher lines
       const voucherLines = await Promise.all(
-        currentVoucher.voucherLines.map(async (currentVoucherLine) => {
+        currentVoucher.voucherLines.map(async (currentVoucherLine, idx) => {
+          //generate voucher line id
+          const voucherLineId = `${newBookingLineId}-HTL/${idx+1}`;
 
-          //Check for existing voucher
+          console.log("Voucher Line ID : " + voucherLineId);
 
           const newVoucherLine = await trx
             .insert(hotelVoucherLine)
             .values({
+              id: voucherLineId,
               adultsCount: currentVoucherLine.adultsCount,
               kidsCount: currentVoucherLine.kidsCount,
               roomCount: currentVoucherLine.roomCount,
@@ -525,9 +549,7 @@ export const insertHotelVouchersTx = async (
   return hotelVouchers;
 };
 
-export const deleteHotelVoucherLine = async (
-  voucherLineId: string,
-) => {
+export const deleteHotelVoucherLine = async (voucherLineId: string) => {
   try {
     const result = await db.transaction(async (trx) => {
       const voucherLine = await trx
@@ -546,7 +568,10 @@ export const deleteHotelVoucherLine = async (
         .select()
         .from(hotelVoucherLine)
         .where(
-          and(eq(hotelVoucherLine.hotelVoucherId, hotelVoucherId), ne(hotelVoucherLine.id, voucherLineId))
+          and(
+            eq(hotelVoucherLine.hotelVoucherId, hotelVoucherId),
+            ne(hotelVoucherLine.id, voucherLineId),
+          ),
         )
         .execute();
 
@@ -557,7 +582,9 @@ export const deleteHotelVoucherLine = async (
         .execute();
 
       if (!deletedVoucherLine || !deletedVoucherLine[0]?.id) {
-        throw new Error(`Failed to delete voucher line with ID: ${voucherLineId}`);
+        throw new Error(
+          `Failed to delete voucher line with ID: ${voucherLineId}`,
+        );
       }
 
       let deletedVoucher = null;
@@ -569,7 +596,10 @@ export const deleteHotelVoucherLine = async (
           .execute();
       }
 
-      return { deletedVoucherLine: deletedVoucherLine[0], deletedVoucher: deletedVoucher ? deletedVoucher[0] : null };
+      return {
+        deletedVoucherLine: deletedVoucherLine[0],
+        deletedVoucher: deletedVoucher ? deletedVoucher[0] : null,
+      };
     });
 
     return result;
@@ -581,7 +611,7 @@ export const deleteHotelVoucherLine = async (
 export const updateSingleHotelVoucherLineTx = async (
   voucherId: string, // ID of the voucher that the line belongs to
   voucherLineId: string, // ID of the voucher line to be updated
-  updatedVoucherLineData: Partial<SelectHotelVoucherLine> = {}
+  updatedVoucherLineData: Partial<SelectHotelVoucherLine> = {},
 ) => {
   try {
     // Update the single hotel voucher line
@@ -590,16 +620,23 @@ export const updateSingleHotelVoucherLineTx = async (
       .set({
         ...updatedVoucherLineData,
       })
-      .where(and(eq(hotelVoucherLine.id, voucherLineId), eq(hotelVoucherLine.hotelVoucherId, voucherId)))
+      .where(
+        and(
+          eq(hotelVoucherLine.id, voucherLineId),
+          eq(hotelVoucherLine.hotelVoucherId, voucherId),
+        ),
+      )
       .returning();
 
     if (!updatedVoucherLine || !updatedVoucherLine[0]?.id) {
-      throw new Error(`Couldn't update hotel voucher line with ID: ${voucherLineId}`);
+      throw new Error(
+        `Couldn't update hotel voucher line with ID: ${voucherLineId}`,
+      );
     }
 
     return updatedVoucherLine[0];
   } catch (error) {
-    console.error('Error while updating hotel voucher line:', error);
+    console.error("Error while updating hotel voucher line:", error);
     throw error;
   }
 };
@@ -622,7 +659,9 @@ export const updateHotelVoucherAndLine = async (
           .returning();
 
         if (!updatedVoucher || !updatedVoucher[0]?.id) {
-          throw new Error(`Couldn't update hotel voucher with ID: ${voucherId}`);
+          throw new Error(
+            `Couldn't update hotel voucher with ID: ${voucherId}`,
+          );
         }
       }
 
@@ -631,20 +670,30 @@ export const updateHotelVoucherAndLine = async (
         const updatedVoucherLine = await trx
           .update(hotelVoucherLine)
           .set(updatedVoucherLineData)
-          .where(and(eq(hotelVoucherLine.id, voucherLineId), eq(hotelVoucherLine.hotelVoucherId, voucherId)))
+          .where(
+            and(
+              eq(hotelVoucherLine.id, voucherLineId),
+              eq(hotelVoucherLine.hotelVoucherId, voucherId),
+            ),
+          )
           .returning();
 
         if (!updatedVoucherLine || !updatedVoucherLine[0]?.id) {
-          throw new Error(`Couldn't update hotel voucher line with ID: ${voucherLineId}`);
+          throw new Error(
+            `Couldn't update hotel voucher line with ID: ${voucherLineId}`,
+          );
         }
 
         return updatedVoucherLine[0]; // Return the updated voucher line
       }
 
       // If neither voucher nor voucher line was updated, return a message
-      return { message: 'No updates applied to voucher or voucher line' };
+      return { message: "No updates applied to voucher or voucher line" };
     } catch (error) {
-      console.error('Error while updating hotel voucher or voucher line:', error);
+      console.error(
+        "Error while updating hotel voucher or voucher line:",
+        error,
+      );
       throw error; // Rethrow the error to trigger transaction rollback
     }
   });
@@ -668,7 +717,9 @@ export const updateRestaurantVoucherAndLine = async (
           .returning();
 
         if (!updatedVoucher || !updatedVoucher[0]?.id) {
-          throw new Error(`Couldn't update restaurant voucher with ID: ${voucherId}`);
+          throw new Error(
+            `Couldn't update restaurant voucher with ID: ${voucherId}`,
+          );
         }
       }
 
@@ -677,46 +728,57 @@ export const updateRestaurantVoucherAndLine = async (
         const updatedVoucherLine = await trx
           .update(restaurantVoucherLine)
           .set(updatedVoucherLineData)
-          .where(and(eq(restaurantVoucherLine.id, voucherLineId), eq(restaurantVoucherLine.restaurantVoucherId, voucherId)))
+          .where(
+            and(
+              eq(restaurantVoucherLine.id, voucherLineId),
+              eq(restaurantVoucherLine.restaurantVoucherId, voucherId),
+            ),
+          )
           .returning();
 
         if (!updatedVoucherLine || !updatedVoucherLine[0]?.id) {
-          throw new Error(`Couldn't update restaurant voucher line with ID: ${voucherLineId}`);
+          throw new Error(
+            `Couldn't update restaurant voucher line with ID: ${voucherLineId}`,
+          );
         }
 
         return updatedVoucherLine[0]; // Return the updated voucher line
       }
 
       // If neither voucher nor voucher line was updated, return a message
-      return { message: 'No updates applied to voucher or voucher line' };
+      return { message: "No updates applied to voucher or voucher line" };
     } catch (error) {
-      console.error('Error while updating hotel voucher or voucher line:', error);
+      console.error(
+        "Error while updating hotel voucher or voucher line:",
+        error,
+      );
       throw error; // Rethrow the error to trigger transaction rollback
     }
   });
 };
-
-
-
 
 export const addRestaurantVoucherLinesToBooking = async (
   vouchers: RestaurantVoucher[],
   newBookingLineId: string,
   coordinatorId: string,
 ) => {
-
   const result = await db.transaction(async (trx) => {
     if (!vouchers) {
-      throw new Error("No vouchers were sent")
+      throw new Error("No vouchers were sent");
     }
     try {
       // Wait for all voucher inserts before proceeding
-      const insertedVouchers = await insertRestaurantVouchersTx(trx, vouchers, newBookingLineId, coordinatorId);
+      const insertedVouchers = await insertRestaurantVouchersTx(
+        trx,
+        vouchers,
+        newBookingLineId,
+        coordinatorId,
+      );
 
       // Return the result after all inserts are done
       return insertedVouchers;
     } catch (error) {
-      console.error('Error during transaction:', error);
+      console.error("Error during transaction:", error);
       throw error; // Transaction will be rolled back
     }
   });
@@ -730,13 +792,12 @@ export const insertRestaurantVouchersTx = async (
   newBookingLineId: string,
   coordinatorId: string,
 ) => {
-  console.log('Number of vouchers:', vouchers.length);
+  // console.log("Number of vouchers:", vouchers.length);
 
   // Use a for loop to ensure sequential processing, avoiding any premature commits or errors
   const restaurantVouchers = [];
 
   for (let i = 0; i < vouchers.length; i++) {
-
     const currentVoucher = vouchers[i];
     if (!currentVoucher) {
       throw new Error("Voucher is undefined");
@@ -770,9 +831,14 @@ export const insertRestaurantVouchersTx = async (
       }
       console.log(`Processing voucher line ${j + 1} for voucher ${voucherId}`);
 
+      //generate voucher line id
+      const voucherLineId = `${newBookingLineId}-RES/${j+1}`;
+
+
       const newVoucherLine = await trx
         .insert(restaurantVoucherLine)
         .values({
+          id:voucherLineId,
           adultsCount: currentVoucherLine.adultsCount,
           kidsCount: currentVoucherLine.kidsCount,
           mealType: currentVoucherLine.mealType,
@@ -797,9 +863,7 @@ export const insertRestaurantVouchersTx = async (
   return restaurantVouchers; // Return all vouchers and their lines
 };
 
-export const deleteRestaurantVoucherLine = async (
-  voucherLineId: string,
-) => {
+export const deleteRestaurantVoucherLine = async (voucherLineId: string) => {
   try {
     const result = await db.transaction(async (trx) => {
       // Fetch the restaurant voucher line to check if it exists
@@ -810,7 +874,9 @@ export const deleteRestaurantVoucherLine = async (
         .execute();
 
       if (!voucherLine || !voucherLine[0]?.restaurantVoucherId) {
-        throw new Error(`No restaurant voucher line found with ID: ${voucherLineId}`);
+        throw new Error(
+          `No restaurant voucher line found with ID: ${voucherLineId}`,
+        );
       }
 
       const restaurantVoucherId = voucherLine[0]?.restaurantVoucherId;
@@ -820,7 +886,10 @@ export const deleteRestaurantVoucherLine = async (
         .select()
         .from(restaurantVoucherLine)
         .where(
-          and(eq(restaurantVoucherLine.restaurantVoucherId, restaurantVoucherId), ne(restaurantVoucherLine.id, voucherLineId))
+          and(
+            eq(restaurantVoucherLine.restaurantVoucherId, restaurantVoucherId),
+            ne(restaurantVoucherLine.id, voucherLineId),
+          ),
         )
         .execute();
 
@@ -832,7 +901,9 @@ export const deleteRestaurantVoucherLine = async (
         .execute();
 
       if (!deletedVoucherLine || !deletedVoucherLine[0]?.id) {
-        throw new Error(`Failed to delete restaurant voucher line with ID: ${voucherLineId}`);
+        throw new Error(
+          `Failed to delete restaurant voucher line with ID: ${voucherLineId}`,
+        );
       }
 
       let deletedVoucher = null;
@@ -846,7 +917,10 @@ export const deleteRestaurantVoucherLine = async (
       }
 
       // Return the deleted voucher line and potentially the deleted voucher
-      return { deletedVoucherLine: deletedVoucherLine[0], deletedVoucher: deletedVoucher ? deletedVoucher[0] : null };
+      return {
+        deletedVoucherLine: deletedVoucherLine[0],
+        deletedVoucher: deletedVoucher ? deletedVoucher[0] : null,
+      };
     });
 
     return result;
@@ -855,11 +929,6 @@ export const deleteRestaurantVoucherLine = async (
   }
 };
 
-
-
-
-
-
 export const addActivityVouchersToBooking = async (
   vouchers: ActivityVoucher[],
   newBookingLineId: string,
@@ -867,10 +936,15 @@ export const addActivityVouchersToBooking = async (
 ) => {
   const result = await db.transaction(async (trx) => {
     try {
-      const insertedVouchers = await insertActivityVouchersTx(trx, vouchers, newBookingLineId, coordinatorId);
+      const insertedVouchers = await insertActivityVouchersTx(
+        trx,
+        vouchers,
+        newBookingLineId,
+        coordinatorId,
+      );
       return insertedVouchers;
     } catch (error) {
-      console.error('Error while inserting activity vouchers:', error);
+      console.error("Error while inserting activity vouchers:", error);
       throw error;
     }
   });
@@ -914,10 +988,15 @@ export const addShopVouchersToBooking = async (
 ) => {
   const result = await db.transaction(async (trx) => {
     try {
-      const insertedVouchers = await insertShopVouchersTx(trx, vouchers, newBookingLineId, coordinatorId);
+      const insertedVouchers = await insertShopVouchersTx(
+        trx,
+        vouchers,
+        newBookingLineId,
+        coordinatorId,
+      );
       return insertedVouchers;
     } catch (error) {
-      console.error('Error while inserting shop vouchers:', error);
+      console.error("Error while inserting shop vouchers:", error);
       throw error;
     }
   });
@@ -1001,18 +1080,22 @@ export const insertShopVouchersTx = async (
 //   return transportVouchers;
 // };
 
-
 export const addTransportVouchersToBooking = async (
-  vouchers: TransportVoucher[],  // TransportVoucher should have a field to indicate type (e.g., 'guide' or 'driver')
+  vouchers: TransportVoucher[], // TransportVoucher should have a field to indicate type (e.g., 'guide' or 'driver')
   newBookingLineId: string,
   coordinatorId: string,
 ) => {
   const result = await db.transaction(async (trx) => {
     try {
-      const insertedVouchers = await insertTransportVoucherTx(trx, vouchers, newBookingLineId, coordinatorId);
+      const insertedVouchers = await insertTransportVoucherTx(
+        trx,
+        vouchers,
+        newBookingLineId,
+        coordinatorId,
+      );
       return insertedVouchers;
     } catch (error) {
-      console.error('Error while inserting transport vouchers:', error);
+      console.error("Error while inserting transport vouchers:", error);
       throw error;
     }
   });
@@ -1045,13 +1128,16 @@ export const insertTransportVoucherTx = async (
       const voucherId = newVoucher[0]?.id;
 
       // Check the type of voucher and insert accordingly
-      if (currentVoucher.driver?.type === 'driver' || currentVoucher.driver?.type === 'chauffer') {
+      if (
+        currentVoucher.driver?.type === "driver" ||
+        currentVoucher.driver?.type === "chauffer"
+      ) {
         // Insert into driver_voucher_lines table
         await trx
           .insert(driverVoucherLine)
           .values({
             transportVoucherId: voucherId,
-            vehicleType: currentVoucher.driverVoucherLine?.vehicleType,  // assuming vehicleType is part of the driver info
+            vehicleType: currentVoucher.driverVoucherLine?.vehicleType, // assuming vehicleType is part of the driver info
           })
           .returning();
       } else {
@@ -1071,7 +1157,6 @@ export const insertTransportVoucherTx = async (
   return transportVouchers;
 };
 
-
 export const updateBookingLine = async (
   bookingLineId: string,
   updatedGeneralData: {
@@ -1086,7 +1171,7 @@ export const updateBookingLine = async (
       activities: boolean;
       shops: boolean;
     };
-  }
+  },
 ) => {
   try {
     // Start a transaction to update the booking line
@@ -1097,7 +1182,9 @@ export const updateBookingLine = async (
       });
 
       if (!existingBookingLine) {
-        throw new Error(`Couldn't find a booking line with ID: ${bookingLineId}`);
+        throw new Error(
+          `Couldn't find a booking line with ID: ${bookingLineId}`,
+        );
       }
 
       // Update the booking line with the provided general data
@@ -1113,8 +1200,14 @@ export const updateBookingLine = async (
         .where(eq(bookingLine.id, bookingLineId))
         .returning();
 
-      if (!updatedBookingLine || !Array.isArray(updatedBookingLine) || !updatedBookingLine[0]?.id) {
-        throw new Error(`Couldn't update the booking line with ID: ${bookingLineId}`);
+      if (
+        !updatedBookingLine ||
+        !Array.isArray(updatedBookingLine) ||
+        !updatedBookingLine[0]?.id
+      ) {
+        throw new Error(
+          `Couldn't update the booking line with ID: ${bookingLineId}`,
+        );
       }
 
       return updatedBookingLine[0]?.id;
@@ -1126,4 +1219,3 @@ export const updateBookingLine = async (
     throw error;
   }
 };
-

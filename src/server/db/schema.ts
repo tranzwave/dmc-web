@@ -295,8 +295,7 @@ export const hotelVoucher = createTable("hotel_vouchers", {
 export const hotelVoucherLine = createTable("hotel_voucher_lines", {
   id: varchar("id", { length: 255 })
     .notNull()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+    .primaryKey(),
   hotelVoucherId: varchar("hotel_voucher_id", { length: 255 })
     .references(() => hotelVoucher.id)
     .notNull(),
@@ -379,8 +378,7 @@ export const restaurantVoucher = createTable("restaurant_vouchers", {
 export const restaurantVoucherLine = createTable("restaurant_voucher_lines", {
   id: varchar("id", { length: 255 })
     .notNull()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+    .primaryKey(),
   restaurantVoucherId: varchar("restaurant_voucher_id", { length: 255 })
     .references(() => restaurantVoucher.id)
     .notNull(),

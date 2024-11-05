@@ -196,10 +196,11 @@ const RestaurantVouchersTasksTab = <
   useEffect(() => {
     console.log("Status changed");
     getHotels();
+    setSelectedVoucher(vouchers ? vouchers[0] : undefined)
     return () => {
       console.log("Return");
     };
-  }, [statusChanged]);
+  }, [statusChanged, vouchers]);
 
   if (loading) {
     return <LoadingLayout />;
