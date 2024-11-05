@@ -255,38 +255,30 @@ const TransportTab = () => {
 
   const onSaveClick = async () => {
     console.log(bookingDetails.transport);
-    const newVouchers = bookingDetails.transport.filter((v) => ({
-      ...v,
-  // v.voucher?.id ? false : true,
-  driverId: v.driver?.id,
-  guideId: v.guide?.id,
-  vehicleType: v.driverVoucherLine?.vehicleType,
-    })
-    
-    );
-
-    if (newVouchers.length == 0) {
+  
+    const newVouchers = bookingDetails.transport.filter((v) => !v.voucher?.id);
+  
+    if (newVouchers.length === 0) {
       toast({
         title: "Uh Oh!",
         description: "No new vouchers to add!",
       });
-
+  
       return;
     }
+  
     try {
       setSaving(true);
       const newResponse = await addTransportVouchersToBooking(
         newVouchers,
         bookingLineId ?? "",
-        // coordinatorId,
-        bookingDetails.general.marketingManager,
-
+        bookingDetails.general.marketingManager
       );
-
+  
       if (!newResponse) {
-        throw new Error(`Error: Couldn't add transport vouchers`);
+        throw new Error("Error: Couldn't add transport vouchers");
       }
-      
+  
       console.log("Fetched Transport:", newResponse);
       setSaving(false);
       toast({
@@ -294,19 +286,15 @@ const TransportTab = () => {
         description: "Transport Vouchers Added!",
       });
     } catch (error) {
-      if (error instanceof Error) {
-        // setError(error.message);
-      } else {
-        setError("An unknown error occurred");
-      }
-      console.error("Error:", error);
       setSaving(false);
       toast({
         title: "Uh Oh!",
         description: "Couldn't add transport!",
       });
+      console.error("Error:", error);
     }
   };
+  
 
   return (
     <div className="flex flex-col gap-3">

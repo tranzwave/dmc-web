@@ -169,6 +169,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom }) => {
                     type="number"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    min={0}
                   />
                 </FormControl>
                 <FormMessage />
@@ -201,6 +202,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom }) => {
                     type="number"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    min={0}
                   />
                 </FormControl>
                 <FormMessage />
@@ -218,6 +220,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom }) => {
                     type="number"
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    min={0}
                   />
                 </FormControl>
                 <FormMessage />
