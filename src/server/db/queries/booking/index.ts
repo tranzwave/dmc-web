@@ -855,11 +855,6 @@ export const deleteRestaurantVoucherLine = async (
   }
 };
 
-
-
-
-
-
 export const addActivityVouchersToBooking = async (
   vouchers: ActivityVoucher[],
   newBookingLineId: string,
@@ -1044,14 +1039,12 @@ export const insertTransportVoucherTx = async (
 
       const voucherId = newVoucher[0]?.id;
 
-      // Check the type of voucher and insert accordingly
-      if (currentVoucher.driver?.type === 'driver' || currentVoucher.driver?.type === 'chauffer') {
-        // Insert into driver_voucher_lines table
+      if (currentVoucher.driver?.type !== 'guide') {
         await trx
           .insert(driverVoucherLine)
           .values({
             transportVoucherId: voucherId,
-            vehicleType: currentVoucher.driverVoucherLine?.vehicleType,  // assuming vehicleType is part of the driver info
+            vehicleType: currentVoucher.driverVoucherLine?.vehicleType,
           })
           .returning();
       } else {
@@ -1060,7 +1053,6 @@ export const insertTransportVoucherTx = async (
           .insert(guideVoucherLine)
           .values({
             transportVoucherId: voucherId,
-            // You can add additional fields related to guide vouchers here
           })
           .returning();
       }

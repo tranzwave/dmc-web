@@ -108,6 +108,7 @@ const TransportTab = () => {
   };
 
   useEffect(() => {
+    console.log('Booking Details: ',bookingDetails)
     if (!bookingDetails.general.includes.transport) {
       setActiveTab("shops");
       return () => {
@@ -128,7 +129,7 @@ const TransportTab = () => {
       const isDriver = "vehicles" in type; 
       addTransport({
         driver: isDriver ? driverOrGuideWithoutExtraFields : null,
-        guide: isDriver ? null : driverOrGuideWithoutExtraFields,
+        guide: !isDriver ? driverOrGuideWithoutExtraFields : null,
         voucher: {
           bookingLineId: bookingLineId ?? "",
           coordinatorId: bookingDetails.general.marketingManager,
@@ -360,7 +361,7 @@ const TransportTab = () => {
             />
           </div>
           <div className="w-full">
-            <DataTable columns={columns} data={bookingDetails.transport} />            
+            <DataTable columns={columns} data={bookingDetails.transport} />    
           </div>
           <div className="flex w-full justify-end">
             <Button

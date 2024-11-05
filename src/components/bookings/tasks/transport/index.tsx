@@ -22,7 +22,7 @@ const voucherColumns: ColumnDef<TransportVoucherData>[] = [
   },
   {
     header: "Vehicle",
-    accessorFn: (row) => row.driverVoucherLines.map((type)=>{type.vehicleType}),
+    accessorFn: (row) => row.driverVoucherLines.map((t)=>t.vehicleType) ?? '-',
   },
   {
     header: "Language",
@@ -61,7 +61,7 @@ const selectedVoucherColumns: ColumnDef<TransportVoucherData>[] = [
   },
   {
     header: "Vehicle",
-    accessorFn: (row) => `${row.driverVoucherLines[0]?.vehicleType ?? ""}`,
+    accessorFn: (row) => row.driverVoucherLines.map((t)=>t.vehicleType),
   },
   {
     header: "Language",
