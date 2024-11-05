@@ -21,6 +21,6 @@ export function formatDate(dateString: string) {
   
     const timeDifference: number = end.getTime() - start.getTime();
   
-    return Math.round(timeDifference / (1000 * 60 * 60 * 24));
+    return Math.round(timeDifference / (1000 * 60 * 60 * 24)) + 1;
   }
   
