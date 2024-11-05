@@ -159,7 +159,7 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   const deleteRoom = (typeName: string, roomType: string, count:number, amenities:string, floor:number, bedCount:number) => {
-    alert(`Deleting room with typeName: ${typeName}, roomType: ${roomType}`);
+    // alert(`Deleting room with typeName: ${typeName}, roomType: ${roomType}`);
     setHotelRooms((prev) => prev.filter((room) => !(room.typeName === typeName && room.roomType === roomType && room.count === count  && room.amenities === amenities && room.floor === floor && room.bedCount === bedCount)));
   };
 

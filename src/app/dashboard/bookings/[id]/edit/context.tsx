@@ -41,7 +41,6 @@ export type TransportVoucher = {
   guideVoucherLine?: InsertGuideVoucherLine;
 }
 
-
 export interface BookingDetails {
   general: General; 
   vouchers: HotelVoucher[];
@@ -211,12 +210,6 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
       restaurants: prev.restaurants.filter((voucher, i) => !(i === index && voucher.voucherLines[0]?.id === id)),
     }));
   };
-  
-  
-
-
-
-
 
   const addActivity = (activity: ActivityVoucher) => {
     setBookingDetails(prev => ({ ...prev, activities: [...prev.activities, activity] }));

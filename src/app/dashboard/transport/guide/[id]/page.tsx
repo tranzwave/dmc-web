@@ -112,7 +112,7 @@ const Page = ({ params }: { params: { id: string } }) => {
 
   return (
     <div className="flex w-full flex-col justify-between gap-3">
-      <TitleBar title={`Driver - ${driver.name}`} link="toAddTransport" />
+      <TitleBar title={`Guide - ${driver.name}`} link="toAddTransport" />
       <div className="mx-9 flex flex-row justify-between">
         <div className="w-[30%]">
           <ContactBox
