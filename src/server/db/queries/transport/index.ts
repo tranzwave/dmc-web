@@ -256,7 +256,7 @@ export const insertDriver = async (
         throw new Error("Couldn't find any tenant");
       }
 
-      let insertedDriverIds: Array<string> = [];
+      const insertedDriverIds: Array<string> = [];
 
       for (const currentDriver of drivers) {
         const foundDriver = await tx.query.driver.findFirst({
