@@ -119,10 +119,10 @@ export const booking = createTable("bookings", {
     .references(() => client.id)
     .notNull(),
   coordinatorId: varchar("coordinator_id", { length: 255 })
-    .references(() => user.id)
+    // .references(() => user.id)
     .notNull(),
   managerId: varchar("manager_id", { length: 255 })
-    .references(() => user.id)
+    // .references(() => user.id)
     .notNull(),
   tourType: varchar("tour_type", { length: 255 }).notNull(),
   directCustomer: boolean("direct_customer").default(false)
@@ -791,14 +791,14 @@ export const bookingsRelations = relations(booking, ({ one }) => ({
     fields: [booking.id],
     references: [bookingAgent.bookingId],
   }),
-  coordinator: one(user, {
-    fields: [booking.coordinatorId],
-    references: [user.id],
-  }),
-  manager: one(user, {
-    fields: [booking.managerId],
-    references: [user.id],
-  }),
+  // coordinator: one(user, {
+  //   fields: [booking.coordinatorId],
+  //   references: [user.id],
+  // }),
+  // manager: one(user, {
+  //   fields: [booking.managerId],
+  //   references: [user.id],
+  // }),
 }));
 
 export const bookingAgentRelations = relations(bookingAgent, ({ one, many }) => ({

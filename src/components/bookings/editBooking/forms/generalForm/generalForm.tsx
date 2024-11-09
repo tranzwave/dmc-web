@@ -56,6 +56,8 @@ import {
   SelectCountry,
   SelectUser,
 } from "~/server/db/schemaTypes";
+import { useOrganization } from "@clerk/nextjs";
+import { OrganizationMembershipResource } from "@clerk/types";
 
 // Define the schema for form validation
 export const generalSchema = z
@@ -120,6 +122,10 @@ const GeneralForm = () => {
   const [id, setId] = useState("0");
   const pathname = usePathname();
   const router = useRouter();
+  const { organization, isLoaded } = useOrganization();
+  const [members, setMembers] = useState<OrganizationMembershipResource[]>([]); // Correct type for members
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+ 
 
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(addBookingGeneralSchema),
@@ -171,6 +177,22 @@ const GeneralForm = () => {
 
   useEffect(() => {
     fetchData();
+    const fetchMembers = async () => {
+      if (organization) {
+        try {
+          setIsLoading(true);
+          const memberships = await organization.getMemberships();
+          setMembers(memberships.data); // Set the 'items' array containing memberships
+          console.log(memberships);
+          setIsLoading(false);
+        } catch (error) {
+          console.error("Error fetching members:", error);
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchMembers();
   }, []);
 
   const onSubmit: SubmitHandler<GeneralFormValues> = async (data) => {
@@ -289,7 +311,7 @@ const GeneralForm = () => {
     setSelectedManager(manager);
   }
 
-  if (loading) {
+  if (loading || isLoading) {
     return <div>Loading...</div>;
   }
 
@@ -602,12 +624,10 @@ const GeneralForm = () => {
                         <SelectValue placeholder="Select manager" />
                       </SelectTrigger>
                       <SelectContent>
-                        {users.map((user) =>
-                          user.role === "manager" ? (
-                            <SelectItem key={user.id} value={user?.id ?? ""}>
-                              {user.name}
-                            </SelectItem>
-                          ) : null,
+                      {members.map((user) =>
+                          <SelectItem key={user.id} value={user?.id ?? ""}>
+                          {user.publicUserData.firstName + ' ' + user.publicUserData.lastName}
+                        </SelectItem>
                         )}
                       </SelectContent>
                     </Select>

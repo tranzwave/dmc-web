@@ -211,6 +211,7 @@ export const generateVoucherLineId = (
 export const createNewBooking = async (
   orgId: string,
   bookingDetails: BookingDetails,
+  coordinator: string,
   newBooking?: InsertBooking,
   generalData?: any,
   parentBookingId?: string,
@@ -255,7 +256,7 @@ export const createNewBooking = async (
           .insert(booking)
           .values({
             clientId: bookingClient.id,
-            coordinatorId: bookingDetails.general.marketingManager,
+            coordinatorId: coordinator,
             managerId: bookingDetails.general.marketingManager,
             tenantId: tenantId,
             tourType: bookingDetails.general.tourType,
