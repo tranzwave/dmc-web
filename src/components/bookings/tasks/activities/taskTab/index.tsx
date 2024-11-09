@@ -94,6 +94,11 @@ const ActivityVouchersTab = ({
     console.log("Vendor confirmed");
   };
 
+  const handleCancel = () => {
+    console.log("Cancelled");
+    // Add cancellation logic here
+  };
+  
   const renderCancelContent = () => {
     if (selectedVoucher) {
       if (selectedVoucher.status) {
@@ -113,8 +118,8 @@ const ActivityVouchersTab = ({
   );
 
   useEffect(() => {
-    console.log("Status changed");
-  }, [statusChanged]);
+    setSelectedVoucher(vouchers ? vouchers[0] : undefined)
+  }, [statusChanged, vouchers]);
 
   const getContactDetails = () => {
     if (!selectedVoucher) {
@@ -145,7 +150,8 @@ const ActivityVouchersTab = ({
             >
               <Button variant={"outline"}>Add Vouchers</Button>
             </Link>
-          </div>          <div className="text-sm font-normal">Click the line to send the voucher</div>
+          </div>          
+          <div className="text-sm font-normal">Click the line to send the voucher</div>
           <DataTable
             data={vouchers}
             columns={voucherColumns}
@@ -218,7 +224,8 @@ const ActivityVouchersTab = ({
                     description="Loading Contact Details"
                     trigger={contactButton}
                     onConfirm={handleConfirm}
-                    onCancel={() => console.log("Cancelled")}
+                    onCancel={handleCancel}
+                    // onCancel={() => console.log("Cancelled")}
                     dialogContent={ContactContent(
                       selectedVoucher.activityVendor.contactNumber,
                       selectedVoucher.activityVendor.primaryEmail ?? "N/A",

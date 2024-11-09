@@ -27,27 +27,29 @@ const SubmitForm = () => {
       charges,
       documents,
     });
-    const driverData: InsertDriver[] = [
-      {
-        name: general.name,
-        primaryEmail: general.primaryEmail,
-        primaryContactNumber: general.primaryContactNumber,
-        streetName: general.streetName,
-        province: general.province,
-        contactNumber: general.primaryContactNumber,
-        tenantId: "",
-        cityId: Number(general.city),
-        driversLicense: documents.driverLicense,
-        insurance: documents.insurance,
-        type: general.type,
-        guideLicense: documents.guideLicense,
-        accommodationAllowance: charges.accommodationAllowance,
-        fuelAllowance: charges.fuelAllowance,
-        mealAllowance: charges.mealAllowance,
-        feePerKM: charges.feePerKm,
-        feePerDay: charges.feePerDay,
-      },
-    ];
+
+   const driverData: InsertDriver[] = [
+  {
+    name: general?.name ?? "Unknown", // Provide fallback if general.name is undefined
+    primaryEmail: general?.primaryEmail ?? "No email provided",
+    primaryContactNumber: general?.primaryContactNumber ?? "No contact",
+    streetName: general?.streetName ?? "",
+    province: general?.province ?? "",
+    contactNumber: general?.primaryContactNumber ?? "",
+    tenantId: "",
+    cityId: Number(general?.city ?? 0), // Ensure city is a valid number or 0
+    driversLicense: documents?.driverLicense ?? "",
+    insurance: documents?.insurance ?? "",
+    type: general?.type ?? "Unknown",
+    guideLicense: documents?.guideLicense ?? "",
+    accommodationAllowance: charges?.accommodationAllowance ?? 0,
+    fuelAllowance: charges?.fuelAllowance ?? 0,
+    mealAllowance: charges?.mealAllowance ?? 0,
+    feePerKM: charges?.feePerKm ?? 0,
+    feePerDay: charges?.feePerDay ?? 0,
+  },
+];
+
 
     const vehicleData: InsertVehicle[] = vehicles.map((v) => {
       return {
@@ -79,9 +81,9 @@ const SubmitForm = () => {
         // documents,
       );
 
-      if (!response) {
-        throw new Error(`Error: ${response}`);
-      }
+      // if (!response) {
+      //   throw new Error(`Error: ${response}`);
+      // }
 
       console.log("Success:", response);
 

@@ -88,7 +88,7 @@ const HotelVoucherPDF = ({ voucher,cancellation }: HotelVoucherPDFProps) => {
       </div>
       <div className="p-4">
         <div className="card-title w-full text-center">
-            {cancellation ? (<div className="text-red-500">Cancellation Voucher</div>): 'Hotel Reservation Voucher'}
+            {cancellation ? (<div className="text-red-500">Cancellation Voucher</div>): `Hotel Reservation Voucher-${voucher.status === 'amended' ? 'Amendment' : ''}`}
           
         </div>
         <div className="flex w-full flex-row justify-between">
@@ -202,6 +202,9 @@ const HotelVoucherPDF = ({ voucher,cancellation }: HotelVoucherPDFProps) => {
         </div>
         <div className="mt-4 text-[13px]">
           <div>Special Notes : {voucher.voucherLines[0]?.remarks}</div>
+          {voucher.status === 'amended' && (
+            <div>Reason for amendment : {voucher.reasonToAmend}</div>
+          )}
         </div>
         <div className="mt-10 text-[13px]">
           <div>Printed Date : {format(Date.now(), "dd/MM/yyyy")}</div>

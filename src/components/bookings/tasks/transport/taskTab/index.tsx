@@ -165,8 +165,8 @@ const ActivityVouchersTab = ({
   );
 
   useEffect(() => {
-    console.log("Status changed");
-  }, [statusChanged]);
+    setSelectedVoucher(vouchers ? vouchers[0] : undefined)
+  }, [statusChanged, vouchers]);
 
   const getContactDetails = () => {
     if (!selectedVoucher) {
@@ -193,7 +193,8 @@ const ActivityVouchersTab = ({
             <Link href={`${pathname.replace("/tasks", "")}/edit?tab=transport`}>
               <Button variant={"outline"}>Add Vouchers</Button>
             </Link>
-          </div>          <div className="text-sm font-normal">Click the line to send the voucher</div>
+          </div>          
+          <div className="text-sm font-normal">Click the line to send the voucher</div>
           <DataTable
             data={vouchers}
             columns={voucherColumns}
@@ -366,7 +367,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         </Button>
       </div>
       <div ref={componentRef}>
-      {voucher.driver?.type === 'driver' ? (
+      {voucher.driver?.type !== 'guide'  ? (
     <DriverTransportVoucherPDF voucher={voucher} />
   ) : (
     <GuideTransportVoucherPDF voucher={voucher} />

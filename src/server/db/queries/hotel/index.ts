@@ -109,7 +109,7 @@ export const getHotelVouchersForHotel = (hotelId: string) => {
 export const getVoucherLinesByHotelId = async (hotelId: string) => {
   const voucherLines = await db
     .select({
-      voucherLineId: hotelVoucherLine.id,
+      id: hotelVoucherLine.id,
       hotelVoucherId: hotelVoucherLine.hotelVoucherId,
       rate: hotelVoucherLine.rate,
       roomType: hotelVoucherLine.roomType,
@@ -133,7 +133,7 @@ export const getVoucherLinesByHotelId = async (hotelId: string) => {
     .where(eq(hotelVoucher.hotelId, hotelId));
 
   return voucherLines.map((row) => ({
-    voucherLineId: row.voucherLineId,
+    id: row.id,
     hotelVoucherId: row.hotelVoucherId,
     rate: row.rate,
     roomType: row.roomType,

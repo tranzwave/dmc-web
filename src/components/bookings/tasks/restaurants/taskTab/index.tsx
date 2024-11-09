@@ -196,10 +196,11 @@ const RestaurantVouchersTasksTab = <
   useEffect(() => {
     console.log("Status changed");
     getHotels();
+    setSelectedVoucher(vouchers ? vouchers[0] : undefined)
     return () => {
       console.log("Return");
     };
-  }, [statusChanged]);
+  }, [statusChanged, vouchers]);
 
   if (loading) {
     return <LoadingLayout />;
@@ -323,72 +324,6 @@ const RestaurantVouchersTasksTab = <
                 ? `${getFirstObjectName(selectedVoucher)} - Voucher Lines`
                 : "Voucher Lines"}
             </div>
-            {selectedVoucher ? (
-              <div className="flex flex-row gap-2">
-                <Button
-                  variant={"outline"}
-                  className="border-red-600"
-                  onClick={renderCancelContent}
-                >
-                  Cancel
-                </Button>
-                {/* <Popup
-                  title="Cancel Voucher"
-                  description="This action cannot be undone"
-                  trigger={cancelButton}
-                  onConfirm={handleConfirm}
-                  onCancel={handleCancel}
-                  dialogContent={renderCancelContent()}
-                  size="small"
-                /> */}
-
-                <Popup
-                  title="Contact"
-                  description="Loading Contact Details"
-                  trigger={contactButton}
-                  onConfirm={handleConfirm}
-                  onCancel={handleCancel}
-                  dialogContent={ContactContent(
-                    selectedVoucher.restaurant.contactNumber,
-                    selectedVoucher.restaurant.primaryEmail,
-                  )}
-                  size="small"
-                />
-                <DeletePopup
-                  itemName={`Voucher for ${selectedVoucher?.restaurant.name}`}
-                  onDelete={handleInProgressVoucherDelete}
-                  isOpen={isInprogressVoucherDelete}
-                  setIsOpen={setIsInProgressVoucherDelete}
-                  isDeleting={isDeleting}
-                  description="You haven't sent this to the vendor yet. You can delete the
-                voucher without sending a cancellation voucher"
-                />
-                <div ref={deleteVoucherRef} style={{ display: "none" }}>
-                  {/* <restaurantVoucherPDF
-                    voucher={selectedVoucher}
-                    cancellation={true}
-                    key={selectedVoucher.restaurantId}
-                  /> */}
-                  <RestaurantVoucherPDF
-                    voucher={selectedVoucher}
-                    cancellation={true}
-                    key={selectedVoucher.restaurantId}
-                  />
-                </div>
-
-                <DeletePopup
-                  itemName={`Voucher for ${selectedVoucher?.restaurant.name}`}
-                  onDelete={handleProceededVoucherDelete}
-                  isOpen={isProceededVoucherDelete}
-                  setIsOpen={setIsProceededVoucherDelete}
-                  isDeleting={isDeleting}
-                  description={`You have already proceeded with this voucher, and it's in the status of ${selectedVoucher.status} \n
-                Are you sure you want to cancel this voucher? This will give you the cancellation voucher and delete the voucher from this booking`}
-                />
-              </div>
-            ) : (
-              ""
-            )}
           </div>
 
           {/* <DataTableWithActions
@@ -408,19 +343,51 @@ const RestaurantVouchersTasksTab = <
             className={`flex flex-row items-end justify-end ${!selectedVoucher ? "hidden" : ""}`}
           >
             <div className="flex flex-row gap-2">
-              {selectedVoucher && selectedVoucher.voucherLines[0] && (
-                <Popup
-                  title={
-                    selectedVoucher && getFirstObjectName(selectedVoucher)
-                      ? `${getFirstObjectName(selectedVoucher)} - Voucher`
-                      : "Select a voucher first"
-                  }
-                  description="Amend Voucher"
-                  trigger={amendButton}
-                  onConfirm={handleConfirm}
-                  onCancel={handleCancel}
-                  dialogContent={
-                    <RestaurantsVoucherForm
+
+            {selectedVoucher && selectedVoucher.voucherLines[0] && (
+                <div className="flex flex-row gap-2">
+                  <Button
+                    variant={"outline"}
+                    className="border-red-600"
+                    onClick={renderCancelContent}
+                  >
+                    Cancel
+                  </Button>
+
+                  <Popup
+                    title="Contact"
+                    description="Loading Contact Details"
+                    trigger={contactButton}
+                    onConfirm={handleConfirm}
+                    onCancel={handleCancel}
+                    dialogContent={ContactContent(
+                      selectedVoucher.restaurant.contactNumber,
+                      selectedVoucher.restaurant.primaryEmail,
+                    )}
+                    size="small"
+                  />
+                  <DeletePopup
+                    itemName={`Voucher for ${selectedVoucher?.restaurant.name}`}
+                    onDelete={handleInProgressVoucherDelete}
+                    isOpen={isInprogressVoucherDelete}
+                    setIsOpen={setIsInProgressVoucherDelete}
+                    isDeleting={isDeleting}
+                    description="You haven't sent this to the vendor yet. You can delete the
+                voucher without sending a cancellation voucher"
+                  />
+
+                  <Popup
+                    title={
+                      selectedVoucher && getFirstObjectName(selectedVoucher)
+                        ? `${getFirstObjectName(selectedVoucher)} - Voucher`
+                        : "Select a voucher first"
+                    }
+                    description="Amend Voucher"
+                    trigger={amendButton}
+                    onConfirm={handleConfirm}
+                    onCancel={handleCancel}
+                    dialogContent={
+                      <RestaurantsVoucherForm
                       onSave={() => {
                         console.log("saving");
                       }}
@@ -432,10 +399,12 @@ const RestaurantVouchersTasksTab = <
                       }}
                       restaurant={restaurants}
                     />
-                  }
-                  size="large"
-                />
+                    }
+                    size="large"
+                  />
+                </div>
               )}
+
 
               <Popup
                 title="Confirm Voucher"

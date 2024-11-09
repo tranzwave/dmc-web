@@ -110,6 +110,7 @@ const HotelsVoucherForm: React.FC<HotelsFormProps> = ({
             description: "Voucher has been amended successfully",
           });
           setIsUpdating(false);
+          window.location.reload(); 
         } else {
           console.error("Missing voucher ID or voucher line ID for update.");
           setIsUpdating(false);

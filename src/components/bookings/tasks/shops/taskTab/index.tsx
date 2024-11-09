@@ -136,8 +136,8 @@ const ShopVouchersTasksTab = ({
   );
 
   useEffect(() => {
-    console.log("Status changed");
-  }, [statusChanged]);
+    setSelectedVoucher(vouchers ? vouchers[0] : undefined)
+  }, [statusChanged, vouchers]);
 
   const getContactDetails = () => {
     if (!selectedVoucher) {

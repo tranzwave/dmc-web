@@ -296,7 +296,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                           {field.value ? (
                             format(new Date(field.value), "LLL dd, y")
                           ) : (
-                            <span>Pick the arrival date</span>
+                            <span>Pick the check-in date</span>
                           )}
                         </Button>
                       </PopoverTrigger>
@@ -360,7 +360,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                           {field.value ? (
                             format(new Date(field.value), "LLL dd, y")
                           ) : (
-                            <span>Pick the arrival date</span>
+                            <span>Pick the check-out date</span>
                           )}
                         </Button>
                       </PopoverTrigger>

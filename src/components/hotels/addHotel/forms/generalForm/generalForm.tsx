@@ -154,7 +154,7 @@ const HotelGeneralForm = ({
     if (defaultValues) {
       console.log(defaultValues)
       setSelectedCity(defaultValues.cityId)
-      alert("here")
+      // alert("here")
       console.log(generalForm.getValues())
     }
     reset(defaultValues);
