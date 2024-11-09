@@ -47,6 +47,7 @@ const Page = ({ params }: { params: { id: string } }) => {
         setLoading(true);
         const result = await getVoucherLinesByHotelId(params.id);
         setVouchers(result);
+        //TODO:
         const upcoming = result.filter(voucher => Date.parse(voucher.checkInDate) > Date.now()).length
         setVoucherCounts({
             upcomingBookings: upcoming,

@@ -249,12 +249,14 @@ export const insertDriver = async (
   languages: InsertLanguage[]
 ) => {
   try {
-    const newDriver = await db.transaction(async (tx) => {
+    const newDrivers = await db.transaction(async (tx) => {
       const foundTenant = await tx.query.tenant.findFirst();
 
       if (!foundTenant) {
         throw new Error("Couldn't find any tenant");
       }
+
+      const insertedDriverIds: Array<string> = [];
 
       for (const currentDriver of drivers) {
         const foundDriver = await tx.query.driver.findFirst({
@@ -266,7 +268,7 @@ export const insertDriver = async (
         });
 
         if (!foundDriver) {
-          const newDriverId = await tx
+          const [newDriver] = await tx
             .insert(driver)
             .values({
               ...currentDriver,
@@ -276,14 +278,14 @@ export const insertDriver = async (
               id: driver.id,
             });
 
-          if (!newDriverId[0]) {
+          if (!newDriver?.id) {
             throw new Error(`Couldn't add driver: ${currentDriver.name}`);
           }
 
           const addedVehicles = await tx
             .insert(vehicle)
             .values(
-              vehicleData.map((v: any) => ({
+              vehicleData.map((v) => ({
                 ...v,
                 tenantId: foundTenant.id,
               }))
@@ -299,28 +301,31 @@ export const insertDriver = async (
           await tx.insert(driverVehicle).values(
             addedVehicles.map((vhcle) => ({
               vehicleId: vhcle.id,
-              driverId: newDriverId[0]?.id ?? "",
+              driverId: newDriver.id,
             }))
           );
 
-          const driverLanguageLinks = languages.map((lang: InsertLanguage) => {
-            return {
-              driverId: newDriverId[0]?.id ?? "",
-              languageCode: lang.code,
-            };
-          });
+          // Insert driver language associations
+          const driverLanguageLinks = languages.map((lang) => ({
+            driverId: newDriver.id,
+            languageCode: lang.code,
+          }));
 
           await tx.insert(driverLanguage).values(driverLanguageLinks);
-          return newDriverId
+
+          insertedDriverIds.push(newDriver.id);
         }
       }
+
+      return insertedDriverIds;
     });
-    return newDriver
+
+    return newDrivers;
   } catch (error: any) {
-    console.error("Error in insertDriver:", error?.detail ?? error);
+    console.error("Error in insertDriver:", error?.detail ?? error.message);
     throw error;
   }
-}
+};
 
 export const insertGuide = async (
   drivers: InsertGuide[],

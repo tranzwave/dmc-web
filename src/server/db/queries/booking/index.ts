@@ -511,7 +511,7 @@ export const insertHotelVouchersTx = async (
       const voucherLines = await Promise.all(
         currentVoucher.voucherLines.map(async (currentVoucherLine, idx) => {
           //generate voucher line id
-          const voucherLineId = `${newBookingLineId}-HTL/${idx+1}`;
+          const voucherLineId = `${newBookingLineId}-HTL/${idx + 1}`;
 
           console.log("Voucher Line ID : " + voucherLineId);
 
@@ -832,13 +832,13 @@ export const insertRestaurantVouchersTx = async (
       console.log(`Processing voucher line ${j + 1} for voucher ${voucherId}`);
 
       //generate voucher line id
-      const voucherLineId = `${newBookingLineId}-RES/${j+1}`;
+      const voucherLineId = `${newBookingLineId}-RES/${j + 1}`;
 
 
       const newVoucherLine = await trx
         .insert(restaurantVoucherLine)
         .values({
-          id:voucherLineId,
+          id: voucherLineId,
           adultsCount: currentVoucherLine.adultsCount,
           kidsCount: currentVoucherLine.kidsCount,
           mealType: currentVoucherLine.mealType,
@@ -1127,17 +1127,12 @@ export const insertTransportVoucherTx = async (
 
       const voucherId = newVoucher[0]?.id;
 
-      // Check the type of voucher and insert accordingly
-      if (
-        currentVoucher.driver?.type === "driver" ||
-        currentVoucher.driver?.type === "chauffer"
-      ) {
-        // Insert into driver_voucher_lines table
+      if (currentVoucher.driver?.type !== 'guide') {
         await trx
           .insert(driverVoucherLine)
           .values({
             transportVoucherId: voucherId,
-            vehicleType: currentVoucher.driverVoucherLine?.vehicleType, // assuming vehicleType is part of the driver info
+            vehicleType: currentVoucher.driverVoucherLine?.vehicleType,
           })
           .returning();
       } else {
@@ -1146,7 +1141,6 @@ export const insertTransportVoucherTx = async (
           .insert(guideVoucherLine)
           .values({
             transportVoucherId: voucherId,
-            // You can add additional fields related to guide vouchers here
           })
           .returning();
       }

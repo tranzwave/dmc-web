@@ -1,6 +1,5 @@
 "use client";
 import html2pdf from "html2pdf.js";
-import { Loader2Icon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";

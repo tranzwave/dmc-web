@@ -164,8 +164,8 @@ export const bookingLine = createTable("booking_lines", {
   endDate: timestamp("end_date").notNull(),
   status: bookingLineStatus('status').default('inprogress'),
   createdAt: timestamp("created_at", { withTimezone: true })
-  .default(sql`CURRENT_TIMESTAMP`)
-  .notNull(),
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const city = createTable(
@@ -296,6 +296,7 @@ export const hotelVoucherLine = createTable("hotel_voucher_lines", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey(),
+  // .$defaultFn(() => crypto.randomUUID()),
   hotelVoucherId: varchar("hotel_voucher_id", { length: 255 })
     .references(() => hotelVoucher.id)
     .notNull(),
@@ -379,6 +380,7 @@ export const restaurantVoucherLine = createTable("restaurant_voucher_lines", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey(),
+  // .$defaultFn(() => crypto.randomUUID()),
   restaurantVoucherId: varchar("restaurant_voucher_id", { length: 255 })
     .references(() => restaurantVoucher.id)
     .notNull(),
