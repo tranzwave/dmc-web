@@ -1,8 +1,6 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { ActivityData } from "./actvitiesForm";
-import { SelectActivityVendor, SelectActivityVoucher } from "~/server/db/schemaTypes";
 import { ActivityVoucher } from "~/app/dashboard/bookings/add/context";
 
 export type Activity = {
@@ -58,5 +56,9 @@ export const columns: ColumnDef<ActivityVoucher>[] = [
     
     header: "Remarks",
     accessorFn: row => row.voucher.remarks
+  },
+  {
+    header: "Status",
+    accessorFn: (row) => row.voucher.status
   },
 ];

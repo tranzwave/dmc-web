@@ -1,6 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircle } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import {
+  ActivityVoucher,
+  useAddBooking,
+} from "~/app/dashboard/bookings/add/context";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -11,14 +17,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Activity } from "./columns";
-import {
-  SelectActivity,
-  SelectActivityType,
-  SelectActivityVendor,
-  SelectActivityVoucher,
-  SelectCity,
-} from "~/server/db/schemaTypes";
 import {
   Select,
   SelectContent,
@@ -26,13 +24,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { useState } from "react";
 import { getActivitiesByTypeAndCity } from "~/server/db/queries/activities";
-import { LoaderCircle } from "lucide-react";
 import {
-  ActivityVoucher,
-  useAddBooking,
-} from "~/app/dashboard/bookings/add/context";
+  SelectActivity,
+  SelectActivityType,
+  SelectActivityVendor,
+  SelectCity
+} from "~/server/db/schemaTypes";
 
 export type ActivityData = SelectActivity & {
   activityVendor: SelectActivityVendor & {

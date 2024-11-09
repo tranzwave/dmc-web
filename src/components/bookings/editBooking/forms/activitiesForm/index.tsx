@@ -6,7 +6,7 @@ import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 import {
   ActivityVoucher
 } from "~/app/dashboard/bookings/add/context";
-import { DataTable } from "~/components/bookings/home/dataTable";
+import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { useToast } from "~/hooks/use-toast";
@@ -17,6 +17,7 @@ import {
 import { addActivityVouchersToBooking } from "~/server/db/queries/booking";
 import {
   SelectActivityType,
+  SelectActivityVendor,
   SelectCity
 } from "~/server/db/schemaTypes";
 import ActivitiesForm from "./actvitiesForm";
@@ -28,6 +29,7 @@ const ActivitiesTab = () => {
   const [loading, setLoading] = useState(false);
   const [activityTypes, setActivityTypes] = useState<SelectActivityType[]>([]);
   const [cities, setCities] = useState<SelectCity[]>([]);
+  const [activities, setActivities] = useState<SelectActivityVendor[]>([]);
   const [error, setError] = useState<string | null>();
   const { toast } = useToast();
   const [saving, setSaving] = useState(false)
@@ -138,7 +140,6 @@ const ActivitiesTab = () => {
         description: "Couldn't add activity vouchers!",
       });
     }
-
   }
 
   return (
@@ -154,16 +155,23 @@ const ActivitiesTab = () => {
           />
         <div className="card w-full space-y-3">
           <div className="card-title">Activities Information</div>
+          {activities && (
           <ActivitiesForm
             onAddActivity={updateActivities}
             activityTypes={activityTypes}
             cities={cities}
+            isSaving={saving}
           />
+        )}
         </div>
       </div>
       <div className=" flex flex-row justify-center gap-2">
         <div className="w-full">
-          <DataTable columns={columns} data={bookingDetails.activities} />
+          <DataTableWithActions columns={columns} data={bookingDetails.activities} 
+         onEdit={()=>{console.log("edit")}}
+         onDelete={()=>{console.log("delete")}}
+         onRowClick={() => {console.log("row");}} 
+         />
         </div>
       </div>
       <div className="flex w-full justify-end">
