@@ -141,6 +141,8 @@ const ActivitiesTab = () => {
         title: "Success",
         description: "Activity Vouchers Added!",
       });
+      updateTriggerRefetch();
+
     } catch (error) {
       if (error instanceof Error) {
         // setError(error.message);
