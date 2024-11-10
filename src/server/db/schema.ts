@@ -278,7 +278,7 @@ export const hotelVoucher = createTable("hotel_vouchers", {
     .references(() => hotel.id)
     .notNull(),
   coordinatorId: varchar("coordinator_id", { length: 255 })
-    .references(() => user.id)
+    // .references(() => user.id)
     .notNull(),
   status: statusEnum('status').default('inprogress'),
   availabilityConfirmedBy: varchar("availability_confirmed_by", { length: 255 }).default(""),
@@ -363,7 +363,7 @@ export const restaurantVoucher = createTable("restaurant_vouchers", {
     .references(() => restaurant.id)
     .notNull(),
   coordinatorId: varchar("coordinator_id", { length: 255 })
-    .references(() => user.id)
+    // .references(() => user.id)
     .notNull(),
   status: statusEnum('status').default('inprogress'),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
@@ -549,8 +549,8 @@ export const transportVoucher = createTable("transport_vouchers", {
     .references(() => driver.id),
   guideId: varchar("guide_id", { length: 255 })
     .references(() => guide.id),
-  coordinatorId: varchar("coordinator_id", { length: 255 })
-    .references(() => user.id),
+  coordinatorId: varchar("coordinator_id", { length: 255 }),
+    // .references(() => user.id),
   status: statusEnum('status').default('inprogress'),
   rate: numeric('rate', { precision: 4 }),
   startDate: varchar("start_date", { length: 100 }).notNull(),
@@ -662,7 +662,7 @@ export const activityVoucher = createTable("activity_vouchers", {
     .references(() => activity.id)
     .notNull(),
   coordinatorId: varchar("coordinator_id", { length: 255 })
-    .references(() => user.id)
+    // .references(() => user.id)
     .notNull(),
   date: varchar("date", { length: 100 }).notNull(),
   time: varchar("time", { length: 10 }).notNull(),
@@ -726,7 +726,7 @@ export const shopVoucher = createTable("shop_vouchers", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   bookingLineId: varchar("booking_line_id", { length: 255 })
-    .references(() => bookingLine.id)
+    // .references(() => bookingLine.id)
     .notNull(),
   shopId: varchar("shop_id", { length: 255 })
     .references(() => shop.id)
