@@ -323,6 +323,7 @@ export const createNewBooking = async (
           bookingDetails.vouchers,
           lineId,
           bookingDetails.general.marketingManager,
+          bookingDetails.vouchers.length + 1
         );
       }
 
@@ -333,6 +334,7 @@ export const createNewBooking = async (
           bookingDetails.restaurants,
           lineId,
           bookingDetails.general.marketingManager,
+          bookingDetails.restaurants.length + 1
         );
       }
 
@@ -460,6 +462,7 @@ export const addHotelVoucherLinesToBooking = async (
   vouchers: HotelVoucher[],
   newBookingLineId: string,
   coordinatorId: string,
+  indexToAdd: number
 ) => {
   // Start a transaction
   const result = await db.transaction(async (trx) => {
@@ -470,6 +473,7 @@ export const addHotelVoucherLinesToBooking = async (
         vouchers,
         newBookingLineId,
         coordinatorId,
+        indexToAdd
       );
 
       // If there are additional inserts/updates, you can perform them here using the same trx.
@@ -489,6 +493,7 @@ export const insertHotelVouchersTx = async (
   vouchers: HotelVoucher[],
   newBookingLineId: string,
   coordinatorId: string,
+  indexToAdd: number
 ) => {
   const hotelVouchers = await Promise.all(
     vouchers.map(async (currentVoucher) => {
@@ -512,7 +517,7 @@ export const insertHotelVouchersTx = async (
       const voucherLines = await Promise.all(
         currentVoucher.voucherLines.map(async (currentVoucherLine, idx) => {
           //generate voucher line id
-          const voucherLineId = `${newBookingLineId}-HTL/${idx + 1}`;
+          const voucherLineId = `${newBookingLineId}-HTL/${indexToAdd}`;
 
           console.log("Voucher Line ID : " + voucherLineId);
 
@@ -762,6 +767,7 @@ export const addRestaurantVoucherLinesToBooking = async (
   vouchers: RestaurantVoucher[],
   newBookingLineId: string,
   coordinatorId: string,
+  indexToAdd: number
 ) => {
   const result = await db.transaction(async (trx) => {
     if (!vouchers) {
@@ -774,6 +780,7 @@ export const addRestaurantVoucherLinesToBooking = async (
         vouchers,
         newBookingLineId,
         coordinatorId,
+        indexToAdd
       );
 
       // Return the result after all inserts are done
@@ -792,6 +799,7 @@ export const insertRestaurantVouchersTx = async (
   vouchers: RestaurantVoucher[],
   newBookingLineId: string,
   coordinatorId: string,
+  indexToAdd: number
 ) => {
   // console.log("Number of vouchers:", vouchers.length);
 
@@ -833,7 +841,7 @@ export const insertRestaurantVouchersTx = async (
       console.log(`Processing voucher line ${j + 1} for voucher ${voucherId}`);
 
       //generate voucher line id
-      const voucherLineId = `${newBookingLineId}-RES/${j + 1}`;
+      const voucherLineId = `${newBookingLineId}-RES/${indexToAdd}`;
 
 
       const newVoucherLine = await trx
