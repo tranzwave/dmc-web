@@ -1,44 +1,28 @@
 "use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { DataTable } from "~/components/bookings/home/dataTable";
-import { Button } from "~/components/ui/button";
-import {
-  InsertHotelVoucher,
-  InsertHotelVoucherLine,
-  SelectHotel,
-  SelectHotelVoucher,
-  SelectHotelVoucherLine,
-} from "~/server/db/schemaTypes";
-import { Hotel, hotelVoucherColumns } from "./columns";
-import HotelsForm from "./hotelsForm";
-import { getAllHotels, getAllHotelsV2 } from "~/server/db/queries/hotel";
-import { useToast } from "~/hooks/use-toast";
-import { Calendar } from "~/components/ui/calendar";
-import { CalendarV2, DateRange } from "~/components/common/customCalendar";
 import {
   HotelVoucher,
   useEditBooking,
 } from "~/app/dashboard/bookings/[id]/edit/context";
+import { CalendarV2 } from "~/components/common/customCalendar";
+import { DataTableWithActions } from "~/components/common/dataTableWithActions";
+import DeletePopup from "~/components/common/deletePopup";
+import { Button } from "~/components/ui/button";
+import { useToast } from "~/hooks/use-toast";
 import {
   addHotelVoucherLinesToBooking,
   deleteHotelVoucherLine,
 } from "~/server/db/queries/booking";
-import { usePathname, useSearchParams } from "next/navigation";
-import { LoaderCircle } from "lucide-react";
-import Link from "next/link";
-import { DataTableWithActions } from "~/components/common/dataTableWithActions";
+import { getAllHotelsV2 } from "~/server/db/queries/hotel";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "~/components/ui/alert-dialog";
-import DeletePopup from "~/components/common/deletePopup";
+  InsertHotelVoucher,
+  InsertHotelVoucherLine,
+  SelectHotel
+} from "~/server/db/schemaTypes";
+import { Hotel, hotelVoucherColumns } from "./columns";
+import HotelsForm from "./hotelsForm";
 
 const HotelsTab = () => {
   const [addedHotels, setAddedHotels] = useState<Hotel[]>([]);
@@ -73,6 +57,7 @@ const HotelsTab = () => {
 
   const pathname = usePathname();
   const bookingLineId = pathname.split("/")[3];
+  
   const updateHotels = async (
     data: InsertHotelVoucherLine,
     isNewVoucher: boolean,

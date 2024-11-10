@@ -45,6 +45,7 @@ interface ActivityFormProps {
   onAddActivity: (voucher: ActivityVoucher) => void;
   activityTypes: SelectActivityType[];
   cities: SelectCity[];
+  isSaving?: boolean;
 }
 
 export const activitySchema = z.object({
