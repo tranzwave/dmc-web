@@ -211,6 +211,7 @@ export const generateVoucherLineId = (
 export const createNewBooking = async (
   orgId: string,
   bookingDetails: BookingDetails,
+  coordinator: string,
   newBooking?: InsertBooking,
   generalData?: any,
   parentBookingId?: string,
@@ -255,7 +256,7 @@ export const createNewBooking = async (
           .insert(booking)
           .values({
             clientId: bookingClient.id,
-            coordinatorId: bookingDetails.general.marketingManager,
+            coordinatorId: coordinator,
             managerId: bookingDetails.general.marketingManager,
             tenantId: tenantId,
             tourType: bookingDetails.general.tourType,
@@ -322,6 +323,7 @@ export const createNewBooking = async (
           bookingDetails.vouchers,
           lineId,
           bookingDetails.general.marketingManager,
+          bookingDetails.vouchers.length + 1
         );
       }
 
@@ -332,6 +334,7 @@ export const createNewBooking = async (
           bookingDetails.restaurants,
           lineId,
           bookingDetails.general.marketingManager,
+          bookingDetails.restaurants.length + 1
         );
       }
 
@@ -459,6 +462,7 @@ export const addHotelVoucherLinesToBooking = async (
   vouchers: HotelVoucher[],
   newBookingLineId: string,
   coordinatorId: string,
+  indexToAdd: number
 ) => {
   // Start a transaction
   const result = await db.transaction(async (trx) => {
@@ -469,6 +473,7 @@ export const addHotelVoucherLinesToBooking = async (
         vouchers,
         newBookingLineId,
         coordinatorId,
+        indexToAdd
       );
 
       // If there are additional inserts/updates, you can perform them here using the same trx.
@@ -488,6 +493,7 @@ export const insertHotelVouchersTx = async (
   vouchers: HotelVoucher[],
   newBookingLineId: string,
   coordinatorId: string,
+  indexToAdd: number
 ) => {
   const hotelVouchers = await Promise.all(
     vouchers.map(async (currentVoucher) => {
@@ -511,7 +517,7 @@ export const insertHotelVouchersTx = async (
       const voucherLines = await Promise.all(
         currentVoucher.voucherLines.map(async (currentVoucherLine, idx) => {
           //generate voucher line id
-          const voucherLineId = `${newBookingLineId}-HTL/${idx + 1}`;
+          const voucherLineId = `${newBookingLineId}-HTL/${indexToAdd}`;
 
           console.log("Voucher Line ID : " + voucherLineId);
 
@@ -761,6 +767,7 @@ export const addRestaurantVoucherLinesToBooking = async (
   vouchers: RestaurantVoucher[],
   newBookingLineId: string,
   coordinatorId: string,
+  indexToAdd: number
 ) => {
   const result = await db.transaction(async (trx) => {
     if (!vouchers) {
@@ -773,6 +780,7 @@ export const addRestaurantVoucherLinesToBooking = async (
         vouchers,
         newBookingLineId,
         coordinatorId,
+        indexToAdd
       );
 
       // Return the result after all inserts are done
@@ -791,6 +799,7 @@ export const insertRestaurantVouchersTx = async (
   vouchers: RestaurantVoucher[],
   newBookingLineId: string,
   coordinatorId: string,
+  indexToAdd: number
 ) => {
   // console.log("Number of vouchers:", vouchers.length);
 
@@ -832,7 +841,7 @@ export const insertRestaurantVouchersTx = async (
       console.log(`Processing voucher line ${j + 1} for voucher ${voucherId}`);
 
       //generate voucher line id
-      const voucherLineId = `${newBookingLineId}-RES/${j + 1}`;
+      const voucherLineId = `${newBookingLineId}-RES/${indexToAdd}`;
 
 
       const newVoucherLine = await trx
@@ -928,6 +937,74 @@ export const deleteRestaurantVoucherLine = async (voucherLineId: string) => {
     throw new Error(`Transaction error`);
   }
 };
+
+
+export const deleteActivityVoucher = async (voucherLineId: string) => {
+  try {
+    const result = await db.transaction(async (trx) => {
+      // Fetch the activity voucher line to check if it exists
+      const [voucherLine] = await trx
+        .select()
+        .from(activityVoucher)  // Assuming activityVoucherLine exists
+        .where(eq(activityVoucher.id, voucherLineId))  // Updated for activityVoucherLine.id
+        .execute();
+
+      if (!voucherLine || !voucherLine.activityId) {
+        throw new Error(`No activity voucher line found with ID: ${voucherLineId}`);
+      }
+
+      const { activityId } = voucherLine;  // Ensure voucherLine has activityVoucherId
+
+      // Check if there are other lines associated with this voucher
+      const remainingVoucherLines = await trx
+        .select()
+        .from(activityVoucher)  // Use activityVoucherLine
+        .where(
+          and(
+            eq(activityVoucher.activityId, activityId),  // Check for matching activityVoucherId
+            ne(activityVoucher.id, voucherLineId),  // Exclude the current voucher line
+          ),
+        )
+        .execute();
+
+      // Delete the specified activity voucher line
+      const [deletedVoucherLine] = await trx
+        .delete(activityVoucher)  // Delete from activityVoucherLine
+        .where(eq(activityVoucher.id, voucherLineId))  // Where id matches voucherLineId
+        .returning()
+        .execute();
+
+      if (!deletedVoucherLine?.id) {
+        throw new Error(`Failed to delete activity voucher line with ID: ${voucherLineId}`);
+      }
+
+      let deletedVoucher = null;
+      // If no more voucher lines remain, delete the associated activity voucher
+      if (remainingVoucherLines.length === 0) {
+        const [deletedVoucherResult] = await trx
+          .delete(activityVoucher)  // Delete from activityVoucher
+          .where(eq(activityVoucher.id, activityId))  // Where id matches activityVoucherId
+          .returning()
+          .execute();
+
+        deletedVoucher = deletedVoucherResult ?? null;
+      }
+
+      // Return the deleted voucher line and potentially the deleted voucher
+      return {
+        deletedVoucherLine,
+        deletedVoucher,
+      };
+    });
+
+    return result;
+  } catch (error) {
+    console.error(`Error deleting voucher line with ID: ${voucherLineId}`, error);
+    throw new Error(`Failed to delete activity voucher line or associated voucher`);
+  }
+};
+
+
 
 export const addActivityVouchersToBooking = async (
   vouchers: ActivityVoucher[],

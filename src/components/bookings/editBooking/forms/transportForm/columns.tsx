@@ -44,6 +44,10 @@ export const columns: ColumnDef<TransportVoucher, unknown>[] = [
     header: "Remarks",
     accessorFn: row => row.voucher.remarks
   },
+  {
+    header: "Status",
+    accessorFn: (row) => row.voucher.status
+  },
   // {
   //   id: "actions",
   //   header: "",

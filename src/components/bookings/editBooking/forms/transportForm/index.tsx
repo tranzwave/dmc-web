@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 import { DataTable } from "~/components/bookings/home/dataTable";
+import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { useToast } from "~/hooks/use-toast";
@@ -349,7 +350,10 @@ const TransportTab = () => {
             />
           </div>
           <div className="w-full">
-            <DataTable columns={columns} data={bookingDetails.transport} />    
+            <DataTableWithActions columns={columns} data={bookingDetails.transport}
+             onEdit={()=>{console.log("edit")}}
+             onDelete={()=>{console.log("delete")}}
+             onRowClick={() => {console.log("row");}}  />    
           </div>
           <div className="flex w-full justify-end">
             <Button

@@ -1,6 +1,6 @@
 "use client";
 
-import { useOrganization } from "@clerk/nextjs";
+import { useOrganization, useUser } from "@clerk/nextjs";
 import { OrganizationMembershipResource } from "@clerk/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, parse } from "date-fns";
@@ -130,6 +130,7 @@ const GeneralForm = () => {
   const [id, setId] = useState("0");
   const pathname = usePathname();
   const router = useRouter();
+  const {user,isLoaded:isUserLoaded} = useUser();
 
   const { organization, isLoaded } = useOrganization();
   const [members, setMembers] = useState<OrganizationMembershipResource[]>([]); // Correct type for members
@@ -233,6 +234,8 @@ const GeneralForm = () => {
           transport: [],
           vouchers: [],
         },
+        user?.id ?? "unknown"
+
       );
 
       if (createdBooking) {
@@ -266,6 +269,7 @@ const GeneralForm = () => {
       const createdBooking = await createNewBooking(
         organization?.id ?? "",
         bookingDetails,
+        user?.id ?? "unknown"
       );
 
       if (createdBooking) {
@@ -290,7 +294,7 @@ const GeneralForm = () => {
     // setActiveTab("hotels");
     try {
       router.replace(`${pathname.split("add")[0]}/${id}/edit?tab=hotels`);
-      
+
     } catch (error) {
       console.error("Failed to navigate:", error);
     }
@@ -316,11 +320,11 @@ const GeneralForm = () => {
     setSelectedManager(manager);
   }
 
-  if (loading || !isLoaded) {
+  if (loading || !isLoaded || !isUserLoaded) {
     return (
       <div className="flex justify-center items-center">
         <div>
-        <LoadingLayout />
+          <LoadingLayout />
         </div>
       </div>
     );
@@ -563,7 +567,7 @@ const GeneralForm = () => {
           </div>
 
           <div className="grid grid-cols-4 gap-4">
-          <FormField
+            <FormField
               name="directCustomer"
               control={form.control}
               render={({ field }) => (
@@ -614,14 +618,14 @@ const GeneralForm = () => {
                     <FormItem>
                       <FormLabel>Primary Contact Number</FormLabel>
                       <FormControl>
-                      <PhoneInput
-                    country={"us"}
-                    value={field.value}
-                    onChange={(phone) => field.onChange(`+${phone}`)}
-                    inputClass="w-full shadow-md"
-                    inputStyle={{ width: "inherit" }}
-                  />
-                        
+                        <PhoneInput
+                          country={"us"}
+                          value={field.value}
+                          onChange={(phone) => field.onChange(`+${phone}`)}
+                          inputClass="w-full shadow-md"
+                          inputStyle={{ width: "inherit" }}
+                        />
+
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -652,12 +656,17 @@ const GeneralForm = () => {
                         <SelectValue placeholder="Select manager" />
                       </SelectTrigger>
                       <SelectContent>
-                        {users.map((user) =>
+                        {/* {users.map((user) =>
                           user.role === "manager" ? (
                             <SelectItem key={user.id} value={user?.id ?? ""}>
                               {user.name}
                             </SelectItem>
                           ) : null,
+                        )} */}
+                        {members.map((user) =>
+                          <SelectItem key={user.id} value={user?.id ?? "unknown"}>
+                          {user.publicUserData.firstName + ' ' + user.publicUserData.lastName}
+                        </SelectItem>
                         )}
                       </SelectContent>
                     </Select>
