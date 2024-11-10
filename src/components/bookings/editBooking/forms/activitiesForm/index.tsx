@@ -182,6 +182,7 @@ const ActivitiesTab = () => {
         const deletedData = await deleteActivitiesVoucher(
           selectedVoucher?.voucher?.id ?? "",
         );
+        updateTriggerRefetch();
         if (!deletedData) {
           throw new Error("Couldn't delete voucher");
         }
