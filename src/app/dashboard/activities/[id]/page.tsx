@@ -31,7 +31,7 @@ const Page = ({ params }: { params: { id: string } }) => {
     },
     {
       header: "Participant Count",
-      accessorFn: (row) => row.participantsCount
+      accessorFn: (row) => (row.adultsCount ?? 1)+ (row.kidsCount ?? 0)
     },
   
   ];
