@@ -7,6 +7,7 @@ import {
   ActivityVoucher
 } from "~/app/dashboard/bookings/add/context";
 import { DataTableWithActions } from "~/components/common/dataTableWithActions";
+import DeletePopup from "~/components/common/deletePopup";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { useToast } from "~/hooks/use-toast";
@@ -14,7 +15,7 @@ import {
   getAllActivityTypes,
   getAllCities,
 } from "~/server/db/queries/activities";
-import { addActivityVouchersToBooking } from "~/server/db/queries/booking";
+import { addActivityVouchersToBooking, deleteActivitiesVoucher } from "~/server/db/queries/booking";
 import {
   SelectActivityType,
   SelectActivityVendor,
@@ -25,7 +26,6 @@ import { columns } from "./columns";
 
 const ActivitiesTab = () => {
   const [addedActivities, setAddedActivities] = useState<ActivityVoucher[]>([]);
-  const { addActivity, bookingDetails, setActiveTab } = useEditBooking();
   const [loading, setLoading] = useState(false);
   const [activityTypes, setActivityTypes] = useState<SelectActivityType[]>([]);
   const [cities, setCities] = useState<SelectCity[]>([]);
@@ -33,6 +33,20 @@ const ActivitiesTab = () => {
   const [error, setError] = useState<string | null>();
   const { toast } = useToast();
   const [saving, setSaving] = useState(false)
+  const [selectedVoucher, setSelectedVoucher] = useState<ActivityVoucher>();
+  const [isExistingVoucherDelete, setIsExistingVoucherDelete] = useState(false);
+  const [isUnsavedVoucherDelete, setIsUnsavedVoucherDelete] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const {
+    addActivity,
+    bookingDetails,
+    setActiveTab,
+    editActivityVoucher,
+    deleteActivityVoucher,
+    updateTriggerRefetch,
+  } = useEditBooking();
+
 
   const pathname = usePathname()
   const bookingLineId = pathname.split("/")[3]
@@ -127,6 +141,8 @@ const ActivitiesTab = () => {
         title: "Success",
         description: "Activity Vouchers Added!",
       });
+      updateTriggerRefetch();
+
     } catch (error) {
       if (error instanceof Error) {
         // setError(error.message);
@@ -141,6 +157,57 @@ const ActivitiesTab = () => {
       });
     }
   }
+
+  const onDelete = async (data: ActivityVoucher) => {
+    setSelectedVoucher(data);
+    if (data.voucher.status) {
+      setIsExistingVoucherDelete(true);
+      return;
+    }
+    setIsUnsavedVoucherDelete(true);
+    setIsDeleteOpen(true);
+  };
+
+  const handleExistingVoucherDelete = async () => {
+    if (selectedVoucher && selectedVoucher.voucher.status) {
+      if (selectedVoucher.voucher.status != "inprogress") {
+        toast({
+          title: "Uh Oh",
+          description: `You cant delete this voucher. It's already ${selectedVoucher.voucher.status}!. Please go to proceed vouchers and send the cancellation voucher first`,
+        });
+        return;
+      }
+      try {
+        setIsDeleting(true);
+        const deletedData = await deleteActivitiesVoucher(
+          selectedVoucher?.voucher?.id ?? "",
+        );
+        updateTriggerRefetch();
+        if (!deletedData) {
+          throw new Error("Couldn't delete voucher");
+        }
+
+        deleteVoucherLineFromLocalContext();
+        setIsDeleting(false);
+      } catch (error) {
+        toast({
+          title: "Uh Oh",
+          description: `Couldn't delete this voucher`,
+        });
+        setIsDeleting(false);
+      }
+      return;
+    }
+  };
+
+  const deleteVoucherLineFromLocalContext = () => {
+    setIsDeleting(true);
+    const index = bookingDetails.activities.findIndex(
+      (v) => v == selectedVoucher,
+    );
+    deleteActivityVoucher(index, selectedVoucher?.voucher?.id ?? "");
+    setIsDeleting(false);
+  };
 
   return (
     <div className="flex flex-col gap-3">
@@ -169,7 +236,7 @@ const ActivitiesTab = () => {
         <div className="w-full">
           <DataTableWithActions columns={columns} data={bookingDetails.activities} 
          onEdit={()=>{console.log("edit")}}
-         onDelete={()=>{console.log("delete")}}
+         onDelete={onDelete}
          onRowClick={() => {console.log("row");}} 
          />
         </div>
@@ -179,6 +246,23 @@ const ActivitiesTab = () => {
             {saving ? (<div className="flex flex-row gap-1"><div><LoaderCircle className="animate-spin" size={10}/></div>Saving</div>): ('Save')}
           </Button>
       </div>
+
+      <DeletePopup
+        itemName={`Voucher for ${selectedVoucher?.vendor.name}`}
+        onDelete={deleteVoucherLineFromLocalContext}
+        isOpen={isUnsavedVoucherDelete}
+        setIsOpen={setIsUnsavedVoucherDelete}
+        isDeleting={isDeleting}
+      />
+
+      <DeletePopup
+        itemName={`Voucher for ${selectedVoucher?.vendor.name}`}
+        onDelete={handleExistingVoucherDelete}
+        isOpen={isExistingVoucherDelete}
+        setIsOpen={setIsExistingVoucherDelete}
+        isDeleting={isDeleting}
+      />
+
     </div>
   );
 };

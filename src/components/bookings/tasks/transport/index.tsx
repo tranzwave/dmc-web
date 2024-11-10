@@ -43,9 +43,14 @@ const voucherColumns: ColumnDef<TransportVoucherData>[] = [
     cell: (info) => info.getValue() ?? "N/A",
   },
   {
-    header: "Progress",
+    accessorKey: "status",
+    header: "Status",
     accessorFn: (row) => row.status,
   },
+  // {
+  //   header: "Progress",
+  //   accessorFn: (row) => row.status,
+  // },
 ];
 
 const selectedVoucherColumns: ColumnDef<TransportVoucherData>[] = [
