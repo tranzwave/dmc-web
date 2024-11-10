@@ -267,6 +267,7 @@ const RestaurantsTab = () => {
   if (loading) {
     return <div>Loading</div>;
   }
+  
   return (
     <div className="flex flex-col items-center justify-center gap-3">
       <div className="flex w-full flex-row justify-center gap-3">
