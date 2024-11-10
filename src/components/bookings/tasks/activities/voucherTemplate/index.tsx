@@ -47,7 +47,7 @@ const ActivityVoucherPDF = ({ vouchers, cancellation }: ActivityVoucherPDFProps)
           <div className="text-[13px]">
             <div>Booking Line ID: {vouchers[0]?.bookingLineId ?? "N/A"}</div>
             <div>Activity: {vouchers[0]?.activityName ?? "N/A"}</div>
-            <div>Participants: {vouchers[0]?.participantsCount ?? "N/A"}</div>
+            <div>Participants: {`Adults - ${vouchers[0]?.adultsCount ?? "N/A"} | Kids - ${vouchers[0]?.kidsCount ?? "N/A"}`}</div>
           </div>
         </div>
 
@@ -72,7 +72,7 @@ const ActivityVoucherPDF = ({ vouchers, cancellation }: ActivityVoucherPDFProps)
                     <td className="px-4 py-2">{v.city ?? "N/A"}</td>
                     <td className="px-4 py-2">{v.date ?? "N/A"}</td>
                     <td className="px-4 py-2">{v.time ?? "N/A"}</td>
-                    <td className="px-4 py-2">{v.participantsCount ?? "N/A"}</td>
+                    <td className="px-4 py-2">{`Adults - ${vouchers[0]?.adultsCount ?? "N/A"} | Kids - ${vouchers[0]?.kidsCount ?? "N/A"}`}</td>
                     <td className="px-4 py-2">{v.remarks ?? "N/A"}</td>
                     <td className="px-4 py-2"></td>
                   </tr>
