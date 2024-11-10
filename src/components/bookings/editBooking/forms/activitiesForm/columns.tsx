@@ -50,7 +50,7 @@ export const columns: ColumnDef<ActivityVoucher>[] = [
   {
     
     header: "Adults & Kids",
-    accessorFn: row => row.voucher.participantsCount
+    accessorFn: row => (row.voucher.adultsCount ?? 1)+ (row.voucher.kidsCount ?? 0)
   },
   {
     
