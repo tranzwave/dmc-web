@@ -64,6 +64,12 @@ const ActivityVouchersTab = ({
           description: "You have already confirmed",
         });
         return;
+      }if(selectedVoucher.status === "cancelled"){
+        toast({
+          title: "Uh Oh!",
+          description: "This voucher already cancelled",
+        });
+        return;
       }
 
       try {
