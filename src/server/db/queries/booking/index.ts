@@ -931,7 +931,7 @@ export const deleteRestaurantVoucherLine = async (voucherLineId: string) => {
 };
 
 
-export const deleteActivityVoucher = async (voucherLineId: string) => {
+export const deleteActivitiesVoucher = async (voucherLineId: string) => {
   try {
     const result = await db.transaction(async (trx) => {
       // Fetch the activity voucher line to check if it exists
