@@ -17,6 +17,9 @@ import { getShopsVouchers } from "~/server/db/queries/booking/shopsVouchers";
 import { getTransportVouchers } from "~/server/db/queries/booking/transportVouchers";
 import { SelectUser } from "~/server/db/schemaTypes";
 import { HotelVoucherData } from "../../tasks/hotelsTaskTab";
+import { useOrganization } from "@clerk/nextjs";
+import { Organization } from "@clerk/backend";
+import { OrganizationMembershipResource } from "@clerk/types";
 
 interface SidePanelProps {
   booking: BookingDTO | null;
@@ -31,7 +34,9 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
   const [activityVouchers, setActivityVouchers] = useState<any[]>([]);
   const [shopVouchers, setShopVouchers] = useState<any[]>([]);
   const [restaurantVouchers, setRestaurantVouchers] = useState<any[]>([]);
-  const [coordinatorAndManager, setCoordinatorAndManager] = useState<SelectUser[]>([])
+  const [coordinatorAndManager, setCoordinatorAndManager] = useState<string[]>(['init-c', 'init-m'])
+  const { organization, isLoaded } = useOrganization();
+  const [members, setMembers] = useState<OrganizationMembershipResource[]>([]); // Correct type for members
 
   const pathname = usePathname();
   const fetchData = async () => {
@@ -98,7 +103,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
       setActivityVouchers(activityVoucherResponse);
       setShopVouchers(shopVoucherResponse);
       setRestaurantVouchers(restaurantVoucherResponse);
-      setCoordinatorAndManager(coordinatorAndManagerResponse)
       // setUsers(usersResponse);
       // setCountries(countriesResponse);
 
@@ -114,8 +118,40 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
     }
   };
 
+  const fetchMembers = async () => {
+    if (organization) {
+      try {
+        setLoading(true);
+        const memberships = await organization.getMemberships();
+        setMembers(memberships.data); // Set the 'items' array containing memberships
+        console.log(memberships);
+        setLoading(false);
+        console.log(memberships)
+        if(memberships && booking ){
+          const coordinator = memberships?.data?.find(m => m.publicUserData.userId === booking.booking.coordinatorId)
+          const manager = memberships?.data?.find(m => m.id === booking.booking.managerId)
+          console.log({ coordinator: coordinator, manager: manager })
+
+          const coordinatorFullName = coordinator ? `${coordinator.publicUserData.firstName} ${coordinator.publicUserData.lastName}` : ''
+          const managerFullName = manager ? `${manager.publicUserData.firstName} ${manager.publicUserData.lastName}` : ''
+
+          setCoordinatorAndManager([coordinatorFullName, managerFullName])
+        }
+
+      } catch (error) {
+        console.error("Error fetching members:", error);
+        setLoading(false);
+      }
+    }
+  };
+
   useEffect(() => {
     fetchData();
+    if (isLoaded && booking) {
+      fetchMembers();
+
+    }
+
   }, [booking]);
 
   if (!booking)
@@ -125,7 +161,9 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
       </div>
     );
 
-  if (loading) return <div>Loading...</div>;
+  if (loading || !isLoaded) return <div>Loading...</div>;
+
+
 
   const getStatusesCount = (voucherList: any[]) => {
     return {
@@ -167,7 +205,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
           </div>
           <div>
             <div className="text-sm font-normal text-[#21272A]">
-            {`${category.totalVouchers !== 0 ? `${category.totalVouchers - category.statusCount.vendorConfirmed}/` : ''}${category.totalVouchers} vouchers to be confirmed by vendor`}
+              {`${category.totalVouchers !== 0 ? `${category.totalVouchers - category.statusCount.vendorConfirmed}/` : ''}${category.totalVouchers} vouchers to be confirmed by vendor`}
             </div>
             <div>
               <Progress
@@ -200,7 +238,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
       <div className="flex flex-row items-center justify-between">
         <div>
           <div className="card-title">Booking - {booking.id}</div>
-          <div className="text-xs text-neutral-500">{`Coordinator - ${coordinatorAndManager[0]?.name ?? ""} | Manager - ${coordinatorAndManager[0]?.name ?? ""}`}</div>
+          <div className="text-xs text-neutral-500">{`Coordinator - ${coordinatorAndManager[0]} | Manager - ${coordinatorAndManager[1]}`}</div>
         </div>
 
         <Link href={`${pathname}/${booking.id}/edit?tab=submit`}>
