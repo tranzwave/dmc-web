@@ -34,6 +34,11 @@ const activityColumns: ColumnDef<ActivityVoucherData>[] = [
     header: "Contact Number",
     accessorFn: (row) => row.activityVendor.contactNumber,
   },
+  {
+    accessorKey: "status",
+    header: "Status",
+    accessorFn: (row) => row.status,
+  },
   // {
   //   header: "Voucher Lines",
   //   accessorFn: (row) => 1,
