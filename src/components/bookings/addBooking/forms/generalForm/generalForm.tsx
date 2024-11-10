@@ -61,6 +61,7 @@ import {
   SelectCountry,
   SelectUser,
 } from "~/server/db/schemaTypes";
+import { Country, State, City }  from 'country-state-city';
 
 // Define the schema for form validation
 export const addBookingGeneralSchema = z
@@ -130,7 +131,7 @@ const GeneralForm = () => {
   const [id, setId] = useState("0");
   const pathname = usePathname();
   const router = useRouter();
-  const {user,isLoaded:isUserLoaded} = useUser();
+  const { user, isLoaded: isUserLoaded } = useUser();
 
   const { organization, isLoaded } = useOrganization();
   const [members, setMembers] = useState<OrganizationMembershipResource[]>([]); // Correct type for members
@@ -201,6 +202,8 @@ const GeneralForm = () => {
   };
 
   useEffect(() => {
+    console.log(Country.getAllCountries())
+
     fetchData();
     fetchMembers();
   }, [organization]);
@@ -665,8 +668,8 @@ const GeneralForm = () => {
                         )} */}
                         {members.map((user) =>
                           <SelectItem key={user.id} value={user?.id ?? "unknown"}>
-                          {user.publicUserData.firstName + ' ' + user.publicUserData.lastName}
-                        </SelectItem>
+                            {user.publicUserData.firstName + ' ' + user.publicUserData.lastName}
+                          </SelectItem>
                         )}
                       </SelectContent>
                     </Select>
