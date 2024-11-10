@@ -276,7 +276,7 @@ const HotelsTab = () => {
           {/* <DataTable columns={voucherColumns} data={bookingDetails.vouchers} /> */}
           <DataTableWithActions
             columns={hotelVoucherColumns}
-            data={bookingDetails.vouchers}
+            data={bookingDetails.vouchers.filter(v => v.voucher.status !== "cancelled")}
             onEdit={onEdit}
             onDelete={onDelete}
             onRowClick={() => {

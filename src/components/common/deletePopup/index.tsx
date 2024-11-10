@@ -19,9 +19,10 @@ type DeletePopupProps = {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>; // State setter to update the modal state
   isDeleting:boolean
   description?: string
+  cancel?:boolean
 };
 
-const DeletePopup: React.FC<DeletePopupProps> = ({ itemName, onDelete, isOpen, setIsOpen, isDeleting,description }) => {
+const DeletePopup: React.FC<DeletePopupProps> = ({ itemName, onDelete, isOpen, setIsOpen, isDeleting,description,cancel }) => {
   return (
     <div>
       {/* Control the open state using the `isOpen` prop */}
@@ -31,7 +32,7 @@ const DeletePopup: React.FC<DeletePopupProps> = ({ itemName, onDelete, isOpen, s
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete <span className="font-bold">{itemName}</span>? This action cannot be undone.
+              Are you sure you want to {cancel ? 'cancel' : 'delete'} <span className="font-bold">{itemName}</span>? This action cannot be undone.
               <div className='mt-2'>
                 {description ? (<div className='text-xs font-normal text-zinc-600'>
                   {description}
@@ -43,7 +44,7 @@ const DeletePopup: React.FC<DeletePopupProps> = ({ itemName, onDelete, isOpen, s
             {/* Cancel Button */}
             <AlertDialogCancel asChild>
               <Button variant="outline" className="mr-2" onClick={() => setIsOpen(false)}>
-                Cancel
+                Close
               </Button>
             </AlertDialogCancel>
             
@@ -58,7 +59,7 @@ const DeletePopup: React.FC<DeletePopupProps> = ({ itemName, onDelete, isOpen, s
                 }}
                 disabled={isDeleting}
               >
-                {isDeleting ? (<div className='flex flex-row gap-1'><LoaderCircle size={15}/><div>Deleting</div></div>): 'Delete'}
+                {isDeleting ? (<div className='flex flex-row gap-1'><LoaderCircle size={15}/><div>Deleting</div></div>): `${cancel ? 'Cancel' : 'Delete'}`}
               </Button>
             </AlertDialogAction>
           </AlertDialogFooter>

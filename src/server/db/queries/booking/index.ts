@@ -521,10 +521,14 @@ export const insertHotelVouchersTx = async (
 
           console.log("Voucher Line ID : " + voucherLineId);
 
+          const existingId = await db.query.hotelVoucherLine.findFirst({
+            where: eq(hotelVoucherLine.id, voucherLineId)
+          })
+
           const newVoucherLine = await trx
             .insert(hotelVoucherLine)
             .values({
-              id: voucherLineId,
+              id: existingId ? voucherLineId + 1 : voucherLineId,
               adultsCount: currentVoucherLine.adultsCount,
               kidsCount: currentVoucherLine.kidsCount,
               roomCount: currentVoucherLine.roomCount,
