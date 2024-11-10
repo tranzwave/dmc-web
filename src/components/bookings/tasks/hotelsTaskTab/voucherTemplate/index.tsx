@@ -13,15 +13,21 @@ import { HotelVoucherData } from "..";
 
 type HotelVoucherPDFProps = {
   voucher: HotelVoucherData;
-  cancellation?:boolean
+  cancellation?: boolean
 };
 
-const HotelVoucherPDF = ({ voucher,cancellation }: HotelVoucherPDFProps) => {
+const HotelVoucherPDF = ({ voucher, cancellation }: HotelVoucherPDFProps) => {
   const organization = useOrganization();
   const { isLoaded, user } = useUser();
 
-  if (!isLoaded) {
+  if (!isLoaded || !organization) {
     return <LoadingLayout />;
+  }
+
+  const orgData = {
+    address: organization.publicMetadata.address as string ?? "Address",
+    contactNumber: organization.publicMetadata.contactNumber as string ?? "Number",
+    website: organization.publicMetadata.website as string ?? "Website"
   }
 
   const hotelVoucherLineColumns: ColumnDef<SelectHotelVoucherLine>[] = [
@@ -84,12 +90,19 @@ const HotelVoucherPDF = ({ voucher,cancellation }: HotelVoucherPDFProps) => {
         <div className="text-base font-semibold text-white">
           {organization?.name}
         </div>
-        <div className="text-[13px] text-white">Address will be shown here</div>
+        {orgData.address && orgData.contactNumber && orgData.website && (
+          <>
+            <div className="text-[13px] text-white">{orgData.address}</div>
+            <div className="text-[13px] text-white">{orgData.contactNumber}</div>
+            <div className="text-[13px] text-white">{orgData.website}</div>
+          </>
+        )}
+
       </div>
       <div className="p-4">
         <div className="card-title w-full text-center">
-            {cancellation ? (<div className="text-red-500">Cancellation Voucher</div>): `Hotel Reservation Voucher-${voucher.status === 'amended' ? 'Amendment' : ''}`}
-          
+          {cancellation ? (<div className="text-red-500">Cancellation Voucher</div>) : `Hotel Reservation Voucher-${voucher.status === 'amended' ? 'Amendment' : ''}`}
+
         </div>
         <div className="flex w-full flex-row justify-between">
           <div className="text-[13px]">
@@ -103,7 +116,7 @@ const HotelVoucherPDF = ({ voucher,cancellation }: HotelVoucherPDFProps) => {
             <div>{`Kids : ${voucher.voucherLines[0]?.kidsCount}`}</div>
           </div>
           <div className="text-[13px]">
-            <div>Voucher ID : {voucher?.voucherLines[0]?.id}</div>
+            <div>Voucher ID : {voucher?.voucherLines[0]?.id + `${voucher.status === "amended" ? '/a' : ''}`}</div>
             {/* <div>Check In : {voucher?.voucherLines[0]?.checkInDate}</div>
             <div>Check Out : {voucher?.voucherLines[0]?.checkOutDate}</div> */}
             {/* <div>

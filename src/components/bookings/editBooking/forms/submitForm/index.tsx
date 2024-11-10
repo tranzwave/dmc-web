@@ -53,9 +53,11 @@ const AddBookingSubmitTab = () => {
   };
 
   const downloadPDF = () => {
+    const bookingId = pathname.split('/')[3] ?? 'Unknown'
+    const summaryFileName = `${bookingId}_summary.pdf`
     const element = summaryRef.current;
     const options = {
-      filename: "booking_summary.pdf",
+      filename: summaryFileName,
       jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
       html2canvas: { scale: 2 }, 
       margin: [10, 10, 10, 10], 

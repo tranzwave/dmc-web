@@ -1,29 +1,10 @@
 "use client";
-import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "~/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
-import {
-  SelectActivity,
-  SelectActivityType,
-  SelectActivityVendor,
+  SelectActivityType
 } from "~/server/db/schemaTypes";
 import { ActivityVoucherData } from ".";
 
@@ -63,7 +44,7 @@ const ActivityVoucherForm: React.FC<ActivityVoucherFormProps> = ({
           date: selectedItem.date ?? "",
           time: selectedItem.time ?? "",
           city: selectedItem.city ?? "",
-          headcount: selectedItem.participantsCount ?? 1,
+          headcount: (selectedItem.adultsCount ?? 1) + (selectedItem.kidsCount ?? 0),
           remarks: selectedItem.remarks ?? "",
         }
       : {

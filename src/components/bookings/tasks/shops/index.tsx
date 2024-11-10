@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDate } from "~/lib/utils/index";
-import { SelectClient, SelectShop, SelectShopVoucher } from "~/server/db/schemaTypes";
+import { SelectShop, SelectShopVoucher } from "~/server/db/schemaTypes";
 import ShopVouchersTasksTab from "./taskTab";
 
 
@@ -34,8 +34,12 @@ const shopColumns: ColumnDef<ShopVoucherData>[] = [
     accessorFn: (row) => formatDate(row.date),
   },
   {
-    header: "Pax count",
-    accessorFn: (row) => row.participantsCount,
+    header: "Adults Count",
+    accessorFn: (row) => `${row.adultsCount}`,
+  },
+  {
+    header: "Kids Count",
+    accessorFn: (row) => `${row.kidsCount}`,
   },
   {
     header: "Status",
@@ -50,14 +54,17 @@ const shopVoucherLineColumns: ColumnDef<ShopVoucherData>[] = [
     accessorFn: (row) => row.shopType,
   },
   {
-    header: "Head Count",
-    accessorFn: (row) => `${row.participantsCount}`,
+    header: "Adults Count",
+    accessorFn: (row) => `${row.adultsCount}`,
+  },
+  {
+    header: "Kids Count",
+    accessorFn: (row) => `${row.kidsCount}`,
   },
   {
     header: "Date",
     accessorFn: (row) => formatDate(row.date),
   },
-
   {
     header: "Time",
     accessorFn: (row) => row.time,

@@ -28,11 +28,16 @@ const activityColumns: ColumnDef<ActivityVoucherData>[] = [
   },
   {
     header: "Pax",
-    accessorFn: (row) => row.participantsCount,
+    accessorFn: (row) => Number(row.adultsCount )+ Number(row.kidsCount),
   },
   {
     header: "Contact Number",
     accessorFn: (row) => row.activityVendor.contactNumber,
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    accessorFn: (row) => row.status,
   },
   // {
   //   header: "Voucher Lines",
@@ -59,7 +64,7 @@ const activityVoucherLineColumns: ColumnDef<ActivityVoucherData>[] = [
   },
   {
     header: "Head Count",
-    accessorFn: (row) => `${row.participantsCount}`,
+    accessorFn: (row) => `${Number(row.adultsCount )+ Number(row.kidsCount)}`,
   },
   {
     header: "Remarks",

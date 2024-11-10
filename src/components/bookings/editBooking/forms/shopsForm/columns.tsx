@@ -36,8 +36,12 @@ export const columns: ColumnDef<ShopVoucher>[] = [
     accessorFn: row => row.voucher.time
   },
   {
-    header: "Head Count",
-    accessorFn: row => row.voucher.participantsCount
+    header: "Adluts Count",
+    accessorFn: row => row.voucher.adultsCount
+  },
+  {
+    header: "Kids Count",
+    accessorFn: row => row.voucher.kidsCount
   },
   {
     header: "Hours",

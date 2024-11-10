@@ -54,7 +54,7 @@ export const activitySchema = z.object({
   vendor: z.string().min(1, "Vendor is required"),
   checkInDate: z.string().min(1, "Check-in date is required"),
   time: z.string().min(1, "Time is required").optional().or(z.literal("12:00")),
-  adultsCount: z.number().min(0, "Add adult count"),
+  adultsCount: z.number().min(1, "Add adult count"),
   kidsCount: z.number().min(0, "Add kids count"),
   remarks: z.string().optional(), // Optional field
 });
@@ -100,7 +100,8 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
           activityVendorId: selectedActivity.activityVendor.id,
           bookingLineId: "",
           coordinatorId: bookingDetails.general.marketingManager,
-          participantsCount: values.adultsCount + values.kidsCount,
+          adultsCount: values.adultsCount,
+          kidsCount: values.kidsCount,
           time: values.time ?? "10:00",
           hours: 1,
           remarks: values.remarks,

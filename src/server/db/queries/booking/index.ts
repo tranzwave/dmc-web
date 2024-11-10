@@ -938,72 +938,142 @@ export const deleteRestaurantVoucherLine = async (voucherLineId: string) => {
   }
 };
 
+// export const deleteActivitiesVoucher = async (voucherLineId: string) => {
+//   try {
+//     const result = await db.transaction(async (trx) => {
+//       // Fetch the activity voucher line to check if it exists
+//       const [voucherLine] = await trx
+//         .select()
+//         .from(activityVoucher)  // Assuming activityVoucherLine exists
+//         .where(eq(activityVoucher.id, voucherLineId))  // Updated for activityVoucherLine.id
+//         .execute();
 
-export const deleteActivityVoucher = async (voucherLineId: string) => {
+//       if (!voucherLine || !voucherLine.activityId) {
+//         throw new Error(`No activity voucher line found with ID: ${voucherLineId}`);
+//       }
+
+//       const { activityId } = voucherLine;  // Ensure voucherLine has activityVoucherId
+
+//       // Check if there are other lines associated with this voucher
+//       const remainingVoucherLines = await trx
+//         .select()
+//         .from(activityVoucher)  // Use activityVoucherLine
+//         .where(
+//           and(
+//             eq(activityVoucher.activityId, activityId),  // Check for matching activityVoucherId
+//             ne(activityVoucher.id, voucherLineId),  // Exclude the current voucher line
+//           ),
+//         )
+//         .execute();
+
+//       // Delete the specified activity voucher line
+//       const [deletedVoucherLine] = await trx
+//         .delete(activityVoucher)  // Delete from activityVoucherLine
+//         .where(eq(activityVoucher.id, voucherLineId))  // Where id matches voucherLineId
+//         .returning()
+//         .execute();
+
+//       if (!deletedVoucherLine?.id) {
+//         throw new Error(`Failed to delete activity voucher line with ID: ${voucherLineId}`);
+//       }
+
+//       let deletedVoucher = null;
+//       // If no more voucher lines remain, delete the associated activity voucher
+//       if (remainingVoucherLines.length === 0) {
+//         const [deletedVoucherResult] = await trx
+//           .delete(activityVoucher)  // Delete from activityVoucher
+//           .where(eq(activityVoucher.id, activityId))  // Where id matches activityVoucherId
+//           .returning()
+//           .execute();
+
+//         deletedVoucher = deletedVoucherResult ?? null;
+//       }
+
+//       // Return the deleted voucher line and potentially the deleted voucher
+//       return {
+//         deletedVoucherLine,
+//         deletedVoucher,
+//       };
+//     });
+
+//     return result;
+//   } catch (error) {
+//     console.error(`Error deleting voucher line with ID: ${voucherLineId}`, error);
+//     throw new Error(`Failed to delete activity voucher line or associated voucher`);
+//   }
+// };
+
+export const deleteActivitiesVoucher = async (voucherLineId: string) => {
   try {
     const result = await db.transaction(async (trx) => {
       // Fetch the activity voucher line to check if it exists
       const [voucherLine] = await trx
         .select()
-        .from(activityVoucher)  // Assuming activityVoucherLine exists
-        .where(eq(activityVoucher.id, voucherLineId))  // Updated for activityVoucherLine.id
+        .from(activityVoucher)  // Assuming activityVoucher exists
+        .where(eq(activityVoucher.id, voucherLineId))  // Updated for activityVoucher.id
         .execute();
 
       if (!voucherLine || !voucherLine.activityId) {
         throw new Error(`No activity voucher line found with ID: ${voucherLineId}`);
       }
 
-      const { activityId } = voucherLine;  // Ensure voucherLine has activityVoucherId
+      const { activityId } = voucherLine;
 
       // Check if there are other lines associated with this voucher
       const remainingVoucherLines = await trx
         .select()
-        .from(activityVoucher)  // Use activityVoucherLine
+        .from(activityVoucher)  // Use activityVoucher
         .where(
           and(
-            eq(activityVoucher.activityId, activityId),  // Check for matching activityVoucherId
+            eq(activityVoucher.activityId, activityId),  // Check for matching activityId
             ne(activityVoucher.id, voucherLineId),  // Exclude the current voucher line
           ),
         )
         .execute();
 
-      // Delete the specified activity voucher line
-      const [deletedVoucherLine] = await trx
-        .delete(activityVoucher)  // Delete from activityVoucherLine
+      // Update the status of the selected activity voucher line to "deleted"
+      const [updatedVoucherLine] = await trx
+        .update(activityVoucher)  // Update activityVoucher
+        .set({
+          status: 'cancelled',  // Update the status to "deleted"
+
+        })
         .where(eq(activityVoucher.id, voucherLineId))  // Where id matches voucherLineId
         .returning()
         .execute();
 
-      if (!deletedVoucherLine?.id) {
-        throw new Error(`Failed to delete activity voucher line with ID: ${voucherLineId}`);
+      if (!updatedVoucherLine?.id) {
+        throw new Error(`Failed to update the status of voucher line with ID: ${voucherLineId}`);
       }
 
-      let deletedVoucher = null;
-      // If no more voucher lines remain, delete the associated activity voucher
+      let updatedVoucher = null;
+      // If no more voucher lines remain, update the associated activity voucher status to "deleted"
       if (remainingVoucherLines.length === 0) {
-        const [deletedVoucherResult] = await trx
-          .delete(activityVoucher)  // Delete from activityVoucher
-          .where(eq(activityVoucher.id, activityId))  // Where id matches activityVoucherId
+        const [updatedVoucherResult] = await trx
+          .update(activityVoucher)  // Update the activityVoucher
+          .set({
+            status: 'cancelled',  // Update the status to "deleted"
+          })
+          .where(eq(activityVoucher.id, activityId))  // Where id matches activityId
           .returning()
           .execute();
 
-        deletedVoucher = deletedVoucherResult ?? null;
+        updatedVoucher = updatedVoucherResult ?? null;
       }
 
-      // Return the deleted voucher line and potentially the deleted voucher
+      // Return the updated voucher line and potentially the updated voucher
       return {
-        deletedVoucherLine,
-        deletedVoucher,
+        updatedVoucherLine,
+        updatedVoucher,
       };
     });
 
     return result;
   } catch (error) {
-    console.error(`Error deleting voucher line with ID: ${voucherLineId}`, error);
-    throw new Error(`Failed to delete activity voucher line or associated voucher`);
+    console.error(`Error updating voucher line with ID: ${voucherLineId}`, error);
+    throw new Error(`Failed to update activity voucher line or associated voucher`);
   }
 };
-
 
 
 export const addActivityVouchersToBooking = async (

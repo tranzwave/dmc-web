@@ -11,7 +11,14 @@ type CreateParams = {
   publicMetadata: {
     country: string;
     domainName: string;
+    website: string,
+    contactNumber: string,
+    address: string
   };
+  userData: {
+    contact: string,
+    address: string
+  }
 };
 
 export async function POST(req: Request, res: NextApiResponse) {
@@ -28,6 +35,9 @@ export async function POST(req: Request, res: NextApiResponse) {
       publicMetadata: {
         country: data.publicMetadata.country,
         domainName: data.publicMetadata.domainName,
+        website: data.publicMetadata.website,
+        contactNumber: data.publicMetadata.contactNumber,
+        address: data.publicMetadata.address
       },
     });
 
@@ -54,7 +64,11 @@ export async function POST(req: Request, res: NextApiResponse) {
           "sys_memberships:read",
           "sys_profile:delete",
           "sys_profile:manage"
-        ]
+        ],
+        info: {
+          contact: data.userData.contact,
+          address: data.userData.address
+        }
       },
     })
 
