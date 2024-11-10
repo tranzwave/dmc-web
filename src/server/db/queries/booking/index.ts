@@ -978,7 +978,7 @@ export const deleteActivityVoucher = async (voucherLineId: string) => {
           .returning()
           .execute();
 
-        deletedVoucher = deletedVoucherResult || null;
+        deletedVoucher = deletedVoucherResult ?? null;
       }
 
       // Return the deleted voucher line and potentially the deleted voucher
