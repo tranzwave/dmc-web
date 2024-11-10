@@ -97,7 +97,9 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
         date: values.date,
         time: "10:00",
         hours: 1,
-        participantsCount: bookingDetails.general.adultsCount + bookingDetails.general.kidsCount,
+        // participantsCount: bookingDetails.general.adultsCount + bookingDetails.general.kidsCount,
+        adultsCount: bookingDetails.general.adultsCount,
+        kidsCount:bookingDetails.general.kidsCount,
         city: selectedShop?.city.name ?? "",
         shopType: selectedShopType?.name ?? "",
         remarks:values.remarks
