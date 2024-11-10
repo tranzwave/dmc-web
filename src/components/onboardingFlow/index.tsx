@@ -34,19 +34,37 @@ import { db } from "@vercel/postgres";
 import { getAllCountries } from "~/server/db/queries/countries";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { useRouter } from "next/navigation";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 // Zod schemas for validation
 const personalDetailsSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email format"),
-  contactNumber: z.string().min(1, "Contact number is required"),
+  contactNumber: z.string().refine(
+    (value) => {
+      const phoneNumber = parsePhoneNumberFromString(value);
+      return phoneNumber?.isValid() ?? false;
+    },
+    { message: "Invalid phone number" },
+  ),
   address: z.string().min(1, "Address is required"),
 });
 
 const organizationDetailsSchema = z.object({
   orgName: z.string().min(1, "Organization name is required"),
   domainName: z.string().min(1, "Domain name is required"),
+  website: z.string().min(1, "Website is required"),
   country: z.string().min(1, "Country is required"),
+  contactNumber: z.string().refine(
+    (value) => {
+      const phoneNumber = parsePhoneNumberFromString(value);
+      return phoneNumber?.isValid() ?? false;
+    },
+    { message: "Invalid phone number" },
+  ),
+  address: z.string().min(1, "Address is required"),
 });
 
 // Types for form values
@@ -113,7 +131,7 @@ const OnboardingFlow = () => {
     console.log(session);
     const token = await session?.getToken();
     console.log(organization);
-    
+
 
     try {
       setIsLoading(true);
@@ -129,7 +147,14 @@ const OnboardingFlow = () => {
           publicMetadata: {
             country: data.country,
             domainName: data.domainName,
+            website: data.website,
+            contactNumber: data.contactNumber,
+            address: data.address
           },
+          userData: {
+            contact: personalFormMethods.getValues("contactNumber"),
+            address: personalFormMethods.getValues("address")
+          }
         }),
       });
 
@@ -297,7 +322,13 @@ const PersonalDetailsForm = ({
           <FormItem>
             <FormLabel>Contact Number</FormLabel>
             <FormControl>
-              <Input placeholder="Contact Number" {...field} />
+              <PhoneInput
+                country={"us"}
+                value={field.value}
+                onChange={(phone) => field.onChange(`+${phone}`)}
+                inputClass="w-full shadow-md"
+                inputStyle={{ width: "inherit" }}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -357,6 +388,22 @@ const OrganizationDetailsForm = ({
         )}
       />
       <FormField
+        name="website"
+        control={form.control}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Website</FormLabel>
+            <FormControl>
+              <Input
+                placeholder="Landing Page URL"
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
         name="country"
         control={form.control}
         render={({ field }) => (
@@ -381,6 +428,38 @@ const OrganizationDetailsForm = ({
                   ))}
                 </SelectContent>
               </Select>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        name="contactNumber"
+        control={form.control}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Contact Number</FormLabel>
+            <FormControl>
+              <PhoneInput
+                country={"us"}
+                value={field.value}
+                onChange={(phone) => field.onChange(`+${phone}`)}
+                inputClass="w-full shadow-md"
+                inputStyle={{ width: "inherit" }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        name="address"
+        control={form.control}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Address</FormLabel>
+            <FormControl>
+              <Input placeholder="Address" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

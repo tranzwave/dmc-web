@@ -89,6 +89,7 @@ const RestaurantsTab = () => {
         [restaurantVoucher],
         bookingLineId ?? "",
         bookingDetails.general.marketingManager,
+        bookingDetails.restaurants.length + 1
       )
 
       if(!newResponse){
@@ -161,50 +162,6 @@ const RestaurantsTab = () => {
     }
     getRestaurants();
   }, [router]);
-
-  const onSaveClick = async () => {
-    console.log(bookingDetails.restaurants);
-    const newVouchers = bookingDetails.restaurants.filter((v) =>
-      v.voucherLines[0]?.id ? false : true,
-    );
-
-    if (newVouchers.length == 0) {
-      toast({
-        title: "Uh Oh!",
-        description: "No new vouchers to add!",
-      });
-
-      return;
-    }
-    try {
-      setSaving(true);
-      console.log(newVouchers)
-      const newResponse = await addRestaurantVoucherLinesToBooking(
-        newVouchers,
-        bookingLineId ?? "",
-        bookingDetails.general.marketingManager,
-      );
-
-      if (!newResponse) {
-        throw new Error(`Error: Couldn't add restaurant vouchers`);
-      }
-      console.log("Fetched Restaurants:", newResponse);
-
-      setSaving(false);
-      toast({
-        title: "Success",
-        description: "Restaurant Vouchers Added!",
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        // setError(error.message);
-      } else {
-        setError("An unknown error occurred");
-      }
-      console.error("Error:", error);
-      setSaving(false);
-    }
-  };
 
   const onDelete = async (data: RestaurantVoucher) => {
     setSelectedVoucher(data);

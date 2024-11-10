@@ -27,7 +27,6 @@ export const CalendarV2: React.FC<CalendarProps> = ({ dateRanges }) => {
 
   // Generate the calendar days for the current month
   useEffect(() => {
-    console.log(dateRanges)
     const startDate = startOfWeek(startOfMonth(currentMonth))
     const endDate = endOfWeek(endOfMonth(currentMonth));
 
@@ -65,12 +64,12 @@ export const CalendarV2: React.FC<CalendarProps> = ({ dateRanges }) => {
   
     // Check for child ranges that overlap with the day
     const childRange = dateRanges.slice(1).find(range =>
-      isWithinInterval(day, { start: new Date(range.start), end: new Date(range.end) })
+      isWithinInterval(new Date(day).setHours(0, 0, 0, 0), { start: new Date(range.start).setHours(0, 0, 0, 0), end: new Date(range.end).setHours(0, 0, 0, 0) })
     );
   
     // If a child range is found, highlight it
     if (childRange) {
-      return childRange.color ?? "bg-primary-green text-white"; // Highlight child range if present
+      return childRange.color ?? "bg-primary-orange text-white"; // Highlight child range if present
     }
   
     // Proceed to check the main range if no child range is found
@@ -81,10 +80,13 @@ export const CalendarV2: React.FC<CalendarProps> = ({ dateRanges }) => {
       return "bg-white text-neutral-700"; // Return default if mainRange is undefined
     }
   
-    const isInMainRange = isWithinInterval(day, {
-      start: new Date(mainRange.start),
-      end: new Date(mainRange.end),
-    });
+    const isInMainRange = isWithinInterval(
+      new Date(day).setHours(0, 0, 0, 0), // set time to midnight for 'day'
+      {
+        start: new Date(mainRange.start).setHours(0, 0, 0, 0),
+        end: new Date(mainRange.end).setHours(0, 0, 0, 0),
+      }
+    );
   
     // Determine the color based on whether we're in the main range
     return isInMainRange

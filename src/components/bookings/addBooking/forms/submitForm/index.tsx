@@ -40,7 +40,7 @@ const AddBookingSubmitTab = () => {
         hotelVouchers: bookingDetails.vouchers,
       };
 
-      const createdBooking = await createNewBooking(organization?.id ?? "",bookingDetails);
+      const createdBooking = await createNewBooking(organization?.id ?? "",bookingDetails, "no need");
 
       if (createdBooking) {
         setMessage(

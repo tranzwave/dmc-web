@@ -91,6 +91,7 @@ const HotelsTab = () => {
           [hotelVoucher],
           bookingLineId ?? "",
           bookingDetails.general.marketingManager,
+          bookingDetails.vouchers.length + 1
         );
 
         if (!newResponse) {
