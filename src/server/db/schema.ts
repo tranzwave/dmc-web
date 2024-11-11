@@ -732,7 +732,7 @@ export const shopVoucher = createTable("shop_vouchers", {
     .references(() => shop.id)
     .notNull(),
   coordinatorId: varchar("coordinator_id", { length: 255 })
-    .references(() => user.id)
+    // .references(() => user.id)
     .notNull(),
   shopType: varchar("shop_type", { length: 100 }).notNull(),
   date: varchar("date", { length: 100 }).notNull(),

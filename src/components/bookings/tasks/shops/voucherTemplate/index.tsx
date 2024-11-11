@@ -49,7 +49,7 @@ const ShopVoucherPDF = ({ vouchers, cancellation }: ShopVoucherPDFProps) => {
           <div className="text-[13px]">
             {/* <div>Booking Name: {vouchers[0]?.client?.name ?? "N/A"}</div> */}
             <div>Tour ID: {vouchers[0]?.bookingLineId ?? "N/A"}</div>
-            Participants: {((Number(vouchers[0]?.adultsCount) + Number(vouchers[0]?.kidsCount)) || "N/A")}
+            <div>Participants: {`Adults - ${vouchers[0]?.adultsCount ?? "N/A"} | Kids - ${vouchers[0]?.kidsCount ?? "N/A"}`}</div>
           </div>
         </div>
 

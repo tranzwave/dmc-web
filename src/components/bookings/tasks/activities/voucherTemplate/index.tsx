@@ -47,8 +47,8 @@ const ActivityVoucherPDF = ({ vouchers, cancellation }: ActivityVoucherPDFProps)
           <div className="text-[13px]">
             <div>Booking Line ID: {vouchers[0]?.bookingLineId ?? "N/A"}</div>
             <div>Activity: {vouchers[0]?.activityName ?? "N/A"}</div>
-            Participants: {((Number(vouchers[0]?.adultsCount) + Number(vouchers[0]?.kidsCount)) || "N/A")}
-            </div>
+            <div>Participants: {`Adults - ${vouchers[0]?.adultsCount ?? "N/A"} | Kids - ${vouchers[0]?.kidsCount ?? "N/A"}`}</div>
+          </div>
         </div>
 
         <div className="mt-4 text-[13px]">
@@ -68,17 +68,15 @@ const ActivityVoucherPDF = ({ vouchers, cancellation }: ActivityVoucherPDFProps)
             <tbody>
               {vouchers.map((v) => {
                 return (
-                  <tr className={`border-b hover:bg-gray-50 h-36 ${v.status === "cancelled" ? "opacity-20" : ""}`} key={v.id}>
-                  <td className="px-4 py-2">{v.activityVendor.name ?? "N/A"}</td>
-                  <td className="px-4 py-2">{v.city ?? "N/A"}</td>
-                  <td className="px-4 py-2">{v.date ?? "N/A"}</td>
-                  <td className="px-4 py-2">{v.time ?? "N/A"}</td>
-                  <td className="px-4 py-2">{(Number(v.adultsCount) + Number(v.kidsCount)) || "N/A"}</td>
-                  <td className="px-4 py-2">{v.remarks ?? "N/A"}</td>
-                  <td className="px-4 py-2">{v.status ?? "N/A"}</td>
-                  <td className="px-4 py-2"></td>
-                </tr>
-                
+                  <tr className="border-b hover:bg-gray-50 h-36" key={v.id}>
+                    <td className="px-4 py-2">{v.activityVendor.name?? "N/A"}</td>
+                    <td className="px-4 py-2">{v.city ?? "N/A"}</td>
+                    <td className="px-4 py-2">{v.date ?? "N/A"}</td>
+                    <td className="px-4 py-2">{v.time ?? "N/A"}</td>
+                    <td className="px-4 py-2">{`Adults - ${vouchers[0]?.adultsCount ?? "N/A"} | Kids - ${vouchers[0]?.kidsCount ?? "N/A"}`}</td>
+                    <td className="px-4 py-2">{v.remarks ?? "N/A"}</td>
+                    <td className="px-4 py-2"></td>
+                  </tr>
                 );
               })}
             </tbody>
