@@ -14,7 +14,10 @@ import { Calendar } from "~/components/ui/calendar";
 import { useToast } from "~/hooks/use-toast";
 import { DriverSearchParams, GuideSearchParams } from "~/lib/api";
 import { addTransportVouchersToBooking } from "~/server/db/queries/booking";
-import { deleteDriverTransportVoucher, deleteGuideTransportVoucher } from "~/server/db/queries/booking/transportVouchers";
+import {
+  deleteDriverTransportVoucher,
+  deleteGuideTransportVoucher,
+} from "~/server/db/queries/booking/transportVouchers";
 import {
   getAllChauffeurByVehicleTypeAndLanguage,
   getAllDriversByVehicleTypeAndLanguage,
@@ -76,10 +79,7 @@ const TransportTab = () => {
   const [isUnsavedVoucherDelete, setIsUnsavedVoucherDelete] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const {
-    deleteTransportVouchers,
-    updateTriggerRefetch,
-  } = useEditBooking();
+  const { deleteTransportVouchers, updateTriggerRefetch } = useEditBooking();
   const pathname = usePathname();
   const bookingLineId = pathname.split("/")[3];
 
@@ -121,7 +121,7 @@ const TransportTab = () => {
   };
 
   useEffect(() => {
-    console.log('Booking Details: ',bookingDetails)
+    console.log("Booking Details: ", bookingDetails);
     if (!bookingDetails.general.includes.transport) {
       setActiveTab("shops");
       return () => {
@@ -137,9 +137,9 @@ const TransportTab = () => {
   //     languages,
   //     ...driverOrGuideWithoutExtraFields
   //   }: DriverWithoutVehiclesAndLanguages | GuideWithoutLanguages | any = type;
-  
+
   //   if (searchDetails) {
-  //     const isDriver = "vehicles" in type; 
+  //     const isDriver = "vehicles" in type;
   //     addTransport({
   //       driver: isDriver ? driverOrGuideWithoutExtraFields : null,
   //       guide: !isDriver ? driverOrGuideWithoutExtraFields : null,
@@ -147,7 +147,7 @@ const TransportTab = () => {
   //         bookingLineId: bookingLineId ?? "",
   //         coordinatorId: bookingDetails.general.marketingManager,
   //         driverId: isDriver ? type.id : undefined,
-  //         guideId: !isDriver ? type.id : undefined, 
+  //         guideId: !isDriver ? type.id : undefined,
   //         startDate: searchDetails.startDate,
   //         endDate: searchDetails.endDate,
   //         language: searchDetails.languageCode,
@@ -158,16 +158,15 @@ const TransportTab = () => {
   //             transportVoucherId: 'transportVoucher.id',
   //             vehicleType: searchDetails.vehicleType,
   //           }
-  //         : undefined, 
-  //       guideVoucherLine: !isDriver 
+  //         : undefined,
+  //       guideVoucherLine: !isDriver
   //         ? {
   //             transportVoucherId: 'transportVoucher.id',
-  //           } 
+  //           }
   //         : undefined,
   //     });
   //   }
   // };
-
 
   const handleRowClick = (type: DriverData | GuideData) => {
     const {
@@ -175,16 +174,16 @@ const TransportTab = () => {
       languages,
       ...driverOrGuideWithoutExtraFields
     }: DriverWithoutVehiclesAndLanguages | GuideWithoutLanguages | any = type;
-  
+
     if (searchDetails) {
       const isDriver = "vehicles" in type; // Check if the type is a driver
-  
+
       // Check for missing vehicleType if the type is driver
       if (isDriver && !searchDetails.vehicleType) {
         console.error("Vehicle type is required for the driver.");
         return; // Early return if vehicle type is missing
       }
-  
+
       // Add the common transport data
       addTransport({
         driver: isDriver ? driverOrGuideWithoutExtraFields : null,
@@ -193,7 +192,7 @@ const TransportTab = () => {
           bookingLineId: bookingLineId ?? "",
           coordinatorId: bookingDetails.general.marketingManager,
           driverId: isDriver ? type.id : undefined,
-          guideId: !isDriver ? type.id : undefined, 
+          guideId: !isDriver ? type.id : undefined,
           startDate: searchDetails.startDate,
           endDate: searchDetails.endDate,
           language: searchDetails.languageCode,
@@ -202,22 +201,20 @@ const TransportTab = () => {
         // Add driverVoucherLine if it's a driver
         driverVoucherLine: isDriver
           ? {
-              transportVoucherId: 'transportVoucher.id', // Ensure this is dynamically set
+              transportVoucherId: "transportVoucher.id", // Ensure this is dynamically set
               vehicleType: searchDetails.vehicleType || "DefaultVehicleType", // Fallback value if missing
             }
           : undefined,
         // Add guideVoucherLine if it's a guide
         guideVoucherLine: !isDriver
           ? {
-              transportVoucherId: 'transportVoucher.id', // Ensure this is dynamically set
+              transportVoucherId: "transportVoucher.id", // Ensure this is dynamically set
             }
           : undefined,
       });
     }
   };
-  
 
-  
   const updateSearchData = (transport: Transport) => {
     setSearchDetails(transport);
     const searchParams = {
@@ -229,10 +226,10 @@ const TransportTab = () => {
     if (transport.type === "Guide") {
       setCurrentSearchType("Guide");
       searchGuides({ language: transport.languageCode, type: transport.type });
-    } else if(transport.type === "Driver") {
+    } else if (transport.type === "Driver") {
       setCurrentSearchType("Driver");
       searchDrivers(searchParams);
-    }else if(transport.type === "Chauffeur") {
+    } else if (transport.type === "Chauffeur") {
       setCurrentSearchType("Chauffeur");
       searchChauffeur(searchParams);
     }
@@ -318,30 +315,30 @@ const TransportTab = () => {
 
   const onSaveClick = async () => {
     console.log(bookingDetails.transport);
-  
+
     const newVouchers = bookingDetails.transport.filter((v) => !v.voucher?.id);
-  
+
     if (newVouchers.length === 0) {
       toast({
         title: "Uh Oh!",
         description: "No new vouchers to add!",
       });
-  
+
       return;
     }
-  
+
     try {
       setSaving(true);
       const newResponse = await addTransportVouchersToBooking(
         newVouchers,
         bookingLineId ?? "",
-        bookingDetails.general.marketingManager
+        bookingDetails.general.marketingManager,
       );
-  
+
       if (!newResponse) {
         throw new Error("Error: Couldn't add transport vouchers");
       }
-  
+
       console.log("Fetched Transport:", newResponse);
       setSaving(false);
       toast({
@@ -369,7 +366,10 @@ const TransportTab = () => {
   };
 
   const handleExistingVoucherDelete = async () => {
-    if (selectedVoucher?.voucher.guideId === null && selectedVoucher.voucher.status) {
+    if (
+      selectedVoucher?.voucher.guideId === null &&
+      selectedVoucher.voucher.status
+    ) {
       if (selectedVoucher.voucher.status != "inprogress") {
         toast({
           title: "Uh Oh",
@@ -381,7 +381,7 @@ const TransportTab = () => {
         setIsDeleting(true);
         const deletedData = await deleteDriverTransportVoucher(
           selectedVoucher?.voucher?.id ?? "",
-          ""
+          "",
         );
         updateTriggerRefetch();
         if (!deletedData) {
@@ -398,7 +398,10 @@ const TransportTab = () => {
         setIsDeleting(false);
       }
       return;
-    }else if (selectedVoucher?.voucher.driverId === null && selectedVoucher.voucher.status) {
+    } else if (
+      selectedVoucher?.voucher.driverId === null &&
+      selectedVoucher.voucher.status
+    ) {
       if (selectedVoucher.voucher.status != "inprogress") {
         toast({
           title: "Uh Oh",
@@ -410,7 +413,7 @@ const TransportTab = () => {
         setIsDeleting(true);
         const deletedData = await deleteGuideTransportVoucher(
           selectedVoucher?.voucher?.id ?? "",
-          ""
+          "",
         );
         updateTriggerRefetch();
         if (!deletedData) {
@@ -438,7 +441,6 @@ const TransportTab = () => {
     deleteTransportVouchers(index, selectedVoucher?.voucher?.id ?? "");
     setIsDeleting(false);
   };
-  
 
   return (
     <div className="flex flex-col gap-3">
@@ -464,13 +466,12 @@ const TransportTab = () => {
           <div className="w-full space-y-2">
             <div className="flex flex-row items-center justify-between">
               {searchDetails?.type !== "Guide" ? (
-              <div>
-                {searchDetails?.type} - {searchDetails?.vehicleType}
-              </div>
+                <div>
+                  {searchDetails?.type} - {searchDetails?.vehicleType}
+                </div>
               ) : (
                 <div>{searchDetails?.type}</div>
-              )
-}
+              )}
               <div className="flex flex-row items-center gap-2 rounded-lg border px-4 py-2">
                 <SearchIcon size={18} color="#697077" />
                 <div className="font-sans text-sm font-light text-[#697077]">
@@ -484,19 +485,26 @@ const TransportTab = () => {
                 currentSearchType === "Driver"
                   ? drivers
                   : currentSearchType === "Chauffeur"
-                  ? drivers
-                  : currentSearchType === "Guide"
-                    ? guides
-                    : []
+                    ? drivers
+                    : currentSearchType === "Guide"
+                      ? guides
+                      : []
               }
               onRowClick={handleRowClick} // onRowClick={handleRowClick}
             />
           </div>
           <div className="w-full">
-            <DataTableWithActions columns={columns} data={bookingDetails.transport}
-             onEdit={()=>{console.log("edit")}}
-             onDelete={onDelete}
-             onRowClick={() => {console.log("row");}}  />    
+            <DataTableWithActions
+              columns={columns}
+              data={bookingDetails.transport}
+              onEdit={() => {
+                console.log("edit");
+              }}
+              onDelete={onDelete}
+              onRowClick={() => {
+                console.log("row");
+              }}
+            />
           </div>
           <div className="flex w-full justify-end gap-2">
             <Button
@@ -516,8 +524,8 @@ const TransportTab = () => {
               )}
             </Button>
             <Link href={`${pathname.split("edit")[0]}/tasks?tab=transport`}>
-            <Button variant={"primaryGreen"}>Send Vouchers</Button>
-          </Link>
+              <Button variant={"primaryGreen"}>Send Vouchers</Button>
+            </Link>
           </div>
         </div>
       </div>
@@ -536,7 +544,6 @@ const TransportTab = () => {
         setIsOpen={setIsExistingVoucherDelete}
         isDeleting={isDeleting}
       />
-
     </div>
   );
 };
