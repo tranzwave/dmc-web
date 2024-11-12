@@ -181,6 +181,7 @@ const ActivitiesTab = () => {
         setIsDeleting(true);
         const deletedData = await deleteActivitiesVoucher(
           selectedVoucher?.voucher?.id ?? "",
+          ""
         );
         updateTriggerRefetch();
         if (!deletedData) {

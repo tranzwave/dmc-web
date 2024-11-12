@@ -40,6 +40,11 @@ const activityColumns: ColumnDef<ActivityVoucherData>[] = [
     accessorFn: (row) => row.status,
   },
   // {
+  //   accessorKey: "reasonToDelete",
+  //   header: "",
+  //   accessorFn: (row) => row.reasonToDelete,
+  // },
+  // {
   //   header: "Voucher Lines",
   //   accessorFn: (row) => 1,
   // },

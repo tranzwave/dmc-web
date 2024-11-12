@@ -1003,7 +1003,7 @@ export const deleteRestaurantVoucherLine = async (voucherLineId: string) => {
 //   }
 // };
 
-export const deleteActivitiesVoucher = async (voucherLineId: string) => {
+export const deleteActivitiesVoucher = async (voucherLineId: string, reasonToDelete: string) => {
   try {
     const result = await db.transaction(async (trx) => {
       // Fetch the activity voucher line to check if it exists
@@ -1036,7 +1036,7 @@ export const deleteActivitiesVoucher = async (voucherLineId: string) => {
         .update(activityVoucher)  // Update activityVoucher
         .set({
           status: 'cancelled',  // Update the status to "deleted"
-
+          reasonToDelete: reasonToDelete
         })
         .where(eq(activityVoucher.id, voucherLineId))  // Where id matches voucherLineId
         .returning()

@@ -550,7 +550,7 @@ export const transportVoucher = createTable("transport_vouchers", {
   guideId: varchar("guide_id", { length: 255 })
     .references(() => guide.id),
   coordinatorId: varchar("coordinator_id", { length: 255 }),
-    // .references(() => user.id),
+  // .references(() => user.id),
   status: statusEnum('status').default('inprogress'),
   rate: numeric('rate', { precision: 4 }),
   startDate: varchar("start_date", { length: 100 }).notNull(),
@@ -671,6 +671,7 @@ export const activityVoucher = createTable("activity_vouchers", {
   kidsCount: integer("kids_count"),
   remarks: text("remarks"),
   rate: numeric('rate', { precision: 4 }),
+  reasonToDelete: varchar("reason_to_delete", { length: 255 }),
   status: statusEnum('status').default('inprogress'),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
