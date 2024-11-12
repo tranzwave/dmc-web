@@ -66,7 +66,7 @@ const HotelVouchersTasksTab = <
   const [selectedVoucher, setSelectedVoucher] = useState<HotelVoucherData>();
   const [selectedVoucherLine, setSelectedVoucherLine] =
     useState<SelectHotelVoucherLine>();
-  const [rate, setRate] = useState<string | number>(0);
+  const [rate, setRate] = useState<string>('0');
   const [statusChanged, setStatusChanged] = useState<boolean>(false);
   const [isInprogressVoucherDelete, setIsInProgressVoucherDelete] =
     useState(false);
@@ -107,7 +107,7 @@ const HotelVouchersTasksTab = <
 
   const onVoucherRowClick = (row: HotelVoucherData) => {
     setSelectedVoucher(row);
-    setRate(row.voucherLines[0]?.rate ?? 0);
+    setRate(row.voucherLines[0]?.rate ?? '0');
     if (setSelectedVendor) {
       setSelectedVendor(row);
     }
