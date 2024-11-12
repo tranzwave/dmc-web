@@ -108,7 +108,6 @@ const ActivityVouchersTab = ({
 
   const handleCancel = () => {
     console.log("Cancelled");
-    // Add cancellation logic here
   };
 
   const renderCancelContent = () => {
@@ -179,34 +178,6 @@ const ActivityVouchersTab = ({
       return;
     }
   };
-
-  // const handleProceededVoucherDelete = async () => {
-  //   if (selectedVoucher && selectedVoucher.status) {
-  //     try {
-  //       setIsDeleting(true);
-  //       const deletedData = await deleteActivitiesVoucher(
-  //         selectedVoucher?.id ?? "",
-  //       );
-  //       if (!deletedData) {
-  //         throw new Error("Couldn't delete voucher");
-  //       }
-  //       toast({
-  //         title: "Success",
-  //         description: `Successfully cancelled the confirmed voucher! Pleas refresh!`,
-  //       });
-
-  //       // deleteVoucherLineFromLocalContext();
-  //       setIsDeleting(false);
-  //     } catch (error) {
-  //       toast({
-  //         title: "Uh Oh",
-  //         description: `Couldn't delete this voucher`,
-  //       });
-  //       setIsDeleting(false);
-  //     }
-  //     return;
-  //   }
-  // };
 
   const handleProceededVoucherDelete = async (reason: string) => {
     if (selectedVoucher && selectedVoucher.status) {
@@ -327,7 +298,6 @@ const ActivityVouchersTab = ({
                     trigger={contactButton}
                     onConfirm={handleConfirm}
                     onCancel={handleCancel}
-                    // onCancel={() => console.log("Cancelled")}
                     dialogContent={ContactContent(
                       selectedVoucher.activityVendor.contactNumber,
                       selectedVoucher.activityVendor.primaryEmail ?? "N/A",
@@ -336,7 +306,6 @@ const ActivityVouchersTab = ({
                   />
                   <DeletePopup
                     itemName={`Voucher for ${selectedVoucher?.activityVendor.name}`}
-                    // onDelete={() => console.log("Deleting")}
                     onDelete={handleInProgressVoucherDelete}
                     isOpen={isInProgressVoucherDelete}
                     setIsOpen={setIsInProgressVoucherDelete}
