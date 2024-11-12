@@ -1,22 +1,23 @@
 "use client";
+import { LoaderCircle } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import {
+  ShopVoucher,
+  useEditBooking,
+} from "~/app/dashboard/bookings/[id]/edit/context";
 import { DataTable } from "~/components/bookings/home/dataTable";
+import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
+import { useToast } from "~/hooks/use-toast";
+import { ShopsSearchParams } from "~/lib/api";
+import { getAllCities } from "~/server/db/queries/activities";
+import { addShopVouchersToBooking } from "~/server/db/queries/booking";
+import { getAllShopTypes } from "~/server/db/queries/shops";
+import { SelectCity, SelectShopType } from "~/server/db/schemaTypes";
 import { columns, Shop } from "./columns";
 import ShopsForm from "./shopsForm";
-import { LoaderCircle, SearchIcon } from "lucide-react";
-import { Button } from "~/components/ui/button";
-import { ShopsSearchParams } from "~/lib/api";
-import { SelectCity, SelectShopType } from "~/server/db/schemaTypes";
-import { getAllShopTypes } from "~/server/db/queries/shops";
-import { getAllCities } from "~/server/db/queries/activities";
-import { useToast } from "~/hooks/use-toast";
-import { Calendar } from "~/components/ui/calendar";
-import {
-  useEditBooking,
-  ShopVoucher,
-} from "~/app/dashboard/bookings/[id]/edit/context";
-import { usePathname } from "next/navigation";
-import { addShopVouchersToBooking } from "~/server/db/queries/booking";
 
 const ShopsTab = () => {
   const { addShop, bookingDetails, setActiveTab } = useEditBooking();
@@ -186,10 +187,13 @@ const ShopsTab = () => {
       <div className="w-full">
         <DataTable columns={columns} data={bookingDetails.shops} />
       </div>
-        <div className="flex w-full justify-end">
+        <div className="flex w-full justify-end gap-2">
           <Button variant={"primaryGreen"} onClick={onSaveClick} disabled={saving}>
             {saving ? (<div className="flex flex-row gap-1"><div><LoaderCircle className="animate-spin" size={15}/></div>Saving</div>): ('Save')}
           </Button>
+          <Link href={`${pathname.split("edit")[0]}/tasks?tab=shops`}>
+            <Button variant={"primaryGreen"}>Send Vouchers</Button>
+          </Link>
         </div>
     </div>
   );

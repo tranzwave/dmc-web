@@ -84,6 +84,7 @@ interface EditBookingContextProps {
   deleteActivityVoucher: (index: number, id: string) => void; // Added method
   addTransport: (transport: TransportVoucher) => void;
   addTransportVouchers: (vouchers: TransportVoucher[]) => void;
+  deleteTransportVouchers: (index: number, id: string) => void; // Added method
   addShop: (shop: ShopVoucher) => void;
   addShopVouchers: (vouchers: ShopVoucher[]) => void;
   activeTab: string;
@@ -245,6 +246,12 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
     setBookingDetails(prev => ({ ...prev, transport: vouchers }));
   };
 
+  const deleteTransportVouchers = (index: number, id: string) => {
+    setBookingDetails((prev) => ({
+      ...prev,
+      transport: prev.transport.filter((voucher, i) => !(i === index && voucher.voucher?.id === id)),
+    }));
+  };
   const addShop = (shop: ShopVoucher) => {
     setBookingDetails(prev => ({ ...prev, shops: [...prev.shops, shop] }));
   };
@@ -312,6 +319,7 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
         deleteActivityVoucher,
         addTransport,
         addTransportVouchers,
+        deleteTransportVouchers,
         addShop,
         addShopVouchers,
         activeTab,

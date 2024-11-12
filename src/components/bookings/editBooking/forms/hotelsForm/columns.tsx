@@ -5,8 +5,6 @@ import { HotelVoucher } from "~/app/dashboard/bookings/add/context";
 import { HotelDTO } from "~/lib/types/hotel";
 import { formatDate } from "~/lib/utils/index";
 
-
-  
   export type Hotel = {
     name: string;
     quantity: number;

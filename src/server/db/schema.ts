@@ -557,6 +557,7 @@ export const transportVoucher = createTable("transport_vouchers", {
   endDate: varchar("end_date", { length: 100 }).notNull(),
   language: varchar("languages", { length: 255 }).notNull(),
   // vehicleType: varchar("vehicle_type", { length: 255 }),
+  reasonToDelete: varchar("reason_to_delete", { length: 255 }),
   remarks: varchar("remarks", { length: 255 }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),

@@ -1274,7 +1274,7 @@ export const insertTransportVoucherTx = async (
 
       const voucherId = newVoucher[0]?.id;
 
-      if (currentVoucher.driver?.type !== 'guide') {
+      if (currentVoucher.voucher.guideId === null) {
         await trx
           .insert(driverVoucherLine)
           .values({
