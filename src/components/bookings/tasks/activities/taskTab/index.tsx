@@ -1,6 +1,7 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import html2pdf from "html2pdf.js";
+import { LoaderCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
@@ -283,13 +284,27 @@ const ActivityVouchersTab = ({
               {selectedVoucher ? (
                 <div className="flex flex-row gap-2">
                   <Button
-                    variant="outline"
+                    variant={"outline"}
                     className="border-red-600"
                     onClick={renderCancelContent}
+                    disabled={isDeleting}
                   >
-                    {selectedVoucher.status === "cancelled"
-                      ? "Reason"
-                      : "Cancel"}
+                    {isDeleting ? (
+                      <div className="flex flex-row gap-2">
+                        <LoaderCircle size={16} />{" "}
+                        <div>
+                          {selectedVoucher.status === "cancelled"
+                            ? "Loading"
+                            : "Cancelling"}
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        {selectedVoucher.status === "cancelled"
+                          ? "Reason"
+                          : "Cancel"}
+                      </div>
+                    )}
                   </Button>
 
                   <Popup

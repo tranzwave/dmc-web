@@ -7,12 +7,18 @@ import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import DeletePopup from "~/components/common/deletePopup";
+import DeleteReasonPopup from "~/components/common/deleteReasonPopup";
+import CancellationReasonPopup from "~/components/common/deleteReasonPopup/cancellationReasonPopup";
 import Popup from "~/components/common/popup";
 import ContactContent from "~/components/common/tasksTab/contactContent";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { useToast } from "~/hooks/use-toast";
-import { deleteTransportVoucher, updateTransportVoucherStatus } from "~/server/db/queries/booking/transportVouchers";
+import {
+  deleteDriverTransportVoucher,
+  deleteGuideTransportVoucher,
+  updateTransportVoucherStatus,
+} from "~/server/db/queries/booking/transportVouchers";
 import { TransportVoucherData } from "..";
 import DriverTransportVoucherPDF from "../driverVoucherTemplate";
 import GuideTransportVoucherPDF from "../guideVoucherTemplate";
@@ -32,7 +38,7 @@ interface TasksTabProps {
     },
   ) => Promise<void>;
   setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
-  statusChanged:boolean
+  statusChanged: boolean;
   contactDetails?: { phone: string; email: string };
   // columns: ColumnDef<ActivityVoucherData>[]; // Ensure to use the correct type
 }
@@ -44,26 +50,27 @@ const ActivityVouchersTab = ({
   vouchers,
   updateVoucherLine,
   setStatusChanged,
-  statusChanged
+  statusChanged,
 }: TasksTabProps) => {
   const [selectedVoucher, setSelectedVoucher] =
     useState<TransportVoucherData>();
   const [rate, setRate] = useState<string | number>(0);
-  
+
   const [isInProgressVoucherDelete, setIsInProgressVoucherDelete] =
     useState(false);
   const [isProceededVoucherDelete, setIsProceededVoucherDelete] =
     useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [isVoucherDelete, setIsVoucherDelete] = useState(false);
 
   const { toast } = useToast();
-  const router = useRouter()
-  const pathname = usePathname() 
+  const router = useRouter();
+  const pathname = usePathname();
 
   const onVoucherRowClick = (row: TransportVoucherData) => {
     setSelectedVoucher(row);
-    console.log(selectedVoucher)
+    console.log(selectedVoucher);
   };
 
   const handleConfirm = async () => {
@@ -102,8 +109,8 @@ const ActivityVouchersTab = ({
       }
     }
     console.log("Driver confirmed");
-    setStatusChanged(!statusChanged)
-    router.push(`${pathname}?tab=transport`)
+    setStatusChanged(!statusChanged);
+    router.push(`${pathname}?tab=transport`);
   };
 
   const renderCancelContent = () => {
@@ -111,52 +118,158 @@ const ActivityVouchersTab = ({
       if (selectedVoucher.status) {
         if (selectedVoucher.status === "inprogress") {
           setIsInProgressVoucherDelete(true);
-        } else {
+        }
+        if (selectedVoucher.status === "vendorConfirmed") {
           setIsProceededVoucherDelete(true);
+        }
+        if (selectedVoucher.status === "cancelled") {
+          setIsVoucherDelete(true);
         }
       }
     }
   };
 
-  const deleteVoucher = async()=>{
-    if (selectedVoucher) {
-      if (selectedVoucher.status === "cancelled") {
-        toast({
-          title: "Uh Oh!",
-          description: "This is already cancelled",
-        });
-        return;
-      }
+  // const deleteVoucher = async()=>{
+  //   if (selectedVoucher) {
+  //     if (selectedVoucher.status === "cancelled") {
+  //       toast({
+  //         title: "Uh Oh!",
+  //         description: "This is already cancelled",
+  //       });
+  //       return;
+  //     }
 
+  //     try {
+  //       setIsDeleting(true);
+  //       const updateResult = await deleteTransportVoucher(
+  //         selectedVoucher.id
+  //       );
+
+  //       if (!updateResult) {
+  //         throw new Error("Couldn't update the status");
+  //       }
+
+  //       setIsDeleting(false);
+  //       toast({
+  //         title: "Success!",
+  //         description: "Driver is deleted",
+  //       });
+  //     } catch (error) {
+  //       console.error("Couldn't delete this driver");
+  //       setIsDeleting(false);
+  //       toast({
+  //         title: "Uh Oh!",
+  //         description: "Couldn't delete the driver",
+  //       });
+  //     }
+  //   }
+  //   console.log("Driver Deleted");
+  //   setStatusChanged(!statusChanged)
+  //   // router.push(`${pathname}?tab=transport`)
+  //   router.refresh()
+  // }
+
+  const handleInProgressVoucherDelete = async () => {
+    if (selectedVoucher?.guideId === null && selectedVoucher.status) {
       try {
         setIsDeleting(true);
-        const updateResult = await deleteTransportVoucher(
-          selectedVoucher.id
+        const deletedData = await deleteDriverTransportVoucher(
+          selectedVoucher?.id ?? "",
+          "",
         );
-
-        if (!updateResult) {
-          throw new Error("Couldn't update the status");
+        if (!deletedData) {
+          throw new Error("Couldn't delete voucher");
         }
+        toast({
+          title: "Success",
+          description: `Successfully cancelled the voucher! Pleas refresh!`,
+        });
 
+        // deleteVoucherLineFromLocalContext();
         setIsDeleting(false);
-        toast({
-          title: "Success!",
-          description: "Driver is deleted",
-        });
       } catch (error) {
-        console.error("Couldn't delete this driver");
-        setIsDeleting(false);
         toast({
-          title: "Uh Oh!",
-          description: "Couldn't delete the driver",
+          title: "Uh Oh",
+          description: `Couldn't delete this voucher`,
         });
+        setIsDeleting(false);
+      }
+      return;
+    } else if (selectedVoucher?.driverId === null && selectedVoucher.status) {
+      try {
+        setIsDeleting(true);
+        const deletedData = await deleteGuideTransportVoucher(
+          selectedVoucher?.id ?? "",
+          "",
+        );
+        if (!deletedData) {
+          throw new Error("Couldn't delete voucher");
+        }
+        toast({
+          title: "Success",
+          description: `Successfully cancelled the voucher! Pleas refresh!`,
+        });
+
+        // deleteVoucherLineFromLocalContext();
+        setIsDeleting(false);
+      } catch (error) {
+        toast({
+          title: "Uh Oh",
+          description: `Couldn't delete this voucher`,
+        });
+        setIsDeleting(false);
+      }
+      return;
+    }
+  };
+
+  const handleProceededVoucherDelete = async (reason: string) => {
+    if (selectedVoucher?.guideId === null && selectedVoucher.status) {
+      try {
+        setIsDeleting(true);
+        const deletedData = await deleteDriverTransportVoucher(
+          selectedVoucher?.id ?? "",
+          reason, // Pass the reason to the backend
+        );
+        if (!deletedData) {
+          throw new Error("Couldn't delete voucher");
+        }
+        toast({
+          title: "Success",
+          description: `Successfully cancelled the confirmed voucher! Please refresh!`,
+        });
+        setIsDeleting(false);
+      } catch (error) {
+        toast({
+          title: "Uh Oh",
+          description: `Couldn't delete this voucher`,
+        });
+        setIsDeleting(false);
+      }
+    } else if (selectedVoucher?.driverId === null && selectedVoucher.status) {
+      try {
+        setIsDeleting(true);
+        const deletedData = await deleteGuideTransportVoucher(
+          selectedVoucher?.id ?? "",
+          reason, // Pass the reason to the backend
+        );
+        if (!deletedData) {
+          throw new Error("Couldn't delete voucher");
+        }
+        toast({
+          title: "Success",
+          description: `Successfully cancelled the confirmed voucher! Please refresh!`,
+        });
+        setIsDeleting(false);
+      } catch (error) {
+        toast({
+          title: "Uh Oh",
+          description: `Couldn't delete this voucher`,
+        });
+        setIsDeleting(false);
       }
     }
-    console.log("Driver Deleted");
-    setStatusChanged(!statusChanged)
-    // router.push(`${pathname}?tab=transport`)
-    router.refresh()
-  }
+  };
 
   const contactButton = (
     <Button variant={"outline"} className="border-primary-green">
@@ -165,7 +278,7 @@ const ActivityVouchersTab = ({
   );
 
   useEffect(() => {
-    setSelectedVoucher(vouchers ? vouchers[0] : undefined)
+    setSelectedVoucher(vouchers ? vouchers[0] : undefined);
   }, [statusChanged, vouchers]);
 
   const getContactDetails = () => {
@@ -176,8 +289,12 @@ const ActivityVouchersTab = ({
       };
     }
     return {
-      phone: selectedVoucher?.driver?.contactNumber ?? selectedVoucher?.guide?.primaryContactNumber,
-      email: selectedVoucher?.driver?.primaryEmail ?? selectedVoucher?.guide?.primaryEmail,
+      phone:
+        selectedVoucher?.driver?.contactNumber ??
+        selectedVoucher?.guide?.primaryContactNumber,
+      email:
+        selectedVoucher?.driver?.primaryEmail ??
+        selectedVoucher?.guide?.primaryEmail,
     };
   };
 
@@ -188,13 +305,15 @@ const ActivityVouchersTab = ({
           <Calendar />
         </div>
         <div className="card w-full space-y-6">
-        <div className="flex justify-between">
+          <div className="flex justify-between">
             <div className="card-title">Voucher Information</div>
             <Link href={`${pathname.replace("/tasks", "")}/edit?tab=transport`}>
               <Button variant={"outline"}>Add Vouchers</Button>
             </Link>
-          </div>          
-          <div className="text-sm font-normal">Click the line to send the voucher</div>
+          </div>
+          <div className="text-sm font-normal">
+            Click the line to send the voucher
+          </div>
           <DataTable
             data={vouchers}
             columns={voucherColumns}
@@ -260,7 +379,22 @@ const ActivityVouchersTab = ({
                     onClick={renderCancelContent}
                     disabled={isDeleting}
                   >
-                    {isDeleting ? (<div className="flex flex-row gap-2"><LoaderCircle size={16}/> <div>Deleting</div></div>): (<div>Delete</div>)}
+                    {isDeleting ? (
+                      <div className="flex flex-row gap-2">
+                        <LoaderCircle size={16} />{" "}
+                        <div>
+                          {selectedVoucher.status === "cancelled"
+                            ? "Loading"
+                            : "Cancelling"}
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        {selectedVoucher.status === "cancelled"
+                          ? "Reason"
+                          : "Cancel"}
+                      </div>
+                    )}
                   </Button>
 
                   <Popup
@@ -270,8 +404,12 @@ const ActivityVouchersTab = ({
                     onConfirm={handleConfirm}
                     onCancel={() => console.log("Cancelled")}
                     dialogContent={ContactContent(
-                      selectedVoucher?.driver?.primaryContactNumber ?? selectedVoucher?.guide?.primaryContactNumber ?? "N/A" ,
-                      selectedVoucher?.driver?.primaryEmail ?? selectedVoucher?.guide?.primaryEmail ?? "N/A",
+                      selectedVoucher?.driver?.primaryContactNumber ??
+                        selectedVoucher?.guide?.primaryContactNumber ??
+                        "N/A",
+                      selectedVoucher?.driver?.primaryEmail ??
+                        selectedVoucher?.guide?.primaryEmail ??
+                        "N/A",
                     )}
                     size="small"
                   />
@@ -284,21 +422,31 @@ const ActivityVouchersTab = ({
                   </Button>
                   <DeletePopup
                     itemName={`Voucher for ${selectedVoucher?.driver?.name}`}
-                    onDelete={deleteVoucher}
+                    onDelete={handleInProgressVoucherDelete}
                     isOpen={isInProgressVoucherDelete}
                     setIsOpen={setIsInProgressVoucherDelete}
                     isDeleting={isDeleting}
                     description="You haven't confirmed with the driver yet. You can delete the
                 voucher straight away"
                   />
-                  <DeletePopup
+                  <DeleteReasonPopup
                     itemName={`Voucher for ${selectedVoucher?.driver?.name}`}
-                    onDelete={deleteVoucher}
+                    onDelete={handleProceededVoucherDelete}
                     isOpen={isProceededVoucherDelete}
                     setIsOpen={setIsProceededVoucherDelete}
                     isDeleting={isDeleting}
                     description={`You have already proceeded with this driver/guide, and it's in the status of ${selectedVoucher.status} \n
                 Are you sure you want to cancel this driver/guide? This will delete the driver from this booking`}
+                  />
+
+                  <CancellationReasonPopup
+                    itemName={`Voucher for ${selectedVoucher?.driver?.name || selectedVoucher?.guide?.name}`}
+                    cancellationReason={
+                      selectedVoucher?.reasonToDelete ||
+                      "No reason provided. This is cancelled before confirm."
+                    }
+                    isOpen={isVoucherDelete}
+                    setIsOpen={setIsVoucherDelete}
                   />
                 </div>
               ) : (
@@ -367,11 +515,11 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         </Button>
       </div>
       <div ref={componentRef}>
-      {voucher.driver?.type !== 'guide'  ? (
-    <DriverTransportVoucherPDF voucher={voucher} />
-  ) : (
-    <GuideTransportVoucherPDF voucher={voucher} />
-  )}
+        {voucher.driver?.type !== "guide" ? (
+          <DriverTransportVoucherPDF voucher={voucher} />
+        ) : (
+          <GuideTransportVoucherPDF voucher={voucher} />
+        )}
       </div>
       <div className="flex w-full flex-row justify-end gap-2"></div>
     </div>
