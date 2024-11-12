@@ -373,6 +373,8 @@ export const restaurantVoucher = createTable("restaurant_vouchers", {
   ratesConfirmedBy: varchar("rates_confirmed_by", { length: 255 }).default(""),
   ratesConfirmedTo: varchar("rates_confirmed_to", { length: 255 }).default(""),
   reasonToAmend: varchar("reason_to_amend", { length: 255 }).default(""),
+  reasonToCancel: varchar("reason_to_cancel", { length: 255 }).default(""),
+
 });
 
 // Restaurant Voucher Lines table
@@ -393,6 +395,12 @@ export const restaurantVoucherLine = createTable("restaurant_voucher_lines", {
   remarks: text("remarks"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  availabilityConfirmedBy: varchar("availability_confirmed_by", { length: 255 }).default(""),
+  availabilityConfirmedTo: varchar("availability_confirmed_to", { length: 255 }).default(""),
+  ratesConfirmedBy: varchar("rates_confirmed_by", { length: 255 }).default(""),
+  ratesConfirmedTo: varchar("rates_confirmed_to", { length: 255 }).default(""),
+  reasonToAmend: varchar("reason_to_amend", { length: 255 }).default(""),
+  reasonToCancel: varchar("reason_to_cancel", { length: 255 }).default(""),
 });
 
 export const language = createTable("languages", {

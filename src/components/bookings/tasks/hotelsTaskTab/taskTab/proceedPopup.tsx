@@ -8,17 +8,21 @@ import HotelVoucherPDF from "../voucherTemplate";
 import html2pdf from "html2pdf.js";
 import { HotelVoucherData } from "..";
 import { useRouter } from "next/navigation";
-import { SelectHotelVoucherLine } from "~/server/db/schemaTypes";
-  
+import { SelectHotelVoucherLine, SelectRestaurantVoucherLine } from "~/server/db/schemaTypes";
+import CreateRateColumn from "~/components/common/tasksTab/rateColumn";
+import { RestaurantVoucherData } from "../../restaurants";
+import RestaurantVoucherPDF from "../../restaurants/voucherTemplate";
+
 interface ProceedContentProps {
-  voucherColumns: ColumnDef<SelectHotelVoucherLine>[];
-  selectedVoucher: HotelVoucherData;
+  voucherColumns: ColumnDef<SelectHotelVoucherLine>[] | ColumnDef<SelectRestaurantVoucherLine>[];
+  selectedVoucher: HotelVoucherData | RestaurantVoucherData;
   onVoucherLineRowClick: any;
   updateVoucherLine: any;
   updateVoucherStatus: any;
   rate: string;
   setRate: React.Dispatch<SetStateAction<string>>;
   setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
+  type: string
 }
 
 const ProceedContent: React.FC<ProceedContentProps> = ({
@@ -30,10 +34,11 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   rate,
   setRate,
   setStatusChanged,
+  type
 }) => {
   const router = useRouter();
   const componentRef = useRef<HTMLDivElement>(null);
-  
+
   const [ratesConfirmedBy, setRatesConfirmedBy] = useState(selectedVoucher?.ratesConfirmedBy ?? "");
   const [ratesConfirmedTo, setRatesConfirmedTo] = useState(selectedVoucher?.ratesConfirmedTo ?? "");
   const [availabilityConfirmedBy, setAvailabilityConfirmedBy] = useState(selectedVoucher?.availabilityConfirmedBy ?? "");
@@ -44,7 +49,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   const downloadPDF = () => {
     const filename = `${selectedVoucher.voucherLines[0]?.id}-Voucher.pdf`;
     const tempContainer = document.createElement("div");
-    
+
     const componentElement = componentRef.current?.cloneNode(true);
     if (componentElement) tempContainer.appendChild(componentElement);
 
@@ -135,7 +140,17 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
               <Button variant="primaryGreen" onClick={handleSendVoucher}>Download Voucher</Button>
             </div>
             <div ref={componentRef}>
-              <HotelVoucherPDF voucher={selectedVoucher} />
+              {type === 'hotel' && (
+                <div>
+                  <HotelVoucherPDF voucher={selectedVoucher as HotelVoucherData} />
+                </div>
+              )}
+              {type === 'restaurant' && (
+                <div>
+                  <RestaurantVoucherPDF voucher={selectedVoucher as RestaurantVoucherData} />
+                </div>
+              )}
+
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -150,43 +165,5 @@ const InputFields = ({ label, value, onChange }: { label: string; value: string;
     <Input placeholder={label} value={value} onChange={(e) => onChange(e.target.value)} />
   </div>
 );
-
-const CreateRateColumn = <T extends object>(
-  initialRate: string,
-  setRate: React.Dispatch<SetStateAction<string>>,
-): ColumnDef<T> => ({
-  accessorKey: "rate",
-  header: "Rate - USD",
-  cell: ({ getValue, row, column }) => {
-    const RateInput = () => {
-      const [rate, setLocalRate] = useState<string>(initialRate);
-
-      useEffect(() => {
-        setLocalRate(initialRate);
-      }, [initialRate]);
-
-      const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const inputValue = e.target.value;
-        setLocalRate(inputValue);
-        // setRate(inputValue);
-        (row.original as Record<string, any>)[column.id] = inputValue;
-      };
-
-      return (
-        <Input
-          type="number"
-          value={rate}
-          onChange={handleRateChange}
-          onBlur={()=> setRate(rate)}
-          className="rounded border border-gray-300 p-1"
-          style={{ width: "80px" }}
-          placeholder="0.00"
-        />
-      );
-    };
-
-    return <RateInput />;
-  },
-});
 
 export default ProceedContent;

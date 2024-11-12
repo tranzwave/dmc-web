@@ -64,15 +64,37 @@ export const getMeals = (restaurantId:string)=>{
       };
     
     
-      export const bulkUpdateRestaurantVoucherRates = async (voucherLines: SelectRestaurantVoucherLine[]) => {
+      export const bulkUpdateRestaurantVoucherRates = async (voucherLines: SelectRestaurantVoucherLine[],
+        confirmationDetails: {
+          availabilityConfirmedBy: string,
+          availabilityConfirmedTo: string,
+          ratesConfirmedBy: string,
+          ratesConfirmedTo: string,
+        }
+      ) => {
         try {
           await db.transaction(async (trx) => {
-            
+            const voucherId = voucherLines[0]?.restaurantVoucherId ?? ""
             for (const voucherLine of voucherLines) {
               await trx.update(restaurantVoucherLine)
                 .set({ rate: voucherLine.rate })
                 .where(eq(restaurantVoucherLine.id, voucherLine.id ?? ""));
             }
+            console.log({
+              availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
+              availabilityConfirmedTo: confirmationDetails.availabilityConfirmedTo,
+              ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
+              ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
+            })
+            await trx
+        .update(restaurantVoucher)
+        .set({
+          availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
+          availabilityConfirmedTo: confirmationDetails.availabilityConfirmedTo,
+          ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
+          ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
+        })
+        .where(eq(restaurantVoucher.id, voucherId))
           });
       
           console.log('All voucher rates updated successfully');

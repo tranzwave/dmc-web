@@ -35,7 +35,7 @@ const RestaurantsTab = () => {
   const updateRestaurants = (
     data: InsertRestaurantVoucherLine,
     restaurant: RestaurantData,
-  ) => {
+  ):void => {
     // setAddedRestaurants((prev) => [...prev, restaurant]);
     // addRestaurant(restaurant)
     console.log(data);
@@ -62,7 +62,7 @@ const RestaurantsTab = () => {
       const response = await getAllRestaurants();
 
       if (!response) {
-        throw new Error(`Error: Couldn't get hotels`);
+        throw new Error(`Error: Couldn't get restaurants`);
       }
       console.log("Fetched Restaurants:", response);
 

@@ -451,6 +451,7 @@ const HotelVouchersTasksTab = <
                         rate={rate}
                         setRate={setRate}
                         setStatusChanged={setStatusChanged}
+                        type="hotel"
                       />
                     }
                     size="large"
