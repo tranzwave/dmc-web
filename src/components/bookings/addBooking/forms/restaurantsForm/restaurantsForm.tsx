@@ -22,9 +22,16 @@ import {
 } from "~/components/ui/select";
 import {
   InsertRestaurantVoucherLine,
-  SelectMeal
+  SelectMeal,
+  SelectRestaurant
 } from "~/server/db/schemaTypes";
 import { RestaurantData } from ".";
+import { CalendarIcon, LoaderCircle } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
+import { cn } from "~/lib/utils";
+import { format, parse } from "date-fns";
+import { Calendar } from "~/components/ui/calendar";
+import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 
 interface RestaurantFormProps {
   onAddRestaurant: (
@@ -32,11 +39,16 @@ interface RestaurantFormProps {
     restaurant: RestaurantData,
   ) => void;
   restaurants: RestaurantData[];
-  defaultValues: InsertRestaurantVoucherLine | null;
+  defaultValues: 
+  | (InsertRestaurantVoucherLine & {
+    restaurant: SelectRestaurant;
+  })
+| null
+| undefined;
   lockedVendorId?: string;
   amendment?: boolean;  // Add this to include 'amendment'
   isUpdating?: boolean
-
+  isSaving?: boolean
 }
 
 export const restaurantSchema = z.object({
@@ -56,6 +68,9 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
   restaurants,
   defaultValues,
   lockedVendorId,
+  amendment,
+  isUpdating,
+  isSaving
 }) => {
   const [selectedRestaurant, setSelectedRestaurant] =
     useState<RestaurantData | null>();
@@ -64,6 +79,7 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
   const [selectedMeal, setSelectedMeal] = useState<SelectMeal>();
   const [rests, setRests] = useState<RestaurantData[]>([]);
   const [showTimeField, setShowTimeField] = useState(false);
+  const { bookingDetails } = useEditBooking();
 
   // const fetchMeals = async (restaurantId: string) => {
   //   const response = await getMeals;
@@ -73,7 +89,7 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
     defaultValues: {
       date: defaultValues?.date,
       mealType: defaultValues?.mealType,
-      name: defaultValues?.restaurantVoucherId,
+      name: defaultValues?.restaurant.name,
       quantity: {
         adults: defaultValues?.adultsCount,
         kids: defaultValues?.kidsCount,
@@ -96,6 +112,12 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
     };
     if (!selectedRestaurant) {
       throw new Error("Can't fetch selected restaurant");
+    }
+
+    if(amendment) {
+      onAddRestaurant(voucherLine, selectedRestaurant)
+      form.reset()
+      return
     }
     onAddRestaurant(voucherLine, selectedRestaurant);
     form.reset();
@@ -149,6 +171,7 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
                       getRestaurantId(value);
                     }}
                     value={field.value}
+                    disabled={amendment}
                   >
                     <SelectTrigger className="bg-slate-100 shadow-md">
                       <SelectValue placeholder="Select restaurant" />
@@ -207,62 +230,63 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+              <FormLabel>Check-in Date</FormLabel>
+              <FormControl>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !field.value && "text-muted-foreground",
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {field.value ? (
+                      format(new Date(field.value), "LLL dd, y")
+                    ) : (
+                      <span>Pick the check-in date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    initialFocus
+                    selected={
+                      field.value
+                        ? parse(field.value, "MM/dd/yyyy", new Date())
+                        : new Date()
+                    }
+                    onSelect={(date: Date | undefined) => {
+                      const dateString = format(
+                        date ?? new Date(),
+                        "MM/dd/yyyy",
+                      );
+                      field.onChange(dateString);
+                    }}
+                    disabled={(date) => {
+                      const min = new Date(bookingDetails.general.startDate);
+                      const max = new Date(bookingDetails.general.endDate)
+                      min.setHours(0, 0, 0, 0);
+                      max.setHours(0, 0, 0, 0)
+                      return date < min || date > max;
+                    }}
+                    numberOfMonths={1}
+                  />
+                </PopoverContent>
+              </Popover>
+                {/* <Input
+                  type="date"
+                  {...field}
+                  min={bookingDetails.general.startDate ?? ""}
+                  max={bookingDetails.general.endDate ?? ""}
+                /> */}
+              </FormControl>
+              <FormMessage />
+            </FormItem>
             )}
           />
-          {/* {!showTimeField && (
-            <Button
-              variant="outline"
-              type="button"
-              onClick={() => setShowTimeField(true)}
-              className="mt-3"
-            >
-              Add Time
-            </Button>
-          )}
-          {showTimeField && (
-            <FormField
-              name="time"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Time</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="time"
-                      {...field}
-                      value={field.value || "10:00"} // Default time
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )} */}
-          {/* <FormField
-            name="time"
-            control={form.control}
-            defaultValue="10:00"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Time</FormLabel>
-                <FormControl>
-                  <></>
-                  <Input
-                    type="time"
-                    {...field}
-                    value={field.value || "10:00 AM"}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          /> */}
           <FormField
             name="mealType"
             control={form.control}
@@ -327,11 +351,32 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
             </FormItem>
           )}
         />
-        <div className="flex w-full flex-row justify-end">
-          <Button variant={"primaryGreen"} type="submit" className="px-5">
-            Add
-          </Button>
-        </div>
+          <div className="flex w-full flex-row justify-end">
+            <Button
+              variant={"primaryGreen"}
+              type="submit"
+              className="px-5"
+              disabled={isUpdating ? isUpdating : isSaving ? isSaving : false}
+            >
+              {amendment ? (
+                isUpdating ? (
+                  <div className="flex flex-row items-center gap-1">
+                    <LoaderCircle size={16} className="animate-spin" />
+                    <div>Updating</div>
+                  </div>
+                ) : (
+                  "Amend"
+                )
+              ) : isSaving ? (
+                <div className="flex flex-row items-center gap-1">
+                  <LoaderCircle size={16} className="animate-spin" />
+                  <div>Adding</div>
+                </div>
+              ) : (
+                "Add"
+              )}
+            </Button>
+          </div>
       </form>
     </Form>
   );

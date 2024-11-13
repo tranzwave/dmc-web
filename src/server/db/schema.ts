@@ -373,6 +373,8 @@ export const restaurantVoucher = createTable("restaurant_vouchers", {
   ratesConfirmedBy: varchar("rates_confirmed_by", { length: 255 }).default(""),
   ratesConfirmedTo: varchar("rates_confirmed_to", { length: 255 }).default(""),
   reasonToAmend: varchar("reason_to_amend", { length: 255 }).default(""),
+  reasonToCancel: varchar("reason_to_cancel", { length: 255 }).default(""),
+
 });
 
 // Restaurant Voucher Lines table
@@ -393,6 +395,12 @@ export const restaurantVoucherLine = createTable("restaurant_voucher_lines", {
   remarks: text("remarks"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  availabilityConfirmedBy: varchar("availability_confirmed_by", { length: 255 }).default(""),
+  availabilityConfirmedTo: varchar("availability_confirmed_to", { length: 255 }).default(""),
+  ratesConfirmedBy: varchar("rates_confirmed_by", { length: 255 }).default(""),
+  ratesConfirmedTo: varchar("rates_confirmed_to", { length: 255 }).default(""),
+  reasonToAmend: varchar("reason_to_amend", { length: 255 }).default(""),
+  reasonToCancel: varchar("reason_to_cancel", { length: 255 }).default(""),
 });
 
 export const language = createTable("languages", {
@@ -550,13 +558,14 @@ export const transportVoucher = createTable("transport_vouchers", {
   guideId: varchar("guide_id", { length: 255 })
     .references(() => guide.id),
   coordinatorId: varchar("coordinator_id", { length: 255 }),
-    // .references(() => user.id),
+  // .references(() => user.id),
   status: statusEnum('status').default('inprogress'),
   rate: numeric('rate', { precision: 4 }),
   startDate: varchar("start_date", { length: 100 }).notNull(),
   endDate: varchar("end_date", { length: 100 }).notNull(),
   language: varchar("languages", { length: 255 }).notNull(),
   // vehicleType: varchar("vehicle_type", { length: 255 }),
+  reasonToDelete: varchar("reason_to_delete", { length: 255 }),
   remarks: varchar("remarks", { length: 255 }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
@@ -671,6 +680,7 @@ export const activityVoucher = createTable("activity_vouchers", {
   kidsCount: integer("kids_count"),
   remarks: text("remarks"),
   rate: numeric('rate', { precision: 4 }),
+  reasonToDelete: varchar("reason_to_delete", { length: 255 }),
   status: statusEnum('status').default('inprogress'),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),

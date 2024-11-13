@@ -61,6 +61,7 @@ const ActivityVoucherPDF = ({ vouchers, cancellation }: ActivityVoucherPDFProps)
                 <th className="px-4 py-2 text-left font-semibold">Time</th>
                 <th className="px-4 py-2 text-left font-semibold">Participants</th>
                 <th className="px-4 py-2 text-left font-semibold">Remarks</th>
+                <th className="px-4 py-2 text-left font-semibold">Status</th>
                 <th className="px-4 py-2 text-left font-semibold">Seal & Signature</th>
               </tr>
             </thead>

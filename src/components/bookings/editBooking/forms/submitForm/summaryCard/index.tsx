@@ -141,7 +141,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ summary }) => {
               )}
             </div>
 
-            <div className="mb-4 rounded-md border border-gray-200 p-4">
+            {/* <div className="mb-4 rounded-md border border-gray-200 p-4">
               <h3 className="mb-2 text-lg font-semibold text-[#287F71]">
                 Shops
               </h3>
@@ -161,7 +161,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ summary }) => {
                   No shopping planned for this day.
                 </p>
               )}
-            </div>
+            </div> */}
           </div>
         </AccordionContent>
       </AccordionItem>

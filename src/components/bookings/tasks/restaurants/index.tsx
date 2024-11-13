@@ -66,10 +66,25 @@ const restaurantVoucherLineColumns: ColumnDef<SelectRestaurantVoucherLine>[] = [
   },
 ];
 
-const updateVoucherLine = async (voucherLines: any[]) => {
+const updateVoucherLine = async (voucherLines: any[],
+  confirmationDetails?: {
+    availabilityConfirmedBy: string;
+    availabilityConfirmedTo: string;
+    ratesConfirmedBy: string;
+    ratesConfirmedTo: string;
+  },
+) => {
   alert("Updating voucher line:");
+  if(!confirmationDetails){
+    throw new Error('Failed, No confirmation details')
+  }
   try {
-    const bulkUpdateResponse = bulkUpdateRestaurantVoucherRates(voucherLines);
+    const bulkUpdateResponse = bulkUpdateRestaurantVoucherRates(voucherLines,{
+      availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
+      availabilityConfirmedTo: confirmationDetails.availabilityConfirmedTo,
+      ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
+      ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
+    });
 
     if (!bulkUpdateResponse) {
       throw new Error("Failed");

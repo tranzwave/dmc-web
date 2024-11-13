@@ -1,16 +1,20 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import html2pdf from "html2pdf.js";
+import { LoaderCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import DeletePopup from "~/components/common/deletePopup";
+import DeleteReasonPopup from "~/components/common/deleteReasonPopup";
+import CancellationReasonPopup from "~/components/common/deleteReasonPopup/cancellationReasonPopup";
 import Popup from "~/components/common/popup";
 import ContactContent from "~/components/common/tasksTab/contactContent";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { useToast } from "~/hooks/use-toast";
+import { deleteActivitiesVoucher } from "~/server/db/queries/booking";
 import { updateActivityVoucherStatus } from "~/server/db/queries/booking/activityVouchers";
 import { ActivityVoucherData } from "..";
 import ActivityVoucherPDF from "../voucherTemplate";
@@ -47,6 +51,8 @@ const ActivityVouchersTab = ({
     useState(false);
   const [isProceededVoucherDelete, setIsProceededVoucherDelete] =
     useState(false);
+    const [isVoucherDelete, setIsVoucherDelete] =
+    useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
 
@@ -62,6 +68,13 @@ const ActivityVouchersTab = ({
         toast({
           title: "Uh Oh!",
           description: "You have already confirmed",
+        });
+        return;
+      }
+      if (selectedVoucher.status === "cancelled") {
+        toast({
+          title: "Uh Oh!",
+          description: "This voucher already cancelled",
         });
         return;
       }
@@ -96,16 +109,19 @@ const ActivityVouchersTab = ({
 
   const handleCancel = () => {
     console.log("Cancelled");
-    // Add cancellation logic here
   };
-  
+
   const renderCancelContent = () => {
     if (selectedVoucher) {
       if (selectedVoucher.status) {
         if (selectedVoucher.status === "inprogress") {
           setIsInProgressVoucherDelete(true);
-        } else {
+        }
+        if (selectedVoucher.status === "vendorConfirmed") {
           setIsProceededVoucherDelete(true);
+        }
+        if (selectedVoucher.status === "cancelled") {
+          setIsVoucherDelete(true);
         }
       }
     }
@@ -118,7 +134,7 @@ const ActivityVouchersTab = ({
   );
 
   useEffect(() => {
-    setSelectedVoucher(vouchers ? vouchers[0] : undefined)
+    setSelectedVoucher(vouchers ? vouchers[0] : undefined);
   }, [statusChanged, vouchers]);
 
   const getContactDetails = () => {
@@ -135,6 +151,60 @@ const ActivityVouchersTab = ({
   };
   const pathname = usePathname();
 
+  const handleInProgressVoucherDelete = async () => {
+    if (selectedVoucher && selectedVoucher.status) {
+      try {
+        setIsDeleting(true);
+        const deletedData = await deleteActivitiesVoucher(
+          selectedVoucher?.id ?? "",
+          "",
+        );
+        if (!deletedData) {
+          throw new Error("Couldn't delete voucher");
+        }
+        toast({
+          title: "Success",
+          description: `Successfully cancelled the voucher! Pleas refresh!`,
+        });
+
+        // deleteVoucherLineFromLocalContext();
+        setIsDeleting(false);
+      } catch (error) {
+        toast({
+          title: "Uh Oh",
+          description: `Couldn't delete this voucher`,
+        });
+        setIsDeleting(false);
+      }
+      return;
+    }
+  };
+
+  const handleProceededVoucherDelete = async (reason: string) => {
+    if (selectedVoucher && selectedVoucher.status) {
+      try {
+        setIsDeleting(true);
+        const deletedData = await deleteActivitiesVoucher(
+          selectedVoucher?.id ?? "",
+          reason, // Pass the reason to the backend
+        );
+        if (!deletedData) {
+          throw new Error("Couldn't delete voucher");
+        }
+        toast({
+          title: "Success",
+          description: `Successfully cancelled the confirmed voucher! Please refresh!`,
+        });
+        setIsDeleting(false);
+      } catch (error) {
+        toast({
+          title: "Uh Oh",
+          description: `Couldn't delete this voucher`,
+        });
+        setIsDeleting(false);
+      }
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">
@@ -143,15 +213,17 @@ const ActivityVouchersTab = ({
           <Calendar />
         </div>
         <div className="card w-full space-y-6">
-        <div className="flex justify-between">
+          <div className="flex justify-between">
             <div className="card-title">Voucher Information</div>
             <Link
               href={`${pathname.replace("/tasks", "")}/edit?tab=activities`}
             >
               <Button variant={"outline"}>Add Vouchers</Button>
             </Link>
-          </div>          
-          <div className="text-sm font-normal">Click the line to send the voucher</div>
+          </div>
+          <div className="text-sm font-normal">
+            Click the line to send the voucher
+          </div>
           <DataTable
             data={vouchers}
             columns={voucherColumns}
@@ -215,8 +287,24 @@ const ActivityVouchersTab = ({
                     variant={"outline"}
                     className="border-red-600"
                     onClick={renderCancelContent}
+                    disabled={isDeleting}
                   >
-                    Cancel
+                    {isDeleting ? (
+                      <div className="flex flex-row gap-2">
+                        <LoaderCircle size={16} />{" "}
+                        <div>
+                          {selectedVoucher.status === "cancelled"
+                            ? "Loading"
+                            : "Cancelling"}
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        {selectedVoucher.status === "cancelled"
+                          ? "Reason"
+                          : "Cancel"}
+                      </div>
+                    )}
                   </Button>
 
                   <Popup
@@ -225,7 +313,6 @@ const ActivityVouchersTab = ({
                     trigger={contactButton}
                     onConfirm={handleConfirm}
                     onCancel={handleCancel}
-                    // onCancel={() => console.log("Cancelled")}
                     dialogContent={ContactContent(
                       selectedVoucher.activityVendor.contactNumber,
                       selectedVoucher.activityVendor.primaryEmail ?? "N/A",
@@ -234,21 +321,30 @@ const ActivityVouchersTab = ({
                   />
                   <DeletePopup
                     itemName={`Voucher for ${selectedVoucher?.activityVendor.name}`}
-                    onDelete={() => console.log("Deleting")}
+                    onDelete={handleInProgressVoucherDelete}
                     isOpen={isInProgressVoucherDelete}
                     setIsOpen={setIsInProgressVoucherDelete}
                     isDeleting={isDeleting}
                     description="You haven't sent this to the vendor yet. You can delete the
                 voucher without sending a cancellation voucher"
                   />
-                  <DeletePopup
+                  <DeleteReasonPopup
                     itemName={`Voucher for ${selectedVoucher?.activityVendor.name}`}
-                    onDelete={() => console.log("Deleting")}
+                    onDelete={handleProceededVoucherDelete}
                     isOpen={isProceededVoucherDelete}
                     setIsOpen={setIsProceededVoucherDelete}
                     isDeleting={isDeleting}
                     description={`You have already proceeded with this voucher, and it's in the status of ${selectedVoucher.status} \n
-                Are you sure you want to cancel this voucher? This will give you the cancellation voucher and delete the voucher from this booking`}
+                Are you sure you want to cancel this voucher?`}
+                  />
+
+                  <CancellationReasonPopup
+                    itemName={`Voucher for ${selectedVoucher?.activityVendor.name}`}
+                    cancellationReason={
+                      selectedVoucher?.reasonToDelete ?? "No reason provided. This is cancelled before confirm."
+                    } 
+                    isOpen={isVoucherDelete} 
+                    setIsOpen={setIsVoucherDelete}
                   />
                 </div>
               ) : (

@@ -102,7 +102,7 @@ export type InsertHotelVoucher = typeof hotelVoucher.$inferInsert;
 export type SelectHotelVoucher = typeof hotelVoucher.$inferSelect;
 
 export type InsertHotelVoucherLine = typeof hotelVoucherLine.$inferInsert;
-export type SelectHotelVoucherLine = typeof hotelVoucherLine.$inferInsert;
+export type SelectHotelVoucherLine = typeof hotelVoucherLine.$inferSelect;
 
 //Combined Hotel voucher details
 export type CombinedHotelVoucher = InsertHotelVoucher & {

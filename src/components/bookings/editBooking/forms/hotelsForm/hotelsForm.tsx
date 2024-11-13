@@ -50,7 +50,7 @@ import {
 
 interface HotelsFormProps {
   onAddHotel: (
-    data: SelectHotelVoucherLine,
+    data: InsertHotelVoucherLine,
     isNewVoucher: boolean,
     hotel: any,
   ) => void;
@@ -125,7 +125,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       kidsCount: Number(form.getValues("kidsCount")), // Assuming you have a `kidsCount` field in your form.
       hotelVoucherId: "",
       roomType: form.getValues("roomType"), // Room type from the form.
-      roomCategory: form.getValues("roomCategory"),
+      roomCategory: form.getValues("roomCategory") ?? '',
       basis: form.getValues("basis"), // Basis from the form.
       checkInDate: form.getValues("checkInDate").toString(), // Convert check-in date from form to a Date object.
       checkInTime: "10:00",
