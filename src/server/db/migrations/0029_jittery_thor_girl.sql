@@ -1,0 +1,1 @@
+ALTER TABLE "dmc-web_transport_vouchers" ADD COLUMN "reason_to_delete" varchar(255);

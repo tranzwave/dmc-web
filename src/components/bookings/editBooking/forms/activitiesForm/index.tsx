@@ -1,5 +1,6 @@
 "use client";
 import { LoaderCircle } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
@@ -181,6 +182,7 @@ const ActivitiesTab = () => {
         setIsDeleting(true);
         const deletedData = await deleteActivitiesVoucher(
           selectedVoucher?.voucher?.id ?? "",
+          ""
         );
         updateTriggerRefetch();
         if (!deletedData) {
@@ -241,10 +243,13 @@ const ActivitiesTab = () => {
          />
         </div>
       </div>
-      <div className="flex w-full justify-end">
+      <div className="flex w-full justify-end gap-2">
       <Button variant={"primaryGreen"} onClick={onSaveClick} disabled={saving}>
             {saving ? (<div className="flex flex-row gap-1"><div><LoaderCircle className="animate-spin" size={10}/></div>Saving</div>): ('Save')}
           </Button>
+          <Link href={`${pathname.split("edit")[0]}/tasks?tab=activities`}>
+            <Button variant={"primaryGreen"}>Send Vouchers</Button>
+          </Link>
       </div>
 
       <DeletePopup

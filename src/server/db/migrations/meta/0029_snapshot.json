@@ -1,6 +1,6 @@
 {
-  "id": "e721a3c9-83ae-4a50-9184-659563f27719",
-  "prevId": "b9ebf610-d701-4842-838c-60275cf4df44",
+  "id": "fe4046fe-ff8f-4e17-ac81-a2fe62b60361",
+  "prevId": "e721a3c9-83ae-4a50-9184-659563f27719",
   "version": "6",
   "dialect": "postgresql",
   "tables": {
@@ -2985,6 +2985,12 @@
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
+        },
+        "reason_to_delete": {
+          "name": "reason_to_delete",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
         },
         "remarks": {
           "name": "remarks",

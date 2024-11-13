@@ -1,14 +1,14 @@
 import { LoaderCircle } from 'lucide-react';
-import React, { useState } from 'react';
+import React from 'react';
 import {
   AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
   AlertDialogAction,
   AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from 'src/components/ui/alert-dialog';
 import { Button } from 'src/components/ui/button';
 
