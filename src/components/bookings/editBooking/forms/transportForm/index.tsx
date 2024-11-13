@@ -530,7 +530,7 @@ const TransportTab = () => {
         </div>
       </div>
       <DeletePopup
-        itemName={`Voucher for ${selectedVoucher?.driver?.name || selectedVoucher?.guide?.name}`}
+        itemName={`Voucher for ${selectedVoucher?.driver?.name ?? selectedVoucher?.guide?.name}`}
         onDelete={deleteVoucherLineFromLocalContext}
         isOpen={isUnsavedVoucherDelete}
         setIsOpen={setIsUnsavedVoucherDelete}
@@ -538,7 +538,7 @@ const TransportTab = () => {
       />
 
       <DeletePopup
-        itemName={`Voucher for ${selectedVoucher?.driver?.name || selectedVoucher?.guide?.name}`}
+        itemName={`Voucher for ${selectedVoucher?.driver?.name ?? selectedVoucher?.guide?.name}`}
         onDelete={handleExistingVoucherDelete}
         isOpen={isExistingVoucherDelete}
         setIsOpen={setIsExistingVoucherDelete}

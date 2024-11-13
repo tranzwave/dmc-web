@@ -341,7 +341,7 @@ const ActivityVouchersTab = ({
                   <CancellationReasonPopup
                     itemName={`Voucher for ${selectedVoucher?.activityVendor.name}`}
                     cancellationReason={
-                      selectedVoucher?.reasonToDelete || "No reason provided. This is cancelled before confirm."
+                      selectedVoucher?.reasonToDelete ?? "No reason provided. This is cancelled before confirm."
                     } 
                     isOpen={isVoucherDelete} 
                     setIsOpen={setIsVoucherDelete}
