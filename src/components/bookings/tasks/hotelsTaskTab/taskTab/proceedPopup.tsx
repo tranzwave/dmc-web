@@ -23,6 +23,7 @@ interface ProceedContentProps {
   setRate: React.Dispatch<SetStateAction<string>>;
   setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
   type: string
+  viewCancellationVoucher?: boolean
 }
 
 const ProceedContent: React.FC<ProceedContentProps> = ({
@@ -34,7 +35,8 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   rate,
   setRate,
   setStatusChanged,
-  type
+  type,
+  viewCancellationVoucher
 }) => {
   const router = useRouter();
   const componentRef = useRef<HTMLDivElement>(null);
@@ -112,23 +114,28 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
 
   return (
     <div className="mb-9 space-y-6">
-      <div className="flex flex-col gap-4 p-4">
-        <DataTable
-          columns={VoucherLineColumnsWithRate as ColumnDef<object, unknown>[]}
-          data={selectedVoucher ? (selectedVoucher.voucherLines ?? [selectedVoucher]) : []}
-        />
+      {!viewCancellationVoucher && (
+        <>
+          <div className="flex flex-col gap-4 p-4">
+            <DataTable
+              columns={VoucherLineColumnsWithRate as ColumnDef<object, unknown>[]}
+              data={selectedVoucher ? (selectedVoucher.voucherLines ?? [selectedVoucher]) : []}
+            />
 
-        <div className="grid grid-cols-4 gap-2">
-          <InputFields label="Availability confirmed by" value={availabilityConfirmedBy} onChange={setAvailabilityConfirmedBy} />
-          <InputFields label="Availability confirmed to" value={availabilityConfirmedTo} onChange={setAvailabilityConfirmedTo} />
-          <InputFields label="Rates confirmed by" value={ratesConfirmedBy} onChange={setRatesConfirmedBy} />
-          <InputFields label="Rates confirmed to" value={ratesConfirmedTo} onChange={setRatesConfirmedTo} />
-        </div>
-      </div>
+            <div className="grid grid-cols-4 gap-2">
+              <InputFields label="Availability confirmed by" value={availabilityConfirmedBy} onChange={setAvailabilityConfirmedBy} />
+              <InputFields label="Availability confirmed to" value={availabilityConfirmedTo} onChange={setAvailabilityConfirmedTo} />
+              <InputFields label="Rates confirmed by" value={ratesConfirmedBy} onChange={setRatesConfirmedBy} />
+              <InputFields label="Rates confirmed to" value={ratesConfirmedTo} onChange={setRatesConfirmedTo} />
+            </div>
+          </div>
 
-      <div className="flex w-full flex-row justify-end gap-2">
-        <Button variant="primaryGreen" onClick={handleSubmit}>Save Voucher Rates</Button>
-      </div>
+          <div className="flex w-full flex-row justify-end gap-2">
+            <Button variant="primaryGreen" onClick={handleSubmit}>Save Voucher Rates</Button>
+          </div>
+        </>
+      )}
+
 
       <Accordion type="single" collapsible>
         <AccordionItem value="item-1">
@@ -141,14 +148,34 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
             </div>
             <div ref={componentRef}>
               {type === 'hotel' && (
-                <div>
-                  <HotelVoucherPDF voucher={selectedVoucher as HotelVoucherData} />
-                </div>
+                <>
+                  {viewCancellationVoucher ? (<div>
+                    <div>
+                      <HotelVoucherPDF voucher={selectedVoucher as HotelVoucherData} cancellation={true} />
+                    </div>
+                  </div>) : (<div>
+                    <div>
+                      <HotelVoucherPDF voucher={selectedVoucher as HotelVoucherData} />
+                    </div>
+                  </div>)}
+
+                </>
+
               )}
               {type === 'restaurant' && (
-                <div>
+                <>
+                  {viewCancellationVoucher ? (<div>
+                    <div>
+                  <RestaurantVoucherPDF voucher={selectedVoucher as RestaurantVoucherData} cancellation={true}/>
+                </div>
+                  </div>) : (<div>
+                    <div>
                   <RestaurantVoucherPDF voucher={selectedVoucher as RestaurantVoucherData} />
                 </div>
+                  </div>)}
+
+                </>
+
               )}
 
             </div>

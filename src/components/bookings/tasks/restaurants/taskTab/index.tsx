@@ -196,6 +196,8 @@ const RestaurantVouchersTasksTab = <
     </Button>
   );
 
+
+
   useEffect(() => {
     console.log("Status changed");
     getHotels();
@@ -266,12 +268,16 @@ const RestaurantVouchersTasksTab = <
         downloadPDF();
 
         setIsDeleting(true);
-        const deletedData = await deleteRestaurantVoucherLine(
-          selectedVoucher.voucherLines[0]?.id ?? "",
-        );
-        if (!deletedData) {
-          throw new Error("Couldn't delete voucher");
-        }
+        const voucher = selectedVoucher
+        voucher.status = "cancelled"
+        await updateVoucherStatus(voucher)
+        setStatusChanged(true)
+        // const deletedData = await deleteRestaurantVoucherLine(
+        //   selectedVoucher.voucherLines[0]?.id ?? "",
+        // );
+        // if (!deletedData) {
+        //   throw new Error("Couldn't delete voucher");
+        // }
 
         toast({
           title: "Success",
@@ -289,6 +295,23 @@ const RestaurantVouchersTasksTab = <
       return;
     }
   };
+
+  const downloadCancellationVoucher = ()=>{
+    try {
+      downloadPDF()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const downloadCancellationVoucherButton = (
+    <Button
+    variant={"outline"}
+    className="border-red-600"
+  >
+    Download Cancellation Voucher
+  </Button>
+  )
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">
@@ -347,15 +370,39 @@ const RestaurantVouchersTasksTab = <
           >
             <div className="flex flex-row gap-2">
 
-            {selectedVoucher && selectedVoucher.voucherLines[0] && (
+            {selectedVoucher && selectedVoucher.voucherLines[0] && selectedVoucher.status === 'cancelled' && (
+                <>
+                  <Popup
+                    title={
+                      selectedVoucher && getFirstObjectName(selectedVoucher)
+                        ? `${getFirstObjectName(selectedVoucher)} - Voucher`
+                        : "Select a voucher first"
+                    }
+                    description="Voucher Content"
+                    trigger={downloadCancellationVoucherButton}
+                    onConfirm={handleConfirm}
+                    onCancel={handleCancel}
+                    dialogContent={
+                      <ProceedContent
+                        voucherColumns={voucherColumns}
+                        selectedVoucher={selectedVoucher}
+                        onVoucherLineRowClick={onVoucherLineRowClick}
+                        updateVoucherLine={updateVoucherLine}
+                        updateVoucherStatus={updateVoucherStatus}
+                        rate={rate}
+                        setRate={setRate}
+                        setStatusChanged={setStatusChanged}
+                        type="restaurant"
+                        viewCancellationVoucher={true}
+                      />
+                    }
+                    size="large"
+                  />
+                </>
+              )}
+
+              {selectedVoucher && selectedVoucher.voucherLines[0] && selectedVoucher.status != 'cancelled' && (
                 <div className="flex flex-row gap-2">
-                  <Button
-                    variant={"outline"}
-                    className="border-red-600"
-                    onClick={renderCancelContent}
-                  >
-                    Cancel
-                  </Button>
 
                   <Popup
                     title="Contact"
@@ -379,6 +426,16 @@ const RestaurantVouchersTasksTab = <
                   voucher without sending a cancellation voucher"
                   />
 
+                  <DeletePopup
+                    itemName={`Voucher for ${selectedVoucher?.restaurant.name}`}
+                    onDelete={handleProceededVoucherDelete}
+                    isOpen={isProceededVoucherDelete}
+                    setIsOpen={setIsProceededVoucherDelete}
+                    isDeleting={isDeleting}
+                    description="You have sent this to the vendor. This will download the cancellation voucher"
+                    cancel={true}
+                  />
+
                   <Popup
                     title={
                       selectedVoucher && getFirstObjectName(selectedVoucher)
@@ -391,57 +448,57 @@ const RestaurantVouchersTasksTab = <
                     onCancel={handleCancel}
                     dialogContent={
                       <RestaurantsVoucherForm
-                      onSave={() => {
-                        console.log("saving");
-                      }}
-                      // selectedItem={selectedVoucher.voucherLines[0]}
-                      vendor={selectedVoucher}
-                      defaultValues={{
-                        restaurant: selectedVoucher?.restaurant,
-                        ...selectedVoucher.voucherLines[0],
-                      }}
-                      restaurant={restaurants}
-                    />
+                        onSave={() => {
+                          console.log("saving");
+                        }}
+                        // selectedItem={selectedVoucher.voucherLines[0]}
+                        vendor={selectedVoucher}
+                        defaultValues={{
+                          restaurant: selectedVoucher?.restaurant,
+                          ...selectedVoucher.voucherLines[0],
+                        }}
+                        restaurant={restaurants}
+                      />
                     }
                     size="large"
                   />
-                                <Popup
-                title="Confirm Voucher"
-                description="Confirm Form"
-                trigger={addConfirmationButton}
-                onConfirm={handleConfirm}
-                onCancel={handleCancel}
-                dialogContent={ConfirmationContent(
-                  selectedVoucher,
-                  updateVoucherStatus,
-                )}
-                size="small"
-              />
-              <Popup
-                title={
-                  selectedVoucher && getFirstObjectName(selectedVoucher)
-                    ? `${getFirstObjectName(selectedVoucher)} - Voucher`
-                    : "Select a voucher first"
-                }
-                description="Voucher Content"
-                trigger={proceedButton}
-                onConfirm={handleConfirm}
-                onCancel={handleCancel}
-                dialogContent={
-                  <ProceedContent
-                    voucherColumns={voucherColumns}
-                    selectedVoucher={selectedVoucher}
-                    onVoucherLineRowClick={onVoucherLineRowClick}
-                    updateVoucherLine={updateVoucherLine}
-                    updateVoucherStatus={updateVoucherStatus}
-                    rate={rate}
-                    setRate={setRate}
-                    setStatusChanged={setStatusChanged}
-                    type="restaurant"
+                  <Popup
+                    title="Confirm Voucher"
+                    description="Confirm Form"
+                    trigger={addConfirmationButton}
+                    onConfirm={handleConfirm}
+                    onCancel={handleCancel}
+                    dialogContent={ConfirmationContent(
+                      selectedVoucher,
+                      updateVoucherStatus,
+                    )}
+                    size="small"
                   />
-                }
-                size="large"
-              />
+                  <Popup
+                    title={
+                      selectedVoucher && getFirstObjectName(selectedVoucher)
+                        ? `${getFirstObjectName(selectedVoucher)} - Voucher`
+                        : "Select a voucher first"
+                    }
+                    description="Voucher Content"
+                    trigger={proceedButton}
+                    onConfirm={handleConfirm}
+                    onCancel={handleCancel}
+                    dialogContent={
+                      <ProceedContent
+                        voucherColumns={voucherColumns}
+                        selectedVoucher={selectedVoucher}
+                        onVoucherLineRowClick={onVoucherLineRowClick}
+                        updateVoucherLine={updateVoucherLine}
+                        updateVoucherStatus={updateVoucherStatus}
+                        rate={rate}
+                        setRate={setRate}
+                        setStatusChanged={setStatusChanged}
+                        type="restaurant"
+                      />
+                    }
+                    size="large"
+                  />
                 </div>
               )}
             </div>

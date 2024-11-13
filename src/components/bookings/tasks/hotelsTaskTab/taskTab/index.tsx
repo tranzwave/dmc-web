@@ -295,6 +295,15 @@ const HotelVouchersTasksTab = <
     }
   };
 
+  const downloadCancellationVoucherButton = (
+    <Button
+    variant={"outline"}
+    className="border-red-600"
+  >
+    Download Cancellation Voucher
+  </Button>
+  )
+
   return (
     <div className="flex flex-col items-center justify-center gap-3">
       <div className="flex w-full flex-row justify-center gap-3">
@@ -341,15 +350,34 @@ const HotelVouchersTasksTab = <
             className={`flex flex-row items-end justify-end ${!selectedVoucher ? "hidden" : ""}`}
           >
             <div className="flex flex-row gap-2">
-              {selectedVoucher && selectedVoucher.voucherLines[0] && selectedVoucher.status === 'cancelled' && (
+            {selectedVoucher && selectedVoucher.voucherLines[0] && selectedVoucher.status === 'cancelled' && (
                 <>
-                  <Button
-                    variant={"outline"}
-                    className="border-red-600"
-                    onClick={downloadCancellationVoucher}
-                  >
-                    Download Cancellation Voucher
-                  </Button>
+                  <Popup
+                    title={
+                      selectedVoucher && getFirstObjectName(selectedVoucher)
+                        ? `${getFirstObjectName(selectedVoucher)} - Voucher`
+                        : "Select a voucher first"
+                    }
+                    description="Voucher Content"
+                    trigger={downloadCancellationVoucherButton}
+                    onConfirm={handleConfirm}
+                    onCancel={handleCancel}
+                    dialogContent={
+                      <ProceedContent
+                        voucherColumns={voucherColumns}
+                        selectedVoucher={selectedVoucher}
+                        onVoucherLineRowClick={onVoucherLineRowClick}
+                        updateVoucherLine={updateVoucherLine}
+                        updateVoucherStatus={updateVoucherStatus}
+                        rate={rate}
+                        setRate={setRate}
+                        setStatusChanged={setStatusChanged}
+                        type="hotel"
+                        viewCancellationVoucher={true}
+                      />
+                    }
+                    size="large"
+                  />
                 </>
               )}
               {selectedVoucher && selectedVoucher.voucherLines[0] && selectedVoucher.status !== 'cancelled' && (
