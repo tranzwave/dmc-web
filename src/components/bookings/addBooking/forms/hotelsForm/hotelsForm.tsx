@@ -37,7 +37,7 @@ import {
 
 interface HotelsFormProps {
   onAddHotel: (
-    data: SelectHotelVoucherLine,
+    data: InsertHotelVoucherLine,
     isNewVoucher: boolean,
     hotel: any,
   ) => void;

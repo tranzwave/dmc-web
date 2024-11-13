@@ -218,6 +218,9 @@ const HotelVoucherPDF = ({ voucher, cancellation }: HotelVoucherPDFProps) => {
           {voucher.status === 'amended' && (
             <div>Reason for amendment : {voucher.reasonToAmend}</div>
           )}
+          {voucher.status === 'cancelled' && (
+            <div>Reason for cancellation : {voucher.id}</div>
+          )}
         </div>
         <div className="mt-10 text-[13px]">
           <div>Printed Date : {format(Date.now(), "dd/MM/yyyy")}</div>

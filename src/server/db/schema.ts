@@ -286,6 +286,7 @@ export const hotelVoucher = createTable("hotel_vouchers", {
   ratesConfirmedBy: varchar("rates_confirmed_by", { length: 255 }).default(""),
   ratesConfirmedTo: varchar("rates_confirmed_to", { length: 255 }).default(""),
   reasonToAmend: varchar("reason_to_amend", { length: 255 }).default(""),
+  reasonToCancel: varchar("reason_to_cancel", { length: 255 }).default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 

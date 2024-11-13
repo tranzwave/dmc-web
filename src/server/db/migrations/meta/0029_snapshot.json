@@ -1,6 +1,6 @@
 {
-  "id": "fe4046fe-ff8f-4e17-ac81-a2fe62b60361",
-  "prevId": "e721a3c9-83ae-4a50-9184-659563f27719",
+  "id": "02e863ee-8fc6-4d8b-b82b-81b3b2df215a",
+  "prevId": "fe4046fe-ff8f-4e17-ac81-a2fe62b60361",
   "version": "6",
   "dialect": "postgresql",
   "tables": {
@@ -1893,6 +1893,13 @@
           "notNull": false,
           "default": "''"
         },
+        "reason_to_cancel": {
+          "name": "reason_to_cancel",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -2338,6 +2345,13 @@
           "primaryKey": false,
           "notNull": false,
           "default": "''"
+        },
+        "reason_to_cancel": {
+          "name": "reason_to_cancel",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
         }
       },
       "indexes": {},
@@ -2443,6 +2457,48 @@
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        },
+        "availability_confirmed_by": {
+          "name": "availability_confirmed_by",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "availability_confirmed_to": {
+          "name": "availability_confirmed_to",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "rates_confirmed_by": {
+          "name": "rates_confirmed_by",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "rates_confirmed_to": {
+          "name": "rates_confirmed_to",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "reason_to_amend": {
+          "name": "reason_to_amend",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "reason_to_cancel": {
+          "name": "reason_to_cancel",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
         }
       },
       "indexes": {},
