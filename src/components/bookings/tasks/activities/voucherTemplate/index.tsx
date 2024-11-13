@@ -67,17 +67,20 @@ const ActivityVoucherPDF = ({ vouchers, cancellation }: ActivityVoucherPDFProps)
             </thead>
             <tbody>
               {vouchers.map((v) => {
-                return (
-                  <tr className="border-b hover:bg-gray-50 h-36" key={v.id}>
-                    <td className="px-4 py-2">{v.activityVendor.name?? "N/A"}</td>
-                    <td className="px-4 py-2">{v.city ?? "N/A"}</td>
-                    <td className="px-4 py-2">{v.date ?? "N/A"}</td>
-                    <td className="px-4 py-2">{v.time ?? "N/A"}</td>
-                    <td className="px-4 py-2">{`Adults - ${vouchers[0]?.adultsCount ?? "N/A"} | Kids - ${vouchers[0]?.kidsCount ?? "N/A"}`}</td>
-                    <td className="px-4 py-2">{v.remarks ?? "N/A"}</td>
-                    <td className="px-4 py-2"></td>
-                  </tr>
-                );
+                if(v.status !== 'cancelled'){
+                  return (
+                    <tr className="border-b hover:bg-gray-50 h-36" key={v.id}>
+                      <td className="px-4 py-2">{v.activityVendor.name?? "N/A"}</td>
+                      <td className="px-4 py-2">{v.city ?? "N/A"}</td>
+                      <td className="px-4 py-2">{v.date ?? "N/A"}</td>
+                      <td className="px-4 py-2">{v.time ?? "N/A"}</td>
+                      <td className="px-4 py-2">{`Adults - ${vouchers[0]?.adultsCount ?? "N/A"} | Kids - ${vouchers[0]?.kidsCount ?? "N/A"}`}</td>
+                      <td className="px-4 py-2">{v.remarks ?? "N/A"}</td>
+                      <td className="px-4 py-2"></td>
+                    </tr>
+                  );
+                }
+
               })}
             </tbody>
           </table>
