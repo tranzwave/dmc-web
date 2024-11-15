@@ -580,7 +580,7 @@ export const driverVoucherLine = createTable("driver_voucher_lines", {
   transportVoucherId: varchar("transport_voucher_id", { length: 255 })
     .references(() => transportVoucher.id)
     .notNull(),
-  vehicleType: varchar("vehicle_type", { length: 255 }).notNull(),
+  vehicleType: varchar("vehicle_type", { length: 255 }).notNull().default("-"),
   // language: varchar("languages", { length: 255 }).notNull(),
   // startDate: varchar("start_date", { length: 100 }).notNull(),
   // endDate: varchar("end_date", { length: 100 }).notNull(),
