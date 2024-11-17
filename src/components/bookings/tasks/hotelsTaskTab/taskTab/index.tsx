@@ -23,7 +23,8 @@ import ProceedContent from "./proceedPopup";
 import ConfirmationContent from "./confirmationPopup";
 import ContactContent from "./ContactPopup";
 import { createRoot } from "react-dom/client";
-import HotelVoucherPDF from "../voucherTemplate";
+import HotelVoucherView from "../voucherTemplate/viewableHotelVoucher";
+
 
 interface TasksTabProps<T, L> {
   bookingLineId: string;
@@ -80,6 +81,8 @@ const HotelVouchersTasksTab = <
   const pathname = usePathname();
 
   const { toast } = useToast();
+
+
 
   const getHotels = async () => {
     setLoading(true);
@@ -216,7 +219,7 @@ const HotelVouchersTasksTab = <
   
       // Create a root and render the CancellationVoucher component into tempContainer
       const root = createRoot(tempContainer);
-      root.render(<HotelVoucherPDF voucher={selectedVoucher} />);
+      root.render(<HotelVoucherView voucher={selectedVoucher} />);
   
       const options = {
         filename: `cancellation_voucher_${selectedVoucher.hotel.name}.pdf`,
@@ -235,6 +238,8 @@ const HotelVouchersTasksTab = <
         });
     }
   };
+
+
 
   const handleInProgressVoucherDelete = async () => {
     if (selectedVoucher && selectedVoucher.status) {

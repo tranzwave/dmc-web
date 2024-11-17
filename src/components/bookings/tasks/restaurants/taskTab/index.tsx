@@ -29,7 +29,7 @@ import { deleteRestaurantVoucherLine } from "~/server/db/queries/booking";
 import { getAllRestaurants } from "~/server/db/queries/booking/restaurantVouchers";
 import { RestaurantVoucherData } from "..";
 import RestaurantsVoucherForm from "../form";
-import RestaurantVoucherPDF from "../voucherTemplate";
+import RestaurantVoucherView from "../voucherTemplate/viewableRestaurantVoucher";
 import ConfirmationContent from "./confirmationPopup";
 import ContactContent from "../../hotelsTaskTab/taskTab/ContactPopup";
 import ProceedContent from "../../hotelsTaskTab/taskTab/proceedPopup";

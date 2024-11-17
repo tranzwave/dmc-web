@@ -16,60 +16,13 @@ type RestaurantVoucherPDFProps = {
   cancellation?:boolean
 };
 
-const RestaurantVoucherPDF = ({ voucher,cancellation }: RestaurantVoucherPDFProps) => {
+const RestaurantVoucherView = ({ voucher,cancellation }: RestaurantVoucherPDFProps) => {
   const organization = useOrganization();
   const { isLoaded, user } = useUser();
 
   if (!isLoaded) {
     return <LoadingLayout />;
   }
-
-  const hotelVoucherLineColumns: ColumnDef<SelectHotelVoucherLine>[] = [
-    {
-      header: "Occupancy",
-      accessorFn: (row) => row.roomType ?? "N/A",
-    },
-    {
-      header: "Meal Plan",
-      accessorFn: (row) => row.basis ?? "N/A",
-    },
-    {
-      header: "Room Category",
-      accessorFn: (row) => row.roomCategory ?? "N/A",
-    },
-    {
-      header: "Quantity",
-      accessorFn: (row) => row.roomCount,
-    },
-
-    {
-      header: "Price",
-      accessorFn: (row) => row.rate,
-    },
-    {
-      header: "Amount",
-      accessorFn: (row) => row.rate ?? 0 * row.roomCount,
-    },
-  ];
-
-  const availabilityColumns: ColumnDef<SelectHotelVoucher>[] = [
-    {
-      header: "Availability Confirmed By",
-      accessorFn: (row) => row.availabilityConfirmedBy ?? "",
-    },
-    {
-      header: "Availability Confirmed To",
-      accessorFn: (row) => row.availabilityConfirmedTo ?? "",
-    },
-    {
-      header: "Rates Confirmed By",
-      accessorFn: (row) => row.ratesConfirmedBy ?? "",
-    },
-    {
-      header: "Rates Confirmed To",
-      accessorFn: (row) => row.ratesConfirmedTo ?? "",
-    },
-  ];
 
   return (
     <div className="flex flex-col border">
@@ -120,22 +73,22 @@ const RestaurantVoucherPDF = ({ voucher,cancellation }: RestaurantVoucherPDFProp
           <table className="min-w-full rounded-md border bg-white">
             <thead>
               <tr className="border-b ">
-                <th className="px-4 py-2 text-left font-semibold">Adults</th>
-                <th className="px-4 py-2 text-left font-semibold">Kids</th>
                 <th className="px-4 py-2 text-left font-semibold">
                   Date
                 </th>
                 <th className="px-4 py-2 text-left font-semibold">Meal</th>
+                <th className="px-4 py-2 text-left font-semibold">Adults</th>
+                <th className="px-4 py-2 text-left font-semibold">Kids</th>
                 <th className="px-4 py-2 text-left font-semibold">Amount</th>
               </tr>
             </thead>
             <tbody>
               {voucher.voucherLines?.map((line, index) => (
                 <tr key={index} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-2">{line.adultsCount ?? "N/A"}</td>
-                  <td className="px-4 py-2">{line.kidsCount ?? "N/A"}</td>
                   <td className="px-4 py-2">{line.date ?? "N/A"}</td>
                   <td className="px-4 py-2">{line.mealType ?? "N/A"}</td>
+                  <td className="px-4 py-2">{line.adultsCount ?? "N/A"}</td>
+                  <td className="px-4 py-2">{line.kidsCount ?? "N/A"}</td>
                   <td className="px-4 py-2">{line.rate ?? "-"}</td>
                 </tr>
               ))}
@@ -170,4 +123,4 @@ const RestaurantVoucherPDF = ({ voucher,cancellation }: RestaurantVoucherPDFProp
   );
 };
 
-export default RestaurantVoucherPDF;
+export default RestaurantVoucherView;
