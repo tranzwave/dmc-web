@@ -15,6 +15,7 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 16,
+    lineHeight: 2
   },
   table: {
     display: "flex",
@@ -32,6 +33,8 @@ const styles = StyleSheet.create({
     borderStyle: "solid",
     borderWidth: 1,
     borderColor: "#ccc",
+    borderTopWidth: 0, // Removes double-line border between cells
+    borderLeftWidth: 0, // Removes double-line border between cells
   },
   footer: {
     backgroundColor: "#287F71",
@@ -43,6 +46,10 @@ const styles = StyleSheet.create({
   textRight: {
     textAlign: "right",
   },
+  title: {
+    fontWeight: "bold", // Makes title bold
+    textAlign: "center",
+  }
 });
 
 export type HotelVoucherPDFProps = {
@@ -69,7 +76,7 @@ const HotelVoucherDownloadablePDF = ({ voucher, organization, user }:HotelVouche
 
         {/* Title */}
         <View style={styles.section}>
-          <Text style={styles.textBold}>
+          <Text style={styles.title}>
             {voucher.status === "cancelled"
               ? "Cancellation Voucher"
               : `Hotel Reservation Voucher${voucher.status === "amended" ? " - Amendment" : ""}`}
@@ -92,7 +99,7 @@ const HotelVoucherDownloadablePDF = ({ voucher, organization, user }:HotelVouche
         <View style={[styles.table, { marginBottom: 16 }]}>
           {/* Table Header */}
           <View style={styles.tableRow}>
-            {["Occupancy", "Meal Plan", "Room Category", "Check In", "Check Out", "Quantity", "Price", "Amount"].map(
+            {["Occupancy", "Meal Plan", "Room Category", "Check In", "Check Out", "Quantity", "Rate"].map(
               (header) => (
                 <Text key={header} style={[styles.tableCell, styles.textBold]}>
                   {header}
@@ -111,19 +118,26 @@ const HotelVoucherDownloadablePDF = ({ voucher, organization, user }:HotelVouche
               <Text style={styles.tableCell}>{line.checkOutDate ?? "N/A"}</Text>
               <Text style={styles.tableCell}>{line.roomCount}</Text>
               <Text style={styles.tableCell}>{line.rate ?? "-"}</Text>
-              <Text style={styles.tableCell}>
+              {/* <Text style={styles.tableCell}>
                 {line.rate ? (Number(line.rate) * line.roomCount).toFixed(2) : "-"}
-              </Text>
+                {line.rate ?? "-"}
+              </Text> */}
             </View>
           ))}
         </View>
 
         {/* Total */}
         <View style={[styles.section, styles.textRight]}>
-          <Text>
+          {/* <Text>
             Total (USD):{" "}
             {voucher.voucherLines[0]?.rate
               ? (Number(voucher.voucherLines[0]?.rate ?? 0) * (voucher.voucherLines[0]?.roomCount ?? 0)).toFixed(2)
+              : "0.00"}
+          </Text> */}
+          <Text>
+            Total (USD):{" "}
+            {voucher.voucherLines[0]?.rate
+              ? Number(voucher.voucherLines[0]?.rate ?? 0).toFixed(2)
               : "0.00"}
           </Text>
         </View>

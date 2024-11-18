@@ -15,6 +15,7 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 16,
+    lineHeight: 2
   },
   table: {
     display: "flex",
@@ -32,6 +33,8 @@ const styles = StyleSheet.create({
     borderStyle: "solid",
     borderWidth: 1,
     borderColor: "#ccc",
+    borderTopWidth: 0, // Removes double-line border between cells
+    borderLeftWidth: 0, // Removes double-line border between cells
   },
   footer: {
     backgroundColor: "#287F71",
@@ -43,7 +46,12 @@ const styles = StyleSheet.create({
   textRight: {
     textAlign: "right",
   },
+  title: {
+    fontWeight: "bold", // Makes title bold
+    textAlign: "center",
+  }
 });
+
 
 export type RestaurantVoucherPDFProps= {
     voucher: RestaurantVoucherData;
@@ -69,7 +77,7 @@ const RestaurantVoucherDownloadablePDF = ({ voucher, organization, user }:Restau
 
         {/* Title */}
         <View style={styles.section}>
-          <Text style={styles.textBold}>
+          <Text style={styles.title}>
             {voucher.status === "cancelled"
               ? "Cancellation Voucher"
               : `Restaurant Reservation Voucher${voucher.status === "amended" ? " - Amendment" : ""}`}
