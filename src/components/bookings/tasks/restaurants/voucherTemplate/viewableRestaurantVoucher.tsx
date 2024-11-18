@@ -13,10 +13,11 @@ import { RestaurantVoucherData } from "..";
 
 type RestaurantVoucherPDFProps = {
   voucher: RestaurantVoucherData;
+  bookingName: string
   cancellation?:boolean
 };
 
-const RestaurantVoucherView = ({ voucher,cancellation }: RestaurantVoucherPDFProps) => {
+const RestaurantVoucherView = ({ voucher,cancellation, bookingName }: RestaurantVoucherPDFProps) => {
   const organization = useOrganization();
   const { isLoaded, user } = useUser();
 
@@ -49,6 +50,8 @@ const RestaurantVoucherView = ({ voucher,cancellation }: RestaurantVoucherPDFPro
             {/* <div>Bill to : {organization?.name}</div> */}
             <div>Hotel Name : {voucher?.restaurant.name}</div>
             <div>Tour ID : {voucher.bookingLineId}</div>
+            <div>Booking Name : {bookingName}</div>
+
             <div>
               Country : {voucher.bookingLineId.split("-")[1]?.split("-")[0]}
             </div>

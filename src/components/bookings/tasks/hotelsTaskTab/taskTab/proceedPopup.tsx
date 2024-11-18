@@ -31,6 +31,7 @@ interface ProceedContentProps {
   setRate: React.Dispatch<SetStateAction<string>>;
   setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
   type: string
+  bookingName:string
   viewCancellationVoucher?: boolean
 }
 
@@ -44,7 +45,8 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   setRate,
   setStatusChanged,
   type,
-  viewCancellationVoucher
+  viewCancellationVoucher,
+  bookingName
 }) => {
   // pdfMake.vfs = (pdfFonts as any).vfs || pdfFonts.pdfMake?.vfs;
   const router = useRouter();
@@ -228,11 +230,11 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
                 <>
                   {viewCancellationVoucher ? (<div>
                     <div>
-                      <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} cancellation={true} />
+                      <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} cancellation={true} bookingName={bookingName}/>
                     </div>
                   </div>) : (<div>
                     <div>
-                      <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} />
+                      <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} bookingName={bookingName}/>
                     </div>
                   </div>)}
 
@@ -243,11 +245,11 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
                 <>
                   {viewCancellationVoucher ? (<div>
                     <div>
-                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} cancellation={true} />
+                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} cancellation={true} bookingName = {bookingName}/>
                     </div>
                   </div>) : (<div>
                     <div>
-                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} />
+                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} bookingName={bookingName}/>
                     </div>
                   </div>)}
 

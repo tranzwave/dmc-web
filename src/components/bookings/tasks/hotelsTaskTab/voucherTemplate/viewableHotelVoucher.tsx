@@ -5,13 +5,17 @@ import Image from "next/image";
 import { useOrganization } from "~/app/dashboard/context";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import { HotelVoucherData } from "..";
+import { SelectBooking } from "~/server/db/schemaTypes";
+import { useEffect, useState } from "react";
+import { getBookingById, getBookingLineWithAllData } from "~/server/db/queries/booking";
 
 type HotelVoucherPDFProps = {
   voucher: HotelVoucherData;
+  bookingName:string
   cancellation?: boolean
 };
 
-const HotelVoucherView = ({ voucher, cancellation }: HotelVoucherPDFProps) => {
+const HotelVoucherView = ({ voucher, cancellation, bookingName }: HotelVoucherPDFProps) => {
   const organization = useOrganization();
   const { isLoaded, user } = useUser();
 
@@ -57,6 +61,7 @@ const HotelVoucherView = ({ voucher, cancellation }: HotelVoucherPDFProps) => {
             {/* <div>Bill to : {organization?.name}</div> */}
             <div>Hotel Name : {voucher?.hotel.name}</div>
             <div>Tour ID : {voucher.bookingLineId}</div>
+            <div>Booking Name : {bookingName}</div>
             <div>
               Country : {voucher.bookingLineId.split("-")[1]?.split("-")[0]}
             </div>
