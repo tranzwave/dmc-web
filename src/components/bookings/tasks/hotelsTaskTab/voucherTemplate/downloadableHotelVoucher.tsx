@@ -173,6 +173,7 @@ const HotelVoucherDownloadablePDF = ({ voucher, organization, user }:HotelVouche
         <View style={styles.section}>
           <Text>Printed Date: {formattedDate}</Text>
           <Text>Prepared By: {user?.fullName ?? "N/A"}</Text>
+          <Text>Contact Number: {(user?.publicMetadata as any)?.info?.contact ?? ""}</Text>
           <Text>This is a computer-generated Voucher & does not require a signature.</Text>
         </View>
 
