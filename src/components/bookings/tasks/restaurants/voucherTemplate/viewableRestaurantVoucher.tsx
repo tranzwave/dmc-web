@@ -118,6 +118,7 @@ const RestaurantVoucherView = ({ voucher,cancellation, bookingName }: Restaurant
         <div className="mt-10 text-[13px]">
           <div>Printed Date : {format(Date.now(), "dd/MM/yyyy")}</div>
           <div>Prepared By : {user?.fullName ?? ""}</div>
+          <div>Contact Number : {(user?.publicMetadata as any)?.info?.contact ?? ""}</div>
           <div>This is a computer generated Voucher & does not require a signature</div>
         </div>
       </div>
