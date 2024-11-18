@@ -47,6 +47,7 @@ interface ShopsFormProps {
   onAddShop: (shop: ShopVoucher) => void;
   shopTypes: SelectShopType[];
   cities: SelectCity[];
+  isSaving: boolean
 }
 
 type ShopWithoutCityAndTypes = Omit<ShopsData, "city" | "shopTypes">;
@@ -63,6 +64,7 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
   onAddShop,
   shopTypes,
   cities,
+  isSaving
 }) => {
   const [shops, setShops] = useState<ShopsData[]>([]);
   const [selectedCity, setSelectedCity] = useState<SelectCity>();
@@ -403,8 +405,8 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
           )}
         />
         <div className="flex w-full flex-row justify-end">
-          <Button variant={"primaryGreen"} type="submit" className="px-5">
-            Add
+          <Button variant={"primaryGreen"} type="submit" className="px-5" disabled={isSaving}>
+          {isSaving ? (<div className="flex flex-row gap-1"><div><LoaderCircle className="animate-spin" size={15}/></div>Adding</div>): ('Add')}
           </Button>
         </div>
       </form>

@@ -14,7 +14,7 @@ import LoadingLayout from "~/components/common/dashboardLoading";
 import DeletePopup from "~/components/common/deletePopup";
 import Popup from "~/components/common/popup";
 import { ConfirmationForm } from "~/components/common/tasksTab/confirmationForm";
-import { deleteHotelVoucherLine } from "~/server/db/queries/booking";
+import { deleteHotelVoucherLine, getBookingLineWithAllData } from "~/server/db/queries/booking";
 import { getAllHotelsV2 } from "~/server/db/queries/hotel";
 import { SelectHotel, SelectHotelVoucherLine } from "~/server/db/schemaTypes";
 import { HotelVoucherData } from "..";
@@ -23,7 +23,8 @@ import ProceedContent from "./proceedPopup";
 import ConfirmationContent from "./confirmationPopup";
 import ContactContent from "./ContactPopup";
 import { createRoot } from "react-dom/client";
-import HotelVoucherPDF from "../voucherTemplate";
+import HotelVoucherView from "../voucherTemplate/viewableHotelVoucher";
+
 
 interface TasksTabProps<T, L> {
   bookingLineId: string;
@@ -78,8 +79,12 @@ const HotelVouchersTasksTab = <
   const [error, setError] = useState<string | null>();
   const deleteVoucherRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const [bookingName, setBookingName] = useState('');
+  const [bookingLoading, setBookingLoading] = useState(false)
 
   const { toast } = useToast();
+
+
 
   const getHotels = async () => {
     setLoading(true);
@@ -198,12 +203,30 @@ const HotelVouchersTasksTab = <
     console.log("Status changed");
     getHotels();
     setSelectedVoucher(vouchers ? vouchers[0] : undefined)
+
+    const fetchBooking = async ()=>{
+      if(vouchers){
+        try {
+          setBookingLoading(true)
+          const booking = await getBookingLineWithAllData(vouchers[0]?.bookingLineId ?? "")
+          if(booking){
+            setBookingName(booking.booking.client.name);
+          }
+          setBookingLoading(false)
+        } catch (error) {
+          console.error(error)
+          setBookingLoading(false)
+        }
+      }
+
+    }
+    fetchBooking()
     return () => {
       console.log("Return");
     };
   }, [statusChanged]);
 
-  if (loading) {
+  if (loading || bookingLoading) {
     return <LoadingLayout />;
   }
 
@@ -216,7 +239,7 @@ const HotelVouchersTasksTab = <
   
       // Create a root and render the CancellationVoucher component into tempContainer
       const root = createRoot(tempContainer);
-      root.render(<HotelVoucherPDF voucher={selectedVoucher} />);
+      root.render(<HotelVoucherView voucher={selectedVoucher} bookingName={bookingName}/>);
   
       const options = {
         filename: `cancellation_voucher_${selectedVoucher.hotel.name}.pdf`,
@@ -235,6 +258,8 @@ const HotelVouchersTasksTab = <
         });
     }
   };
+
+
 
   const handleInProgressVoucherDelete = async () => {
     if (selectedVoucher && selectedVoucher.status) {
@@ -374,6 +399,7 @@ const HotelVouchersTasksTab = <
                         setStatusChanged={setStatusChanged}
                         type="hotel"
                         viewCancellationVoucher={true}
+                        bookingName={bookingName}
                       />
                     }
                     size="large"
@@ -480,6 +506,7 @@ const HotelVouchersTasksTab = <
                         setRate={setRate}
                         setStatusChanged={setStatusChanged}
                         type="hotel"
+                        bookingName={bookingName}
                       />
                     }
                     size="large"

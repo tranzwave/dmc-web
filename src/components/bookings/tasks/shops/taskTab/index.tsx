@@ -272,53 +272,6 @@ const ShopVouchersTasksTab = ({
 
 export default ShopVouchersTasksTab;
 
-// const CreateRateColumn = <T extends object>(
-//   initialRate: number | string,
-//   setRate: React.Dispatch<SetStateAction<number | string>>,
-// ): ColumnDef<T> => ({
-//   accessorKey: "rate",
-//   header: "Rate - USD",
-//   cell: ({ getValue, row, column }) => {
-//     // Create a separate component to handle state and rendering
-//     const RateInput = () => {
-//       const [rate, setLocalRate] = useState<number | string>(initialRate);
-
-//       useEffect(() => {
-//         setLocalRate(initialRate);
-//       }, [initialRate]);
-
-//       const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//         const inputValue = e.target.value;
-//         const newRate = parseFloat(inputValue);
-
-//         // Check if the newRate is a valid number
-//         if (!isNaN(newRate)) {
-//           setLocalRate(newRate);
-//           setRate(newRate);
-//         } else {
-//           setLocalRate(""); // Set to '' if the input is not a valid number
-//           setRate("");
-//         }
-
-//         // Update the row data with the new rate value
-//         (row.original as Record<string, any>)[column.id] = newRate;
-//       };
-
-//       return (
-//         <Input
-//           type="number"
-//           value={rate === "" ? "" : rate}
-//           onChange={handleRateChange}
-//           className="rounded border border-gray-300 p-1"
-//           style={{ width: "80px" }}
-//         />
-//       );
-//     };
-
-//     // Render the RateInput component inside the cell
-//     return <RateInput />;
-//   },
-// });
 interface ProceedContentProps {
   voucherColumns: any;
   vouchers: ShopVoucherData[];

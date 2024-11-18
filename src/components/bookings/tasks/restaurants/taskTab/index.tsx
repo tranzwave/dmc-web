@@ -25,11 +25,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import { deleteRestaurantVoucherLine } from "~/server/db/queries/booking";
+import { deleteRestaurantVoucherLine, getBookingLineWithAllData } from "~/server/db/queries/booking";
 import { getAllRestaurants } from "~/server/db/queries/booking/restaurantVouchers";
 import { RestaurantVoucherData } from "..";
 import RestaurantsVoucherForm from "../form";
-import RestaurantVoucherPDF from "../voucherTemplate";
+import RestaurantVoucherView from "../voucherTemplate/viewableRestaurantVoucher";
 import ConfirmationContent from "./confirmationPopup";
 import ContactContent from "../../hotelsTaskTab/taskTab/ContactPopup";
 import ProceedContent from "../../hotelsTaskTab/taskTab/proceedPopup";
@@ -88,6 +88,8 @@ const RestaurantVouchersTasksTab = <
   const [error, setError] = useState<string | null>();
   const deleteVoucherRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const [bookingName, setBookingName] = useState('');
+  const [bookingLoading, setBookingLoading] = useState(false)
 
   const { toast } = useToast();
 
@@ -202,12 +204,30 @@ const RestaurantVouchersTasksTab = <
     console.log("Status changed");
     getHotels();
     setSelectedVoucher(vouchers ? vouchers[0] : undefined)
+
+    const fetchBooking = async ()=>{
+      if(vouchers){
+        try {
+          setBookingLoading(true)
+          const booking = await getBookingLineWithAllData(vouchers[0]?.bookingLineId ?? "")
+          if(booking){
+            setBookingName(booking.booking.client.name);
+          }
+          setBookingLoading(false)
+        } catch (error) {
+          console.error(error)
+          setBookingLoading(false)
+        }
+      }
+
+    }
+    fetchBooking()
     return () => {
       console.log("Return");
     };
   }, [statusChanged, vouchers]);
 
-  if (loading) {
+  if (loading || bookingLoading) {
     return <LoadingLayout />;
   }
 
@@ -394,6 +414,7 @@ const RestaurantVouchersTasksTab = <
                         setStatusChanged={setStatusChanged}
                         type="restaurant"
                         viewCancellationVoucher={true}
+                        bookingName={bookingName}
                       />
                     }
                     size="large"
@@ -495,6 +516,7 @@ const RestaurantVouchersTasksTab = <
                         setRate={setRate}
                         setStatusChanged={setStatusChanged}
                         type="restaurant"
+                        bookingName={bookingName}
                       />
                     }
                     size="large"

@@ -1,22 +1,21 @@
 "use client";
 import { useUser } from "@clerk/nextjs";
-import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import Image from "next/image";
 import { useOrganization } from "~/app/dashboard/context";
 import LoadingLayout from "~/components/common/dashboardLoading";
-import {
-  SelectHotelVoucher,
-  SelectHotelVoucherLine,
-} from "~/server/db/schemaTypes";
 import { HotelVoucherData } from "..";
+import { SelectBooking } from "~/server/db/schemaTypes";
+import { useEffect, useState } from "react";
+import { getBookingById, getBookingLineWithAllData } from "~/server/db/queries/booking";
 
 type HotelVoucherPDFProps = {
   voucher: HotelVoucherData;
+  bookingName:string
   cancellation?: boolean
 };
 
-const HotelVoucherPDF = ({ voucher, cancellation }: HotelVoucherPDFProps) => {
+const HotelVoucherView = ({ voucher, cancellation, bookingName }: HotelVoucherPDFProps) => {
   const organization = useOrganization();
   const { isLoaded, user } = useUser();
 
@@ -29,53 +28,6 @@ const HotelVoucherPDF = ({ voucher, cancellation }: HotelVoucherPDFProps) => {
     contactNumber: organization.publicMetadata.contactNumber as string ?? "Number",
     website: organization.publicMetadata.website as string ?? "Website"
   }
-
-  const hotelVoucherLineColumns: ColumnDef<SelectHotelVoucherLine>[] = [
-    {
-      header: "Occupancy",
-      accessorFn: (row) => row.roomType ?? "N/A",
-    },
-    {
-      header: "Meal Plan",
-      accessorFn: (row) => row.basis ?? "N/A",
-    },
-    {
-      header: "Room Category",
-      accessorFn: (row) => row.roomCategory ?? "N/A",
-    },
-    {
-      header: "Quantity",
-      accessorFn: (row) => row.roomCount,
-    },
-
-    {
-      header: "Price",
-      accessorFn: (row) => row.rate,
-    },
-    {
-      header: "Amount",
-      accessorFn: (row) => row.rate ?? 0 * row.roomCount,
-    },
-  ];
-
-  const availabilityColumns: ColumnDef<SelectHotelVoucher>[] = [
-    {
-      header: "Availability Confirmed By",
-      accessorFn: (row) => row.availabilityConfirmedBy ?? "",
-    },
-    {
-      header: "Availability Confirmed To",
-      accessorFn: (row) => row.availabilityConfirmedTo ?? "",
-    },
-    {
-      header: "Rates Confirmed By",
-      accessorFn: (row) => row.ratesConfirmedBy ?? "",
-    },
-    {
-      header: "Rates Confirmed To",
-      accessorFn: (row) => row.ratesConfirmedTo ?? "",
-    },
-  ];
 
   return (
     <div className="flex flex-col border">
@@ -109,6 +61,7 @@ const HotelVoucherPDF = ({ voucher, cancellation }: HotelVoucherPDFProps) => {
             {/* <div>Bill to : {organization?.name}</div> */}
             <div>Hotel Name : {voucher?.hotel.name}</div>
             <div>Tour ID : {voucher.bookingLineId}</div>
+            <div>Booking Name : {bookingName}</div>
             <div>
               Country : {voucher.bookingLineId.split("-")[1]?.split("-")[0]}
             </div>
@@ -233,4 +186,4 @@ const HotelVoucherPDF = ({ voucher, cancellation }: HotelVoucherPDFProps) => {
   );
 };
 
-export default HotelVoucherPDF;
+export default HotelVoucherView;
