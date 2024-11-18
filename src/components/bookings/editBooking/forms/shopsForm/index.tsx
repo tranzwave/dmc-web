@@ -41,8 +41,41 @@ const ShopsTab = () => {
     }
   };
 
-  const updateShopVouchers = (shop: ShopVoucher) => {
+  const updateShopVouchers = async (shop: ShopVoucher) => {
     addShop(shop);
+
+    try {
+      setSaving(true);
+      const newResponse = await addShopVouchersToBooking(
+        [shop],
+        bookingLineId ?? "",
+        bookingDetails.general.marketingManager,
+      );
+
+      if (!newResponse) {
+        throw new Error(`Error: Couldn't add shop vouchers`);
+      }
+      console.log("Fetched Shops:", newResponse);
+
+      setSaving(false);
+      toast({
+        title: "Success",
+        description: "Shops Vouchers Added!",
+      });
+      window.location.reload();
+    } catch (error) {
+      if (error instanceof Error) {
+        // setError(error.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+      console.error("Error:", error);
+      setSaving(false);
+      toast({
+        title: "Uh Oh!",
+        description: "Couldn't add shop vouchers!",
+      });
+    }
   };
 
   // Function to search for drivers based on transport data
@@ -181,6 +214,7 @@ const ShopsTab = () => {
             onAddShop={updateShopVouchers}
             shopTypes={shopTypes}
             cities={cities}
+            isSaving={saving}
           />
         </div>
       </div>
@@ -188,9 +222,9 @@ const ShopsTab = () => {
         <DataTable columns={columns} data={bookingDetails.shops} />
       </div>
         <div className="flex w-full justify-end gap-2">
-          <Button variant={"primaryGreen"} onClick={onSaveClick} disabled={saving}>
+          {/* <Button variant={"primaryGreen"} onClick={onSaveClick} disabled={saving}>
             {saving ? (<div className="flex flex-row gap-1"><div><LoaderCircle className="animate-spin" size={15}/></div>Saving</div>): ('Save')}
-          </Button>
+          </Button> */}
           <Link href={`${pathname.split("edit")[0]}/tasks?tab=shops`}>
             <Button variant={"primaryGreen"}>Send Vouchers</Button>
           </Link>
