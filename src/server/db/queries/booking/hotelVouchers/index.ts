@@ -54,38 +54,59 @@ export const updateHotelVoucherRate = async (data: SelectHotelVoucherLine) => {
 export const bulkUpdateHotelVoucherRates = async (
   voucherLines: SelectHotelVoucherLine[],
   confirmationDetails: {
-    availabilityConfirmedBy: string,
-    availabilityConfirmedTo: string,
-    ratesConfirmedBy: string,
-    ratesConfirmedTo: string,
-  }
+    availabilityConfirmedBy: string;
+    availabilityConfirmedTo: string;
+    ratesConfirmedBy: string;
+    ratesConfirmedTo: string;
+  },
 ) => {
   try {
     await db.transaction(async (trx) => {
       // Create an array of update operations
-      const voucherId = voucherLines[0]?.hotelVoucherId ?? ""
-      console.log("Voucher : " + voucherId)
+      const voucherId = voucherLines[0]?.hotelVoucherId ?? "";
+      console.log("Voucher : " + voucherId);
+      let rateAmended = false;
       for (const voucherLine of voucherLines) {
+        const existingVoucher = await trx.query.hotelVoucherLine.findFirst({
+          where: eq(hotelVoucherLine.id, voucherLine.id),
+        });
+
+        if (existingVoucher && Number(existingVoucher.rate) > 0) {
+          rateAmended = true;
+        }
         await trx
           .update(hotelVoucherLine)
           .set({ rate: voucherLine.rate })
           .where(eq(hotelVoucherLine.id, voucherLine.id ?? ""));
       }
-      console.log({
-        availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
-        availabilityConfirmedTo: confirmationDetails.availabilityConfirmedTo,
-        ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
-        ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
-      })
-      await trx
-        .update(hotelVoucher)
-        .set({
-          availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
-          availabilityConfirmedTo: confirmationDetails.availabilityConfirmedTo,
-          ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
-          ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
-        })
-        .where(eq(hotelVoucher.id, voucherId))
+
+      if (rateAmended) {
+        await trx
+          .update(hotelVoucher)
+          .set({
+            availabilityConfirmedBy:
+              confirmationDetails.availabilityConfirmedBy,
+            availabilityConfirmedTo:
+              confirmationDetails.availabilityConfirmedTo,
+            ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
+            ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
+            status: "amended",
+            reasonToAmend: "Rates updated",
+          })
+          .where(eq(hotelVoucher.id, voucherId));
+      } else {
+        await trx
+          .update(hotelVoucher)
+          .set({
+            availabilityConfirmedBy:
+              confirmationDetails.availabilityConfirmedBy,
+            availabilityConfirmedTo:
+              confirmationDetails.availabilityConfirmedTo,
+            ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
+            ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
+          })
+          .where(eq(hotelVoucher.id, voucherId));
+      }
     });
 
     console.log("All voucher rates updated successfully");

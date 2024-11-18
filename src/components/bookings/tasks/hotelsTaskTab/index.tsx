@@ -112,6 +112,7 @@ const HotelsTasksTab = ({
       if (!bulkUpdateResponse) {
         throw new Error("Failed");
       }
+      window.location.reload();
     } catch (error) {
       console.error("Error updating voucher line:", error);
       alert("Failed to update voucher line. Please try again.");
