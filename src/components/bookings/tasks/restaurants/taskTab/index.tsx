@@ -285,7 +285,7 @@ const RestaurantVouchersTasksTab = <
   const handleProceededVoucherDelete = async () => {
     if (selectedVoucher && selectedVoucher.status) {
       try {
-        downloadPDF();
+        // downloadPDF();
 
         setIsDeleting(true);
         const voucher = selectedVoucher
@@ -318,7 +318,7 @@ const RestaurantVouchersTasksTab = <
 
   const downloadCancellationVoucher = ()=>{
     try {
-      downloadPDF()
+      // downloadPDF()
     } catch (error) {
       console.error(error)
     }
