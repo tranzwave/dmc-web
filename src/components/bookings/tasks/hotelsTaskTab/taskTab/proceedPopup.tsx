@@ -188,7 +188,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
           </AccordionTrigger>
           <AccordionContent className="space-y-2">
             <div className="flex flex-row justify-end" onClick={handleSendVoucher}>
-              {type === 'hotel' && (
+              {type === 'hotel' && selectedVoucher.status !== "amended" && selectedVoucher.status !== "cancelled" &&(
                 <PDFDownloadLink
                   document={<HotelVoucherDownloadablePDF voucher={selectedVoucher as HotelVoucherData} organization={orgData} user={user} />}
                   fileName={`${selectedVoucher.voucherLines[0]?.id}-${(selectedVoucher as HotelVoucherData).hotel.name}-Voucher.pdf`}
@@ -206,7 +206,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
                 </PDFDownloadLink>
               )}
 
-              {type === 'restaurant' && (
+              {type === 'restaurant' && selectedVoucher.status !== "amended" && selectedVoucher.status !== "cancelled" &&(
                 <PDFDownloadLink
                   document={<RestaurantVoucherDownloadablePDF voucher={selectedVoucher as RestaurantVoucherData} organization={orgData} user={user} />}
                   fileName={`${selectedVoucher.voucherLines[0]?.id}-${(selectedVoucher as RestaurantVoucherData).restaurant.name}-Voucher.pdf`}

@@ -169,7 +169,7 @@ const HotelVouchersTasksTab = <
 
   const downloadCancellationVoucher = ()=>{
     try {
-      downloadPDF()
+      // downloadPDF()
     } catch (error) {
       console.error(error)
     }
@@ -288,7 +288,7 @@ const HotelVouchersTasksTab = <
   const handleProceededVoucherDelete = async () => {
     if (selectedVoucher && selectedVoucher.status) {
       try {
-        downloadPDF();
+        // downloadPDF();
 
         setIsDeleting(true);
         const voucher = selectedVoucher
