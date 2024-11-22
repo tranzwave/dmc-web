@@ -40,7 +40,8 @@ interface TasksTabProps<T, L> {
   voucherColumns: ColumnDef<SelectRestaurantVoucherLine>[];
   vouchers: RestaurantVoucherData[];
   updateVoucherLine: (
-    data: any,
+    ratesMap: Map<string,string>,
+    voucherId:string,
     confirmationDetails?: {
       availabilityConfirmedBy: string;
       availabilityConfirmedTo: string;

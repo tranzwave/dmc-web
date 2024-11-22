@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { HotelVoucher } from "~/app/dashboard/bookings/add/context";
 import { HotelDTO } from "~/lib/types/hotel";
 import { formatDate } from "~/lib/utils/index";
+import { InsertHotelVoucherLine } from "~/server/db/schemaTypes";
 
   export type Hotel = {
     name: string;
@@ -51,42 +52,68 @@ export const columns: ColumnDef<HotelDTO>[] = [
     },
     {
       header: "Adults",
-      accessorFn: row => row.voucherLines[0]?.adultsCount ?? 0,
+      // accessorFn: row => row.voucherLines[0]?.adultsCount ?? 0,
     },
     {
       header: "Kids",
-      accessorFn: row => row.voucherLines[0]?.kidsCount ?? 0,
+      // accessorFn: row => row.voucherLines[0]?.kidsCount ?? 0,
     },
     {
       header: "Room Count",
-      accessorFn: row => row.voucherLines[0]?.roomCount ?? 0,
+      // accessorFn: row => row.voucherLines[0]?.roomCount ?? 0,
     },
     {
       header: "Check-In Date",
-      accessorFn: row => formatDate(row.voucherLines[0]?.checkInDate ?? ""),
+      // accessorFn: row => formatDate(row.voucherLines[0]?.checkInDate ?? ""),
     },
-    // {
-    //   header: "Check-In Time",
-    //   accessorFn: row => row.voucherLines[0]?.checkInTime ?? ""
-    // },
     {
       header: "Check-Out Date",
-      accessorFn: row => formatDate(row.voucherLines[0]?.checkOutDate ?? ""),
+      // accessorFn: row => formatDate(row.voucherLines[0]?.checkOutDate ?? ""),
     },
-    // {
-    //   header: "Check-Out Time",
-    //   accessorFn: row => row.voucherLines[0]?.checkOutTime ?? ""
-    // },
     {
       header: "Rooms",
-      accessorFn: row =>  `${row.voucherLines[0]?.roomType}-${row.voucherLines[0]?.roomCategory}-${row.voucherLines[0]?.roomCount}`
+      // accessorFn: row =>  `${row.voucherLines[0]?.roomType}-${row.voucherLines[0]?.roomCategory}-${row.voucherLines[0]?.roomCount}`
     },
     {
       header: "Basis",
-      accessorFn: row => row.voucherLines[0]?.basis
+      // accessorFn: row => row.voucherLines[0]?.basis
     },
     {
       header:"Status",
       accessorFn: row => row.voucher.status ?? "Unsaved"
     }
+  ];
+
+  export const hotelVoucherLineColumns: ColumnDef<InsertHotelVoucherLine>[] = [
+    {
+      header: "Check-In Date",
+      accessorKey: "checkInDate",
+      accessorFn: row => formatDate(row.checkInDate ?? ""),
+    },
+
+    {
+      header: "Check-Out Date",
+      accessorKey: "checkOutDate",
+      accessorFn: row => formatDate(row.checkOutDate ?? ""),
+    },
+ 
+    {
+      header: "Rooms",
+      accessorFn: row =>  `${row.roomType}-${row.roomCategory}-${row.roomCount}`
+    },
+    {
+      header: "Adults",
+      accessorKey: "adultsCount",
+      accessorFn: row => row.adultsCount ?? 0,
+    },
+    {
+      header: "Kids",
+      accessorKey: "kidsCount",
+      accessorFn: row => row.kidsCount ?? 0,
+    },
+
+    {
+      header: "Basis",
+      accessorFn: row => row.basis
+    },
   ];

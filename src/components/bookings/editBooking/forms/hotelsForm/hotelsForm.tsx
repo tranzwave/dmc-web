@@ -64,6 +64,7 @@ interface HotelsFormProps {
   amendment?: boolean;
   isUpdating?: boolean;
   isSaving?: boolean;
+  triggerEdit?:boolean
 }
 
 export const hotelsSchema = z.object({
@@ -88,6 +89,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   amendment,
   isUpdating,
   isSaving,
+  triggerEdit
 }) => {
   const [selectedHotel, setSelectedHotel] = useState<SelectHotel | null>();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -123,7 +125,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
     const voucherLine: InsertHotelVoucherLine = {
       adultsCount: Number(form.getValues("adultsCount")), // Assuming you have an `adultsCount` field in your form.
       kidsCount: Number(form.getValues("kidsCount")), // Assuming you have a `kidsCount` field in your form.
-      hotelVoucherId: "",
+      hotelVoucherId: defaultValues?.hotelVoucherId ?? "",
       roomType: form.getValues("roomType"), // Room type from the form.
       roomCategory: form.getValues("roomCategory") ?? '',
       basis: form.getValues("basis"), // Basis from the form.
@@ -133,7 +135,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       checkOutTime: "10:00",
       roomCount: Number(form.getValues("roomCount")), // Room count from the form, converted to a number.
       remarks: form.getValues("remarks"),
-      id: voucherLineId,
+      id: defaultValues?.id ?? voucherLineId,
     };
 
     if (amendment) {
@@ -145,8 +147,10 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
 
     if (isNewVoucher) {
       onAddHotel(voucherLine, true, selectedHotel);
+      // alert("New voucher")
     } else {
       onAddHotel(voucherLine, false, selectedHotel);
+      // alert("existing voucher")
     }
 
     // Reset form and close the modal
@@ -157,7 +161,17 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
 
   function onSubmit(values: z.infer<typeof hotelsSchema>) {
     // setIsModalOpen(true);
-    handleModalResponse(true);
+    if(selectedHotel){
+      if(bookingDetails.vouchers.find(v => v.hotel.id === selectedHotel.id)){
+        if(triggerEdit){
+          handleModalResponse(true)
+        } else{
+          setIsModalOpen(true)
+        }
+      } else {
+        handleModalResponse(true);
+      }
+    }
   }
 
   function getHotelId(name: string) {

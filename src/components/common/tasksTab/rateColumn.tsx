@@ -1,42 +1,30 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { SetStateAction, useEffect, useState } from "react";
-import { Input } from "~/components/ui/input";
+import { SelectHotelVoucherLine, SelectRestaurantVoucherLine } from "~/server/db/schemaTypes";
+import RateInput from "./rateInput";
 
-const CreateRateColumn = <T extends object>(
-    initialRate: string,
-    setRate: React.Dispatch<SetStateAction<string>>,
-  ): ColumnDef<T> => ({
+const CreateRateColumn = <T extends object>({
+  handleRateChange,
+}: {
+  handleRateChange: (id:string, rate:string) => void;
+}) => {
+  // Memoize the column definition to avoid unnecessary re-renders
+  const columnDef: ColumnDef<SelectHotelVoucherLine | SelectRestaurantVoucherLine> = {
     accessorKey: "rate",
     header: "Rate - USD",
-    cell: ({ getValue, row, column }) => {
-      const RateInput = () => {
-        const [rate, setLocalRate] = useState<string>(initialRate);
-  
-        useEffect(() => {
-          setLocalRate(initialRate);
-        }, [initialRate]);
-  
-        const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-          const inputValue = e.target.value;
-          setLocalRate(inputValue);
-          // setRate(inputValue);
-          (row.original as Record<string, any>)[column.id] = inputValue;
-        };
-  
-        return (
-          <Input
-            type="number"
-            value={rate}
-            onChange={handleRateChange}
-            onBlur={()=> setRate(rate)}
-            className="rounded border border-gray-300 p-1"
-            style={{ width: "80px" }}
-            placeholder="0.00"
-          />
-        );
-      };
-  
-      return <RateInput />;
+    cell: ({ row, column, table }) => {
+      return (
+        <RateInput
+          row={row}
+          column={column}
+          table={table}
+          handleRateChange={handleRateChange}
+          key={`${row.id}-${column.id}-input`}
+        />
+      );
     },
-  });
+  };
+
+  return columnDef;
+};
+
 export default CreateRateColumn;

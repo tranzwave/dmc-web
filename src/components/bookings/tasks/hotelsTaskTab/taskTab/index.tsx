@@ -32,7 +32,8 @@ interface TasksTabProps<T, L> {
   voucherColumns: ColumnDef<SelectHotelVoucherLine>[];
   vouchers: HotelVoucherData[];
   updateVoucherLine: (
-    data: any,
+    ratesMap: Map<string,string>,
+    voucherId:string,
     confirmationDetails?: {
       availabilityConfirmedBy: string;
       availabilityConfirmedTo: string;
