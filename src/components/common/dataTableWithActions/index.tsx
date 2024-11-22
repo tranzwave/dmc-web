@@ -18,6 +18,8 @@ interface DataTableWithActionsProps<T> {
   onDelete: (row:T) => void;
   onView?: () => void;
   onDuplicate?: (row:T) => void;
+  selectedRow?: T;
+  renderExpandedRow?: (row: T) => JSX.Element;
 }
 
 export const DataTableWithActions = <T extends object>({
@@ -28,6 +30,8 @@ export const DataTableWithActions = <T extends object>({
   onEdit,
   onDelete,
   onDuplicate,
+  selectedRow,
+  renderExpandedRow
 }: DataTableWithActionsProps<T>) => (
   <DataTable
     columns={[
@@ -73,6 +77,8 @@ export const DataTableWithActions = <T extends object>({
     ]}
     data={data}
     onRowClick={onRowClick}
+    selectedRow={selectedRow}
+    renderExpandedRow={renderExpandedRow}
   />
 );
 

@@ -1,5 +1,5 @@
 import { AccessorFnColumnDef, ColumnDef } from "@tanstack/react-table";
-import { SetStateAction, useEffect, useRef, useState } from "react";
+import { SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
@@ -25,7 +25,16 @@ interface ProceedContentProps {
   voucherColumns: ColumnDef<SelectHotelVoucherLine>[] | ColumnDef<SelectRestaurantVoucherLine>[];
   selectedVoucher: HotelVoucherData | RestaurantVoucherData;
   onVoucherLineRowClick: any;
-  updateVoucherLine: any;
+  updateVoucherLine: (
+    ratesMap: Map<string,string>,
+    voucherId:string,
+    confirmationDetails?: {
+      availabilityConfirmedBy: string;
+      availabilityConfirmedTo: string;
+      ratesConfirmedBy: string;
+      ratesConfirmedTo: string;
+    },
+  ) => Promise<void>;
   updateVoucherStatus: any;
   rate: string;
   setRate: React.Dispatch<SetStateAction<string>>;
@@ -56,55 +65,29 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   const [ratesConfirmedTo, setRatesConfirmedTo] = useState(selectedVoucher?.ratesConfirmedTo ?? "");
   const [availabilityConfirmedBy, setAvailabilityConfirmedBy] = useState(selectedVoucher?.availabilityConfirmedBy ?? "");
   const [availabilityConfirmedTo, setAvailabilityConfirmedTo] = useState(selectedVoucher?.availabilityConfirmedTo ?? "");
+  // const [ratesMap, setRatesMap] = useState<Map<string, string>>(new Map(
+  //   selectedVoucher.voucherLines.map((voucherLine) => [
+  //     voucherLine.id, // id of the voucher line
+  //     voucherLine.rate ?? "0", // rate of the voucher line
+  //   ])
+  // ));
 
-  const VoucherLineColumnsWithRate = [...voucherColumns, CreateRateColumn(rate, setRate)];
+  const ratesMapRef = useRef<Map<string, string>>(new Map(
+    selectedVoucher.voucherLines.map((voucherLine) => [
+      voucherLine.id, // id of the voucher line
+      voucherLine.rate ?? "0", // rate of the voucher line
+    ])
+  ));
+
+const handleRateChange = (id: string, rate: string) => {
+  ratesMapRef.current.set(id, rate); // Update the rate directly in the ref
+  console.log(ratesMapRef)
+};
+
+  const VoucherLineColumnsWithRate = [...voucherColumns, CreateRateColumn({handleRateChange:handleRateChange})]
 
   const organization = useOrganization();
   const { isLoaded, user } = useUser();
-
-  // const downloadPDF = () => {
-  //   const filename = `${selectedVoucher.voucherLines[0]?.id}-Voucher.pdf`;
-  //   const tempContainer = document.createElement("div");
-
-  //   const componentElement = componentRef.current?.cloneNode(true);
-  //   if (componentElement) tempContainer.appendChild(componentElement);
-
-  //   tempContainer.style.width = "210mm";
-  //   tempContainer.style.padding = "10mm";
-  //   tempContainer.style.backgroundColor = "white";
-
-  //   document.body.appendChild(tempContainer);
-  //   const options = {
-  //     filename,
-  //     jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
-  //     margin: [0, 0],
-  //   };
-
-  //   html2pdf().set(options).from(tempContainer).save().then(() => {
-  //     document.body.removeChild(tempContainer);
-  //   });
-  // };
-
-  const downloadPDF = () => {
-    const voucherElement = document.getElementById("voucher-content"); // Target the voucher content
-    if (!voucherElement) {
-      console.log("no component")
-      return
-    };
-
-    const html = voucherElement.innerHTML;
-    const pdfContent = htmlToPdfmake(html);
-
-    // Define the PDF document
-    const documentDefinition = {
-      content: pdfContent,
-      pageSize: "A4",
-      pageMargins: [40, 60, 40, 60], // left, top, right, bottom
-    };
-
-    // Generate and download the PDF
-    pdfMake.createPdf(documentDefinition).download("voucher.pdf");
-  }
 
   const areAllFieldsFilled = () =>
     [ratesConfirmedBy, ratesConfirmedTo, availabilityConfirmedBy, availabilityConfirmedTo].every((field) => field.trim() !== "");
@@ -116,7 +99,8 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
     }
 
     try {
-      await updateVoucherLine(selectedVoucher?.voucherLines ?? [selectedVoucher], {
+      console.log({rates: ratesMapRef, confirmedBy: availabilityConfirmedBy, confirmedTo: availabilityConfirmedTo})
+      await updateVoucherLine(ratesMapRef.current,selectedVoucher.id, {
         availabilityConfirmedBy,
         availabilityConfirmedTo,
         ratesConfirmedBy,
@@ -145,6 +129,10 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
 
 
   };
+
+  useEffect(()=>{
+    console.log("rerendered here")
+  }, [])
 
 
   if (!isLoaded || !organization) {
@@ -188,7 +176,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
           </AccordionTrigger>
           <AccordionContent className="space-y-2">
             <div className="flex flex-row justify-end" onClick={handleSendVoucher}>
-              {type === 'hotel' && selectedVoucher.status !== "amended" && selectedVoucher.status !== "cancelled" &&(
+              {type === 'hotel' && selectedVoucher.status !== "cancelled" &&(
                 <PDFDownloadLink
                   document={<HotelVoucherDownloadablePDF voucher={selectedVoucher as HotelVoucherData} organization={orgData} user={user} />}
                   fileName={`${selectedVoucher.voucherLines[0]?.id}-${(selectedVoucher as HotelVoucherData).hotel.name}-Voucher.pdf`}

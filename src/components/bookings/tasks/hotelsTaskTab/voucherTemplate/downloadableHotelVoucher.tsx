@@ -53,14 +53,23 @@ const styles = StyleSheet.create({
 });
 
 export type HotelVoucherPDFProps = {
-    voucher: HotelVoucherData;
-    organization: any,
-    user:any
-    cancellation?: boolean
-  };
+  voucher: HotelVoucherData;
+  organization: any,
+  user: any
+  cancellation?: boolean
+};
 
-const HotelVoucherDownloadablePDF = ({ voucher, organization, user }:HotelVoucherPDFProps) => {
+const HotelVoucherDownloadablePDF = ({ voucher, organization, user }: HotelVoucherPDFProps) => {
   const formattedDate = new Date().toLocaleDateString();
+
+  const calculateTotal = () => {
+    let sum = 0
+    voucher.voucherLines.forEach(l => {
+      sum += l.roomCount * (Number(l.rate) ?? 0)
+    })
+    return sum;
+  }
+
 
   return (
     <Document>
@@ -79,7 +88,7 @@ const HotelVoucherDownloadablePDF = ({ voucher, organization, user }:HotelVouche
           <Text style={styles.title}>
             {voucher.status === "cancelled"
               ? "Cancellation Voucher"
-              : `Hotel Reservation Voucher${voucher.status === "amended" ? " - Amendment" : ""}`}
+              : voucher.status === "amended" ? "Hotel Reservation Voucher - Amendment" : "Hotel Reservation Voucher"}
           </Text>
         </View>
 
@@ -99,7 +108,7 @@ const HotelVoucherDownloadablePDF = ({ voucher, organization, user }:HotelVouche
         <View style={[styles.table, { marginBottom: 16 }]}>
           {/* Table Header */}
           <View style={styles.tableRow}>
-            {["Occupancy", "Meal Plan", "Room Category", "Check In", "Check Out", "Quantity", "Rate"].map(
+            {["Occupancy", "Meal Plan", "Room Category", "Check In", "Check Out", "Quantity", "Rate", "Amount"].map(
               (header) => (
                 <Text key={header} style={[styles.tableCell, styles.textBold]}>
                   {header}
@@ -118,10 +127,9 @@ const HotelVoucherDownloadablePDF = ({ voucher, organization, user }:HotelVouche
               <Text style={styles.tableCell}>{line.checkOutDate ?? "N/A"}</Text>
               <Text style={styles.tableCell}>{line.roomCount}</Text>
               <Text style={styles.tableCell}>{line.rate ?? "-"}</Text>
-              {/* <Text style={styles.tableCell}>
-                {line.rate ? (Number(line.rate) * line.roomCount).toFixed(2) : "-"}
-                {line.rate ?? "-"}
-              </Text> */}
+              <Text style={styles.tableCell}>
+                {line.rate ? ((Number(line.rate) ?? 0) * line.roomCount).toFixed(2) : "-"}
+              </Text>
             </View>
           ))}
         </View>
@@ -136,9 +144,7 @@ const HotelVoucherDownloadablePDF = ({ voucher, organization, user }:HotelVouche
           </Text> */}
           <Text>
             Total (USD):{" "}
-            {voucher.voucherLines[0]?.rate
-              ? Number(voucher.voucherLines[0]?.rate ?? 0).toFixed(2)
-              : "0.00"}
+            {calculateTotal()}
           </Text>
         </View>
 
@@ -161,11 +167,9 @@ const HotelVoucherDownloadablePDF = ({ voucher, organization, user }:HotelVouche
         {/* Special Notes */}
         <View style={styles.section}>
           <Text>Special Notes: {voucher.voucherLines[0]?.remarks}</Text>
-          {voucher.status === "amended" && (
-            <Text>Reason for amendment: {voucher.reasonToAmend}</Text>
-          )}
+          <Text>{voucher.reasonToAmend !== null ? `Reason for amend : ${voucher.reasonToAmend ?? ""} ` : ""}</Text>
           {voucher.status === "cancelled" && (
-            <Text>Reason for cancellation: {voucher.reasonToAmend}</Text>
+            <Text>Reason for cancellation: {voucher.reasonToCancel ?? ""}</Text>
           )}
         </View>
 

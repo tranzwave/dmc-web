@@ -89,7 +89,8 @@ const HotelsTasksTab = ({
 }) => {
   const { toast } = useToast();
   const updateVoucherLinesRates = async (
-    voucherLine: SelectHotelVoucherLine[],
+    ratesMap: Map<string,string>,
+    voucherId:string,
     confirmationDetails?: {
       availabilityConfirmedBy: string;
       availabilityConfirmedTo: string;
@@ -102,7 +103,7 @@ const HotelsTasksTab = ({
     }
     alert("Updating voucher line:");
     try {
-      const bulkUpdateResponse = bulkUpdateHotelVoucherRates(voucherLine, {
+      const bulkUpdateResponse = bulkUpdateHotelVoucherRates(ratesMap,voucherId, {
         availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
         availabilityConfirmedTo: confirmationDetails.availabilityConfirmedTo,
         ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,

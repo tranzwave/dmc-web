@@ -52,7 +52,8 @@ export const updateHotelVoucherRate = async (data: SelectHotelVoucherLine) => {
 };
 
 export const bulkUpdateHotelVoucherRates = async (
-  voucherLines: SelectHotelVoucherLine[],
+  ratesMap: Map<string,string>,
+  voucherId:string,
   confirmationDetails: {
     availabilityConfirmedBy: string;
     availabilityConfirmedTo: string;
@@ -63,12 +64,12 @@ export const bulkUpdateHotelVoucherRates = async (
   try {
     await db.transaction(async (trx) => {
       // Create an array of update operations
-      const voucherId = voucherLines[0]?.hotelVoucherId ?? "";
+      // const voucherId = voucherLines[0]?.hotelVoucherId ?? "";
       console.log("Voucher : " + voucherId);
       let rateAmended = false;
-      for (const voucherLine of voucherLines) {
+      for (const rateEntry of ratesMap) {
         const existingVoucher = await trx.query.hotelVoucherLine.findFirst({
-          where: eq(hotelVoucherLine.id, voucherLine.id),
+          where: eq(hotelVoucherLine.id, rateEntry[0]),
         });
 
         if (existingVoucher && Number(existingVoucher.rate) > 0) {
@@ -76,8 +77,8 @@ export const bulkUpdateHotelVoucherRates = async (
         }
         await trx
           .update(hotelVoucherLine)
-          .set({ rate: voucherLine.rate })
-          .where(eq(hotelVoucherLine.id, voucherLine.id ?? ""));
+          .set({ rate: rateEntry[1] })
+          .where(eq(hotelVoucherLine.id, rateEntry[0] ?? ""));
       }
 
       if (rateAmended) {

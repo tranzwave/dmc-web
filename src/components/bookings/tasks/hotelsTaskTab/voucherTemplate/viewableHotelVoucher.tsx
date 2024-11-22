@@ -28,6 +28,14 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName }: HotelVoucherPD
     contactNumber: organization.publicMetadata.contactNumber as string ?? "Number",
     website: organization.publicMetadata.website as string ?? "Website"
   }
+  const calculateTotal = ()=>{
+    let sum = 0
+    voucher.voucherLines.forEach(l => {
+      sum += l.roomCount * (Number(l.rate) ?? 0)
+    })
+    return sum;
+  }
+
 
   return (
     <div className="flex flex-col border">
@@ -110,7 +118,7 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName }: HotelVoucherPD
                   <td className="px-4 py-2">{line.roomCount}</td>
                   <td className="px-4 py-2">{line.rate ?? '-'}</td>
                   <td className="px-4 py-2">
-                    {line.rate ? (Number(line.rate) ?? 0 * line.roomCount).toFixed(2) : "-"}
+                    {line.rate ? ((Number(line.rate) ?? 0) * line.roomCount).toFixed(2) : "-"}
                   </td>
                 </tr>
               ))}
@@ -154,7 +162,7 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName }: HotelVoucherPD
         </div> */}
 
         <div className="flex w-full flex-row justify-end p-4 text-[13px] font-semibold">
-          {`Total(USD) - ${voucher.voucherLines[0]?.rate ?? 0 * (voucher.voucherLines[0]?.roomCount ?? 0)}`}
+          {`Total(USD) - ${calculateTotal()}`}
         </div>
 
         <div className="text-[14px] font-normal">
