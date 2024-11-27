@@ -18,6 +18,7 @@ import { getAllShopTypes } from "~/server/db/queries/shops";
 import { SelectCity, SelectShopType } from "~/server/db/schemaTypes";
 import { columns, Shop } from "./columns";
 import ShopsForm from "./shopsForm";
+import { useOrganization } from "@clerk/nextjs";
 
 const ShopsTab = () => {
   const { addShop, bookingDetails, setActiveTab } = useEditBooking();
@@ -28,6 +29,8 @@ const ShopsTab = () => {
   const [loading, setLoading] = useState(false);
   const [shopTypes, setShopTypes] = useState<SelectShopType[]>([]);
   const { toast } = useToast();
+  const {memberships, organization, isLoaded} = useOrganization();
+
 
   const [saving, setSaving] = useState(false);
 
@@ -93,9 +96,11 @@ const ShopsTab = () => {
       // Run both requests in parallel
       setLoading(true);
       //TODO: Dynamic country code
+      const country = organization?.publicMetadata.country as string ?? "LK";
+
       const [shopTypeResponse, cityResponse] = await Promise.all([
         getAllShopTypes(),
-        getAllCities("LK"),
+        getAllCities(country),
       ]);
 
       // Check for errors in the responses
@@ -193,6 +198,10 @@ const ShopsTab = () => {
     }
     fetchData();
   }, []);
+
+  if (loading || !isLoaded) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="flex flex-col gap-3">

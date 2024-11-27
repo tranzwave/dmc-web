@@ -16,7 +16,7 @@ const fontSans = FontSans({
 export const metadata: Metadata = {
   title: "COORD.TRAVEL",
   description: "DMC Web App for COORD.TRAVEL",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  icons: [{ rel: "icon", url: "/favicon.svg", sizes: "50px"}],
 };
 
 export default function RootLayout({

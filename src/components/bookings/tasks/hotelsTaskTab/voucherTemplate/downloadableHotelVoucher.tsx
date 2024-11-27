@@ -96,7 +96,7 @@ const HotelVoucherDownloadablePDF = ({ voucher, organization, user }: HotelVouch
         <View style={styles.section}>
           <Text>Hotel Name: {voucher?.hotel.name}</Text>
           <Text>Tour ID: {voucher?.bookingLineId}</Text>
-          <Text>Voucher ID: {voucher?.voucherLines[0]?.id ?? ""}</Text>
+          <Text>Voucher ID: {voucher?.id ?? ""}</Text>
           <Text>
             Country: {voucher.bookingLineId.split("-")[1]?.split("-")[0] ?? "N/A"}
           </Text>

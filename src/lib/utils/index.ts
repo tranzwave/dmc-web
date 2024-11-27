@@ -23,3 +23,24 @@ export function calculateDaysBetween(startDate: string | Date, endDate: string |
 
   return Math.round(timeDifference / (1000 * 60 * 60 * 24)) + 1;
 }
+
+export function getLetterByIndex(index: number): string {
+  if(index == 0) {
+    return '';
+  }
+  if (index < 0) {
+      // throw new Error("Index must be a positive integer.");
+      return '';
+  }
+
+  const letters = "abcdefghijklmnopqrstuvwxyz";
+  let result = "";
+
+  while (index > 0) {
+      index--; // Adjust index to make it 0-based
+      result = letters[index % 26] + result;
+      index = Math.floor(index / 26);
+  }
+
+  return result;
+}

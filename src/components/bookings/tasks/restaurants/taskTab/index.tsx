@@ -40,13 +40,15 @@ interface TasksTabProps<T, L> {
   voucherColumns: ColumnDef<SelectRestaurantVoucherLine>[];
   vouchers: RestaurantVoucherData[];
   updateVoucherLine: (
-    ratesMap: Map<string,string>,
-    voucherId:string,
+    ratesMap: Map<string, string>,
+    voucherId: string,
     confirmationDetails?: {
       availabilityConfirmedBy: string;
       availabilityConfirmedTo: string;
       ratesConfirmedBy: string;
       ratesConfirmedTo: string;
+      specialNote:string;
+      billingInstructions:string
     },
   ) => Promise<void>;
   updateVoucherStatus: (data: any) => Promise<boolean>;
@@ -206,12 +208,12 @@ const RestaurantVouchersTasksTab = <
     getHotels();
     setSelectedVoucher(vouchers ? vouchers[0] : undefined)
 
-    const fetchBooking = async ()=>{
-      if(vouchers){
+    const fetchBooking = async () => {
+      if (vouchers) {
         try {
           setBookingLoading(true)
           const booking = await getBookingLineWithAllData(vouchers[0]?.bookingLineId ?? "")
-          if(booking){
+          if (booking) {
             setBookingName(booking.booking.client.name);
           }
           setBookingLoading(false)
@@ -317,7 +319,7 @@ const RestaurantVouchersTasksTab = <
     }
   };
 
-  const downloadCancellationVoucher = ()=>{
+  const downloadCancellationVoucher = () => {
     try {
       // downloadPDF()
     } catch (error) {
@@ -327,11 +329,11 @@ const RestaurantVouchersTasksTab = <
 
   const downloadCancellationVoucherButton = (
     <Button
-    variant={"outline"}
-    className="border-red-600"
-  >
-    Download Cancellation Voucher
-  </Button>
+      variant={"outline"}
+      className="border-red-600"
+    >
+      Download Cancellation Voucher
+    </Button>
   )
 
   return (
@@ -391,7 +393,7 @@ const RestaurantVouchersTasksTab = <
           >
             <div className="flex flex-row gap-2">
 
-            {selectedVoucher && selectedVoucher.voucherLines[0] && selectedVoucher.status === 'cancelled' && (
+              {selectedVoucher && selectedVoucher.voucherLines[0] && selectedVoucher.status === 'cancelled' && (
                 <>
                   <Popup
                     title={
@@ -423,21 +425,9 @@ const RestaurantVouchersTasksTab = <
                 </>
               )}
 
-              {selectedVoucher && selectedVoucher.voucherLines[0] && selectedVoucher.status != 'cancelled' && (
+              {selectedVoucher && selectedVoucher.voucherLines[0] && selectedVoucher.status !== 'cancelled' && (
                 <div className="flex flex-row gap-2">
 
-                  <Popup
-                    title="Contact"
-                    description="Loading Contact Details"
-                    trigger={contactButton}
-                    onConfirm={handleConfirm}
-                    onCancel={handleCancel}
-                    dialogContent={ContactContent(
-                      selectedVoucher.restaurant.contactNumber,
-                      selectedVoucher.restaurant.primaryEmail,
-                    )}
-                    size="small"
-                  />
                   <DeletePopup
                     itemName={`Voucher for ${selectedVoucher?.restaurant.name}`}
                     onDelete={handleInProgressVoucherDelete}
@@ -457,6 +447,28 @@ const RestaurantVouchersTasksTab = <
                     description="You have sent this to the vendor. This will download the cancellation voucher"
                     cancel={true}
                   />
+
+                  <Button
+                    variant={"outline"}
+                    className="border-red-600"
+                    onClick={renderCancelContent}
+                  >
+                    Cancel Voucher
+                  </Button>
+
+                  <Popup
+                    title="Contact"
+                    description="Loading Contact Details"
+                    trigger={contactButton}
+                    onConfirm={handleConfirm}
+                    onCancel={handleCancel}
+                    dialogContent={ContactContent(
+                      selectedVoucher.restaurant.contactNumber,
+                      selectedVoucher.restaurant.primaryEmail,
+                    )}
+                    size="small"
+                  />
+
 
                   <Popup
                     title={

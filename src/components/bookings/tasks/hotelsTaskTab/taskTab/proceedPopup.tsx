@@ -26,13 +26,15 @@ interface ProceedContentProps {
   selectedVoucher: HotelVoucherData | RestaurantVoucherData;
   onVoucherLineRowClick: any;
   updateVoucherLine: (
-    ratesMap: Map<string,string>,
-    voucherId:string,
+    ratesMap: Map<string, string>,
+    voucherId: string,
     confirmationDetails?: {
       availabilityConfirmedBy: string;
       availabilityConfirmedTo: string;
       ratesConfirmedBy: string;
       ratesConfirmedTo: string;
+      specialNote:string;
+      billingInstructions:string;
     },
   ) => Promise<void>;
   updateVoucherStatus: any;
@@ -40,7 +42,7 @@ interface ProceedContentProps {
   setRate: React.Dispatch<SetStateAction<string>>;
   setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
   type: string
-  bookingName:string
+  bookingName: string
   viewCancellationVoucher?: boolean
 }
 
@@ -65,6 +67,9 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   const [ratesConfirmedTo, setRatesConfirmedTo] = useState(selectedVoucher?.ratesConfirmedTo ?? "");
   const [availabilityConfirmedBy, setAvailabilityConfirmedBy] = useState(selectedVoucher?.availabilityConfirmedBy ?? "");
   const [availabilityConfirmedTo, setAvailabilityConfirmedTo] = useState(selectedVoucher?.availabilityConfirmedTo ?? "");
+  const [specialNote, setSpecialNote] = useState(selectedVoucher?.specialNote ?? "")
+  const [billingInstructions, setBillingInstructions] = useState(selectedVoucher?.billingInstructions ?? "")
+
   // const [ratesMap, setRatesMap] = useState<Map<string, string>>(new Map(
   //   selectedVoucher.voucherLines.map((voucherLine) => [
   //     voucherLine.id, // id of the voucher line
@@ -79,12 +84,12 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
     ])
   ));
 
-const handleRateChange = (id: string, rate: string) => {
-  ratesMapRef.current.set(id, rate); // Update the rate directly in the ref
-  console.log(ratesMapRef)
-};
+  const handleRateChange = (id: string, rate: string) => {
+    ratesMapRef.current.set(id, rate); // Update the rate directly in the ref
+    console.log(ratesMapRef)
+  };
 
-  const VoucherLineColumnsWithRate = [...voucherColumns, CreateRateColumn({handleRateChange:handleRateChange})]
+  const VoucherLineColumnsWithRate = [...voucherColumns, CreateRateColumn({ handleRateChange: handleRateChange })]
 
   const organization = useOrganization();
   const { isLoaded, user } = useUser();
@@ -99,12 +104,14 @@ const handleRateChange = (id: string, rate: string) => {
     }
 
     try {
-      console.log({rates: ratesMapRef, confirmedBy: availabilityConfirmedBy, confirmedTo: availabilityConfirmedTo})
-      await updateVoucherLine(ratesMapRef.current,selectedVoucher.id, {
+      console.log({ rates: ratesMapRef, confirmedBy: availabilityConfirmedBy, confirmedTo: availabilityConfirmedTo })
+      await updateVoucherLine(ratesMapRef.current, selectedVoucher.id, {
         availabilityConfirmedBy,
         availabilityConfirmedTo,
         ratesConfirmedBy,
         ratesConfirmedTo,
+        specialNote,
+        billingInstructions
       });
       alert("Voucher line updated successfully!");
     } catch (error) {
@@ -130,8 +137,9 @@ const handleRateChange = (id: string, rate: string) => {
 
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     console.log("rerendered here")
+    console.log(selectedVoucher)
   }, [])
 
 
@@ -162,6 +170,8 @@ const handleRateChange = (id: string, rate: string) => {
               <InputFields label="Rates confirmed by" value={ratesConfirmedBy} onChange={setRatesConfirmedBy} />
               <InputFields label="Rates confirmed to" value={ratesConfirmedTo} onChange={setRatesConfirmedTo} />
             </div>
+            <InputFields label="Special Note" value={specialNote} onChange={setSpecialNote} />
+            <InputFields label="Billing Instructions" value={billingInstructions} onChange={setBillingInstructions} />
           </div>
 
           <div className="flex w-full flex-row justify-end gap-2">
@@ -176,7 +186,7 @@ const handleRateChange = (id: string, rate: string) => {
           </AccordionTrigger>
           <AccordionContent className="space-y-2">
             <div className="flex flex-row justify-end" onClick={handleSendVoucher}>
-              {type === 'hotel' && selectedVoucher.status !== "cancelled" &&(
+              {type === 'hotel' && selectedVoucher.status !== "cancelled" && (
                 <PDFDownloadLink
                   document={<HotelVoucherDownloadablePDF voucher={selectedVoucher as HotelVoucherData} organization={orgData} user={user} />}
                   fileName={`${selectedVoucher.voucherLines[0]?.id}-${(selectedVoucher as HotelVoucherData).hotel.name}-Voucher.pdf`}
@@ -194,7 +204,7 @@ const handleRateChange = (id: string, rate: string) => {
                 </PDFDownloadLink>
               )}
 
-              {type === 'restaurant' && selectedVoucher.status !== "amended" && selectedVoucher.status !== "cancelled" &&(
+              {type === 'restaurant' && selectedVoucher.status !== "amended" && selectedVoucher.status !== "cancelled" && (
                 <PDFDownloadLink
                   document={<RestaurantVoucherDownloadablePDF voucher={selectedVoucher as RestaurantVoucherData} organization={orgData} user={user} />}
                   fileName={`${selectedVoucher.voucherLines[0]?.id}-${(selectedVoucher as RestaurantVoucherData).restaurant.name}-Voucher.pdf`}
@@ -218,11 +228,11 @@ const handleRateChange = (id: string, rate: string) => {
                 <>
                   {viewCancellationVoucher ? (<div>
                     <div>
-                      <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} cancellation={true} bookingName={bookingName}/>
+                      <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} cancellation={true} bookingName={bookingName} />
                     </div>
                   </div>) : (<div>
                     <div>
-                      <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} bookingName={bookingName}/>
+                      <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} bookingName={bookingName} />
                     </div>
                   </div>)}
 
@@ -233,11 +243,11 @@ const handleRateChange = (id: string, rate: string) => {
                 <>
                   {viewCancellationVoucher ? (<div>
                     <div>
-                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} cancellation={true} bookingName = {bookingName}/>
+                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} cancellation={true} bookingName={bookingName} />
                     </div>
                   </div>) : (<div>
                     <div>
-                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} bookingName={bookingName}/>
+                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} bookingName={bookingName} />
                     </div>
                   </div>)}
 

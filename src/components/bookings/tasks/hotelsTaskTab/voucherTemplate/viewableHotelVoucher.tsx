@@ -8,16 +8,19 @@ import { HotelVoucherData } from "..";
 import { SelectBooking } from "~/server/db/schemaTypes";
 import { useEffect, useState } from "react";
 import { getBookingById, getBookingLineWithAllData } from "~/server/db/queries/booking";
+import { Country } from "country-state-city";
+import { formatDate, getLetterByIndex } from "~/lib/utils/index";
 
 type HotelVoucherPDFProps = {
   voucher: HotelVoucherData;
-  bookingName:string
+  bookingName: string
   cancellation?: boolean
 };
 
 const HotelVoucherView = ({ voucher, cancellation, bookingName }: HotelVoucherPDFProps) => {
   const organization = useOrganization();
   const { isLoaded, user } = useUser();
+
 
   if (!isLoaded || !organization) {
     return <LoadingLayout />;
@@ -28,7 +31,7 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName }: HotelVoucherPD
     contactNumber: organization.publicMetadata.contactNumber as string ?? "Number",
     website: organization.publicMetadata.website as string ?? "Website"
   }
-  const calculateTotal = ()=>{
+  const calculateTotal = () => {
     let sum = 0
     voucher.voucherLines.forEach(l => {
       sum += l.roomCount * (Number(l.rate) ?? 0)
@@ -71,13 +74,13 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName }: HotelVoucherPD
             <div>Tour ID : {voucher.bookingLineId}</div>
             <div>Booking Name : {bookingName}</div>
             <div>
-              Country : {voucher.bookingLineId.split("-")[1]?.split("-")[0]}
+              Nationality : {Country.getCountryByCode(voucher.bookingLineId.split("-")[1]?.split("-")[0] ?? "")?.name}
             </div>
             <div>{`Adults : ${voucher.voucherLines[0]?.adultsCount}`}</div>
             <div>{`Kids : ${voucher.voucherLines[0]?.kidsCount}`}</div>
           </div>
           <div className="text-[13px]">
-            <div>Voucher ID : {voucher?.voucherLines[0]?.id + `${voucher.status === "amended" ? '/a' : ''}`}</div>
+            <div>Voucher ID : {voucher?.id + `${voucher.status === "amended" ? `/${getLetterByIndex(voucher.amendedCount ?? 0)}` : ''}`}</div>
             {/* <div>Check In : {voucher?.voucherLines[0]?.checkInDate}</div>
             <div>Check Out : {voucher?.voucherLines[0]?.checkOutDate}</div> */}
             {/* <div>
@@ -99,6 +102,8 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName }: HotelVoucherPD
                 <th className="px-4 py-2 text-left font-semibold">
                   Room Category
                 </th>
+                <th className="px-4 py-2 text-left font-semibold">Adults</th>
+                <th className="px-4 py-2 text-left font-semibold">Kids</th>
                 <th className="px-4 py-2 text-left font-semibold">Check In</th>
                 <th className="px-4 py-2 text-left font-semibold">Check Out</th>
 
@@ -113,8 +118,10 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName }: HotelVoucherPD
                   <td className="px-4 py-2">{line.roomType ?? "N/A"}</td>
                   <td className="px-4 py-2">{line.basis ?? "N/A"}</td>
                   <td className="px-4 py-2">{line.roomCategory ?? "N/A"}</td>
-                  <td className="px-4 py-2">{line.checkInDate ?? "N/A"}</td>
-                  <td className="px-4 py-2">{line.checkOutDate ?? "N/A"}</td>
+                  <td className="px-4 py-2">{line.adultsCount ?? "N/A"}</td>
+                  <td className="px-4 py-2">{line.kidsCount ?? "N/A"}</td>
+                  <td className="px-4 py-2">{formatDate(line.checkInDate) ?? "N/A"}</td>
+                  <td className="px-4 py-2">{formatDate(line.checkOutDate) ?? "N/A"}</td>
                   <td className="px-4 py-2">{line.roomCount}</td>
                   <td className="px-4 py-2">{line.rate ?? '-'}</td>
                   <td className="px-4 py-2">
@@ -165,19 +172,25 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName }: HotelVoucherPD
           {`Total(USD) - ${calculateTotal()}`}
         </div>
 
-        <div className="text-[14px] font-normal">
-          {voucher.availabilityConfirmedTo && (
-            <div>{`Availability confirmed by ${voucher.availabilityConfirmedBy} ${voucher.availabilityConfirmedTo ? 'to ' + voucher.availabilityConfirmedTo : ''}`}</div>
-          )}
+        <div className="text-[13px] font-normal">
+
 
           {voucher.ratesConfirmedTo && (
-            <div>{`Rates confirmed by ${voucher.ratesConfirmedBy} ${voucher.ratesConfirmedTo ? ' to ' + voucher.ratesConfirmedTo : ''}`}</div>
+            <div>{`Rates have been confirmed by ${voucher.ratesConfirmedBy} ${voucher.ratesConfirmedTo ? ' and communicated to ' + voucher.ratesConfirmedTo : ''}`}</div>
+          )}
+
+          <div>Other Instructions : {voucher.specialNote}</div>
+
+          {voucher.availabilityConfirmedTo && (
+            <div>{`Above arrangement is confirmed on the telephone by ${voucher.availabilityConfirmedBy} ${voucher.availabilityConfirmedTo ? ' and communicated to ' + voucher.availabilityConfirmedTo : ''}`}</div>
           )}
         </div>
         <div className="mt-4 text-[13px]">
-          <div>Special Notes : {voucher.voucherLines[0]?.remarks}</div>
+          
+          <div>Billing Instructions : {voucher.billingInstructions}</div>
+
           {voucher.status === 'amended' && (
-            <div>Reason for amendment : {voucher.reasonToAmend}</div>
+            <div>Reference(s) : {voucher.reasonToAmend}</div>
           )}
           {voucher.status === 'cancelled' && (
             <div>Reason for cancellation : {voucher.id}</div>
@@ -187,7 +200,7 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName }: HotelVoucherPD
           <div>Printed Date : {format(Date.now(), "dd/MM/yyyy")}</div>
           <div>Prepared By : {user?.fullName ?? ""}</div>
           <div>Contact Number : {(user?.publicMetadata as any)?.info?.contact ?? ""}</div>
-          <div>This is a computer generated Voucher & does not require a signature</div>
+          <div className="text-[12px] text-center text-gray-700">This is a computer generated Voucher & does not require a signature</div>
         </div>
       </div>
       <div className="h-8 w-full bg-primary-green"></div>

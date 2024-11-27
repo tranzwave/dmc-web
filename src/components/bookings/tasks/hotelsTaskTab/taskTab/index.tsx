@@ -24,6 +24,8 @@ import ConfirmationContent from "./confirmationPopup";
 import ContactContent from "./ContactPopup";
 import { createRoot } from "react-dom/client";
 import HotelVoucherView from "../voucherTemplate/viewableHotelVoucher";
+import { DataTableWithActions } from "~/components/common/dataTableWithActions";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 
 
 interface TasksTabProps<T, L> {
@@ -32,13 +34,15 @@ interface TasksTabProps<T, L> {
   voucherColumns: ColumnDef<SelectHotelVoucherLine>[];
   vouchers: HotelVoucherData[];
   updateVoucherLine: (
-    ratesMap: Map<string,string>,
-    voucherId:string,
+    ratesMap: Map<string, string>,
+    voucherId: string,
     confirmationDetails?: {
       availabilityConfirmedBy: string;
       availabilityConfirmedTo: string;
       ratesConfirmedBy: string;
       ratesConfirmedTo: string;
+      specialNote:string;
+      billingInstructions:string
     },
   ) => Promise<void>;
   updateVoucherStatus: (data: any) => Promise<boolean>;
@@ -82,6 +86,8 @@ const HotelVouchersTasksTab = <
   const pathname = usePathname();
   const [bookingName, setBookingName] = useState('');
   const [bookingLoading, setBookingLoading] = useState(false)
+
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const { toast } = useToast();
 
@@ -153,6 +159,7 @@ const HotelVouchersTasksTab = <
 
   const handleCancel = () => {
     console.log("Cancelled");
+    setIsEditDialogOpen(false)
     // Add cancellation logic here
   };
 
@@ -168,7 +175,7 @@ const HotelVouchersTasksTab = <
     }
   };
 
-  const downloadCancellationVoucher = ()=>{
+  const downloadCancellationVoucher = () => {
     try {
       // downloadPDF()
     } catch (error) {
@@ -205,12 +212,12 @@ const HotelVouchersTasksTab = <
     getHotels();
     setSelectedVoucher(vouchers ? vouchers[0] : undefined)
 
-    const fetchBooking = async ()=>{
-      if(vouchers){
+    const fetchBooking = async () => {
+      if (vouchers) {
         try {
           setBookingLoading(true)
           const booking = await getBookingLineWithAllData(vouchers[0]?.bookingLineId ?? "")
-          if(booking){
+          if (booking) {
             setBookingName(booking.booking.client.name);
           }
           setBookingLoading(false)
@@ -233,20 +240,20 @@ const HotelVouchersTasksTab = <
 
   const downloadPDF = () => {
     const tempContainer = deleteVoucherRef.current;
-  
+
     if (tempContainer && selectedVoucher) {
       // Make the container visible
       tempContainer.style.display = "block";
-  
+
       // Create a root and render the CancellationVoucher component into tempContainer
       const root = createRoot(tempContainer);
-      root.render(<HotelVoucherView voucher={selectedVoucher} bookingName={bookingName}/>);
-  
+      root.render(<HotelVoucherView voucher={selectedVoucher} bookingName={bookingName} />);
+
       const options = {
         filename: `cancellation_voucher_${selectedVoucher.hotel.name}.pdf`,
         jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
       };
-  
+
       // Generate the PDF and then clean up
       html2pdf()
         .set(options)
@@ -323,11 +330,11 @@ const HotelVouchersTasksTab = <
 
   const downloadCancellationVoucherButton = (
     <Button
-    variant={"outline"}
-    className="border-red-600"
-  >
-    Download Cancellation Voucher
-  </Button>
+      variant={"outline"}
+      className="border-red-600"
+    >
+      Download Cancellation Voucher
+    </Button>
   )
 
   return (
@@ -359,24 +366,56 @@ const HotelVouchersTasksTab = <
             </div>
           </div>
 
-          {/* <DataTableWithActions
+          <DataTableWithActions
             columns={voucherColumns}
             data={selectedVoucher?.voucherLines ?? []}
             onRowClick={onVoucherLineRowClick}
-            onView={() => alert("View action triggered")}
-            onEdit={() => alert("Edit action triggered")}
-            onDelete={() => alert("Delete action triggered")}
-          /> */}
-          <DataTable
-            columns={voucherColumns}
-            data={selectedVoucher?.voucherLines ?? []}
-            onRowClick={onVoucherLineRowClick}
+            onEdit={(line) => {
+              setSelectedVoucherLine(line)
+              setIsEditDialogOpen(true)
+            }}
           />
+          {isEditDialogOpen && selectedVoucher && selectedVoucherLine && (
+            <Dialog onOpenChange={setIsEditDialogOpen} defaultOpen={isEditDialogOpen}>
+              <DialogContent className={'w-[80%] max-w-[1500px] max-h-[95%] overflow-y-scroll'}>
+                <DialogHeader>
+                  <DialogTitle>{
+                    selectedVoucher && getFirstObjectName(selectedVoucher)
+                      ? `${getFirstObjectName(selectedVoucher)} - Voucher`
+                      : "Select a voucher first"
+                  }</DialogTitle>
+                  <DialogDescription>Amend Voucher</DialogDescription>
+                </DialogHeader>
+                <div className="mb-4">
+                  <HotelsVoucherForm
+                    onSave={() => {
+                      console.log("saving");
+                    }}
+                    defaultValues={{
+                      hotel: selectedVoucher?.hotel,
+                      ...selectedVoucherLine,
+                    }}
+                    hotels={hotels}
+                  />
+                </div>
+                <div className="flex justify-end gap-2">
+                  {/* <button onClick={onConfirm} className="btn-primary">
+                  Confirm
+                </button> */}
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+          {/* <DataTable
+            columns={voucherColumns}
+            data={selectedVoucher?.voucherLines ?? []}
+            onRowClick={onVoucherLineRowClick}
+          /> */}
           <div
             className={`flex flex-row items-end justify-end ${!selectedVoucher ? "hidden" : ""}`}
           >
             <div className="flex flex-row gap-2">
-            {selectedVoucher && selectedVoucher.voucherLines[0] && selectedVoucher.status === 'cancelled' && (
+              {selectedVoucher && selectedVoucher.voucherLines[0] && selectedVoucher.status === 'cancelled' && (
                 <>
                   <Popup
                     title={
@@ -409,26 +448,6 @@ const HotelVouchersTasksTab = <
               )}
               {selectedVoucher && selectedVoucher.voucherLines[0] && selectedVoucher.status !== 'cancelled' && (
                 <div className="flex flex-row gap-2">
-                  <Button
-                    variant={"outline"}
-                    className="border-red-600"
-                    onClick={renderCancelContent}
-                  >
-                    Cancel
-                  </Button>
-
-                  <Popup
-                    title={`${selectedVoucher.hotel.name} Contact Details`}
-                    description={``}
-                    trigger={contactButton}
-                    onConfirm={handleConfirm}
-                    onCancel={handleCancel}
-                    dialogContent={ContactContent(
-                      selectedVoucher.hotel.primaryContactNumber,
-                      selectedVoucher.hotel.primaryEmail,
-                    )}
-                    size="small"
-                  />
                   <DeletePopup
                     itemName={`Voucher for ${selectedVoucher?.hotel.name}`}
                     onDelete={handleInProgressVoucherDelete}
@@ -449,8 +468,29 @@ const HotelVouchersTasksTab = <
                     description="You have sent this to the vendor. This will download the cancellation voucher"
                     cancel={true}
                   />
+                  <Button
+                    variant={"outline"}
+                    className="border-red-600"
+                    onClick={renderCancelContent}
+                  >
+                    Cancel Whole Voucher
+                  </Button>
 
                   <Popup
+                    title={`${selectedVoucher.hotel.name} Contact Details`}
+                    description={``}
+                    trigger={contactButton}
+                    onConfirm={handleConfirm}
+                    onCancel={handleCancel}
+                    dialogContent={ContactContent(
+                      selectedVoucher.hotel.primaryContactNumber,
+                      selectedVoucher.hotel.primaryEmail,
+                    )}
+                    size="small"
+                  />
+
+
+                  {/* <Popup
                     title={
                       selectedVoucher && getFirstObjectName(selectedVoucher)
                         ? `${getFirstObjectName(selectedVoucher)} - Voucher`
@@ -473,7 +513,7 @@ const HotelVouchersTasksTab = <
                       />
                     }
                     size="large"
-                  />
+                  /> */}
                   <Popup
                     title="Confirm Voucher"
                     description="Confirm Form"
