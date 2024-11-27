@@ -7,7 +7,7 @@ import {
   hotel,
   tenant,
 } from "./../../../schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { HotelVoucher } from "~/app/dashboard/bookings/add/context";
 import { db } from "~/server/db";
 import {
@@ -59,6 +59,8 @@ export const bulkUpdateHotelVoucherRates = async (
     availabilityConfirmedTo: string;
     ratesConfirmedBy: string;
     ratesConfirmedTo: string;
+    specialNote:string;
+    billingInstructions:string
   },
 ) => {
   try {
@@ -72,7 +74,7 @@ export const bulkUpdateHotelVoucherRates = async (
           where: eq(hotelVoucherLine.id, rateEntry[0]),
         });
 
-        if (existingVoucher && Number(existingVoucher.rate) > 0) {
+        if (existingVoucher && Number(existingVoucher.rate) > 0 && Number(existingVoucher.rate) !== Number(rateEntry[1])) {
           rateAmended = true;
         }
         await trx
@@ -93,6 +95,9 @@ export const bulkUpdateHotelVoucherRates = async (
             ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
             status: "amended",
             reasonToAmend: "Rates updated",
+            specialNote:confirmationDetails.specialNote,
+            billingInstructions:confirmationDetails.billingInstructions,
+            amendedCount: sql`${hotelVoucher.amendedCount} + 1`
           })
           .where(eq(hotelVoucher.id, voucherId));
       } else {
@@ -105,6 +110,8 @@ export const bulkUpdateHotelVoucherRates = async (
               confirmationDetails.availabilityConfirmedTo,
             ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
             ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
+            specialNote:confirmationDetails.specialNote,
+            billingInstructions:confirmationDetails.billingInstructions
           })
           .where(eq(hotelVoucher.id, voucherId));
       }

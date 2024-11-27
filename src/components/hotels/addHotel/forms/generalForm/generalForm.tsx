@@ -1,5 +1,6 @@
 "use client";
 
+import { useOrganization } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { useEffect, useState } from "react";
@@ -74,6 +75,8 @@ const HotelGeneralForm = ({
   const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState<SelectCity[]>([]);
   const [selectedCity, setSelectedCity] = useState(0);
+  const {memberships, organization, isLoaded} = useOrganization();
+
 
   const {
     setHotelGeneral,
@@ -128,7 +131,9 @@ const HotelGeneralForm = ({
     try {
       // Run both requests in parallel
       setLoading(true);
-      const [citiesResponse] = await Promise.all([getAllCities("LK")]);
+      const country = organization?.publicMetadata.country as string ?? "LK";
+
+      const [citiesResponse] = await Promise.all([getAllCities(country)]);
 
       if (!citiesResponse) {
         throw new Error("Error fetching countries");
@@ -159,6 +164,10 @@ const HotelGeneralForm = ({
     }
     reset(defaultValues);
   }, [hotelGeneral]);
+
+  if (loading || !isLoaded) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>

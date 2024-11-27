@@ -65,12 +65,12 @@ const SideNavBar = () => {
       {/* Logo Section */}
       <div className="flex flex-col items-center justify-center">
         <Image
-          src="/assets/logo-white.svg" style={{ width: '150px', height: '70px' }}
+          src="/assets/coord-white-logo-new.svg" style={{ width: '130px', height: '60px' }}
           alt="Logo"
           width={20} // Adjust the width as per your requirement
           height={20} // Adjust the height as per your requirement
         />
-        <div className="font-semibold">COORD.TRAVEL</div>
+        {/* <div className="font-semibold">COORD.TRAVEL</div> */}
       </div>
       {/* Navigation Links */}
       <nav className="flex-1 overflow-y-auto">

@@ -74,6 +74,8 @@ const updateVoucherLinesRates = async (
     availabilityConfirmedTo: string;
     ratesConfirmedBy: string;
     ratesConfirmedTo: string;
+    specialNote:string;
+    billingInstructions:string;
   },
 ) => {
   if (!confirmationDetails) {
@@ -86,6 +88,9 @@ const updateVoucherLinesRates = async (
       availabilityConfirmedTo: confirmationDetails.availabilityConfirmedTo,
       ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
       ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
+      specialNote:confirmationDetails.specialNote,
+      billingInstructions:confirmationDetails.billingInstructions
+
     });
 
     if (!bulkUpdateResponse) {
