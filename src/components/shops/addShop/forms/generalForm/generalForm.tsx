@@ -1,5 +1,6 @@
 "use client";
 
+import { useOrganization } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { useEffect, useState } from "react";
@@ -57,6 +58,8 @@ const GeneralForm = () => {
   const [selectedShopType, setSelectedShopType] = useState<
     SelectShopType | undefined
   >();
+  const {memberships, organization, isLoaded} = useOrganization();
+
 
   // Initialize form with default values using React Hook Form
   const { city, ...general } = shopDetails.general;
@@ -92,7 +95,9 @@ const GeneralForm = () => {
   const fetchCities = async () => {
     try {
       setLoading(true);
-      const citiesResponse = await getAllCities("LK");
+      const country = organization?.publicMetadata.country as string ?? "LK";
+
+      const citiesResponse = await getAllCities(country);
 
       if (!citiesResponse) {
         throw new Error("Error fetching cities");
@@ -137,6 +142,10 @@ const GeneralForm = () => {
 
     setSelectedShopType(initialShopType);
   }, [shopDetails]);
+
+  if (loading || !isLoaded) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Form {...form}>

@@ -1,0 +1,2 @@
+ALTER TABLE "dmc-web_restaurant_vouchers" ADD COLUMN "billing_instructions" varchar(255) DEFAULT '';--> statement-breakpoint
+ALTER TABLE "dmc-web_restaurant_vouchers" ADD COLUMN "special_note" varchar(255) DEFAULT '';

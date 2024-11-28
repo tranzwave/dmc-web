@@ -39,7 +39,7 @@ export default function DashboardLayout({
         setOrganization(org);
       }
     }
-  }, [isLoaded, isSignedIn, user, router]);
+  }, [isSignedIn, isLoaded]);
 
   if (!isLoaded || !isSignedIn || !organization) {
     return (

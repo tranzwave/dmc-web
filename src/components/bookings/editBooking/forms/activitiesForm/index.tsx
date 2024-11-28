@@ -24,6 +24,7 @@ import {
 } from "~/server/db/schemaTypes";
 import ActivitiesForm from "./actvitiesForm";
 import { columns } from "./columns";
+import { useOrganization } from "@clerk/nextjs";
 
 const ActivitiesTab = () => {
   const [addedActivities, setAddedActivities] = useState<ActivityVoucher[]>([]);
@@ -51,6 +52,7 @@ const ActivitiesTab = () => {
 
   const pathname = usePathname()
   const bookingLineId = pathname.split("/")[3]
+  const {memberships, organization, isLoaded} = useOrganization();
 
   const updateActivities = (voucher: ActivityVoucher) => {
     setAddedActivities((prev) => [...prev, voucher]);
@@ -61,9 +63,10 @@ const ActivitiesTab = () => {
       // Run both requests in parallel
       setLoading(true);
       //TODO: Dynamic country code
+      const country = organization?.publicMetadata.country as string ?? "LK";
       const [activityResponse, cityResponse] = await Promise.all([
         getAllActivityTypes(),
-        getAllCities("LK"),
+        getAllCities(country),
       ]);
 
       // Check for errors in the responses
@@ -112,7 +115,7 @@ const ActivitiesTab = () => {
       });
     }
   };
-  if (loading) {
+  if (loading || !isLoaded) {
     return <div>Loading...</div>;
   }
 

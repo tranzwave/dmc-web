@@ -7,7 +7,7 @@ import {
   hotel,
   tenant,
 } from "./../../../schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { HotelVoucher } from "~/app/dashboard/bookings/add/context";
 import { db } from "~/server/db";
 import {
@@ -52,40 +52,69 @@ export const updateHotelVoucherRate = async (data: SelectHotelVoucherLine) => {
 };
 
 export const bulkUpdateHotelVoucherRates = async (
-  voucherLines: SelectHotelVoucherLine[],
+  ratesMap: Map<string,string>,
+  voucherId:string,
   confirmationDetails: {
-    availabilityConfirmedBy: string,
-    availabilityConfirmedTo: string,
-    ratesConfirmedBy: string,
-    ratesConfirmedTo: string,
-  }
+    availabilityConfirmedBy: string;
+    availabilityConfirmedTo: string;
+    ratesConfirmedBy: string;
+    ratesConfirmedTo: string;
+    specialNote:string;
+    billingInstructions:string
+  },
 ) => {
   try {
     await db.transaction(async (trx) => {
       // Create an array of update operations
-      const voucherId = voucherLines[0]?.hotelVoucherId ?? ""
-      console.log("Voucher : " + voucherId)
-      for (const voucherLine of voucherLines) {
+      // const voucherId = voucherLines[0]?.hotelVoucherId ?? "";
+      console.log("Voucher : " + voucherId);
+      let rateAmended = false;
+      for (const rateEntry of ratesMap) {
+        const existingVoucher = await trx.query.hotelVoucherLine.findFirst({
+          where: eq(hotelVoucherLine.id, rateEntry[0]),
+        });
+
+        if (existingVoucher && Number(existingVoucher.rate) > 0 && Number(existingVoucher.rate) !== Number(rateEntry[1])) {
+          rateAmended = true;
+        }
         await trx
           .update(hotelVoucherLine)
-          .set({ rate: voucherLine.rate })
-          .where(eq(hotelVoucherLine.id, voucherLine.id ?? ""));
+          .set({ rate: rateEntry[1] })
+          .where(eq(hotelVoucherLine.id, rateEntry[0] ?? ""));
       }
-      console.log({
-        availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
-        availabilityConfirmedTo: confirmationDetails.availabilityConfirmedTo,
-        ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
-        ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
-      })
-      await trx
-        .update(hotelVoucher)
-        .set({
-          availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
-          availabilityConfirmedTo: confirmationDetails.availabilityConfirmedTo,
-          ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
-          ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
-        })
-        .where(eq(hotelVoucher.id, voucherId))
+
+      if (rateAmended) {
+        await trx
+          .update(hotelVoucher)
+          .set({
+            availabilityConfirmedBy:
+              confirmationDetails.availabilityConfirmedBy,
+            availabilityConfirmedTo:
+              confirmationDetails.availabilityConfirmedTo,
+            ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
+            ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
+            status: "amended",
+            reasonToAmend: "Rates updated",
+            specialNote:confirmationDetails.specialNote,
+            billingInstructions:confirmationDetails.billingInstructions,
+            amendedCount: sql`${hotelVoucher.amendedCount} + 1`
+          })
+          .where(eq(hotelVoucher.id, voucherId));
+      } else {
+        await trx
+          .update(hotelVoucher)
+          .set({
+            availabilityConfirmedBy:
+              confirmationDetails.availabilityConfirmedBy,
+            availabilityConfirmedTo:
+              confirmationDetails.availabilityConfirmedTo,
+            ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
+            ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
+            specialNote:confirmationDetails.specialNote,
+            billingInstructions:confirmationDetails.billingInstructions
+          })
+          .where(eq(hotelVoucher.id, voucherId));
+      }
     });
 
     console.log("All voucher rates updated successfully");

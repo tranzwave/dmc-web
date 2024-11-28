@@ -12,25 +12,22 @@ export const tourTypes = [
 ];
 
 export const hotelRoomCategories = [
-  // "Deluxe",
-  // "Suite",
-  // "Standard",
-  // "Superior",
-  // "Executive",
-  // "Family",
-  // "Economy",
-  // "Penthouse",
-  // "Luxury",
-  // "Studio",
-  "Single",
-  "Double",
-  "Twin",
-  "Triple",
-  "Quadraple",
-  "01 Bedroom",
-  "02 Bedroom",
-  "03 bedroom",
-  "04 bedroom"
+  "Standard Room",
+  "Deluxe Room",
+  "Superior Room",
+  "Family Superior Room",
+  "Family Room",
+  "Ocean View Pool Villa",
+  "Beach Pool Villa",
+  "Premier Ocean View Pool Villa",
+  "Premier Beach Pool Villa",
+  "Ocean View Chalet",
+  "Beach Cottage",
+  "Garden Room",
+  "Tropical Garden Room",
+  "Junior Suite",
+  "Senior Suite",
+  "Executive Suite"
 ];
 
 export const hotelRoomTypes = [
@@ -38,15 +35,11 @@ export const hotelRoomTypes = [
   "Double",
   "Twin",
   "Triple",
-  "Queen",
-  "King",
-  "Executive Suite",
-  "Family Suite",
-  "Deluxe Room",
-  "Standard Room",
-  "Penthouse Suite",
-  "Studio Room",
-  "Connecting Room",
+  "Quadruple",
+  "01 Bedroom",
+  "02 Bedroom",
+  "03 Bedroom",
+  "04 Bedroom"
 ];
 
 

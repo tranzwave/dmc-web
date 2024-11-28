@@ -1,6 +1,6 @@
 {
-  "id": "b8b5f064-46c7-4f4b-9a82-4024d6df816a",
-  "prevId": "02e863ee-8fc6-4d8b-b82b-81b3b2df215a",
+  "id": "57a27ce5-f869-4f5b-8b89-11f9e4a2e07b",
+  "prevId": "b8b5f064-46c7-4f4b-9a82-4024d6df816a",
   "version": "6",
   "dialect": "postgresql",
   "tables": {
@@ -2362,6 +2362,20 @@
         },
         "reason_to_cancel": {
           "name": "reason_to_cancel",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "billing_instructions": {
+          "name": "billing_instructions",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "special_note": {
+          "name": "special_note",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false,

@@ -56,14 +56,15 @@ interface HotelsFormProps {
   ) => void;
   hotels: SelectHotel[];
   defaultValues:
-    | (InsertHotelVoucherLine & {
-        hotel: SelectHotel;
-      })
-    | null
-    | undefined;
+  | (InsertHotelVoucherLine & {
+    hotel: SelectHotel;
+  })
+  | null
+  | undefined;
   amendment?: boolean;
   isUpdating?: boolean;
   isSaving?: boolean;
+  triggerEdit?:boolean
 }
 
 export const hotelsSchema = z.object({
@@ -88,6 +89,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   amendment,
   isUpdating,
   isSaving,
+  triggerEdit
 }) => {
   const [selectedHotel, setSelectedHotel] = useState<SelectHotel | null>();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -123,7 +125,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
     const voucherLine: InsertHotelVoucherLine = {
       adultsCount: Number(form.getValues("adultsCount")), // Assuming you have an `adultsCount` field in your form.
       kidsCount: Number(form.getValues("kidsCount")), // Assuming you have a `kidsCount` field in your form.
-      hotelVoucherId: "",
+      hotelVoucherId: defaultValues?.hotelVoucherId ?? "",
       roomType: form.getValues("roomType"), // Room type from the form.
       roomCategory: form.getValues("roomCategory") ?? '',
       basis: form.getValues("basis"), // Basis from the form.
@@ -133,7 +135,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       checkOutTime: "10:00",
       roomCount: Number(form.getValues("roomCount")), // Room count from the form, converted to a number.
       remarks: form.getValues("remarks"),
-      id: voucherLineId,
+      id: defaultValues?.id ?? voucherLineId,
     };
 
     if (amendment) {
@@ -145,8 +147,10 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
 
     if (isNewVoucher) {
       onAddHotel(voucherLine, true, selectedHotel);
+      // alert("New voucher")
     } else {
       onAddHotel(voucherLine, false, selectedHotel);
+      // alert("existing voucher")
     }
 
     // Reset form and close the modal
@@ -157,7 +161,17 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
 
   function onSubmit(values: z.infer<typeof hotelsSchema>) {
     // setIsModalOpen(true);
-    handleModalResponse(true);
+    if(selectedHotel){
+      if(bookingDetails.vouchers.find(v => v.hotel.id === selectedHotel.id)){
+        if(triggerEdit){
+          handleModalResponse(true)
+        } else{
+          setIsModalOpen(true)
+        }
+      } else {
+        handleModalResponse(true);
+      }
+    }
   }
 
   function getHotelId(name: string) {
@@ -213,44 +227,44 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
             />
             <div className="flex flex-row gap-3">
               <div className="w-full">
-              <FormField
-                name="adultsCount"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Adults</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        value={field.value ?? ""}
-                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                        min={0}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  name="adultsCount"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Adults</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          value={field.value ?? ""}
+                          onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                          min={0}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
               <div className="w-full">
-              <FormField
-                name="kidsCount"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Kids</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        value={field.value ?? ""}
-                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                        min={0}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  name="kidsCount"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Kids</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          value={field.value ?? ""}
+                          onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                          min={0}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             </div>
             <FormField
@@ -276,235 +290,236 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-row gap-3">
               <div className="w-1/2">
-              <FormField
-                name="checkInDate"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Check-in Date</FormLabel>
-                    <FormControl>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !field.value && "text-muted-foreground",
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value ? (
-                            format(new Date(field.value), "LLL dd, y")
-                          ) : (
-                            <span>Pick the check-in date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          initialFocus
-                          selected={
-                            field.value
-                              ? parse(field.value, "MM/dd/yyyy", new Date())
-                              : new Date()
-                          }
-                          onSelect={(date: Date | undefined) => {
-                            const dateString = format(
-                              date ?? new Date(),
-                              "MM/dd/yyyy",
-                            );
-                            field.onChange(dateString);
-                          }}
-                          disabled={(date) => {
-                            const min = new Date(bookingDetails.general.startDate);
-                            const max = new Date(bookingDetails.general.endDate)
-                            min.setHours(0, 0, 0, 0);
-                            max.setHours(0, 0, 0, 0)
-                            return date < min || date > max;
-                          }}
-                          numberOfMonths={1}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                      {/* <Input
+                <FormField
+                  name="checkInDate"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Check-in Date</FormLabel>
+                      <FormControl>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !field.value && "text-muted-foreground",
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {field.value ? (
+                                format(new Date(field.value), "LLL dd, y")
+                              ) : (
+                                <span>Pick the check-in date</span>
+                              )}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              initialFocus
+                              selected={
+                                field.value
+                                  ? parse(field.value, "MM/dd/yyyy", new Date())
+                                  : new Date()
+                              }
+                              onSelect={(date: Date | undefined) => {
+                                const dateString = format(
+                                  date ?? new Date(),
+                                  "MM/dd/yyyy",
+                                );
+                                field.onChange(dateString);
+                              }}
+                              disabled={(date) => {
+                                const min = new Date(bookingDetails.general.startDate);
+                                const max = new Date(bookingDetails.general.endDate)
+                                min.setHours(0, 0, 0, 0);
+                                max.setHours(0, 0, 0, 0)
+                                return date < min || date > max;
+                              }}
+                              numberOfMonths={1}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        {/* <Input
                         type="date"
                         {...field}
                         min={bookingDetails.general.startDate ?? ""}
                         max={bookingDetails.general.endDate ?? ""}
                       /> */}
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
               <div className="w-1/2">
-              <FormField
-                name="checkOutDate"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Check-out Date</FormLabel>
-                    <FormControl>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !field.value && "text-muted-foreground",
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value ? (
-                            format(new Date(field.value), "LLL dd, y")
-                          ) : (
-                            <span>Pick the check-out date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          initialFocus
-                          selected={
-                            field.value
-                              ? parse(field.value, "MM/dd/yyyy", new Date())
-                              : new Date()
-                          }
-                          onSelect={(date: Date | undefined) => {
-                            const dateString = format(
-                              date ?? new Date(),
-                              "MM/dd/yyyy",
-                            );
-                            field.onChange(dateString);
-                          }}
-                          disabled={(date) => {
-                            const min = new Date(form.watch("checkInDate"));
-                            const max = new Date(bookingDetails.general.endDate)
-                            min.setHours(0, 0, 0, 0);
-                            max.setHours(0, 0, 0, 0)
-                            return date < min || date > max;
-                          }}
-                          numberOfMonths={1}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                      {/* <Input
+                <FormField
+                  name="checkOutDate"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Check-out Date</FormLabel>
+                      <FormControl>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !field.value && "text-muted-foreground",
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {field.value ? (
+                                format(new Date(field.value), "LLL dd, y")
+                              ) : (
+                                <span>Pick the check-out date</span>
+                              )}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              initialFocus
+                              selected={
+                                field.value
+                                  ? parse(field.value, "MM/dd/yyyy", new Date())
+                                  : new Date()
+                              }
+                              onSelect={(date: Date | undefined) => {
+                                const dateString = format(
+                                  date ?? new Date(),
+                                  "MM/dd/yyyy",
+                                );
+                                field.onChange(dateString);
+                              }}
+                              disabled={(date) => {
+                                const min = new Date(form.watch("checkInDate"));
+                                const max = new Date(bookingDetails.general.endDate)
+                                min.setHours(0, 0, 0, 0);
+                                max.setHours(0, 0, 0, 0)
+                                return date < min || date > max;
+                              }}
+                              numberOfMonths={1}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        {/* <Input
                         type="date"
                         {...field}
                         min={form.watch("checkInDate") ?? ""}
                         max={bookingDetails.general.endDate ?? ""}
                       /> */}
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
 
             </div>
             <div>
-            <FormField
-              name="roomType"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Room Type</FormLabel>
-                  <FormControl>
-                    {/* <Input placeholder="Enter room type" {...field} /> */}
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                      }}
-                      value={field.value}
-                    >
-                      <SelectTrigger className="bg-slate-100 shadow-md">
-                        <SelectValue placeholder="Select room type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {hotelRoomTypes.map((room) => (
-                          <SelectItem key={room} value={room}>
-                            {room}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
+              <FormField
+                name="roomCategory"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Room Category</FormLabel>
+                    <FormControl>
+                      {/* <Input placeholder="Enter room type" {...field} /> */}
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                        }}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="bg-slate-100 shadow-md">
+                          <SelectValue placeholder="Select room category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {hotelRoomCategories.map((room) => (
+                            <SelectItem key={room} value={room}>
+                              {room}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
 
           </div>
           <div className="grid grid-cols-2 gap-3">
-          <div>
-            <FormField
-              name="roomCategory"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Room Category</FormLabel>
-                  <FormControl>
-                    {/* <Input placeholder="Enter room type" {...field} /> */}
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                      }}
-                      value={field.value}
-                    >
-                      <SelectTrigger className="bg-slate-100 shadow-md">
-                        <SelectValue placeholder="Select room category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {hotelRoomCategories.map((room) => (
-                          <SelectItem key={room} value={room}>
-                            {room}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div>
+              <FormField
+                name="roomType"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Room Type</FormLabel>
+                    <FormControl>
+                      {/* <Input placeholder="Enter room type" {...field} /> */}
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                        }}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="bg-slate-100 shadow-md">
+                          <SelectValue placeholder="Select room type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {hotelRoomTypes.map((room) => (
+                            <SelectItem key={room} value={room}>
+                              {room}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
             <div>
-            <FormField
-              name="basis"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Basis</FormLabel>
-                  <FormControl>
-                    {/* <Input placeholder="Enter basis" {...field} /> */}
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                      }}
-                      value={field.value}
-                    >
-                      <SelectTrigger className="bg-slate-100 shadow-md">
-                        <SelectValue placeholder="Select Basis" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {hotelBoardBasis.map((basis) => (
-                          <SelectItem key={basis} value={basis}>
-                            {basis}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                name="basis"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Basis</FormLabel>
+                    <FormControl>
+                      {/* <Input placeholder="Enter basis" {...field} /> */}
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                        }}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="bg-slate-100 shadow-md">
+                          <SelectValue placeholder="Select Basis" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {hotelBoardBasis.map((basis) => (
+                            <SelectItem key={basis} value={basis}>
+                              {basis}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
           </div>

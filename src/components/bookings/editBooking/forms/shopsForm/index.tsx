@@ -18,6 +18,7 @@ import { getAllShopTypes } from "~/server/db/queries/shops";
 import { SelectCity, SelectShopType } from "~/server/db/schemaTypes";
 import { columns, Shop } from "./columns";
 import ShopsForm from "./shopsForm";
+import { useOrganization } from "@clerk/nextjs";
 
 const ShopsTab = () => {
   const { addShop, bookingDetails, setActiveTab } = useEditBooking();
@@ -28,6 +29,8 @@ const ShopsTab = () => {
   const [loading, setLoading] = useState(false);
   const [shopTypes, setShopTypes] = useState<SelectShopType[]>([]);
   const { toast } = useToast();
+  const {memberships, organization, isLoaded} = useOrganization();
+
 
   const [saving, setSaving] = useState(false);
 
@@ -41,8 +44,41 @@ const ShopsTab = () => {
     }
   };
 
-  const updateShopVouchers = (shop: ShopVoucher) => {
+  const updateShopVouchers = async (shop: ShopVoucher) => {
     addShop(shop);
+
+    try {
+      setSaving(true);
+      const newResponse = await addShopVouchersToBooking(
+        [shop],
+        bookingLineId ?? "",
+        bookingDetails.general.marketingManager,
+      );
+
+      if (!newResponse) {
+        throw new Error(`Error: Couldn't add shop vouchers`);
+      }
+      console.log("Fetched Shops:", newResponse);
+
+      setSaving(false);
+      toast({
+        title: "Success",
+        description: "Shops Vouchers Added!",
+      });
+      window.location.reload();
+    } catch (error) {
+      if (error instanceof Error) {
+        // setError(error.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+      console.error("Error:", error);
+      setSaving(false);
+      toast({
+        title: "Uh Oh!",
+        description: "Couldn't add shop vouchers!",
+      });
+    }
   };
 
   // Function to search for drivers based on transport data
@@ -60,9 +96,11 @@ const ShopsTab = () => {
       // Run both requests in parallel
       setLoading(true);
       //TODO: Dynamic country code
+      const country = organization?.publicMetadata.country as string ?? "LK";
+
       const [shopTypeResponse, cityResponse] = await Promise.all([
         getAllShopTypes(),
-        getAllCities("LK"),
+        getAllCities(country),
       ]);
 
       // Check for errors in the responses
@@ -161,6 +199,10 @@ const ShopsTab = () => {
     fetchData();
   }, []);
 
+  if (loading || !isLoaded) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-row justify-center gap-3">
@@ -181,6 +223,7 @@ const ShopsTab = () => {
             onAddShop={updateShopVouchers}
             shopTypes={shopTypes}
             cities={cities}
+            isSaving={saving}
           />
         </div>
       </div>
@@ -188,9 +231,9 @@ const ShopsTab = () => {
         <DataTable columns={columns} data={bookingDetails.shops} />
       </div>
         <div className="flex w-full justify-end gap-2">
-          <Button variant={"primaryGreen"} onClick={onSaveClick} disabled={saving}>
+          {/* <Button variant={"primaryGreen"} onClick={onSaveClick} disabled={saving}>
             {saving ? (<div className="flex flex-row gap-1"><div><LoaderCircle className="animate-spin" size={15}/></div>Saving</div>): ('Save')}
-          </Button>
+          </Button> */}
           <Link href={`${pathname.split("edit")[0]}/tasks?tab=shops`}>
             <Button variant={"primaryGreen"}>Send Vouchers</Button>
           </Link>

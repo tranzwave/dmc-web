@@ -1,6 +1,6 @@
 {
-  "id": "b8b5f064-46c7-4f4b-9a82-4024d6df816a",
-  "prevId": "02e863ee-8fc6-4d8b-b82b-81b3b2df215a",
+  "id": "7932b3e0-1afa-4629-9e49-945cafcec772",
+  "prevId": "57a27ce5-f869-4f5b-8b89-11f9e4a2e07b",
   "version": "6",
   "dialect": "postgresql",
   "tables": {
@@ -1927,6 +1927,13 @@
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        },
+        "amend_count": {
+          "name": "amend_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
         }
       },
       "indexes": {},
@@ -2366,6 +2373,27 @@
           "primaryKey": false,
           "notNull": false,
           "default": "''"
+        },
+        "billing_instructions": {
+          "name": "billing_instructions",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "special_note": {
+          "name": "special_note",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "amend_count": {
+          "name": "amend_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
         }
       },
       "indexes": {},

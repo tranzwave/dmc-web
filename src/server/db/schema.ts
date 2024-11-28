@@ -281,6 +281,10 @@ export const hotelVoucher = createTable("hotel_vouchers", {
     // .references(() => user.id)
     .notNull(),
   status: statusEnum('status').default('inprogress'),
+
+  billingInstructions: varchar("billing_instructions", { length: 255 }).default(""),
+  specialNote: varchar("special_note", { length: 255 }).default(""),
+
   availabilityConfirmedBy: varchar("availability_confirmed_by", { length: 255 }).default(""),
   availabilityConfirmedTo: varchar("availability_confirmed_to", { length: 255 }).default(""),
   ratesConfirmedBy: varchar("rates_confirmed_by", { length: 255 }).default(""),
@@ -289,6 +293,8 @@ export const hotelVoucher = createTable("hotel_vouchers", {
   reasonToCancel: varchar("reason_to_cancel", { length: 255 }).default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+
+  amendedCount: integer("amend_count").default(0),
 
 });
 
@@ -375,6 +381,10 @@ export const restaurantVoucher = createTable("restaurant_vouchers", {
   ratesConfirmedTo: varchar("rates_confirmed_to", { length: 255 }).default(""),
   reasonToAmend: varchar("reason_to_amend", { length: 255 }).default(""),
   reasonToCancel: varchar("reason_to_cancel", { length: 255 }).default(""),
+
+  billingInstructions: varchar("billing_instructions", { length: 255 }).default(""),
+  specialNote: varchar("special_note", { length: 255 }).default(""),
+  amendedCount: integer("amend_count").default(0),
 
 });
 

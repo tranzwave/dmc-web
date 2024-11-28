@@ -1,5 +1,6 @@
 "use client";
 
+import { useOrganization } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { useEffect, useState } from "react";
@@ -73,6 +74,8 @@ const GeneralForm = () => {
     resolver: zodResolver(generalSchema),
     defaultValues: transportDetails.general,
   });
+  const {memberships, organization, isLoaded} = useOrganization();
+
 
   const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
     console.log(data);
@@ -84,8 +87,10 @@ const GeneralForm = () => {
     try {
       // Run both requests in parallel
       setLoading(true);
+      const country = organization?.publicMetadata.country as string ?? "LK";
+
       const [citiesResponse, languagesResponse] = await Promise.all([
-        getAllCities("LK"),
+        getAllCities(country),
         getAllLanguages(),
       ]);
 
@@ -117,6 +122,10 @@ const GeneralForm = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  if (loading || !isLoaded) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Form {...form}>

@@ -89,12 +89,15 @@ const HotelsTasksTab = ({
 }) => {
   const { toast } = useToast();
   const updateVoucherLinesRates = async (
-    voucherLine: SelectHotelVoucherLine[],
+    ratesMap: Map<string,string>,
+    voucherId:string,
     confirmationDetails?: {
       availabilityConfirmedBy: string;
       availabilityConfirmedTo: string;
       ratesConfirmedBy: string;
       ratesConfirmedTo: string;
+      specialNote:string;
+      billingInstructions:string
     },
   ) => {
     if (!confirmationDetails) {
@@ -102,16 +105,19 @@ const HotelsTasksTab = ({
     }
     alert("Updating voucher line:");
     try {
-      const bulkUpdateResponse = bulkUpdateHotelVoucherRates(voucherLine, {
+      const bulkUpdateResponse = bulkUpdateHotelVoucherRates(ratesMap,voucherId, {
         availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
         availabilityConfirmedTo: confirmationDetails.availabilityConfirmedTo,
         ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
         ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
+        specialNote:confirmationDetails.specialNote,
+        billingInstructions:confirmationDetails.billingInstructions
       });
 
       if (!bulkUpdateResponse) {
         throw new Error("Failed");
       }
+      window.location.reload();
     } catch (error) {
       console.error("Error updating voucher line:", error);
       alert("Failed to update voucher line. Please try again.");

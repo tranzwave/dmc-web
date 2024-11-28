@@ -1,28 +1,48 @@
 import { AccessorFnColumnDef, ColumnDef } from "@tanstack/react-table";
-import { SetStateAction, useEffect, useRef, useState } from "react";
+import { SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import HotelVoucherPDF from "../voucherTemplate";
+import HotelVoucherView from "../voucherTemplate/viewableHotelVoucher";
 import html2pdf from "html2pdf.js";
 import { HotelVoucherData } from "..";
 import { useRouter } from "next/navigation";
 import { SelectHotelVoucherLine, SelectRestaurantVoucherLine } from "~/server/db/schemaTypes";
 import CreateRateColumn from "~/components/common/tasksTab/rateColumn";
 import { RestaurantVoucherData } from "../../restaurants";
-import RestaurantVoucherPDF from "../../restaurants/voucherTemplate";
+import RestaurantVoucherView from "../../restaurants/voucherTemplate/viewableRestaurantVoucher";
+import htmlToPdfmake from "html-to-pdfmake";
+import pdfMake from 'pdfmake/build/pdfmake';
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import HotelVoucherDownloadablePDF from "../voucherTemplate/downloadableHotelVoucher";
+import LoadingLayout from "~/components/common/dashboardLoading";
+import { useUser } from "@clerk/nextjs";
+import { useOrganization } from "~/app/dashboard/context";
+import RestaurantVoucherDownloadablePDF from "../../restaurants/voucherTemplate/downloadableRestaurantVoucher";
 
 interface ProceedContentProps {
   voucherColumns: ColumnDef<SelectHotelVoucherLine>[] | ColumnDef<SelectRestaurantVoucherLine>[];
   selectedVoucher: HotelVoucherData | RestaurantVoucherData;
   onVoucherLineRowClick: any;
-  updateVoucherLine: any;
+  updateVoucherLine: (
+    ratesMap: Map<string, string>,
+    voucherId: string,
+    confirmationDetails?: {
+      availabilityConfirmedBy: string;
+      availabilityConfirmedTo: string;
+      ratesConfirmedBy: string;
+      ratesConfirmedTo: string;
+      specialNote:string;
+      billingInstructions:string;
+    },
+  ) => Promise<void>;
   updateVoucherStatus: any;
   rate: string;
   setRate: React.Dispatch<SetStateAction<string>>;
   setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
   type: string
+  bookingName: string
   viewCancellationVoucher?: boolean
 }
 
@@ -36,8 +56,10 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   setRate,
   setStatusChanged,
   type,
-  viewCancellationVoucher
+  viewCancellationVoucher,
+  bookingName
 }) => {
+  // pdfMake.vfs = (pdfFonts as any).vfs || pdfFonts.pdfMake?.vfs;
   const router = useRouter();
   const componentRef = useRef<HTMLDivElement>(null);
 
@@ -45,31 +67,32 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   const [ratesConfirmedTo, setRatesConfirmedTo] = useState(selectedVoucher?.ratesConfirmedTo ?? "");
   const [availabilityConfirmedBy, setAvailabilityConfirmedBy] = useState(selectedVoucher?.availabilityConfirmedBy ?? "");
   const [availabilityConfirmedTo, setAvailabilityConfirmedTo] = useState(selectedVoucher?.availabilityConfirmedTo ?? "");
+  const [specialNote, setSpecialNote] = useState(selectedVoucher?.specialNote ?? "")
+  const [billingInstructions, setBillingInstructions] = useState(selectedVoucher?.billingInstructions ?? "")
 
-  const VoucherLineColumnsWithRate = [...voucherColumns, CreateRateColumn(rate, setRate)];
+  // const [ratesMap, setRatesMap] = useState<Map<string, string>>(new Map(
+  //   selectedVoucher.voucherLines.map((voucherLine) => [
+  //     voucherLine.id, // id of the voucher line
+  //     voucherLine.rate ?? "0", // rate of the voucher line
+  //   ])
+  // ));
 
-  const downloadPDF = () => {
-    const filename = `${selectedVoucher.voucherLines[0]?.id}-Voucher.pdf`;
-    const tempContainer = document.createElement("div");
+  const ratesMapRef = useRef<Map<string, string>>(new Map(
+    selectedVoucher.voucherLines.map((voucherLine) => [
+      voucherLine.id, // id of the voucher line
+      voucherLine.rate ?? "0", // rate of the voucher line
+    ])
+  ));
 
-    const componentElement = componentRef.current?.cloneNode(true);
-    if (componentElement) tempContainer.appendChild(componentElement);
-
-    tempContainer.style.width = "210mm";
-    tempContainer.style.padding = "10mm";
-    tempContainer.style.backgroundColor = "white";
-
-    document.body.appendChild(tempContainer);
-    const options = {
-      filename,
-      jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
-      margin: [0, 0],
-    };
-
-    html2pdf().set(options).from(tempContainer).save().then(() => {
-      document.body.removeChild(tempContainer);
-    });
+  const handleRateChange = (id: string, rate: string) => {
+    ratesMapRef.current.set(id, rate); // Update the rate directly in the ref
+    console.log(ratesMapRef)
   };
+
+  const VoucherLineColumnsWithRate = [...voucherColumns, CreateRateColumn({ handleRateChange: handleRateChange })]
+
+  const organization = useOrganization();
+  const { isLoaded, user } = useUser();
 
   const areAllFieldsFilled = () =>
     [ratesConfirmedBy, ratesConfirmedTo, availabilityConfirmedBy, availabilityConfirmedTo].every((field) => field.trim() !== "");
@@ -81,11 +104,14 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
     }
 
     try {
-      await updateVoucherLine(selectedVoucher?.voucherLines ?? [selectedVoucher], {
+      console.log({ rates: ratesMapRef, confirmedBy: availabilityConfirmedBy, confirmedTo: availabilityConfirmedTo })
+      await updateVoucherLine(ratesMapRef.current, selectedVoucher.id, {
         availabilityConfirmedBy,
         availabilityConfirmedTo,
         ratesConfirmedBy,
         ratesConfirmedTo,
+        specialNote,
+        billingInstructions
       });
       alert("Voucher line updated successfully!");
     } catch (error) {
@@ -95,22 +121,38 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   };
 
   const handleSendVoucher = async () => {
-    if (selectedVoucher?.status !== "inprogress") {
-      alert("You've already sent the voucher to the vendor.");
-      downloadPDF();
-      return;
+    if (selectedVoucher?.status === "sentToVendor") {
+      alert("You've already downloaded the voucher.");
+    } else {
+      try {
+        selectedVoucher.status = "sentToVendor";
+        setStatusChanged(true);
+        await updateVoucherStatus(selectedVoucher);
+        alert("Voucher status updated successfully");
+      } catch (error) {
+        console.error("Failed to update voucher status:", error);
+      }
     }
 
-    try {
-      downloadPDF();
-      selectedVoucher.status = "sentToVendor";
-      setStatusChanged(true);
-      await updateVoucherStatus(selectedVoucher);
-      alert("Voucher status updated successfully");
-    } catch (error) {
-      console.error("Failed to update voucher status:", error);
-    }
+
   };
+
+  useEffect(() => {
+    console.log("rerendered here")
+    console.log(selectedVoucher)
+  }, [])
+
+
+  if (!isLoaded || !organization) {
+    return <LoadingLayout />;
+  }
+
+  const orgData = {
+    name: organization.name ?? "Unknown",
+    address: organization.publicMetadata.address as string ?? "Address",
+    contactNumber: organization.publicMetadata.contactNumber as string ?? "Number",
+    website: organization.publicMetadata.website as string ?? "Website"
+  }
 
   return (
     <div className="mb-9 space-y-6">
@@ -128,6 +170,8 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
               <InputFields label="Rates confirmed by" value={ratesConfirmedBy} onChange={setRatesConfirmedBy} />
               <InputFields label="Rates confirmed to" value={ratesConfirmedTo} onChange={setRatesConfirmedTo} />
             </div>
+            <InputFields label="Special Note" value={specialNote} onChange={setSpecialNote} />
+            <InputFields label="Billing Instructions" value={billingInstructions} onChange={setBillingInstructions} />
           </div>
 
           <div className="flex w-full flex-row justify-end gap-2">
@@ -135,27 +179,60 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
           </div>
         </>
       )}
-
-
       <Accordion type="single" collapsible>
         <AccordionItem value="item-1">
           <AccordionTrigger className="w-full justify-end">
             <div className="text-sm font-normal text-neutral-900">Preview Voucher</div>
           </AccordionTrigger>
           <AccordionContent className="space-y-2">
-            <div className="flex flex-row justify-end">
-              <Button variant="primaryGreen" onClick={handleSendVoucher}>Download Voucher</Button>
+            <div className="flex flex-row justify-end" onClick={handleSendVoucher}>
+              {type === 'hotel' && selectedVoucher.status !== "cancelled" && (
+                <PDFDownloadLink
+                  document={<HotelVoucherDownloadablePDF voucher={selectedVoucher as HotelVoucherData} organization={orgData} user={user} />}
+                  fileName={`${selectedVoucher.voucherLines[0]?.id}-${(selectedVoucher as HotelVoucherData).hotel.name}-Voucher.pdf`}
+                  style={{
+                    textDecoration: "none",
+                    padding: "10px 20px",
+                    backgroundColor: "#287F71",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Download Voucher as PDF
+                </PDFDownloadLink>
+              )}
+
+              {type === 'restaurant' && selectedVoucher.status !== "amended" && selectedVoucher.status !== "cancelled" && (
+                <PDFDownloadLink
+                  document={<RestaurantVoucherDownloadablePDF voucher={selectedVoucher as RestaurantVoucherData} organization={orgData} user={user} />}
+                  fileName={`${selectedVoucher.voucherLines[0]?.id}-${(selectedVoucher as RestaurantVoucherData).restaurant.name}-Voucher.pdf`}
+                  style={{
+                    textDecoration: "none",
+                    padding: "10px 20px",
+                    backgroundColor: "#287F71",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Download Voucher as PDF
+                </PDFDownloadLink>
+              )}
+
             </div>
-            <div ref={componentRef}>
+            <div ref={componentRef} id="voucher-content">
               {type === 'hotel' && (
                 <>
                   {viewCancellationVoucher ? (<div>
                     <div>
-                      <HotelVoucherPDF voucher={selectedVoucher as HotelVoucherData} cancellation={true} />
+                      <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} cancellation={true} bookingName={bookingName} />
                     </div>
                   </div>) : (<div>
                     <div>
-                      <HotelVoucherPDF voucher={selectedVoucher as HotelVoucherData} />
+                      <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} bookingName={bookingName} />
                     </div>
                   </div>)}
 
@@ -166,12 +243,12 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
                 <>
                   {viewCancellationVoucher ? (<div>
                     <div>
-                  <RestaurantVoucherPDF voucher={selectedVoucher as RestaurantVoucherData} cancellation={true}/>
-                </div>
+                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} cancellation={true} bookingName={bookingName} />
+                    </div>
                   </div>) : (<div>
                     <div>
-                  <RestaurantVoucherPDF voucher={selectedVoucher as RestaurantVoucherData} />
-                </div>
+                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} bookingName={bookingName} />
+                    </div>
                   </div>)}
 
                 </>
