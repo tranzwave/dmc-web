@@ -22,7 +22,13 @@ const voucherColumns: ColumnDef<TransportVoucherData>[] = [
   },
   {
     header: "Vehicle",
-    accessorFn: (row) => row.driverVoucherLines.map((t)=>t.vehicleType) ?? '-',
+    accessorFn: (row) => {
+      let vehicle = "N/A";
+      if(row.driver) {
+        vehicle = row.driverVoucherLines[0]?.vehicleType ?? "Not Assigned"
+      }
+      return vehicle;
+    },
   },
   {
     header: "Language",
