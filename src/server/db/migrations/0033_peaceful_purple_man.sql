@@ -1,0 +1,1 @@
+ALTER TABLE "dmc-web_driver_voucher_lines" ALTER COLUMN "vehicle_type" SET DEFAULT '-';
