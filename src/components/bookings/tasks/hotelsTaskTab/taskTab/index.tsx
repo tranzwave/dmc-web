@@ -238,34 +238,34 @@ const HotelVouchersTasksTab = <
     return <LoadingLayout />;
   }
 
-  const downloadPDF = () => {
-    const tempContainer = deleteVoucherRef.current;
+  // const downloadPDF = () => {
+  //   const tempContainer = deleteVoucherRef.current;
 
-    if (tempContainer && selectedVoucher) {
-      // Make the container visible
-      tempContainer.style.display = "block";
+  //   if (tempContainer && selectedVoucher) {
+  //     // Make the container visible
+  //     tempContainer.style.display = "block";
 
-      // Create a root and render the CancellationVoucher component into tempContainer
-      const root = createRoot(tempContainer);
-      root.render(<HotelVoucherView voucher={selectedVoucher} bookingName={bookingName} />);
+  //     // Create a root and render the CancellationVoucher component into tempContainer
+  //     const root = createRoot(tempContainer);
+  //     root.render(<HotelVoucherView voucher={selectedVoucher} bookingName={bookingName} />);
 
-      const options = {
-        filename: `cancellation_voucher_${selectedVoucher.hotel.name}.pdf`,
-        jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
-      };
+  //     const options = {
+  //       filename: `cancellation_voucher_${selectedVoucher.hotel.name}.pdf`,
+  //       jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
+  //     };
 
-      // Generate the PDF and then clean up
-      html2pdf()
-        .set(options)
-        .from(tempContainer)
-        .save()
-        .then(() => {
-          // Hide the container and unmount the component after PDF is generated
-          tempContainer.style.display = "none";
-          root.unmount(); // Unmount the component
-        });
-    }
-  };
+  //     // Generate the PDF and then clean up
+  //     html2pdf()
+  //       .set(options)
+  //       .from(tempContainer)
+  //       .save()
+  //       .then(() => {
+  //         // Hide the container and unmount the component after PDF is generated
+  //         tempContainer.style.display = "none";
+  //         root.unmount(); // Unmount the component
+  //       });
+  //   }
+  // };
 
 
 
