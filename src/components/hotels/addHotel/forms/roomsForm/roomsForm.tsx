@@ -116,7 +116,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom }) => {
                       <SelectValue placeholder="Select room category" />
                     </SelectTrigger>
                     <SelectContent>
-                      {hotelRoomTypes.map((category) => (
+                      {hotelRoomCategories.map((category) => (
                         <SelectItem key={category} value={category}>
                           {category}
                         </SelectItem>
@@ -142,10 +142,10 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom }) => {
                     value={field.value || ""} // Ensure initial value is set correctly
                   >
                     <SelectTrigger className="bg-slate-100 shadow-md">
-                      <SelectValue placeholder="Select room type" />
+                      <SelectValue placeholder="Room type selection is disabled" />
                     </SelectTrigger>
                     <SelectContent>
-                      {hotelRoomCategories.map((type) => (
+                      {hotelRoomTypes.map((type) => (
                         <SelectItem key={type} value={type}  disabled>
                           {type}
                         </SelectItem>
