@@ -172,7 +172,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
               <InputFields label="Rates confirmed by" value={ratesConfirmedBy} onChange={setRatesConfirmedBy} />
               <InputFields label="Rates confirmed to" value={ratesConfirmedTo} onChange={setRatesConfirmedTo} />
             </div>
-            <InputFields label="Special Note" value={specialNote} onChange={setSpecialNote} />
+            <InputFields label="Other Instructions" value={specialNote} onChange={setSpecialNote} />
             <InputFields label="Billing Instructions" value={billingInstructions} onChange={setBillingInstructions} />
           </div>
 
