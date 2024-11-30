@@ -863,10 +863,13 @@ export const insertRestaurantVouchersTx = async (
     }
     console.log(`Processing voucher ${i + 1}`);
 
+    const voucherId = `${newBookingLineId}-RES/${indexToAdd}`;
+
     // Insert a restaurant voucher
     const newVoucher = await trx
       .insert(restaurantVoucher)
       .values({
+        id: voucherId,
         bookingLineId: newBookingLineId,
         coordinatorId: coordinatorId,
         restaurantId: currentVoucher?.restaurant.id,
@@ -876,8 +879,6 @@ export const insertRestaurantVouchersTx = async (
     if (!newVoucher || !newVoucher[0]?.id) {
       throw new Error("Couldn't add restaurant voucher");
     }
-
-    const voucherId = newVoucher[0]?.id;
     console.log(`Inserted voucher ID: ${voucherId}`);
 
     // Insert restaurant voucher lines
@@ -896,13 +897,12 @@ export const insertRestaurantVouchersTx = async (
       const newVoucherLine = await trx
         .insert(restaurantVoucherLine)
         .values({
-          id: voucherLineId,
           adultsCount: currentVoucherLine.adultsCount,
           kidsCount: currentVoucherLine.kidsCount,
           mealType: currentVoucherLine.mealType,
           date: currentVoucherLine.date,
           time: currentVoucherLine.time ?? "12:00",
-          restaurantVoucherId: voucherId,
+          restaurantVoucherId: newVoucher[0].id,
           remarks: currentVoucherLine.remarks,
         })
         .returning();
