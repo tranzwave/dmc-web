@@ -548,7 +548,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         </Button>
       </div>
       <div ref={componentRef}>
-        {voucher.driver?.type !== "guide" ? (
+        {voucher.driverId !== null ? (
           <DriverTransportVoucherPDF voucher={voucher} bookingData={bookingData}/>
         ) : (
           <GuideTransportVoucherPDF voucher={voucher} bookingData={bookingData}/>

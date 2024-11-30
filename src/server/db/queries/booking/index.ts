@@ -17,14 +17,13 @@ import {
   bookingLine,
   client,
   driverVoucherLine,
-  guideVoucherLine,
   hotelVoucher,
   hotelVoucherLine,
   restaurantVoucher,
   restaurantVoucherLine,
   shopVoucher,
   tenant,
-  transportVoucher,
+  transportVoucher
 } from "../../schema";
 import {
   InsertBooking,
@@ -1288,6 +1287,8 @@ export const insertShopVouchersTx = async (
 //   return transportVouchers;
 // };
 
+
+
 export const addTransportVouchersToBooking = async (
   vouchers: TransportVoucher[], // TransportVoucher should have a field to indicate type (e.g., 'guide' or 'driver')
   newBookingLineId: string,
@@ -1335,23 +1336,32 @@ export const insertTransportVoucherTx = async (
 
       const voucherId = newVoucher[0]?.id;
 
-      if (currentVoucher.voucher.guideId === null) {
-        await trx
-          .insert(driverVoucherLine)
-          .values({
-            transportVoucherId: voucherId,
-            vehicleType: currentVoucher.driverVoucherLine?.vehicleType,
-          })
-          .returning();
-      } else {
-        // Insert into guide_voucher_lines table
-        await trx
-          .insert(guideVoucherLine)
-          .values({
-            transportVoucherId: voucherId,
-          })
-          .returning();
-      }
+      await trx
+        .insert(driverVoucherLine)
+        .values({
+          transportVoucherId: voucherId,
+          vehicleType: currentVoucher.driverVoucherLine?.vehicleType,
+        })
+        .returning();
+
+      // if (currentVoucher.voucher.guideId === null) {
+      //   await trx
+      //     .insert(driverVoucherLine)
+      //     .values({
+      //       transportVoucherId: voucherId,
+      //       vehicleType: currentVoucher.driverVoucherLine?.vehicleType,
+      //     })
+      //     .returning();
+      // }
+      // else {
+      //   // Insert into guide_voucher_lines table
+      //   await trx
+      //     .insert(guideVoucherLine)
+      //     .values({
+      //       transportVoucherId: voucherId,
+      //     })
+      //     .returning();
+      // }
 
       return voucherId;
     }),

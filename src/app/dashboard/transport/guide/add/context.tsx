@@ -23,7 +23,7 @@ const defaultGeneral: General = {
   streetName: "",
   city: "",
   province: "",
-  type: "Guide",
+  type: "z",
   includes: {
     documents: false,
   },
