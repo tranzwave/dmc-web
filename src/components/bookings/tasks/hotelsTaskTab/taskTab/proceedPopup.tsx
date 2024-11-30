@@ -18,8 +18,10 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import HotelVoucherDownloadablePDF from "../voucherTemplate/downloadableHotelVoucher";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import { useUser } from "@clerk/nextjs";
-import { useOrganization } from "~/app/dashboard/context";
+import { OrganizationProvider, useOrganization } from "~/app/dashboard/context";
 import RestaurantVoucherDownloadablePDF from "../../restaurants/voucherTemplate/downloadableRestaurantVoucher";
+import VoucherButton from "./VoucherButton";
+import { UserResource } from "@clerk/types";
 
 interface ProceedContentProps {
   voucherColumns: ColumnDef<SelectHotelVoucherLine>[] | ColumnDef<SelectRestaurantVoucherLine>[];
@@ -33,8 +35,8 @@ interface ProceedContentProps {
       availabilityConfirmedTo: string;
       ratesConfirmedBy: string;
       ratesConfirmedTo: string;
-      specialNote:string;
-      billingInstructions:string;
+      specialNote: string;
+      billingInstructions: string;
     },
   ) => Promise<void>;
   updateVoucherStatus: any;
@@ -143,7 +145,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   }, [])
 
 
-  if (!isLoaded || !organization) {
+  if (!isLoaded || !organization || !user) {
     return <LoadingLayout />;
   }
 
@@ -186,40 +188,54 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
           </AccordionTrigger>
           <AccordionContent className="space-y-2">
             <div className="flex flex-row justify-end" onClick={handleSendVoucher}>
-              {type === 'hotel' && selectedVoucher.status !== "cancelled" && (
-                <PDFDownloadLink
-                  document={<HotelVoucherDownloadablePDF voucher={selectedVoucher as HotelVoucherData} organization={orgData} user={user} />}
-                  fileName={`${selectedVoucher.voucherLines[0]?.id}-${(selectedVoucher as HotelVoucherData).hotel.name}-Voucher.pdf`}
-                  style={{
-                    textDecoration: "none",
-                    padding: "10px 20px",
-                    backgroundColor: "#287F71",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Download Voucher as PDF
-                </PDFDownloadLink>
+              {type === 'hotel' && selectedVoucher.status !== "cancelled" && user &&(
+                // <PDFDownloadLink
+                //   document={<HotelVoucherDownloadablePDF voucher={selectedVoucher as HotelVoucherData} organization={orgData} user={user} />}
+                //   fileName={`${selectedVoucher.id}-${(selectedVoucher as HotelVoucherData).hotel.name}-Voucher.pdf`}
+                //   style={{
+                //     textDecoration: "none",
+                //     padding: "10px 20px",
+                //     backgroundColor: "#287F71",
+                //     color: "#fff",
+                //     border: "none",
+                //     borderRadius: "5px",
+                //     cursor: "pointer",
+                //   }}
+                // >
+                //   Download Voucher as PDF
+                // </PDFDownloadLink>
+                <VoucherButton voucherComponent={
+                  <div>
+                    <OrganizationProvider initialOrg={organization}>
+                      <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} bookingName={bookingName} organization={organization} user={user as UserResource}/>
+                    </OrganizationProvider>
+                  </div>
+                } />
               )}
 
               {type === 'restaurant' && selectedVoucher.status !== "amended" && selectedVoucher.status !== "cancelled" && (
-                <PDFDownloadLink
-                  document={<RestaurantVoucherDownloadablePDF voucher={selectedVoucher as RestaurantVoucherData} organization={orgData} user={user} />}
-                  fileName={`${selectedVoucher.voucherLines[0]?.id}-${(selectedVoucher as RestaurantVoucherData).restaurant.name}-Voucher.pdf`}
-                  style={{
-                    textDecoration: "none",
-                    padding: "10px 20px",
-                    backgroundColor: "#287F71",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Download Voucher as PDF
-                </PDFDownloadLink>
+                // <PDFDownloadLink
+                //   document={<RestaurantVoucherDownloadablePDF voucher={selectedVoucher as RestaurantVoucherData} organization={orgData} user={user} />}
+                //   fileName={`${selectedVoucher.voucherLines[0]?.id}-${(selectedVoucher as RestaurantVoucherData).restaurant.name}-Voucher.pdf`}
+                //   style={{
+                //     textDecoration: "none",
+                //     padding: "10px 20px",
+                //     backgroundColor: "#287F71",
+                //     color: "#fff",
+                //     border: "none",
+                //     borderRadius: "5px",
+                //     cursor: "pointer",
+                //   }}
+                // >
+                //   Download Voucher as PDF
+                // </PDFDownloadLink>
+                <VoucherButton voucherComponent={
+                  <div>
+                    <OrganizationProvider initialOrg={organization}>
+                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} bookingName={bookingName} />
+                    </OrganizationProvider>
+                  </div>
+                } />
               )}
 
             </div>
@@ -228,11 +244,13 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
                 <>
                   {viewCancellationVoucher ? (<div>
                     <div>
-                      <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} cancellation={true} bookingName={bookingName} />
+                      <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} cancellation={true} bookingName={bookingName} organization={organization} user={user as UserResource}/>
+
                     </div>
                   </div>) : (<div>
                     <div>
-                      <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} bookingName={bookingName} />
+                    <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} cancellation={false} bookingName={bookingName} organization={organization} user={user as UserResource}/>
+
                     </div>
                   </div>)}
 

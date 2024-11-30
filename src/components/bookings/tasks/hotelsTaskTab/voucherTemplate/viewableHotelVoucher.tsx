@@ -11,20 +11,23 @@ import { getBookingById, getBookingLineWithAllData } from "~/server/db/queries/b
 import { Country } from "country-state-city";
 import { formatDate, getLetterByIndex } from "~/lib/utils/index";
 import VoucherHeader from "~/components/common/voucher/VoucherHeader";
+import { OrganizationResource, UserResource } from "@clerk/types";
 
 type HotelVoucherPDFProps = {
   voucher: HotelVoucherData;
-  bookingName: string
-  cancellation?: boolean
+  bookingName: string;
+  organization: OrganizationResource;
+  user: UserResource;
+  cancellation?: boolean;
 };
 
-const HotelVoucherView = ({ voucher, cancellation, bookingName }: HotelVoucherPDFProps) => {
-  const organization = useOrganization();
-  const { isLoaded, user } = useUser();
+const HotelVoucherView = ({ voucher, cancellation, bookingName, organization, user }: HotelVoucherPDFProps) => {
+  // const organization = useOrganization();
+  // const { isLoaded, user } = useUser();
 
-  if (!isLoaded || !organization) {
-    return <LoadingLayout />;
-  }
+  // if (!isLoaded || !organization) {
+  //   return <LoadingLayout />;
+  // }
 
   const calculateTotal = () => {
     let sum = 0
@@ -57,7 +60,7 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName }: HotelVoucherPD
         </div>
 
         <div className="mt-4 text-[13px]">
-          <table className="min-w-full rounded-md border bg-white">
+          <table className="w-[100%] rounded-md border bg-white">
             <thead>
               <tr className="border-b ">
                 <th className="px-4 py-2 text-left font-semibold">Occupancy</th>
