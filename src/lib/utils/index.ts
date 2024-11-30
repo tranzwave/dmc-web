@@ -42,5 +42,5 @@ export function getLetterByIndex(index: number): string {
       index = Math.floor(index / 26);
   }
 
-  return result;
+  return `/${result}`;
 }

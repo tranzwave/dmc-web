@@ -87,8 +87,8 @@ const HotelsTab = () => {
       try {
         setSaving(true)
         const updatedResponse = await updateSingleHotelVoucherLineTx(voucherLineIdToEdit, {
-          adultsCount:data.adultsCount,
-          kidsCount:data.kidsCount,
+          adultsCount: data.adultsCount,
+          kidsCount: data.kidsCount,
           checkInDate: data.checkInDate,
           checkOutDate: data.checkOutDate,
           roomType: data.roomType,
@@ -259,7 +259,7 @@ const HotelsTab = () => {
   };
 
   const handleVoucherLineDelete = async () => {
-    if(voucherLineIdToEdit === "none"){
+    if (voucherLineIdToEdit === "none") {
       toast({
         title: "Uh Oh",
         description: `Couldn't find the id for this voucher`,
@@ -354,10 +354,12 @@ const HotelsTab = () => {
               end: bookingDetails.general.endDate,
               color: "bg-green-200", // Default color for booking range
             },
-            ...bookingDetails.vouchers.map((voucher) => ({
-              start: voucher.voucherLines[0]?.checkInDate ?? "",
-              end: voucher.voucherLines[0]?.checkOutDate ?? "",
-            })),
+            ...bookingDetails.vouchers.flatMap((voucher) =>
+              voucher.voucherLines.map((line) => ({
+                start: line.checkInDate ?? "",
+                end: line.checkOutDate ?? "",
+              }))
+            ),
           ]}
         />
         <div className="card w-full space-y-6">

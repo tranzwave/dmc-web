@@ -6,15 +6,18 @@ import { useState } from "react"; // Import useState
 import { useOrganization } from "~/app/dashboard/context";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import { TransportVoucherData } from ".."; // Assuming TransportVoucherData is defined in the schema types
+import { BookingLineWithAllData } from "~/lib/types/booking";
 
 type TransportVoucherPDFProps = {
   voucher: TransportVoucherData;
+  bookingData:BookingLineWithAllData;
   cancellation?: boolean;
 };
 
 const GuideTransportVoucherPDF = ({
   voucher,
   cancellation,
+  bookingData
 }: TransportVoucherPDFProps) => {
   const organization = useOrganization();
   const { isLoaded, user } = useUser();
@@ -54,7 +57,7 @@ const GuideTransportVoucherPDF = ({
             <div>Tour ID: {voucher.bookingLineId}</div>
             <div>Transport Type : {voucher.guide?.type}</div>
             <div>Guide Name : {voucher.guide?.name}</div>
-            <div>No of Pax: {"N/A"}</div>
+            <div>No of Pax: {`${bookingData.adultsCount} Adults | ${bookingData.kidsCount} Kids`}</div>
             <div>Language : {voucher.language}</div>
           </div>
 

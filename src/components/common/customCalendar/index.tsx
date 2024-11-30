@@ -22,7 +22,11 @@ interface CalendarProps {
 }
 
 export const CalendarV2: React.FC<CalendarProps> = ({ dateRanges }) => {
-  const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+  const [currentMonth, setCurrentMonth] = useState<Date>(() => {
+    const initialDate = dateRanges?.[0]?.start ? new Date(dateRanges[0].start) : new Date();
+    return isNaN(initialDate.getTime()) ? new Date() : initialDate; // Fallback to current date if invalid
+  });
+  
   const [weeks, setWeeks] = useState<Date[][]>([]);
 
   // Generate the calendar days for the current month

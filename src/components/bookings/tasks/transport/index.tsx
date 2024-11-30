@@ -1,13 +1,13 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
-import { SelectDriver, SelectDriverVoucherLine, SelectGuide, SelectGuideVoucherLine, SelectTransportVoucher } from "~/server/db/schemaTypes";
+import { SelectDriver, SelectDriverVoucherLine, SelectGuide, SelectTransportVoucher } from "~/server/db/schemaTypes";
 import TransportVouchersTasksTab from './taskTab';
 
 export type TransportVoucherData = SelectTransportVoucher & {
   driver: SelectDriver | null
   guide: SelectGuide | null
   driverVoucherLines: SelectDriverVoucherLine[]
-  guideVoucherLines: SelectGuideVoucherLine[]
+  // guideVoucherLines: SelectGuideVoucherLine[]
 }
 
 // Define specific columns for transport
@@ -22,7 +22,13 @@ const voucherColumns: ColumnDef<TransportVoucherData>[] = [
   },
   {
     header: "Vehicle",
-    accessorFn: (row) => row.driverVoucherLines.map((t)=>t.vehicleType) ?? '-',
+    accessorFn: (row) => {
+      let vehicle = "N/A";
+      if(row.driver) {
+        vehicle = row.driverVoucherLines[0]?.vehicleType ?? "Not Assigned"
+      }
+      return vehicle;
+    },
   },
   {
     header: "Language",

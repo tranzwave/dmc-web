@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useOrganization } from "~/app/dashboard/context";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import { ShopVoucherData } from "..";
+import VoucherHeader from "~/components/common/voucher/VoucherHeader";
+import { formatDate } from "~/lib/utils/index";
 
 type ShopVoucherPDFProps = {
   vouchers: ShopVoucherData[];
@@ -15,7 +17,7 @@ const ShopVoucherPDF = ({ vouchers, cancellation }: ShopVoucherPDFProps) => {
   const organization = useOrganization();
   const { isLoaded, user } = useUser();
 
-  if (!isLoaded) {
+  if (!isLoaded || !organization) {
     return <LoadingLayout />;
   }
 
@@ -23,19 +25,7 @@ const ShopVoucherPDF = ({ vouchers, cancellation }: ShopVoucherPDFProps) => {
 
   return (
     <div className="flex flex-col border">
-      <div className="flex flex-col items-center justify-center bg-primary-green p-4">
-        <Image
-          src={organization?.imageUrl ?? ""}
-          height={0}
-          width={0}
-          className="h-8 w-auto"
-          alt="orgLogo"
-        />
-        <div className="text-base font-semibold text-white">
-          {organization?.name}
-        </div>
-        <div className="text-[13px] text-white">Address will be shown here</div>
-      </div>
+      <VoucherHeader organization={organization}/>
       <div className="p-4">
         <div className="card-title w-full text-center">
           {cancellation ? (
@@ -76,7 +66,7 @@ const ShopVoucherPDF = ({ vouchers, cancellation }: ShopVoucherPDFProps) => {
                     <td className="px-4 py-2">{v.shop.name ?? "N/A"}</td>
                     <td className="px-4 py-2">{v.city ?? "N/A"}</td>
 
-                    <td className="px-4 py-2">{v.date ?? "N/A"}</td>
+                    <td className="px-4 py-2">{formatDate(v.date) ?? "N/A"}</td>
 
                     <td className="px-4 py-2"></td>
                     <td className="px-4 py-2"></td>
@@ -88,9 +78,10 @@ const ShopVoucherPDF = ({ vouchers, cancellation }: ShopVoucherPDFProps) => {
         </div>
 
         <div className="mt-10 text-[13px]">
-          <div>Date: {format(Date.now(), 'dd/MM/yyyy')}</div>
-          <div>Prepared By: {user?.fullName ?? ""}</div>
-          <div>This is a computer generated Voucher & does not require a signature</div>
+          <div>Printed Date : {format(Date.now(), "dd/MM/yyyy")}</div>
+          <div>Prepared By : {user?.fullName ?? ""}</div>
+          <div>Contact Number : {(user?.publicMetadata as any)?.info?.contact ?? ""}</div>
+          <div className="text-[12px] text-center text-gray-700">This is a computer generated Voucher & does not require a signature</div>
         </div>
       </div>
       <div className="h-8 w-full bg-primary-green"></div>

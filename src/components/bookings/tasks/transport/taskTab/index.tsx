@@ -22,6 +22,9 @@ import {
 import { TransportVoucherData } from "..";
 import DriverTransportVoucherPDF from "../driverVoucherTemplate";
 import GuideTransportVoucherPDF from "../guideVoucherTemplate";
+import { getBookingLineWithAllData } from "~/server/db/queries/booking";
+import { BookingLineWithAllData } from "~/lib/types/booking";
+import LoadingLayout from "~/components/common/dashboardLoading";
 
 interface TasksTabProps {
   bookingLineId: string;
@@ -43,7 +46,7 @@ interface TasksTabProps {
   // columns: ColumnDef<ActivityVoucherData>[]; // Ensure to use the correct type
 }
 
-const ActivityVouchersTab = ({
+const TransportVouchersTab = ({
   bookingLineId,
   voucherColumns,
   selectedVoucherColumns,
@@ -63,6 +66,11 @@ const ActivityVouchersTab = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isVoucherDelete, setIsVoucherDelete] = useState(false);
+
+  const [bookingLoading, setBookingLoading] = useState(false)
+  const [bookingData, setBookingData] = useState<BookingLineWithAllData>();
+
+
 
   const { toast } = useToast();
   const router = useRouter();
@@ -279,6 +287,24 @@ const ActivityVouchersTab = ({
 
   useEffect(() => {
     setSelectedVoucher(vouchers ? vouchers[0] : undefined);
+
+    const fetchBooking = async () => {
+      if (vouchers) {
+        try {
+          setBookingLoading(true)
+          const booking = await getBookingLineWithAllData(vouchers[0]?.bookingLineId ?? "")
+          if (booking) {
+            setBookingData(booking);
+          }
+          setBookingLoading(false)
+        } catch (error) {
+          console.error(error)
+          setBookingLoading(false)
+        }
+      }
+
+    }
+    fetchBooking()
   }, [statusChanged, vouchers]);
 
   const getContactDetails = () => {
@@ -297,6 +323,10 @@ const ActivityVouchersTab = ({
         selectedVoucher?.guide?.primaryEmail,
     };
   };
+
+  if (bookingLoading) {
+    return <LoadingLayout />;
+  }
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">
@@ -334,7 +364,7 @@ const ActivityVouchersTab = ({
                 : "Select a voucher from above table"}
             </div>
 
-            {selectedVoucher && (
+            {selectedVoucher && bookingData &&(
               <Popup
                 title={"Log Sheet"}
                 description="Please click on preview button to get the document"
@@ -346,6 +376,7 @@ const ActivityVouchersTab = ({
                     voucherColumns={voucherColumns}
                     voucher={selectedVoucher}
                     setStatusChanged={setStatusChanged}
+                    bookingData={bookingData}
                   />
                 }
                 size="large"
@@ -460,18 +491,20 @@ const ActivityVouchersTab = ({
   );
 };
 
-export default ActivityVouchersTab;
+export default TransportVouchersTab;
 
 interface ProceedContentProps {
   voucherColumns: any;
   voucher: TransportVoucherData;
   setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
+  bookingData: BookingLineWithAllData;
 }
 
 const ProceedContent: React.FC<ProceedContentProps> = ({
   voucherColumns,
   voucher,
   setStatusChanged,
+  bookingData
 }) => {
   const componentRef = useRef<HTMLDivElement>(null);
 
@@ -515,10 +548,10 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         </Button>
       </div>
       <div ref={componentRef}>
-        {voucher.driver?.type !== "guide" ? (
-          <DriverTransportVoucherPDF voucher={voucher} />
+        {voucher.driverId !== null ? (
+          <DriverTransportVoucherPDF voucher={voucher} bookingData={bookingData}/>
         ) : (
-          <GuideTransportVoucherPDF voucher={voucher} />
+          <GuideTransportVoucherPDF voucher={voucher} bookingData={bookingData}/>
         )}
       </div>
       <div className="flex w-full flex-row justify-end gap-2"></div>

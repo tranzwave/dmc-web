@@ -14,7 +14,7 @@ import ContactContent from "~/components/common/tasksTab/contactContent";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { useToast } from "~/hooks/use-toast";
-import { deleteActivitiesVoucher } from "~/server/db/queries/booking";
+import { deleteActivitiesVoucher, getBookingLineWithAllData } from "~/server/db/queries/booking";
 import { updateActivityVoucherStatus } from "~/server/db/queries/booking/activityVouchers";
 import { ActivityVoucherData } from "..";
 import ActivityVoucherPDF from "../voucherTemplate";
@@ -55,6 +55,10 @@ const ActivityVouchersTab = ({
     useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [bookingName, setBookingName] = useState('');
+  const [bookingLoading, setBookingLoading] = useState(false)
+
+
 
   const { toast } = useToast();
 
@@ -135,6 +139,24 @@ const ActivityVouchersTab = ({
 
   useEffect(() => {
     setSelectedVoucher(vouchers ? vouchers[0] : undefined);
+
+    const fetchBooking = async () => {
+      if (vouchers) {
+        try {
+          setBookingLoading(true)
+          const booking = await getBookingLineWithAllData(vouchers[0]?.bookingLineId ?? "")
+          if (booking) {
+            setBookingName(booking.booking.client.name);
+          }
+          setBookingLoading(false)
+        } catch (error) {
+          console.error(error)
+          setBookingLoading(false)
+        }
+      }
+
+    }
+    fetchBooking()
   }, [statusChanged, vouchers]);
 
   const getContactDetails = () => {
@@ -257,6 +279,7 @@ const ActivityVouchersTab = ({
                   voucherColumns={voucherColumns}
                   vouchers={vouchers}
                   setStatusChanged={setStatusChanged}
+                  bookingName={bookingName}
                 />
               }
               size="large"
@@ -371,12 +394,14 @@ interface ProceedContentProps {
   voucherColumns: any;
   vouchers: ActivityVoucherData[];
   setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
+  bookingName: string;
 }
 
 const ProceedContent: React.FC<ProceedContentProps> = ({
   voucherColumns,
   vouchers,
   setStatusChanged,
+  bookingName
 }) => {
   const componentRef = useRef<HTMLDivElement>(null);
 
@@ -420,7 +445,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         </Button>
       </div>
       <div ref={componentRef}>
-        <ActivityVoucherPDF vouchers={vouchers} />
+        <ActivityVoucherPDF vouchers={vouchers} bookingName={bookingName}/>
       </div>
       <div className="flex w-full flex-row justify-end gap-2"></div>
     </div>

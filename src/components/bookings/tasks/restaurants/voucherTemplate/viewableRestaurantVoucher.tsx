@@ -10,65 +10,42 @@ import {
   SelectHotelVoucherLine,
 } from "~/server/db/schemaTypes";
 import { RestaurantVoucherData } from "..";
+import VoucherHeader from "~/components/common/voucher/VoucherHeader";
+import { getLetterByIndex } from "~/lib/utils/index";
+import { Country } from "country-state-city";
 
 type RestaurantVoucherPDFProps = {
   voucher: RestaurantVoucherData;
   bookingName: string
-  cancellation?:boolean
+  cancellation?: boolean
 };
 
-const RestaurantVoucherView = ({ voucher,cancellation, bookingName }: RestaurantVoucherPDFProps) => {
+const RestaurantVoucherView = ({ voucher, cancellation, bookingName }: RestaurantVoucherPDFProps) => {
   const organization = useOrganization();
   const { isLoaded, user } = useUser();
 
-  if (!isLoaded) {
+  if (!isLoaded || !organization) {
     return <LoadingLayout />;
   }
 
   return (
     <div className="flex flex-col border">
-      <div className="flex flex-col items-center justify-center bg-primary-green p-4">
-        <Image
-          src={organization?.imageUrl ?? ""}
-          height={0}
-          width={0}
-          className="h-8 w-auto"
-          alt="orgLogo"
-        />
-        <div className="text-base font-semibold text-white">
-          {organization?.name}
-        </div>
-        <div className="text-[13px] text-white">Address will be shown here</div>
-      </div>
+      <VoucherHeader organization={organization}/>
       <div className="p-4">
         <div className="card-title w-full text-center">
-            {cancellation ? (<div className="text-red-500">Cancellation Voucher</div>): 'Restaurant Reservation Voucher'}
-          
+          {cancellation ? (<div className="text-red-500">Cancellation Voucher</div>) : 'Restaurant Reservation Voucher'}
+
         </div>
         <div className="flex w-full flex-row justify-between">
           <div className="text-[13px]">
             {/* <div>Bill to : {organization?.name}</div> */}
-            <div>Hotel Name : {voucher?.restaurant.name}</div>
+            <div>Voucher ID : {voucher?.id + `${voucher.status === "amended" ? `${getLetterByIndex(voucher.amendedCount ?? 0)}` : ''}`}</div>
             <div>Tour ID : {voucher.bookingLineId}</div>
+            <div>Restaurant Name : {voucher?.restaurant.name}</div>
             <div>Booking Name : {bookingName}</div>
-
             <div>
-              Country : {voucher.bookingLineId.split("-")[1]?.split("-")[0]}
+              Nationality : {Country.getCountryByCode(voucher.bookingLineId.split("-")[1]?.split("-")[0] ?? "")?.name}
             </div>
-            <div>{`Adults : ${voucher.voucherLines[0]?.adultsCount}`}</div>
-            <div>{`Kids : ${voucher.voucherLines[0]?.kidsCount}`}</div>
-          </div>
-          <div className="text-[13px]">
-            <div>Voucher ID : {voucher?.voucherLines[0]?.id}</div>
-            {/* <div>Check In : {voucher?.voucherLines[0]?.checkInDate}</div>
-            <div>Check Out : {voucher?.voucherLines[0]?.checkOutDate}</div> */}
-            {/* <div>
-              Number of Nights :{" "}
-              {calculateDaysBetween(
-                voucher.voucherLines[0]?.checkInDate ?? "",
-                voucher.voucherLines[0]?.checkOutDate ?? "",
-              )}
-            </div> */}
           </div>
         </div>
 
@@ -103,23 +80,35 @@ const RestaurantVoucherView = ({ voucher,cancellation, bookingName }: Restaurant
           {`Total(USD) - ${voucher.voucherLines[0]?.rate ?? 0}`}
         </div>
 
-        <div className="text-[14px] font-normal">
-          {voucher.availabilityConfirmedTo && (
-            <div>{`Availability confirmed by ${voucher.availabilityConfirmedBy} ${voucher.availabilityConfirmedTo ? 'to ' + voucher.availabilityConfirmedTo : ''}`}</div>
-          )}
+        <div className="text-[13px] font-normal">
+
 
           {voucher.ratesConfirmedTo && (
-            <div>{`Rates confirmed by ${voucher.ratesConfirmedBy} ${voucher.ratesConfirmedTo ? ' to ' + voucher.ratesConfirmedTo : ''}`}</div>
+            <div>{`Rates have been confirmed by ${voucher.ratesConfirmedBy} ${voucher.ratesConfirmedTo ? ' and communicated to ' + voucher.ratesConfirmedTo : ''}`}</div>
+          )}
+
+          <div>Other Instructions : {voucher.specialNote}</div>
+
+          {voucher.availabilityConfirmedTo && (
+            <div>{`Above arrangement is confirmed on the telephone by ${voucher.availabilityConfirmedBy} ${voucher.availabilityConfirmedTo ? ' and communicated to ' + voucher.availabilityConfirmedTo : ''}`}</div>
           )}
         </div>
         <div className="mt-4 text-[13px]">
-          <div>Special Notes : {voucher.voucherLines[0]?.remarks}</div>
+          
+          <div>Billing Instructions : {voucher.billingInstructions}</div>
+
+          {voucher.status === 'amended' && (
+            <div>Reference(s) : {voucher.reasonToAmend}</div>
+          )}
+          {voucher.status === 'cancelled' && (
+            <div>Reason for cancellation : {voucher.id}</div>
+          )}
         </div>
         <div className="mt-10 text-[13px]">
           <div>Printed Date : {format(Date.now(), "dd/MM/yyyy")}</div>
           <div>Prepared By : {user?.fullName ?? ""}</div>
           <div>Contact Number : {(user?.publicMetadata as any)?.info?.contact ?? ""}</div>
-          <div>This is a computer generated Voucher & does not require a signature</div>
+          <div className="text-[12px] text-center text-gray-700">This is a computer generated Voucher & does not require a signature</div>
         </div>
       </div>
       <div className="h-8 w-full bg-primary-green"></div>

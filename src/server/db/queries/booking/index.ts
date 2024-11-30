@@ -17,14 +17,13 @@ import {
   bookingLine,
   client,
   driverVoucherLine,
-  guideVoucherLine,
   hotelVoucher,
   hotelVoucherLine,
   restaurantVoucher,
   restaurantVoucherLine,
   shopVoucher,
   tenant,
-  transportVoucher,
+  transportVoucher
 } from "../../schema";
 import {
   InsertBooking,
@@ -864,10 +863,13 @@ export const insertRestaurantVouchersTx = async (
     }
     console.log(`Processing voucher ${i + 1}`);
 
+    const voucherId = `${newBookingLineId}-RES/${indexToAdd}`;
+
     // Insert a restaurant voucher
     const newVoucher = await trx
       .insert(restaurantVoucher)
       .values({
+        id: voucherId,
         bookingLineId: newBookingLineId,
         coordinatorId: coordinatorId,
         restaurantId: currentVoucher?.restaurant.id,
@@ -877,8 +879,6 @@ export const insertRestaurantVouchersTx = async (
     if (!newVoucher || !newVoucher[0]?.id) {
       throw new Error("Couldn't add restaurant voucher");
     }
-
-    const voucherId = newVoucher[0]?.id;
     console.log(`Inserted voucher ID: ${voucherId}`);
 
     // Insert restaurant voucher lines
@@ -897,13 +897,12 @@ export const insertRestaurantVouchersTx = async (
       const newVoucherLine = await trx
         .insert(restaurantVoucherLine)
         .values({
-          id: voucherLineId,
           adultsCount: currentVoucherLine.adultsCount,
           kidsCount: currentVoucherLine.kidsCount,
           mealType: currentVoucherLine.mealType,
           date: currentVoucherLine.date,
           time: currentVoucherLine.time ?? "12:00",
-          restaurantVoucherId: voucherId,
+          restaurantVoucherId: newVoucher[0].id,
           remarks: currentVoucherLine.remarks,
         })
         .returning();
@@ -1288,6 +1287,8 @@ export const insertShopVouchersTx = async (
 //   return transportVouchers;
 // };
 
+
+
 export const addTransportVouchersToBooking = async (
   vouchers: TransportVoucher[], // TransportVoucher should have a field to indicate type (e.g., 'guide' or 'driver')
   newBookingLineId: string,
@@ -1335,23 +1336,32 @@ export const insertTransportVoucherTx = async (
 
       const voucherId = newVoucher[0]?.id;
 
-      if (currentVoucher.voucher.guideId === null) {
-        await trx
-          .insert(driverVoucherLine)
-          .values({
-            transportVoucherId: voucherId,
-            vehicleType: currentVoucher.driverVoucherLine?.vehicleType,
-          })
-          .returning();
-      } else {
-        // Insert into guide_voucher_lines table
-        await trx
-          .insert(guideVoucherLine)
-          .values({
-            transportVoucherId: voucherId,
-          })
-          .returning();
-      }
+      await trx
+        .insert(driverVoucherLine)
+        .values({
+          transportVoucherId: voucherId,
+          vehicleType: currentVoucher.driverVoucherLine?.vehicleType,
+        })
+        .returning();
+
+      // if (currentVoucher.voucher.guideId === null) {
+      //   await trx
+      //     .insert(driverVoucherLine)
+      //     .values({
+      //       transportVoucherId: voucherId,
+      //       vehicleType: currentVoucher.driverVoucherLine?.vehicleType,
+      //     })
+      //     .returning();
+      // }
+      // else {
+      //   // Insert into guide_voucher_lines table
+      //   await trx
+      //     .insert(guideVoucherLine)
+      //     .values({
+      //       transportVoucherId: voucherId,
+      //     })
+      //     .returning();
+      // }
 
       return voucherId;
     }),
