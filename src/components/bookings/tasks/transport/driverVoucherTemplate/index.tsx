@@ -42,8 +42,8 @@ const DriverTransportVoucherPDF = ({
         <div className="flex w-full flex-row justify-between">
           {/* Tour Details */}
           <div className="text-[13px]">
-            <div>Client Name: {organization?.name}</div>
             <div>Tour ID: {voucher.bookingLineId}</div>
+            <div>Booking Name: {bookingData.booking.client.name}</div>
             <div>Transport Type : {voucher.driver?.type}</div>
             <div>Vehicle Type : {voucher.driverVoucherLines.map((type) => type.vehicleType)[0]}</div>
             <div>Driver Name : {voucher.driver?.name}</div>

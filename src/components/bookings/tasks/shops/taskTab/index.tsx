@@ -19,6 +19,8 @@ import { useOrganization, useUser } from "@clerk/nextjs";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import { UserResource } from "@clerk/types";
 import VoucherButton from "../../hotelsTaskTab/taskTab/VoucherButton";
+import { BookingLineWithAllData } from "~/lib/types/booking";
+import { getBookingLineWithAllData } from "~/server/db/queries/booking";
 
 interface TasksTabProps {
   bookingLineId: string;
@@ -54,6 +56,9 @@ const ShopVouchersTasksTab = ({
     useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false)
+  const [bookingData, setBookingData] = useState<BookingLineWithAllData>();
+  const [bookingLoading, setBookingLoading] = useState(false)
+
 
   const { toast } = useToast();
 
@@ -140,7 +145,25 @@ const ShopVouchersTasksTab = ({
   );
 
   useEffect(() => {
-    setSelectedVoucher(vouchers ? vouchers[0] : undefined)
+    setSelectedVoucher(vouchers ? vouchers[0] : undefined);
+
+    const fetchBooking = async () => {
+      if (vouchers) {
+        try {
+          setBookingLoading(true)
+          const booking = await getBookingLineWithAllData(vouchers[0]?.bookingLineId ?? "")
+          if (booking) {
+            setBookingData(booking);
+          }
+          setBookingLoading(false)
+        } catch (error) {
+          console.error(error)
+          setBookingLoading(false)
+        }
+      }
+
+    }
+    fetchBooking()
   }, [statusChanged, vouchers]);
 
   const getContactDetails = () => {
@@ -156,6 +179,10 @@ const ShopVouchersTasksTab = ({
     };
   };
   const pathname = usePathname();
+
+  if (bookingLoading) {
+    return <LoadingLayout />;
+  }
 
 
   return (
@@ -186,21 +213,24 @@ const ShopVouchersTasksTab = ({
                 : "Select a voucher from above table"}
             </div>
 
-            <Popup
-              title={"Amount of sales"}
-              description="Please click on preview button to get the document"
-              trigger={aosDocButton}
-              onConfirm={handleConfirm}
-              onCancel={handleCancel}
-              dialogContent={
-                <ProceedContent
-                  voucherColumns={voucherColumns}
-                  vouchers={vouchers}
-                  setStatusChanged={setStatusChanged}
-                />
-              }
-              size="large"
-            />
+            {bookingData && (
+              <Popup
+                title={"Amount of sales"}
+                description="Please click on preview button to get the document"
+                trigger={aosDocButton}
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
+                dialogContent={
+                  <ProceedContent
+                    voucherColumns={voucherColumns}
+                    vouchers={vouchers}
+                    setStatusChanged={setStatusChanged}
+                    bookingData={bookingData}
+                  />
+                }
+                size="large"
+              />
+            )}
           </div>
 
           <DataTableWithActions
@@ -280,12 +310,14 @@ interface ProceedContentProps {
   voucherColumns: any;
   vouchers: ShopVoucherData[];
   setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
+  bookingData: BookingLineWithAllData;
 }
 
 const ProceedContent: React.FC<ProceedContentProps> = ({
   voucherColumns,
   vouchers,
   setStatusChanged,
+  bookingData
 }) => {
   const VoucherLineColumnsWithRate = [...voucherColumns];
 
@@ -307,7 +339,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         {organization && user && (
           <VoucherButton voucherComponent={
             <div>
-              <ShopVoucherPDF vouchers={vouchers} organization={organization} user={user as UserResource} />
+              <ShopVoucherPDF vouchers={vouchers} organization={organization} user={user as UserResource} bookingData={bookingData} />
             </div>
           } />
 
@@ -315,7 +347,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
       </div>
       <div ref={componentRef}>
         {organization && user && (
-          <ShopVoucherPDF vouchers={vouchers} organization={organization} user={user as UserResource} />
+          <ShopVoucherPDF vouchers={vouchers} organization={organization} user={user as UserResource} bookingData={bookingData} />
         )}
       </div>
       <div className="flex w-full flex-row justify-end gap-2"></div>

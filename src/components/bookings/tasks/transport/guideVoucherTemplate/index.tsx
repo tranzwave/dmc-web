@@ -8,6 +8,7 @@ import LoadingLayout from "~/components/common/dashboardLoading";
 import { TransportVoucherData } from ".."; // Assuming TransportVoucherData is defined in the schema types
 import { BookingLineWithAllData } from "~/lib/types/booking";
 import { OrganizationResource, UserResource } from "@clerk/types";
+import VoucherHeader from "~/components/common/voucher/VoucherHeader";
 
 type TransportVoucherPDFProps = {
   voucher: TransportVoucherData;
@@ -28,19 +29,7 @@ const GuideTransportVoucherPDF = ({
 
   return (
     <div className="flex flex-col border">
-      <div className="flex flex-col items-center justify-center bg-primary-green p-4">
-        <Image
-          src={organization?.imageUrl ?? ""}
-          height={0}
-          width={0}
-          className="h-8 w-auto"
-          alt="orgLogo"
-        />
-        <div className="text-base font-semibold text-white">
-          {organization?.name}
-        </div>
-        <div className="text-[13px] text-white">Address will be shown here</div>
-      </div>
+      <VoucherHeader organization={organization}/>
       <div className="p-4">
         <div className="card-title w-full text-center">
           {cancellation ? (
@@ -52,8 +41,8 @@ const GuideTransportVoucherPDF = ({
         <div className="flex w-full flex-row justify-between">
           {/* Tour Details */}
           <div className="text-[13px]">
-            <div>Client Name: {organization?.name}</div>
             <div>Tour ID: {voucher.bookingLineId}</div>
+            <div>Booking Name: {bookingData.booking.client.name}</div>
             <div>Transport Type : {voucher.guide?.type}</div>
             <div>Guide Name : {voucher.guide?.name}</div>
             <div>No of Pax: {`${bookingData.adultsCount} Adults | ${bookingData.kidsCount} Kids`}</div>
@@ -167,7 +156,8 @@ const GuideTransportVoucherPDF = ({
         <div className="mt-10 text-[13px]">
           <div>Printed Date : {format(Date.now(), "dd/MM/yyyy")}</div>
           <div>Prepared By : {user?.fullName ?? ""}</div>
-          <div>This is a computer generated Voucher & does not require a signature</div>
+          <div>Contact Number : {(user?.publicMetadata as any)?.info?.contact ?? ""}</div>
+          {/* <div>This is a computer generated Voucher & does not require a signature</div> */}
         </div>
       </div>
     </div>

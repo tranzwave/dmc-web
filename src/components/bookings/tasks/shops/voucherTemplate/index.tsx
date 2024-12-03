@@ -8,15 +8,17 @@ import { ShopVoucherData } from "..";
 import VoucherHeader from "~/components/common/voucher/VoucherHeader";
 import { formatDate } from "~/lib/utils/index";
 import { OrganizationResource, UserResource } from "@clerk/types";
+import { BookingLineWithAllData } from "~/lib/types/booking";
 
 type ShopVoucherPDFProps = {
   vouchers: ShopVoucherData[];
   organization: OrganizationResource;
-  user: UserResource
+  user: UserResource;
+  bookingData:BookingLineWithAllData;
   cancellation?: boolean;
 };
 
-const ShopVoucherPDF = ({ vouchers, cancellation, organization, user }: ShopVoucherPDFProps) => {
+const ShopVoucherPDF = ({ vouchers, cancellation, organization, user, bookingData }: ShopVoucherPDFProps) => {
 
   console.log(vouchers)
 
@@ -36,6 +38,7 @@ const ShopVoucherPDF = ({ vouchers, cancellation, organization, user }: ShopVouc
           <div className="text-[13px]">
             {/* <div>Booking Name: {vouchers[0]?.client?.name ?? "N/A"}</div> */}
             <div>Tour ID: {vouchers[0]?.bookingLineId ?? "N/A"}</div>
+            <div>Booking Name: {bookingData.booking.client.name}</div>
             <div>Participants: {`Adults - ${vouchers[0]?.adultsCount ?? "N/A"} | Kids - ${vouchers[0]?.kidsCount ?? "N/A"}`}</div>
           </div>
         </div>

@@ -140,46 +140,6 @@ const TransportVouchersTab = ({
     }
   };
 
-  // const deleteVoucher = async()=>{
-  //   if (selectedVoucher) {
-  //     if (selectedVoucher.status === "cancelled") {
-  //       toast({
-  //         title: "Uh Oh!",
-  //         description: "This is already cancelled",
-  //       });
-  //       return;
-  //     }
-
-  //     try {
-  //       setIsDeleting(true);
-  //       const updateResult = await deleteTransportVoucher(
-  //         selectedVoucher.id
-  //       );
-
-  //       if (!updateResult) {
-  //         throw new Error("Couldn't update the status");
-  //       }
-
-  //       setIsDeleting(false);
-  //       toast({
-  //         title: "Success!",
-  //         description: "Driver is deleted",
-  //       });
-  //     } catch (error) {
-  //       console.error("Couldn't delete this driver");
-  //       setIsDeleting(false);
-  //       toast({
-  //         title: "Uh Oh!",
-  //         description: "Couldn't delete the driver",
-  //       });
-  //     }
-  //   }
-  //   console.log("Driver Deleted");
-  //   setStatusChanged(!statusChanged)
-  //   // router.push(`${pathname}?tab=transport`)
-  //   router.refresh()
-  // }
-
   const handleInProgressVoucherDelete = async () => {
     if (selectedVoucher?.guideId === null && selectedVoucher.status) {
       try {
