@@ -7,19 +7,16 @@ import LoadingLayout from "~/components/common/dashboardLoading";
 import { ShopVoucherData } from "..";
 import VoucherHeader from "~/components/common/voucher/VoucherHeader";
 import { formatDate } from "~/lib/utils/index";
+import { OrganizationResource, UserResource } from "@clerk/types";
 
 type ShopVoucherPDFProps = {
   vouchers: ShopVoucherData[];
+  organization: OrganizationResource;
+  user: UserResource
   cancellation?: boolean;
 };
 
-const ShopVoucherPDF = ({ vouchers, cancellation }: ShopVoucherPDFProps) => {
-  const organization = useOrganization();
-  const { isLoaded, user } = useUser();
-
-  if (!isLoaded || !organization) {
-    return <LoadingLayout />;
-  }
+const ShopVoucherPDF = ({ vouchers, cancellation, organization, user }: ShopVoucherPDFProps) => {
 
   console.log(vouchers)
 

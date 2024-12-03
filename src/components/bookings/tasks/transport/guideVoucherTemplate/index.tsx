@@ -7,25 +7,24 @@ import { useOrganization } from "~/app/dashboard/context";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import { TransportVoucherData } from ".."; // Assuming TransportVoucherData is defined in the schema types
 import { BookingLineWithAllData } from "~/lib/types/booking";
+import { OrganizationResource, UserResource } from "@clerk/types";
 
 type TransportVoucherPDFProps = {
   voucher: TransportVoucherData;
   bookingData:BookingLineWithAllData;
+  organization: OrganizationResource;
+  user: UserResource
   cancellation?: boolean;
 };
 
 const GuideTransportVoucherPDF = ({
   voucher,
   cancellation,
-  bookingData
+  bookingData,
+  organization,
+  user
 }: TransportVoucherPDFProps) => {
-  const organization = useOrganization();
-  const { isLoaded, user } = useUser();
   const [dynamicName, setDynamicName] = useState("");
-
-  if (!isLoaded) {
-    return <LoadingLayout />;
-  }
 
   return (
     <div className="flex flex-col border">

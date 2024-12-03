@@ -8,25 +8,24 @@ import LoadingLayout from "~/components/common/dashboardLoading";
 import { TransportVoucherData } from ".."; // Assuming TransportVoucherData is defined in the schema types
 import VoucherHeader from "~/components/common/voucher/VoucherHeader";
 import { BookingLineWithAllData } from "~/lib/types/booking";
+import { OrganizationResource, UserResource } from "@clerk/types";
 
 type TransportVoucherPDFProps = {
   voucher: TransportVoucherData;
   bookingData: BookingLineWithAllData;
+  organization: OrganizationResource;
+  user: UserResource
   cancellation?: boolean;
 };
 
 const DriverTransportVoucherPDF = ({
   voucher,
   cancellation,
-  bookingData
+  bookingData,
+  organization,
+  user
 }: TransportVoucherPDFProps) => {
-  const organization = useOrganization();
-  const { isLoaded, user } = useUser();
   const [dynamicName, setDynamicName] = useState(""); // State for dynamic name
-
-  if (!isLoaded || !organization) {
-    return <LoadingLayout />;
-  }
 
   return (
     <div className="flex flex-col border">
@@ -112,7 +111,7 @@ const DriverTransportVoucherPDF = ({
           Total -
         </div> */}
 
-        <div className="mt-4 w-full border border-black p-4 text-[13px]">
+        <div className="mt-4 w-full border border-black p-4 text-[12px]">
           <div>
             Total KMS: <span>......................</span> x
             <span>.............................</span> per kms =

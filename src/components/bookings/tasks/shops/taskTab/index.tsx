@@ -15,6 +15,10 @@ import { useToast } from "~/hooks/use-toast";
 import { updateShopVoucherStatus } from "~/server/db/queries/booking/shopsVouchers";
 import { ShopVoucherData } from "..";
 import ShopVoucherPDF from "../voucherTemplate";
+import { useOrganization, useUser } from "@clerk/nextjs";
+import LoadingLayout from "~/components/common/dashboardLoading";
+import { UserResource } from "@clerk/types";
+import VoucherButton from "../../hotelsTaskTab/taskTab/VoucherButton";
 
 interface TasksTabProps {
   bookingLineId: string;
@@ -64,9 +68,9 @@ const ShopVouchersTasksTab = ({
     // console.log(selectedVoucherLine);
   };
 
-  const handleConfirm = async() => {
-    if(selectedVoucher){
-      if(selectedVoucher.status == "vendorConfirmed"){
+  const handleConfirm = async () => {
+    if (selectedVoucher) {
+      if (selectedVoucher.status == "vendorConfirmed") {
         toast({
           title: "Uh Oh!",
           description: "You have already confirmed",
@@ -74,11 +78,11 @@ const ShopVouchersTasksTab = ({
         return
       }
 
-      try{
+      try {
         setIsConfirming(true)
         const updateResult = await updateShopVoucherStatus(selectedVoucher.id, "vendorConfirmed");
 
-        if(!updateResult){
+        if (!updateResult) {
           throw new Error("Couldn't update the status")
         }
 
@@ -87,7 +91,7 @@ const ShopVouchersTasksTab = ({
           title: "Success!",
           description: "Shop is confirmed",
         });
-      } catch (error){
+      } catch (error) {
         console.error("Couldn't confirm this shop")
         setIsConfirming(false)
         toast({
@@ -161,7 +165,7 @@ const ShopVouchersTasksTab = ({
           <Calendar />
         </div>
         <div className="card w-full space-y-6">
-        <div className="flex justify-between">
+          <div className="flex justify-between">
             <div className="card-title">Voucher Information</div>
             <Link href={`${pathname.replace("/tasks", "")}/edit?tab=shops`}>
               <Button variant={"outline"}>Add Vouchers</Button>
@@ -287,53 +291,32 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
 
   const componentRef = useRef<HTMLDivElement>(null);
 
-  const downloadPDF = () => {
-    const tempContainer = document.createElement("div");
+  const { organization, isLoaded: isOrgLoaded } = useOrganization();
+  const { isLoaded, user } = useUser();
 
-    const componentElement = componentRef.current?.cloneNode(true);
+  if (!isLoaded || !isOrgLoaded) {
+    return (
+      <LoadingLayout />
+    )
+  }
 
-    // Create the footer section
-    const footerElement = document.createElement("div");
-    footerElement.innerHTML = `
-      <div>
-      </div>
-    `;
-
-    if (componentElement) {
-      tempContainer.appendChild(componentElement);
-    }
-
-    tempContainer.style.width = "210mm"; // Set width to A4 size (portrait)
-    tempContainer.style.minHeight = "297mm"; // Minimum height of A4 size
-    tempContainer.style.padding = "10mm"; // Padding for the container
-    tempContainer.style.backgroundColor = "white"; // Set background to white
-
-    document.body.appendChild(tempContainer);
-
-    // Generate the PDF from the temporary container
-    const options = {
-      filename: `Amount_Of_Sales_${vouchers[0]?.bookingLineId}.pdf`,
-      jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
-    };
-    html2pdf()
-      .set(options)
-      .from(tempContainer)
-      .save()
-      .then(() => {
-        // Remove the temporary container after the PDF is generated
-        document.body.removeChild(tempContainer);
-      });
-  };
 
   return (
     <div className="mb-9 space-y-6">
       <div className="flex flex-row justify-end">
-        <Button variant="primaryGreen" onClick={downloadPDF}>
-          Download Amount Of Sales Document
-        </Button>
+        {organization && user && (
+          <VoucherButton voucherComponent={
+            <div>
+              <ShopVoucherPDF vouchers={vouchers} organization={organization} user={user as UserResource} />
+            </div>
+          } />
+
+        )}
       </div>
       <div ref={componentRef}>
-        <ShopVoucherPDF vouchers={vouchers} />
+        {organization && user && (
+          <ShopVoucherPDF vouchers={vouchers} organization={organization} user={user as UserResource} />
+        )}
       </div>
       <div className="flex w-full flex-row justify-end gap-2"></div>
     </div>

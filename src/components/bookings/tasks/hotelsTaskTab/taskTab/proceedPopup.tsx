@@ -188,7 +188,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
           </AccordionTrigger>
           <AccordionContent className="space-y-2">
             <div className="flex flex-row justify-end" onClick={handleSendVoucher}>
-              {type === 'hotel' && selectedVoucher.status !== "cancelled" && user &&(
+              {type === 'hotel' && selectedVoucher.status !== "cancelled" && user && (
                 // <PDFDownloadLink
                 //   document={<HotelVoucherDownloadablePDF voucher={selectedVoucher as HotelVoucherData} organization={orgData} user={user} />}
                 //   fileName={`${selectedVoucher.id}-${(selectedVoucher as HotelVoucherData).hotel.name}-Voucher.pdf`}
@@ -206,9 +206,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
                 // </PDFDownloadLink>
                 <VoucherButton voucherComponent={
                   <div>
-                    <OrganizationProvider initialOrg={organization}>
-                      <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} bookingName={bookingName} organization={organization} user={user as UserResource}/>
-                    </OrganizationProvider>
+                    <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} bookingName={bookingName} organization={organization} user={user as UserResource} />
                   </div>
                 } />
               )}
@@ -231,9 +229,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
                 // </PDFDownloadLink>
                 <VoucherButton voucherComponent={
                   <div>
-                    <OrganizationProvider initialOrg={organization}>
-                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} bookingName={bookingName} />
-                    </OrganizationProvider>
+                    <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} bookingName={bookingName} organization={organization} user={user as UserResource} />
                   </div>
                 } />
               )}
@@ -261,11 +257,11 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
                 <>
                   {viewCancellationVoucher ? (<div>
                     <div>
-                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} cancellation={true} bookingName={bookingName} />
+                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} cancellation={true} bookingName={bookingName} organization={organization} user={user as UserResource}/>
                     </div>
                   </div>) : (<div>
                     <div>
-                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} bookingName={bookingName} />
+                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} bookingName={bookingName} organization={organization} user={user as UserResource}/>
                     </div>
                   </div>)}
 

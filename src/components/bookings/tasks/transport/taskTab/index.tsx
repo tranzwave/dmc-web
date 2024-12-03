@@ -25,6 +25,9 @@ import GuideTransportVoucherPDF from "../guideVoucherTemplate";
 import { getBookingLineWithAllData } from "~/server/db/queries/booking";
 import { BookingLineWithAllData } from "~/lib/types/booking";
 import LoadingLayout from "~/components/common/dashboardLoading";
+import { useOrganization, useUser } from "@clerk/nextjs";
+import { UserResource } from "@clerk/types";
+import VoucherButton from "../../hotelsTaskTab/taskTab/VoucherButton";
 
 interface TasksTabProps {
   bookingLineId: string;
@@ -364,7 +367,7 @@ const TransportVouchersTab = ({
                 : "Select a voucher from above table"}
             </div>
 
-            {selectedVoucher && bookingData &&(
+            {selectedVoucher && bookingData && (
               <Popup
                 title={"Log Sheet"}
                 description="Please click on preview button to get the document"
@@ -436,11 +439,11 @@ const TransportVouchersTab = ({
                     onCancel={() => console.log("Cancelled")}
                     dialogContent={ContactContent(
                       selectedVoucher?.driver?.primaryContactNumber ??
-                        selectedVoucher?.guide?.primaryContactNumber ??
-                        "N/A",
+                      selectedVoucher?.guide?.primaryContactNumber ??
+                      "N/A",
                       selectedVoucher?.driver?.primaryEmail ??
-                        selectedVoucher?.guide?.primaryEmail ??
-                        "N/A",
+                      selectedVoucher?.guide?.primaryEmail ??
+                      "N/A",
                     )}
                     size="small"
                   />
@@ -508,51 +511,34 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
 }) => {
   const componentRef = useRef<HTMLDivElement>(null);
 
-  const downloadPDF = () => {
-    const tempContainer = document.createElement("div");
-    const componentElement = componentRef.current?.cloneNode(true);
-    const footerElement = document.createElement("div");
-    footerElement.innerHTML = `
-    <div>
-    </div>
-  `;
+  const { organization, isLoaded: isOrgLoaded } = useOrganization();
+  const { isLoaded, user } = useUser();
 
-    if (componentElement) {
-      tempContainer.appendChild(componentElement);
-    }
-
-    tempContainer.style.width = "210mm"; // Set width to A4 size (portrait)
-    tempContainer.style.minHeight = "297mm"; // Minimum height of A4 size
-    tempContainer.style.padding = "10mm"; // Padding for the container
-    tempContainer.style.backgroundColor = "white"; // Set background to white
-
-    document.body.appendChild(tempContainer);
-    const options = {
-      filename: `Activities_by_Date_${voucher.bookingLineId}.pdf`,
-      jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
-    };
-    html2pdf()
-      .set(options)
-      .from(tempContainer)
-      .save()
-      .then(() => {
-        document.body.removeChild(tempContainer);
-      });
-  };
+  if (!isLoaded || !isOrgLoaded) {
+    return (
+      <LoadingLayout />
+    )
+  }
 
   return (
     <div className="mb-9 space-y-6">
       <div className="flex flex-row justify-end">
-        <Button variant="primaryGreen" onClick={downloadPDF}>
-          Download PDF
-        </Button>
+        <VoucherButton voucherComponent={
+          <div>
+            {voucher.driverId !== null && organization && user ? (
+              <DriverTransportVoucherPDF voucher={voucher} bookingData={bookingData} organization={organization} user={user as UserResource} />
+            ) : organization && user ? (
+              <GuideTransportVoucherPDF voucher={voucher} bookingData={bookingData} organization={organization} user={user as UserResource} />
+            ) : ''}
+          </div>
+        } />
       </div>
       <div ref={componentRef}>
-        {voucher.driverId !== null ? (
-          <DriverTransportVoucherPDF voucher={voucher} bookingData={bookingData}/>
-        ) : (
-          <GuideTransportVoucherPDF voucher={voucher} bookingData={bookingData}/>
-        )}
+        {voucher.driverId !== null && organization && user ? (
+          <DriverTransportVoucherPDF voucher={voucher} bookingData={bookingData} organization={organization} user={user as UserResource} />
+        ) : organization && user ? (
+          <GuideTransportVoucherPDF voucher={voucher} bookingData={bookingData} organization={organization} user={user as UserResource} />
+        ) : ''}
       </div>
       <div className="flex w-full flex-row justify-end gap-2"></div>
     </div>
