@@ -126,8 +126,8 @@ importers:
         specifier: ^0.2.15
         version: 0.2.15
       pnpm:
-        specifier: ^9.14.2
-        version: 9.14.2
+        specifier: ^9.14.4
+        version: 9.14.4
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -3160,8 +3160,8 @@ packages:
   png-js@1.0.0:
     resolution: {integrity: sha512-k+YsbhpA9e+EFfKjTCH3VW6aoKlyNYI6NYdTfDL4CIvFnvsuO84ttonmZE7rc+v23SLTH8XX+5w/Ak9v0xGY4g==}
 
-  pnpm@9.14.2:
-    resolution: {integrity: sha512-biuvd9Brk2IpQVLIUcTyeO3jerHro6Vf2jF6SheyCfTbuXP7JQp3q8Rjo0H8sfF/F8+iQJHE6zGc2g2bhCeDhw==}
+  pnpm@9.14.4:
+    resolution: {integrity: sha512-yBgLP75OS8oCyUI0cXiWtVKXQKbLrfGfp4JUJwQD6i8n1OHUagig9WyJtj3I6/0+5TMm2nICc3lOYgD88NGEqw==}
     engines: {node: '>=18.12'}
     hasBin: true
 
@@ -7023,7 +7023,7 @@ snapshots:
 
   png-js@1.0.0: {}
 
-  pnpm@9.14.2: {}
+  pnpm@9.14.4: {}
 
   possible-typed-array-names@1.0.0: {}
 

@@ -345,6 +345,7 @@ const TransportTab = () => {
         title: "Success",
         description: "Transport Vouchers Added!",
       });
+      updateTriggerRefetch();
     } catch (error) {
       setSaving(false);
       toast({

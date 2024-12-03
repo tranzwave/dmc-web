@@ -26,7 +26,7 @@ export const columns: ColumnDef<TransportVoucher, unknown>[] = [
   },
   {
     header: "Start Date",
-    accessorFn: row => row.voucher.startDate
+    accessorFn: row => row.voucher?.startDate
   },
   {
     header: "End Date",

@@ -15,6 +15,12 @@ import { useToast } from "~/hooks/use-toast";
 import { updateShopVoucherStatus } from "~/server/db/queries/booking/shopsVouchers";
 import { ShopVoucherData } from "..";
 import ShopVoucherPDF from "../voucherTemplate";
+import { useOrganization, useUser } from "@clerk/nextjs";
+import LoadingLayout from "~/components/common/dashboardLoading";
+import { UserResource } from "@clerk/types";
+import VoucherButton from "../../hotelsTaskTab/taskTab/VoucherButton";
+import { BookingLineWithAllData } from "~/lib/types/booking";
+import { getBookingLineWithAllData } from "~/server/db/queries/booking";
 
 interface TasksTabProps {
   bookingLineId: string;
@@ -50,6 +56,9 @@ const ShopVouchersTasksTab = ({
     useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false)
+  const [bookingData, setBookingData] = useState<BookingLineWithAllData>();
+  const [bookingLoading, setBookingLoading] = useState(false)
+
 
   const { toast } = useToast();
 
@@ -64,9 +73,9 @@ const ShopVouchersTasksTab = ({
     // console.log(selectedVoucherLine);
   };
 
-  const handleConfirm = async() => {
-    if(selectedVoucher){
-      if(selectedVoucher.status == "vendorConfirmed"){
+  const handleConfirm = async () => {
+    if (selectedVoucher) {
+      if (selectedVoucher.status == "vendorConfirmed") {
         toast({
           title: "Uh Oh!",
           description: "You have already confirmed",
@@ -74,11 +83,11 @@ const ShopVouchersTasksTab = ({
         return
       }
 
-      try{
+      try {
         setIsConfirming(true)
         const updateResult = await updateShopVoucherStatus(selectedVoucher.id, "vendorConfirmed");
 
-        if(!updateResult){
+        if (!updateResult) {
           throw new Error("Couldn't update the status")
         }
 
@@ -87,7 +96,7 @@ const ShopVouchersTasksTab = ({
           title: "Success!",
           description: "Shop is confirmed",
         });
-      } catch (error){
+      } catch (error) {
         console.error("Couldn't confirm this shop")
         setIsConfirming(false)
         toast({
@@ -136,7 +145,25 @@ const ShopVouchersTasksTab = ({
   );
 
   useEffect(() => {
-    setSelectedVoucher(vouchers ? vouchers[0] : undefined)
+    setSelectedVoucher(vouchers ? vouchers[0] : undefined);
+
+    const fetchBooking = async () => {
+      if (vouchers) {
+        try {
+          setBookingLoading(true)
+          const booking = await getBookingLineWithAllData(vouchers[0]?.bookingLineId ?? "")
+          if (booking) {
+            setBookingData(booking);
+          }
+          setBookingLoading(false)
+        } catch (error) {
+          console.error(error)
+          setBookingLoading(false)
+        }
+      }
+
+    }
+    fetchBooking()
   }, [statusChanged, vouchers]);
 
   const getContactDetails = () => {
@@ -153,6 +180,10 @@ const ShopVouchersTasksTab = ({
   };
   const pathname = usePathname();
 
+  if (bookingLoading) {
+    return <LoadingLayout />;
+  }
+
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">
@@ -161,7 +192,7 @@ const ShopVouchersTasksTab = ({
           <Calendar />
         </div>
         <div className="card w-full space-y-6">
-        <div className="flex justify-between">
+          <div className="flex justify-between">
             <div className="card-title">Voucher Information</div>
             <Link href={`${pathname.replace("/tasks", "")}/edit?tab=shops`}>
               <Button variant={"outline"}>Add Vouchers</Button>
@@ -182,21 +213,24 @@ const ShopVouchersTasksTab = ({
                 : "Select a voucher from above table"}
             </div>
 
-            <Popup
-              title={"Amount of sales"}
-              description="Please click on preview button to get the document"
-              trigger={aosDocButton}
-              onConfirm={handleConfirm}
-              onCancel={handleCancel}
-              dialogContent={
-                <ProceedContent
-                  voucherColumns={voucherColumns}
-                  vouchers={vouchers}
-                  setStatusChanged={setStatusChanged}
-                />
-              }
-              size="large"
-            />
+            {bookingData && (
+              <Popup
+                title={"Amount of sales"}
+                description="Please click on preview button to get the document"
+                trigger={aosDocButton}
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
+                dialogContent={
+                  <ProceedContent
+                    voucherColumns={voucherColumns}
+                    vouchers={vouchers}
+                    setStatusChanged={setStatusChanged}
+                    bookingData={bookingData}
+                  />
+                }
+                size="large"
+              />
+            )}
           </div>
 
           <DataTableWithActions
@@ -276,64 +310,45 @@ interface ProceedContentProps {
   voucherColumns: any;
   vouchers: ShopVoucherData[];
   setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
+  bookingData: BookingLineWithAllData;
 }
 
 const ProceedContent: React.FC<ProceedContentProps> = ({
   voucherColumns,
   vouchers,
   setStatusChanged,
+  bookingData
 }) => {
   const VoucherLineColumnsWithRate = [...voucherColumns];
 
   const componentRef = useRef<HTMLDivElement>(null);
 
-  const downloadPDF = () => {
-    const tempContainer = document.createElement("div");
+  const { organization, isLoaded: isOrgLoaded } = useOrganization();
+  const { isLoaded, user } = useUser();
 
-    const componentElement = componentRef.current?.cloneNode(true);
+  if (!isLoaded || !isOrgLoaded) {
+    return (
+      <LoadingLayout />
+    )
+  }
 
-    // Create the footer section
-    const footerElement = document.createElement("div");
-    footerElement.innerHTML = `
-      <div>
-      </div>
-    `;
-
-    if (componentElement) {
-      tempContainer.appendChild(componentElement);
-    }
-
-    tempContainer.style.width = "210mm"; // Set width to A4 size (portrait)
-    tempContainer.style.minHeight = "297mm"; // Minimum height of A4 size
-    tempContainer.style.padding = "10mm"; // Padding for the container
-    tempContainer.style.backgroundColor = "white"; // Set background to white
-
-    document.body.appendChild(tempContainer);
-
-    // Generate the PDF from the temporary container
-    const options = {
-      filename: `Amount_Of_Sales_${vouchers[0]?.bookingLineId}.pdf`,
-      jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
-    };
-    html2pdf()
-      .set(options)
-      .from(tempContainer)
-      .save()
-      .then(() => {
-        // Remove the temporary container after the PDF is generated
-        document.body.removeChild(tempContainer);
-      });
-  };
 
   return (
     <div className="mb-9 space-y-6">
       <div className="flex flex-row justify-end">
-        <Button variant="primaryGreen" onClick={downloadPDF}>
-          Download Amount Of Sales Document
-        </Button>
+        {organization && user && (
+          <VoucherButton voucherComponent={
+            <div>
+              <ShopVoucherPDF vouchers={vouchers} organization={organization} user={user as UserResource} bookingData={bookingData} />
+            </div>
+          } />
+
+        )}
       </div>
       <div ref={componentRef}>
-        <ShopVoucherPDF vouchers={vouchers} />
+        {organization && user && (
+          <ShopVoucherPDF vouchers={vouchers} organization={organization} user={user as UserResource} bookingData={bookingData} />
+        )}
       </div>
       <div className="flex w-full flex-row justify-end gap-2"></div>
     </div>

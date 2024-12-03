@@ -13,20 +13,17 @@ import { RestaurantVoucherData } from "..";
 import VoucherHeader from "~/components/common/voucher/VoucherHeader";
 import { getLetterByIndex } from "~/lib/utils/index";
 import { Country } from "country-state-city";
+import { OrganizationResource, UserResource } from "@clerk/types";
 
 type RestaurantVoucherPDFProps = {
   voucher: RestaurantVoucherData;
   bookingName: string
+  organization: OrganizationResource;
+  user: UserResource
   cancellation?: boolean
 };
 
-const RestaurantVoucherView = ({ voucher, cancellation, bookingName }: RestaurantVoucherPDFProps) => {
-  const organization = useOrganization();
-  const { isLoaded, user } = useUser();
-
-  if (!isLoaded || !organization) {
-    return <LoadingLayout />;
-  }
+const RestaurantVoucherView = ({ voucher, cancellation, bookingName,organization, user }: RestaurantVoucherPDFProps) => {
 
   return (
     <div className="flex flex-col border">

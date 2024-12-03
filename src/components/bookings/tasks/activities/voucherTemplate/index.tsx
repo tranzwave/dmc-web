@@ -8,20 +8,17 @@ import { ActivityVoucherData } from "..";
 import VoucherHeader from "~/components/common/voucher/VoucherHeader";
 import { formatDate, getLetterByIndex } from "~/lib/utils/index";
 import { Country } from "country-state-city";
+import { OrganizationResource, UserResource } from "@clerk/types";
 
 type ActivityVoucherPDFProps = {
   vouchers: ActivityVoucherData[];
   bookingName: string;
+  organization: OrganizationResource;
+  user: UserResource
   cancellation?: boolean;
 };
 
-const ActivityVoucherPDF = ({ vouchers, cancellation, bookingName }: ActivityVoucherPDFProps) => {
-  const organization = useOrganization();
-  const { isLoaded, user } = useUser();
-
-  if (!isLoaded || !organization) {
-    return <LoadingLayout />;
-  }
+const ActivityVoucherPDF = ({ vouchers, cancellation, bookingName, organization, user }: ActivityVoucherPDFProps) => {
 
   return (
     <div className="flex flex-col border">

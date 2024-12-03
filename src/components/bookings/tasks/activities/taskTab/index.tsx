@@ -18,6 +18,10 @@ import { deleteActivitiesVoucher, getBookingLineWithAllData } from "~/server/db/
 import { updateActivityVoucherStatus } from "~/server/db/queries/booking/activityVouchers";
 import { ActivityVoucherData } from "..";
 import ActivityVoucherPDF from "../voucherTemplate";
+import { useOrganization, useUser } from "@clerk/nextjs";
+import LoadingLayout from "~/components/common/dashboardLoading";
+import { UserResource } from "@clerk/types";
+import VoucherButton from "../../hotelsTaskTab/taskTab/VoucherButton";
 
 interface TasksTabProps {
   bookingLineId: string;
@@ -51,7 +55,7 @@ const ActivityVouchersTab = ({
     useState(false);
   const [isProceededVoucherDelete, setIsProceededVoucherDelete] =
     useState(false);
-    const [isVoucherDelete, setIsVoucherDelete] =
+  const [isVoucherDelete, setIsVoucherDelete] =
     useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
@@ -365,8 +369,8 @@ const ActivityVouchersTab = ({
                     itemName={`Voucher for ${selectedVoucher?.activityVendor.name}`}
                     cancellationReason={
                       selectedVoucher?.reasonToDelete ?? "No reason provided. This is cancelled before confirm."
-                    } 
-                    isOpen={isVoucherDelete} 
+                    }
+                    isOpen={isVoucherDelete}
                     setIsOpen={setIsVoucherDelete}
                   />
                 </div>
@@ -405,47 +409,31 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
 }) => {
   const componentRef = useRef<HTMLDivElement>(null);
 
-  const downloadPDF = () => {
-    const tempContainer = document.createElement("div");
-    const componentElement = componentRef.current?.cloneNode(true);
-    const footerElement = document.createElement("div");
-    footerElement.innerHTML = `
-    <div>
-    </div>
-  `;
+  const { organization, isLoaded: isOrgLoaded } = useOrganization();
+  const { isLoaded, user } = useUser();
 
-    if (componentElement) {
-      tempContainer.appendChild(componentElement);
-    }
-
-    tempContainer.style.width = "210mm"; // Set width to A4 size (portrait)
-    tempContainer.style.minHeight = "297mm"; // Minimum height of A4 size
-    tempContainer.style.padding = "10mm"; // Padding for the container
-    tempContainer.style.backgroundColor = "white"; // Set background to white
-
-    document.body.appendChild(tempContainer);
-    const options = {
-      filename: `Activities_by_Date_${vouchers[0]?.bookingLineId}.pdf`,
-      jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
-    };
-    html2pdf()
-      .set(options)
-      .from(tempContainer)
-      .save()
-      .then(() => {
-        document.body.removeChild(tempContainer);
-      });
-  };
+  if (!isLoaded || !isOrgLoaded) {
+    return (
+      <LoadingLayout />
+    )
+  }
 
   return (
     <div className="mb-9 space-y-6">
       <div className="flex flex-row justify-end">
-        <Button variant="primaryGreen" onClick={downloadPDF}>
-          Download PDF
-        </Button>
+        {organization && user && (
+          <VoucherButton voucherComponent={
+            <div>
+              <ActivityVoucherPDF vouchers={vouchers} bookingName={bookingName} organization={organization} user={user as UserResource} />
+            </div>
+          } />
+
+        )}
       </div>
       <div ref={componentRef}>
-        <ActivityVoucherPDF vouchers={vouchers} bookingName={bookingName}/>
+        {organization && user && (
+          <ActivityVoucherPDF vouchers={vouchers} bookingName={bookingName} organization={organization} user={user as UserResource} />
+        )}
       </div>
       <div className="flex w-full flex-row justify-end gap-2"></div>
     </div>
