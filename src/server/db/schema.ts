@@ -125,29 +125,34 @@ export const booking = createTable("bookings", {
     // .references(() => user.id)
     .notNull(),
   tourType: varchar("tour_type", { length: 255 }).notNull(),
-  directCustomer: boolean("direct_customer").default(false)
+  directCustomer: boolean("direct_customer").default(false),
 });
 
-export const bookingAgent = createTable("booking_agent", {
-  bookingId: varchar("booking_id", { length: 255 })
-    .references(() => booking.id)
-    .notNull(),
-  agentId: varchar("agent_id", { length: 255 })
-    .references(() => agent.id)
-    .notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-}, (table) => ({
-  primaryKey: [table.bookingId, table.agentId],
-}));
+export const bookingAgent = createTable(
+  "booking_agent",
+  {
+    bookingId: varchar("booking_id", { length: 255 })
+      .references(() => booking.id)
+      .notNull(),
+    agentId: varchar("agent_id", { length: 255 })
+      .references(() => agent.id)
+      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => ({
+    primaryKey: [table.bookingId, table.agentId],
+  }),
+);
 
-
-export const bookingLineStatus = pgEnum('status', ['inprogress', 'confirmed', 'cancelled']);
+export const bookingLineStatus = pgEnum("status", [
+  "inprogress",
+  "confirmed",
+  "cancelled",
+]);
 
 export const bookingLine = createTable("booking_lines", {
-  id: varchar("id", { length: 255 })
-    .notNull()
-    .primaryKey(),
+  id: varchar("id", { length: 255 }).notNull().primaryKey(),
   bookingId: varchar("booking_id")
     .notNull()
     .references(() => booking.id),
@@ -162,10 +167,16 @@ export const bookingLine = createTable("booking_lines", {
   kidsCount: integer("kids_count").notNull(),
   startDate: timestamp("start_date").notNull(),
   endDate: timestamp("end_date").notNull(),
-  status: bookingLineStatus('status').default('inprogress'),
+  status: bookingLineStatus("status").default("inprogress"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
+  tourPacket: jsonb("tour_packet")
+    .$type<{
+      documents: { item: string; count: number }[];
+      accessories: { item: string; count: number }[];
+    }>()
+    .default(sql`'{"documents": [], "accessories": []}'::jsonb`),
 });
 
 export const city = createTable(
@@ -264,7 +275,15 @@ export const hotelStaff = createTable("hotel_staffs", {
     .$onUpdate(() => new Date()),
 });
 
-export const statusEnum = pgEnum('status', ['inprogress', 'sentToVendor', 'vendorConfirmed', 'sentToClient', 'confirmed', 'cancelled', 'amended']);
+export const statusEnum = pgEnum("status", [
+  "inprogress",
+  "sentToVendor",
+  "vendorConfirmed",
+  "sentToClient",
+  "confirmed",
+  "cancelled",
+  "amended",
+]);
 // Hotel Vouchers table
 export const hotelVoucher = createTable("hotel_vouchers", {
   id: varchar("id", { length: 255 })
@@ -280,13 +299,19 @@ export const hotelVoucher = createTable("hotel_vouchers", {
   coordinatorId: varchar("coordinator_id", { length: 255 })
     // .references(() => user.id)
     .notNull(),
-  status: statusEnum('status').default('inprogress'),
+  status: statusEnum("status").default("inprogress"),
 
-  billingInstructions: varchar("billing_instructions", { length: 255 }).default(""),
+  billingInstructions: varchar("billing_instructions", { length: 255 }).default(
+    "",
+  ),
   specialNote: varchar("special_note", { length: 255 }).default(""),
 
-  availabilityConfirmedBy: varchar("availability_confirmed_by", { length: 255 }).default(""),
-  availabilityConfirmedTo: varchar("availability_confirmed_to", { length: 255 }).default(""),
+  availabilityConfirmedBy: varchar("availability_confirmed_by", {
+    length: 255,
+  }).default(""),
+  availabilityConfirmedTo: varchar("availability_confirmed_to", {
+    length: 255,
+  }).default(""),
   ratesConfirmedBy: varchar("rates_confirmed_by", { length: 255 }).default(""),
   ratesConfirmedTo: varchar("rates_confirmed_to", { length: 255 }).default(""),
   reasonToAmend: varchar("reason_to_amend", { length: 255 }).default(""),
@@ -295,7 +320,6 @@ export const hotelVoucher = createTable("hotel_vouchers", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 
   amendedCount: integer("amend_count").default(0),
-
 });
 
 // Hotel Voucher Lines table
@@ -307,7 +331,7 @@ export const hotelVoucherLine = createTable("hotel_voucher_lines", {
   hotelVoucherId: varchar("hotel_voucher_id", { length: 255 })
     .references(() => hotelVoucher.id)
     .notNull(),
-  rate: numeric('rate', { precision: 4 }),
+  rate: numeric("rate", { precision: 4 }),
   roomType: varchar("room_type", { length: 100 }).notNull(),
   roomCategory: varchar("room_category", { length: 100 }).default("").notNull(),
   basis: varchar("basis", { length: 50 }).notNull(), // HB, FB, BB
@@ -336,7 +360,9 @@ export const restaurant = createTable("restaurants", {
   streetName: varchar("street_name", { length: 255 }).notNull(),
   province: varchar("province", { length: 255 }).notNull(),
   contactNumber: varchar("contact_number", { length: 50 }).notNull(),
-  primaryEmail: varchar("primaryEmail", { length: 50 }).notNull().default("N/A"),
+  primaryEmail: varchar("primaryEmail", { length: 50 })
+    .notNull()
+    .default("N/A"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   cityId: integer("city_id")
@@ -372,20 +398,25 @@ export const restaurantVoucher = createTable("restaurant_vouchers", {
   coordinatorId: varchar("coordinator_id", { length: 255 })
     // .references(() => user.id)
     .notNull(),
-  status: statusEnum('status').default('inprogress'),
+  status: statusEnum("status").default("inprogress"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-  availabilityConfirmedBy: varchar("availability_confirmed_by", { length: 255 }).default(""),
-  availabilityConfirmedTo: varchar("availability_confirmed_to", { length: 255 }).default(""),
+  availabilityConfirmedBy: varchar("availability_confirmed_by", {
+    length: 255,
+  }).default(""),
+  availabilityConfirmedTo: varchar("availability_confirmed_to", {
+    length: 255,
+  }).default(""),
   ratesConfirmedBy: varchar("rates_confirmed_by", { length: 255 }).default(""),
   ratesConfirmedTo: varchar("rates_confirmed_to", { length: 255 }).default(""),
   reasonToAmend: varchar("reason_to_amend", { length: 255 }).default(""),
   reasonToCancel: varchar("reason_to_cancel", { length: 255 }).default(""),
 
-  billingInstructions: varchar("billing_instructions", { length: 255 }).default(""),
+  billingInstructions: varchar("billing_instructions", { length: 255 }).default(
+    "",
+  ),
   specialNote: varchar("special_note", { length: 255 }).default(""),
   amendedCount: integer("amend_count").default(0),
-
 });
 
 // Restaurant Voucher Lines table
@@ -397,7 +428,7 @@ export const restaurantVoucherLine = createTable("restaurant_voucher_lines", {
   restaurantVoucherId: varchar("restaurant_voucher_id", { length: 255 })
     .references(() => restaurantVoucher.id)
     .notNull(),
-  rate: numeric('rate', { precision: 4 }),
+  rate: numeric("rate", { precision: 4 }),
   mealType: varchar("meal_type", { length: 50 }).notNull(),
   date: varchar("date", { length: 100 }).notNull(),
   time: varchar("time", { length: 10 }).notNull(),
@@ -406,8 +437,12 @@ export const restaurantVoucherLine = createTable("restaurant_voucher_lines", {
   remarks: text("remarks"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-  availabilityConfirmedBy: varchar("availability_confirmed_by", { length: 255 }).default(""),
-  availabilityConfirmedTo: varchar("availability_confirmed_to", { length: 255 }).default(""),
+  availabilityConfirmedBy: varchar("availability_confirmed_by", {
+    length: 255,
+  }).default(""),
+  availabilityConfirmedTo: varchar("availability_confirmed_to", {
+    length: 255,
+  }).default(""),
   ratesConfirmedBy: varchar("rates_confirmed_by", { length: 255 }).default(""),
   ratesConfirmedTo: varchar("rates_confirmed_to", { length: 255 }).default(""),
   reasonToAmend: varchar("reason_to_amend", { length: 255 }).default(""),
@@ -554,7 +589,6 @@ export const guideLanguage = createTable(
   },
 );
 
-
 // Transport Vouchers table
 export const transportVoucher = createTable("transport_vouchers", {
   id: varchar("id", { length: 255 })
@@ -564,14 +598,12 @@ export const transportVoucher = createTable("transport_vouchers", {
   bookingLineId: varchar("booking_line_id", { length: 255 })
     .references(() => bookingLine.id)
     .notNull(),
-  driverId: varchar("driver_id", { length: 255 })
-    .references(() => driver.id),
-  guideId: varchar("guide_id", { length: 255 })
-    .references(() => guide.id),
+  driverId: varchar("driver_id", { length: 255 }).references(() => driver.id),
+  guideId: varchar("guide_id", { length: 255 }).references(() => guide.id),
   coordinatorId: varchar("coordinator_id", { length: 255 }),
   // .references(() => user.id),
-  status: statusEnum('status').default('inprogress'),
-  rate: numeric('rate', { precision: 4 }),
+  status: statusEnum("status").default("inprogress"),
+  rate: numeric("rate", { precision: 4 }),
   startDate: varchar("start_date", { length: 100 }).notNull(),
   endDate: varchar("end_date", { length: 100 }).notNull(),
   language: varchar("languages", { length: 255 }).notNull(),
@@ -616,7 +648,6 @@ export const guideVoucherLine = createTable("guide_voucher_lines", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
-
 
 // Activity Vendors table
 export const activityVendor = createTable("activity_vendors", {
@@ -690,9 +721,9 @@ export const activityVoucher = createTable("activity_vouchers", {
   adultsCount: integer("adults_count").notNull(),
   kidsCount: integer("kids_count"),
   remarks: text("remarks"),
-  rate: numeric('rate', { precision: 4 }),
+  rate: numeric("rate", { precision: 4 }),
   reasonToDelete: varchar("reason_to_delete", { length: 255 }),
-  status: statusEnum('status').default('inprogress'),
+  status: statusEnum("status").default("inprogress"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
@@ -710,7 +741,9 @@ export const shop = createTable("shops", {
   streetName: varchar("street_name", { length: 255 }).notNull(),
   province: varchar("province", { length: 255 }).notNull(),
   contactNumber: varchar("contact_number", { length: 50 }).notNull(),
-  primaryEmail: varchar("primary_email", { length: 50 }).notNull().default("N/A"),
+  primaryEmail: varchar("primary_email", { length: 50 })
+    .notNull()
+    .default("N/A"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   cityId: integer("city_id")
@@ -763,8 +796,8 @@ export const shopVoucher = createTable("shop_vouchers", {
   kidsCount: integer("kids_count"),
   city: varchar("city_name", { length: 50 }).notNull(),
   remarks: text("remarks"),
-  rate: numeric('rate', { precision: 4 }),
-  status: statusEnum('status').default('inprogress'),
+  rate: numeric("rate", { precision: 4 }),
+  status: statusEnum("status").default("inprogress"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
@@ -773,7 +806,7 @@ export const tenantRelations = relations(tenant, ({ one, many }) => ({
   booking: many(booking),
   client: many(client),
   agent: many(agent),
-  coordinator: many(user)
+  coordinator: many(user),
 }));
 
 export const agentRelations = relations(agent, ({ one, many }) => ({
@@ -782,7 +815,6 @@ export const agentRelations = relations(agent, ({ one, many }) => ({
     references: [tenant.id],
   }),
   bookingAgent: many(bookingAgent),
-
 }));
 
 export const clientRelations = relations(client, ({ one, many }) => ({
@@ -824,16 +856,19 @@ export const bookingsRelations = relations(booking, ({ one }) => ({
   // }),
 }));
 
-export const bookingAgentRelations = relations(bookingAgent, ({ one, many }) => ({
-  agent: one(agent, {
-    fields: [bookingAgent.agentId],
-    references: [agent.id],
+export const bookingAgentRelations = relations(
+  bookingAgent,
+  ({ one, many }) => ({
+    agent: one(agent, {
+      fields: [bookingAgent.agentId],
+      references: [agent.id],
+    }),
+    booking: one(booking, {
+      fields: [bookingAgent.bookingId],
+      references: [booking.id],
+    }),
   }),
-  booking: one(booking, {
-    fields: [bookingAgent.bookingId],
-    references: [booking.id],
-  }),
-}));
+);
 
 export const bookingLinesRelations = relations(
   bookingLine,
@@ -858,21 +893,21 @@ export const hotelRelations = relations(hotel, ({ one, many }) => ({
   }),
   hotelVoucher: many(hotelVoucher),
   hotelStaff: many(hotelStaff),
-  hotelRoom: many(hotelRoom)
+  hotelRoom: many(hotelRoom),
 }));
 
 export const hotelStaffRelation = relations(hotelStaff, ({ one, many }) => ({
   hotel: one(hotel, {
     fields: [hotelStaff.hotelId],
     references: [hotel.id],
-  })
+  }),
 }));
 
 export const hotelRoomRelation = relations(hotelRoom, ({ one, many }) => ({
   hotel: one(hotel, {
     fields: [hotelRoom.hotelId],
     references: [hotel.id],
-  })
+  }),
 }));
 
 export const hotelVouchersRelations = relations(
@@ -1021,41 +1056,47 @@ export const guideLanguageRelations = relations(guideLanguage, ({ one }) => ({
 }));
 
 // DriverVoucherLine table relations
-export const driverVoucherLineRelations = relations(driverVoucherLine, ({ one }) => ({
-  transportVoucher: one(transportVoucher, {
-    fields: [driverVoucherLine.transportVoucherId],
-    references: [transportVoucher.id],
+export const driverVoucherLineRelations = relations(
+  driverVoucherLine,
+  ({ one }) => ({
+    transportVoucher: one(transportVoucher, {
+      fields: [driverVoucherLine.transportVoucherId],
+      references: [transportVoucher.id],
+    }),
   }),
-}));
+);
 
 // GuideVoucherLine table relations
-export const guideVoucherLineRelations = relations(guideVoucherLine, ({ one }) => ({
-  transportVoucher: one(transportVoucher, {
-    fields: [guideVoucherLine.transportVoucherId],
-    references: [transportVoucher.id],
+export const guideVoucherLineRelations = relations(
+  guideVoucherLine,
+  ({ one }) => ({
+    transportVoucher: one(transportVoucher, {
+      fields: [guideVoucherLine.transportVoucherId],
+      references: [transportVoucher.id],
+    }),
   }),
-}));
-
+);
 
 // Transport Vouchers table relations
-export const transportVouchersRelations = relations(transportVoucher, ({ one, many }) => ({
-  bookingLine: one(bookingLine, {
-    fields: [transportVoucher.bookingLineId],
-    references: [bookingLine.id],
+export const transportVouchersRelations = relations(
+  transportVoucher,
+  ({ one, many }) => ({
+    bookingLine: one(bookingLine, {
+      fields: [transportVoucher.bookingLineId],
+      references: [bookingLine.id],
+    }),
+    driver: one(driver, {
+      fields: [transportVoucher.driverId],
+      references: [driver.id],
+    }),
+    guide: one(guide, {
+      fields: [transportVoucher.guideId],
+      references: [guide.id],
+    }),
+    driverVoucherLines: many(driverVoucherLine),
+    guideVoucherLines: many(guideVoucherLine),
   }),
-  driver: one(driver, {
-    fields: [transportVoucher.driverId],
-    references: [driver.id],
-  }),
-  guide: one(guide, {
-    fields: [transportVoucher.guideId],
-    references: [guide.id],
-  }),
-  driverVoucherLines: many(driverVoucherLine),
-  guideVoucherLines: many(guideVoucherLine),
-
-}));
-
+);
 
 export const activityRelations = relations(activity, ({ one, many }) => ({
   activityVendor: one(activityVendor, {
@@ -1077,7 +1118,7 @@ export const activityVendorRelations = relations(
       references: [city.id],
     }),
     activity: many(activity),
-    activityVoucher: many(activityVoucher)
+    activityVoucher: many(activityVoucher),
   }),
 );
 
@@ -1100,7 +1141,7 @@ export const activityVouchersRelations = relations(
 );
 
 export const shopRelations = relations(shop, ({ one, many }) => ({
-  shopTypes: many(shopShopType),  // Relation to the join table 'shop_shop_type'
+  shopTypes: many(shopShopType), // Relation to the join table 'shop_shop_type'
   shopVouchers: many(shopVoucher), // Relation to the 'shop_vouchers' table
   city: one(city, {
     fields: [shop.cityId],

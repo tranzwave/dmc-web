@@ -24,7 +24,7 @@ const ActivityVoucherPDF = ({ vouchers, cancellation, bookingName, organization,
     <div className="flex flex-col border">
       <VoucherHeader organization={organization} />
       <div className="p-4">
-        <div className="card-title w-full text-center">
+        <div className="card-title w-full text-center text-[16px]">
           Activities by Date
         </div>
 
@@ -79,11 +79,11 @@ const ActivityVoucherPDF = ({ vouchers, cancellation, bookingName, organization,
           <div>Prepared By: {user?.fullName ?? ""}</div>
           <div>Contact Number : {(user?.publicMetadata as any)?.info?.contact ?? ""}</div>
 
-          <div className="text-[12px] text-center text-gray-700">This is a computer generated Voucher & does not require a signature</div>
+          {/* <div className="text-[12px] text-center text-gray-700">This is a computer generated Voucher & does not require a signature</div> */}
           
         </div>
       </div>
-      <div className="h-8 w-full bg-primary-green"></div>
+      {/* <div className="h-8 w-full bg-primary-green"></div> */}
     </div>
   );
 };

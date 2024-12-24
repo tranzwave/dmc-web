@@ -17,9 +17,16 @@ import { getShopsVouchers } from "~/server/db/queries/booking/shopsVouchers";
 import { getTransportVouchers } from "~/server/db/queries/booking/transportVouchers";
 import { SelectUser } from "~/server/db/schemaTypes";
 import { HotelVoucherData } from "../../tasks/hotelsTaskTab";
-import { useOrganization } from "@clerk/nextjs";
+import { useOrganization, useUser } from "@clerk/nextjs";
 import { Organization } from "@clerk/backend";
-import { OrganizationMembershipResource } from "@clerk/types";
+import { OrganizationMembershipResource, UserResource } from "@clerk/types";
+import { set } from "date-fns";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "~/components/ui/dialog";
+import TourPacketCheckList from "./tourPacketCheckList";
+import { TourPacket } from "~/lib/types/booking";
+import { updateTourPacketList } from "~/server/db/queries/booking";
+import LoadingLayout from "~/components/common/dashboardLoading";
+import TourPacketCheckListPDF from "./tourPacketCheckListDocument";
 
 interface SidePanelProps {
   booking: BookingDTO | null;
@@ -35,8 +42,13 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
   const [shopVouchers, setShopVouchers] = useState<any[]>([]);
   const [restaurantVouchers, setRestaurantVouchers] = useState<any[]>([]);
   const [coordinatorAndManager, setCoordinatorAndManager] = useState<string[]>(['init-c', 'init-m'])
-  const { organization, isLoaded } = useOrganization();
   const [members, setMembers] = useState<OrganizationMembershipResource[]>([]); // Correct type for members
+  const [showTourPacket, setShowTourPacket] = useState(false);
+
+  const { organization, isLoaded: isOrgLoaded } = useOrganization();
+  const { isLoaded, user } = useUser();
+
+
 
   const pathname = usePathname();
   const fetchData = async () => {
@@ -118,6 +130,10 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
     }
   };
 
+  const onTourPacketClick = () => {
+    setShowTourPacket(true);
+  }
+
   const fetchMembers = async () => {
     if (organization) {
       try {
@@ -127,7 +143,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
         console.log(memberships);
         setLoading(false);
         console.log(memberships)
-        if(memberships && booking ){
+        if (memberships && booking) {
           const coordinator = memberships?.data?.find(m => m.publicUserData.userId === booking.booking.coordinatorId)
           const manager = memberships?.data?.find(m => m.id === booking.booking.managerId)
           console.log({ coordinator: coordinator, manager: manager })
@@ -161,7 +177,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
       </div>
     );
 
-  if (loading || !isLoaded) return <div>Loading...</div>;
+  if (loading || !isLoaded || !isOrgLoaded) return <div>Loading...</div>;
 
 
 
@@ -177,7 +193,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
 
     }
   }
-
   const renderCard = (category: CategoryDetails) => (
     <div className="card relative gap-3">
       <div className="flex flex-row justify-between">
@@ -283,6 +298,33 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
         locked: booking.includes?.shops ? false : true,
         statusCount: getStatusesCount(shopVouchers),
       })}
+      <Button
+        variant={"primaryGreen"}
+        onClick={onTourPacketClick}
+        className="w-full"
+      >Tour Packet - Check List</Button>
+      <Dialog open={showTourPacket} onOpenChange={setShowTourPacket} >
+        <DialogContent className="max-w-fit max-h-[90%] overflow-y-scroll">
+          <DialogHeader>
+            <DialogTitle>Tour Packet - Check List | {booking.id}</DialogTitle>
+            <DialogDescription>
+              You can add or remove documents and accessories from the tour packet
+            </DialogDescription>
+          </DialogHeader>
+          <div>
+            {!booking.tourPacket && (
+              <div className="flex items-center justify-center">
+                Loading...
+              </div>
+            )}
+            {booking !== null && organization && user && (
+              <div>
+                <TourPacketCheckList organization={organization} user={user as UserResource} bookingData={booking}/>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
