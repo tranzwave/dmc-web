@@ -44,3 +44,29 @@ export function getLetterByIndex(index: number): string {
 
   return `/${result}`;
 }
+
+
+/**
+ * Calculates the number of nights between two dates.
+ * @param checkIn - The check-in date as a string or Date object.
+ * @param checkOut - The check-out date as a string or Date object.
+ * @returns The number of nights between the check-in and check-out dates.
+ */
+export function calculateNights(checkIn: Date | string, checkOut: Date | string): number {
+  // Convert inputs to Date objects if they are strings
+  const checkInDate = typeof checkIn === "string" ? new Date(checkIn) : checkIn;
+  const checkOutDate = typeof checkOut === "string" ? new Date(checkOut) : checkOut;
+
+  // Calculate the difference in milliseconds
+  const differenceInMillis = checkOutDate.getTime() - checkInDate.getTime();
+
+  // Convert milliseconds to days (1 day = 86,400,000 milliseconds)
+  const nights = differenceInMillis / (1000 * 60 * 60 * 24);
+
+  // Ensure nights is a positive integer
+  if (nights < 0) {
+    throw new Error("Check-out date must be after the check-in date.");
+  }
+
+  return Math.floor(nights);
+}

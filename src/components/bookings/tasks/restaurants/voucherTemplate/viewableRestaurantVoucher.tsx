@@ -29,14 +29,14 @@ const RestaurantVoucherView = ({ voucher, cancellation, bookingName,organization
     <div className="flex flex-col border">
       <VoucherHeader organization={organization}/>
       <div className="p-4">
-        <div className="card-title w-full text-center">
+        <div className="card-title w-full text-center text-[15px] font-bold">
           {cancellation ? (<div className="text-red-500">Cancellation Voucher</div>) : 'Restaurant Reservation Voucher'}
 
         </div>
         <div className="flex w-full flex-row justify-between">
           <div className="text-[13px]">
             {/* <div>Bill to : {organization?.name}</div> */}
-            <div>Voucher ID : {voucher?.id + `${voucher.status === "amended" ? `${getLetterByIndex(voucher.amendedCount ?? 0)}` : ''}`}</div>
+            <div>Voucher ID : {voucher?.id + `${voucher.status === "amended" ? `/a${voucher.amendedCount}` : ''}`}</div>
             <div>Tour ID : {voucher.bookingLineId}</div>
             <div>Restaurant Name : {voucher?.restaurant.name}</div>
             <div>Booking Name : {bookingName}</div>
@@ -105,10 +105,10 @@ const RestaurantVoucherView = ({ voucher, cancellation, bookingName,organization
           <div>Printed Date : {format(Date.now(), "dd/MM/yyyy")}</div>
           <div>Prepared By : {user?.fullName ?? ""}</div>
           <div>Contact Number : {(user?.publicMetadata as any)?.info?.contact ?? ""}</div>
-          <div className="text-[12px] text-center text-gray-700">This is a computer generated Voucher & does not require a signature</div>
+          {/* <div className="text-[12px] text-center text-gray-700">This is a computer generated Voucher & does not require a signature</div> */}
         </div>
       </div>
-      <div className="h-8 w-full bg-primary-green"></div>
+      {/* <div className="h-8 w-full bg-primary-green"></div> */}
     </div>
   );
 };

@@ -1,11 +1,13 @@
 import React, { ReactElement } from "react";
 import ReactDOM from "react-dom/client"; // Import ReactDOM for new root rendering
+import { Button } from "~/components/ui/button";
 
 interface VoucherButtonProps {
   voucherComponent: ReactElement; // Accepts any React component
+  buttonText?: string;
 }
 
-const VoucherButton: React.FC<VoucherButtonProps> = ({ voucherComponent }) => {
+const VoucherButton: React.FC<VoucherButtonProps> = ({ voucherComponent, buttonText }) => {
   const handleDownloadPdf = () => {
     const newWindow = window.open("", "_blank");
 
@@ -38,16 +40,41 @@ const VoucherButton: React.FC<VoucherButtonProps> = ({ voucherComponent }) => {
           }
 
           /* Set the size to A4 (in pixels) */
-          .a4-size {
-            width: 1000px; /* A4 width in px */
-            height: 1123px; /* A4 height in px */
-            padding: 5px
-            box-sizing: border-box;
+          @page {
+            size: A4;
+            margin: 0;
+          }
+
+          @media print {
+            body {
+              margin: 0;
+              padding: 0;
+            }
+          }
+
+          #footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            color: #374151;
+            font-size: 12px;
+          }
+
+          #footer-bar {
+            width: 100%;
+            height: 35px;
+            text-align: center;
+            background: #287f71;
           }
         </style>
       </head>
       <body>
         <div id="root"></div>
+        <div id="footer">
+          <div>This is a computer generated document and doesn't require a signature</div>
+          <div id="footer-bar"></div>
+        </div>
       </body>
       </html>
     `;
@@ -71,12 +98,12 @@ const VoucherButton: React.FC<VoucherButtonProps> = ({ voucherComponent }) => {
   };
 
   return (
-    <button
+    <Button
       onClick={handleDownloadPdf}
-      className="px-4 py-2 bg-primary-green text-white rounded-md hover:bg-opacity-80 transition"
+      variant={"primaryGreen"}
     >
-      Download Voucher as PDF
-    </button>
+      {buttonText ?? "Download Voucher as PDF"}
+    </Button>
   );
 };
 

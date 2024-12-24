@@ -58,6 +58,7 @@ import {
 } from "~/server/db/schemaTypes";
 import { useOrganization } from "@clerk/nextjs";
 import { OrganizationMembershipResource } from "@clerk/types";
+import { toast } from "~/hooks/use-toast";
 
 // Define the schema for form validation
 export const generalSchema = z
@@ -117,7 +118,7 @@ const GeneralForm = () => {
   const [error, setError] = useState<string>();
   const [selectedAgent, setSelectedAgent] = useState<SelectAgent | null>();
   const [selectedManager, setSelectedManager] = useState<SelectUser | null>();
-  const [showModal, setShowModal] = useState(false);
+  // const [showModal, setShowModal] = useState(false);
   const [message, setMessage] = useState("");
   const [id, setId] = useState("0");
   const pathname = usePathname();
@@ -208,16 +209,8 @@ const GeneralForm = () => {
     console.log(data);
     setGeneralDetails(data);
     try {
-      // Call the createNewBooking function with the necessary data
-      console.log(bookingDetails);
-      // const createdBooking = await createNewBooking({
-      //   general: data,
-      //   activities: [],
-      //   restaurants: [],
-      //   shops: [],
-      //   transport: [],
-      //   vouchers: [],
-      // });
+      alert("Booking Updating");
+
 
       const updatedBooking = await updateBookingLine(
         pathname.split("/")[3] ?? "",
@@ -232,71 +225,23 @@ const GeneralForm = () => {
           "Booking Updated! Do you want to continue finalizing the tasks for this booking?",
         );
         setId(updatedBooking);
-        setShowModal(true);
+        toast({
+          title: "Success!",
+          description: "Booking Updated Successfully",
+          duration: 5000,
+        });
       }
     } catch (error) {
-      // Catch any errors and set error message
       setMessage("An error occurred while updating the booking.");
+      toast({
+        title: "Uh Oh!",
+        description: "An error occurred while updating the booking.",
+        duration: 5000,
+      });
       console.error("Error in handleSubmit:", error);
     } finally {
-      // Always stop the loading spinner
       setSaving(false);
     }
-    // setTimeout(() => {
-    //   saveBookingLine();
-
-    // }, 3000);
-  };
-
-  // const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
-  //   const sd = new Date(data.startDate);
-  //   const ed = new Date(data.endDate);
-    
-  //   const diffInMilliseconds = ed.getTime() - sd.getTime();
-    
-  //   const diffInDays = Math.ceil(diffInMilliseconds / (1000 * 60 * 60 * 24));
-    
-  //   data.numberOfDays = diffInDays
-  //   console.log(data);
-  //   setGeneralDetails(data);
-  //   setActiveTab("hotels");
-  // };
-
-  // const saveBookingLine = async () => {
-  //   console.log(bookingDetails);
-
-  //   try {
-  //     // Call the createNewBooking function with the necessary data
-  //     console.log(bookingDetails);
-  //     const createdBooking = await createNewBooking(bookingDetails);
-
-  //     if (createdBooking) {
-  //       // If createNewBooking succeeds, set the success message and show modal
-  //       setMessage(
-  //         "Booking Added! Do you want to continue finalizing the tasks for this booking?",
-  //       );
-  //       setId(createdBooking);
-  //       setShowModal(true);
-  //     }
-  //   } catch (error) {
-  //     // Catch any errors and set error message
-  //     setMessage("An error occurred while adding the booking.");
-  //     console.error("Error in handleSubmit:", error);
-  //   } finally {
-  //     // Always stop the loading spinner
-  //     setSaving(false);
-  //   }
-  // };
-
-  const handleYes = () => {
-    setShowModal(false);
-    setActiveTab("hotels");
-  };
-
-  const handleNo = () => {
-    // Handle not continuing to finalize tasks
-    setShowModal(false);
-    router.push(`${pathname.split("add")[0]}`);
   };
 
   function getAgentId(agentName: string) {
@@ -346,6 +291,7 @@ const GeneralForm = () => {
                         field.onChange(value);
                       }}
                       value={field.value}
+                      disabled = {true}
                     >
                       <SelectTrigger className="bg-slate-100 shadow-md">
                         <SelectValue placeholder="Select country" />
@@ -369,6 +315,7 @@ const GeneralForm = () => {
             <FormField
               name="directCustomer"
               control={form.control}
+              
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Direct Customer</FormLabel>
@@ -377,6 +324,7 @@ const GeneralForm = () => {
                     <Select
                       onValueChange={(value) => field.onChange(value === "Yes")}
                       value={field.value ? "Yes" : "No"}
+                      disabled = {true}
                     >
                       <SelectTrigger className="bg-slate-100 shadow-md">
                         <SelectValue placeholder="Select type" />
@@ -619,6 +567,7 @@ const GeneralForm = () => {
                         field.onChange(value);
                       }}
                       value={field.value}
+                      disabled = {true}
                     >
                       <SelectTrigger className="bg-slate-100 shadow-md">
                         <SelectValue placeholder="Select manager" />
@@ -652,6 +601,7 @@ const GeneralForm = () => {
                           field.onChange(value);
                         }}
                         value={field.value}
+                        disabled = {true}
                       >
                         <SelectTrigger className="bg-slate-100 shadow-md">
                           <SelectValue placeholder="Select agent" />
@@ -763,7 +713,7 @@ const GeneralForm = () => {
           </div>
         </form>
       </Form>
-      <Dialog open={showModal} onOpenChange={setShowModal}>
+      {/* <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Booking Saved!</DialogTitle>
@@ -781,7 +731,7 @@ const GeneralForm = () => {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </div>
   );
 };

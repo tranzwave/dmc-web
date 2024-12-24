@@ -1,0 +1,1 @@
+ALTER TABLE "dmc-web_booking_lines" ADD COLUMN "tour_packet" jsonb DEFAULT '{"documents": [], "accessories": []}'::jsonb;

@@ -35,6 +35,7 @@ import {
   SelectRestaurantVoucher,
   SelectRestaurantVoucherLine,
 } from "../../schemaTypes";
+import { TourPacket } from "~/lib/types/booking";
 
 export const getAllBookings = () => {
   return db.query.booking.findMany();
@@ -1372,6 +1373,8 @@ export const insertTransportVoucherTx = async (
 export const updateBookingLine = async (
   bookingLineId: string,
   updatedGeneralData: {
+    clientName:string;
+    country: string;
     startDate: string;
     endDate: string;
     adultsCount: number;
@@ -1393,7 +1396,11 @@ export const updateBookingLine = async (
         where: eq(bookingLine.id, bookingLineId),
       });
 
-      if (!existingBookingLine) {
+      const existingBooking = await tx.query.booking.findFirst({
+        where: eq(booking.id, existingBookingLine?.bookingId ?? ""),
+      });
+
+      if (!existingBookingLine || !existingBooking) {
         throw new Error(
           `Couldn't find a booking line with ID: ${bookingLineId}`,
         );
@@ -1408,6 +1415,66 @@ export const updateBookingLine = async (
           adultsCount: updatedGeneralData.adultsCount,
           kidsCount: updatedGeneralData.kidsCount,
           includes: updatedGeneralData.includes,
+        })
+        .where(eq(bookingLine.id, bookingLineId))
+        .returning();
+
+      const updatedClient = await tx
+      .update(client)
+      .set({
+        name: updatedGeneralData.clientName,
+        country: updatedGeneralData.country,
+      })
+      .where(eq(client.id, existingBooking.clientId))
+      .returning();
+
+      if (
+        !updatedBookingLine ||
+        !Array.isArray(updatedBookingLine) ||
+        !updatedBookingLine[0]?.id || 
+        !updatedClient ||
+        !Array.isArray(updatedClient) ||
+        !updatedClient[0]?.id
+      ) {
+        throw new Error(
+          `Couldn't update the booking line with ID: ${bookingLineId}`,
+        );
+      }
+
+      return updatedBookingLine[0]?.id;
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Error in updateBookingLine:", error);
+    throw error;
+  }
+};
+
+//Update tourPacketList in booking line
+export const updateTourPacketList = async (
+  bookingLineId: string,
+  tourPacket: TourPacket,
+) => {
+  try {
+    // Start a transaction to update the booking line
+    const result = await db.transaction(async (tx) => {
+      // Find the existing booking line by ID
+      const existingBookingLine = await tx.query.bookingLine.findFirst({
+        where: eq(bookingLine.id, bookingLineId),
+      });
+
+      if (!existingBookingLine) {
+        throw new Error(
+          `Couldn't find a booking line with ID: ${bookingLineId}`,
+        );
+      }
+
+      // Update the booking line with the provided general data
+      const updatedBookingLine = await tx
+        .update(bookingLine)
+        .set({
+          tourPacket: tourPacket,
         })
         .where(eq(bookingLine.id, bookingLineId))
         .returning();

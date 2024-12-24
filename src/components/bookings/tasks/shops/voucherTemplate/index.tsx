@@ -26,16 +26,16 @@ const ShopVoucherPDF = ({ vouchers, cancellation, organization, user, bookingDat
     <div className="flex flex-col border">
       <VoucherHeader organization={organization}/>
       <div className="p-4">
-        <div className="card-title w-full text-center">
+        <div className="card-title w-full text-center text-[15px] font-bold">
           {cancellation ? (
             <div className="text-red-500">Shop Cancellation Voucher</div>
           ) : (
-            "Amount of Sales"
+            "Shopping Voucher"
           )}
         </div>
 
         <div className="flex w-full flex-row justify-between">
-          <div className="text-[13px]">
+          <div className="text-[12px]">
             {/* <div>Booking Name: {vouchers[0]?.client?.name ?? "N/A"}</div> */}
             <div>Tour ID: {vouchers[0]?.bookingLineId ?? "N/A"}</div>
             <div>Booking Name: {bookingData.booking.client.name}</div>
@@ -62,7 +62,7 @@ const ShopVoucherPDF = ({ vouchers, cancellation, organization, user, bookingDat
             <tbody>
               {vouchers.map((v,index) => {
                 return (
-                  <tr className="border-b hover:bg-gray-50 h-36" key={index}>
+                  <tr className="border-b hover:bg-gray-50 h-36 text-[12px]" key={index}>
                     <td className="px-4 py-2">{v.shop.name ?? "N/A"}</td>
                     <td className="px-4 py-2">{v.city ?? "N/A"}</td>
 
@@ -77,14 +77,14 @@ const ShopVoucherPDF = ({ vouchers, cancellation, organization, user, bookingDat
           </table>
         </div>
 
-        <div className="mt-10 text-[13px]">
+        <div className="mt-10 text-[12px]">
           <div>Printed Date : {format(Date.now(), "dd/MM/yyyy")}</div>
           <div>Prepared By : {user?.fullName ?? ""}</div>
           <div>Contact Number : {(user?.publicMetadata as any)?.info?.contact ?? ""}</div>
-          <div className="text-[12px] text-center text-gray-700">This is a computer generated Voucher & does not require a signature</div>
+          {/* <div className="text-[12px] text-center text-gray-700">This is a computer generated Voucher & does not require a signature</div> */}
         </div>
       </div>
-      <div className="h-8 w-full bg-primary-green"></div>
+      {/* <div className="h-8 w-full bg-primary-green"></div> */}
     </div>
   );
 };

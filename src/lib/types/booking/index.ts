@@ -44,3 +44,8 @@ export type BookingDTO = {
   managerId: string;
   tourType: string;
 }
+
+export type TourPacket = {
+  documents: { item: string; count: number }[];
+  accessories: { item: string; count: number }[];
+};
