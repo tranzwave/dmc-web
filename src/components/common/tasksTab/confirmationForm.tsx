@@ -12,6 +12,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
+import { VoucherConfirmationDetails } from "~/lib/types/booking";
+import { useState } from "react";
+import { LoaderCircle } from "lucide-react";
 
 // Define Zod schema
 const confirmationSchema = z.object({
@@ -29,33 +32,47 @@ export const ConfirmationForm = ({
   updateVoucherStatus,
 }: {
   selectedVoucher: any;
-  updateVoucherStatus: (data: ConfirmationFormValues) => boolean;
+  updateVoucherStatus: (selectedVoucher:any,confirmationDetails: VoucherConfirmationDetails) => Promise<boolean>;
 }) => {
   // Initialize the form with useForm and apply the Zod resolver
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<ConfirmationFormValues>({
     resolver: zodResolver(confirmationSchema),
     defaultValues: {
-      responsiblePersonName: "",
-      confirmationNumber: "",
-      reminderDate: "",
+      responsiblePersonName: selectedVoucher?.responsiblePerson ?? "",
+      confirmationNumber: selectedVoucher?.confirmationNumber ?? "",
+      reminderDate: selectedVoucher?.reminderDate ?? "",
     },
   });
 
   const { toast } = useToast();
 
-  const onSubmit = (data: ConfirmationFormValues) => {
+  const onSubmit = async (data: ConfirmationFormValues) => {
+    setIsLoading(true);
     selectedVoucher?.status
       ? (selectedVoucher.status = "vendorConfirmed")
       : "sentToVendor";
-    updateVoucherStatus(selectedVoucher)
-      ? toast({
+      try {
+        const updated =  await updateVoucherStatus(selectedVoucher, {
+          responsiblePerson: data.responsiblePersonName,
+          confirmationNumber: data.confirmationNumber,
+          reminderDate: data.reminderDate,
+        });
+        if (!updated) {
+          throw new Error("Failed to update the voucher status");
+        }
+        toast({
           title: "Success",
           description: "Successfully updated the voucher status",
-        })
-      : toast({
+        });
+      } catch (error) {
+        toast({
           title: "Error",
           description: "Error updating the voucher status",
         });
+      } finally {
+        setIsLoading(false);
+      }
   };
 
   if (!selectedVoucher?.status) {
@@ -66,7 +83,7 @@ export const ConfirmationForm = ({
     );
   }
 
-  if (selectedVoucher.status === "sentToVendor") {
+  if (selectedVoucher.status === "sentToVendor" || selectedVoucher.status === "vendorConfirmed") {
     return (
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -113,26 +130,20 @@ export const ConfirmationForm = ({
             )}
           />
           <div className="flex w-full flex-row justify-end">
+
             <Button
               variant={"primaryGreen"}
               type="submit"
               className="btn btn-primary w-full"
             >
-              Confirm Now
+              {isLoading ? (<div className="flex flex-row items-center">
+                <LoaderCircle size={20} className="mr-2 animate-spin" />
+                <span>Confirming</span>
+              </div>) : selectedVoucher.status === "vendorConfirmed" ? "Re-Confirm Vendor" : "Confirm Vendor"}
             </Button>
           </div>
         </form>
       </Form>
     );
-  }
-
-  if (selectedVoucher.status === "inprogress") {
-    return (
-      <div>
-        <p>Click Proceed and send voucher first</p>
-      </div>
-    );
-  } else {
-    return <div>You have already confirmed the voucher</div>;
   }
 };

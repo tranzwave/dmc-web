@@ -5,6 +5,7 @@ import { formatDate } from "~/lib/utils/index";
 import {
   bulkUpdateHotelVoucherRates,
   updateHotelVoucherStatus,
+  updateHotelVoucherStatusWithConfirmationDetails,
 } from "~/server/db/queries/booking/hotelVouchers";
 import {
   SelectHotel,
@@ -12,6 +13,7 @@ import {
   SelectHotelVoucherLine,
 } from "~/server/db/schemaTypes";
 import HotelVouchersTasksTab from "./taskTab";
+import { VoucherConfirmationDetails } from "~/lib/types/booking";
 
 export type HotelVoucherData = SelectHotelVoucher & {
   hotel: SelectHotel;
@@ -123,10 +125,10 @@ const HotelsTasksTab = ({
       alert("Failed to update voucher line. Please try again.");
     }
   };
-  const updateVoucherStatus = async (voucher: SelectHotelVoucher) => {
+  const updateVoucherStatus = async (voucher: SelectHotelVoucher, confirmationDetails?:VoucherConfirmationDetails) => {
     alert("Updating voucher status:");
     try {
-      const voucherUpdateResponse = updateHotelVoucherStatus(voucher);
+      const voucherUpdateResponse = confirmationDetails ? await updateHotelVoucherStatusWithConfirmationDetails(voucher, confirmationDetails) :  await updateHotelVoucherStatus(voucher);
 
       if (!voucherUpdateResponse) {
         throw new Error("Failed");

@@ -33,6 +33,7 @@ import RestaurantVoucherView from "../voucherTemplate/viewableRestaurantVoucher"
 import ConfirmationContent from "./confirmationPopup";
 import ContactContent from "../../hotelsTaskTab/taskTab/ContactPopup";
 import ProceedContent from "../../hotelsTaskTab/taskTab/proceedPopup";
+import { VoucherConfirmationDetails } from "~/lib/types/booking";
 
 interface TasksTabProps<T, L> {
   bookingLineId: string;
@@ -51,7 +52,7 @@ interface TasksTabProps<T, L> {
       billingInstructions:string
     },
   ) => Promise<void>;
-  updateVoucherStatus: (data: any) => Promise<boolean>;
+  updateVoucherStatus: (voucher: any, confirmationDetails?:VoucherConfirmationDetails) => Promise<boolean>;
   contactDetails?: { phone: string; email: string };
   selectedVendor?: any;
   setSelectedVendor?: React.Dispatch<React.SetStateAction<any>>;
