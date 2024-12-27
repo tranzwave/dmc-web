@@ -24,13 +24,13 @@ type RestaurantVoucherPDFProps = {
   cancellation?: boolean
 };
 
-const RestaurantVoucherView = ({ voucher, cancellation, bookingName,organization, user, currency }: RestaurantVoucherPDFProps) => {
+const RestaurantVoucherView = ({ voucher, cancellation, bookingName, organization, user, currency }: RestaurantVoucherPDFProps) => {
 
   return (
     <div className="flex flex-col border">
-      <VoucherHeader organization={organization}/>
+      <VoucherHeader organization={organization} />
       <div className="p-4">
-        <div className="card-title w-full text-center text-[15px] font-bold">
+        <div className="w-full text-center" style={{ fontWeight: 'bold', fontSize: '20px' }}>
           {cancellation ? (<div className="text-red-500">Cancellation Voucher</div>) : 'Restaurant Reservation Voucher'}
 
         </div>
@@ -92,7 +92,7 @@ const RestaurantVoucherView = ({ voucher, cancellation, bookingName,organization
           )}
         </div>
         <div className="mt-4 text-[13px]">
-          
+
           <div>Billing Instructions : {voucher.billingInstructions}</div>
 
           {voucher.status === 'amended' && (
