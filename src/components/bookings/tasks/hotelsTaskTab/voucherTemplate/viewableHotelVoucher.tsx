@@ -43,9 +43,8 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName, organization, us
     <div className="flex flex-col border">
       <VoucherHeader organization={organization}/>
       <div className="p-4">
-        <div className="card-title w-full text-center text-[15px] font-bold">
-          {cancellation ? (<div className="text-red-500">Cancellation Voucher</div>) : `Hotel Reservation Voucher-${voucher.status === 'amended' ? 'Amendment' : ''}`}
-
+        <div className="w-full text-center text-[20px] font-bold">
+          {cancellation ? (<div className="text-red-500">Cancellation Voucher</div>) : `Hotel Reservation Voucher${voucher.status === 'amended' ? 'Amendment' : ''}`}
         </div>
         <div className="flex w-full flex-row justify-between">
           <div className="text-[13px]">

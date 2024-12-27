@@ -5,9 +5,10 @@ import { Button } from "~/components/ui/button";
 interface VoucherButtonProps {
   voucherComponent: ReactElement; // Accepts any React component
   buttonText?: string;
+  title?: string;
 }
 
-const VoucherButton: React.FC<VoucherButtonProps> = ({ voucherComponent, buttonText }) => {
+const VoucherButton: React.FC<VoucherButtonProps> = ({ voucherComponent, buttonText,title }) => {
   const handleDownloadPdf = () => {
     const newWindow = window.open("", "_blank");
 
@@ -22,7 +23,7 @@ const VoucherButton: React.FC<VoucherButtonProps> = ({ voucherComponent, buttonT
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Download PDF</title>
+        <title>${title ?? "Download PDF"}</title>
         <script>
           setTimeout(() => window.print(), 500); 
         </script>
@@ -65,7 +66,6 @@ const VoucherButton: React.FC<VoucherButtonProps> = ({ voucherComponent, buttonT
             width: 100%;
             height: 35px;
             text-align: center;
-            background: #287f71;
           }
         </style>
       </head>

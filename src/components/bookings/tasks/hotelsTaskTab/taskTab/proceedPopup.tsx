@@ -73,6 +73,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   const [availabilityConfirmedTo, setAvailabilityConfirmedTo] = useState(selectedVoucher?.availabilityConfirmedTo ?? "");
   const [specialNote, setSpecialNote] = useState(selectedVoucher?.specialNote ?? "")
   const [billingInstructions, setBillingInstructions] = useState(selectedVoucher?.billingInstructions ?? "")
+  const [voucherTitle, setVoucherTitle] = useState("");
 
   // const [ratesMap, setRatesMap] = useState<Map<string, string>>(new Map(
   //   selectedVoucher.voucherLines.map((voucherLine) => [
@@ -144,6 +145,14 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   useEffect(() => {
     console.log("rerendered here")
     console.log(selectedVoucher)
+    //if selected voucher is in typeof HotelVoucherData then set the voucher title to the hotel name
+    if (selectedVoucher && type === 'hotel') {
+      const titleCombined = `${(selectedVoucher as HotelVoucherData).hotel.name}-${bookingName}-${selectedVoucher.id}`
+      setVoucherTitle(titleCombined)
+    } else if (selectedVoucher && type === 'restaurant') {
+      const titleCombined = `${(selectedVoucher as RestaurantVoucherData).restaurant.name}-${bookingName}-${selectedVoucher.id}`
+      setVoucherTitle(titleCombined)
+    }
   }, [])
 
 
@@ -210,7 +219,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
                   <div>
                     <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} bookingName={bookingName} organization={organization} user={user as UserResource} currency={currency}/>
                   </div>
-                } />
+                } title={voucherTitle}/>
               )}
 
               {type === 'restaurant' && selectedVoucher.status !== "amended" && selectedVoucher.status !== "cancelled" && (
@@ -233,7 +242,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
                   <div>
                     <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} bookingName={bookingName} organization={organization} user={user as UserResource} currency={currency}/>
                   </div>
-                } />
+                } title= {voucherTitle} />
               )}
 
             </div>
