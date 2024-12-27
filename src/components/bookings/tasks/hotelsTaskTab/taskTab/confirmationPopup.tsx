@@ -1,8 +1,9 @@
 import { ConfirmationForm } from "~/components/common/tasksTab/confirmationForm";
+import { VoucherConfirmationDetails } from "~/lib/types/booking";
 
 const ConfirmationContent = (
     selectedVoucher: any,
-    updateVoucherStatus: any,
+    updateVoucherStatus: (selectedVoucher:any,confirmationDetails?: VoucherConfirmationDetails) => Promise<boolean>,
   ) => {
     if (!selectedVoucher?.status) {
       return (
@@ -11,7 +12,7 @@ const ConfirmationContent = (
         </div>
       );
     }
-    if (selectedVoucher?.status === "sentToVendor") {
+    if (selectedVoucher?.status === "sentToVendor" || selectedVoucher?.status === "vendorConfirmed") {
       return (
         <div className="space-y-6">
           <ConfirmationForm
@@ -20,9 +21,7 @@ const ConfirmationContent = (
           />
         </div>
       );
-    }
-  
-    if (selectedVoucher?.status === "inprogress") {
+    } else if (selectedVoucher?.status === "inprogress") {
       return (
         <div>
           <p>Click Proceed and send voucher first</p>

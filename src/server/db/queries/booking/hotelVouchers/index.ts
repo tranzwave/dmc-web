@@ -9,6 +9,7 @@ import {
 } from "./../../../schema";
 import { eq, sql } from "drizzle-orm";
 import { HotelVoucher } from "~/app/dashboard/bookings/add/context";
+import { VoucherConfirmationDetails } from "~/lib/types/booking";
 import { db } from "~/server/db";
 import {
   SelectHotelVoucher,
@@ -126,12 +127,34 @@ export const bulkUpdateHotelVoucherRates = async (
 
 export const updateHotelVoucherStatus = async (voucher: SelectHotelVoucher) => {
   try {
-    await db
+    const updatedRow = await db
       .update(hotelVoucher)
       .set({ status: voucher.status })
-      .where(eq(hotelVoucher.id, voucher.id ?? ""));
+      .where(eq(hotelVoucher.id, voucher.id ?? ""))
+      .returning();
+    return updatedRow ? true : false;
   } catch (error) {
     console.error(`Failed to update voucher rate for ID ${voucher.id}:`, error);
-    throw error; // Ensure to propagate the error for transaction handling
+    return false; // Ensure to propagate the error for transaction handling
+  }
+};
+
+//Update hotel voucher status with confirmation details
+export const updateHotelVoucherStatusWithConfirmationDetails = async (voucher: SelectHotelVoucher, confirmationDetails:VoucherConfirmationDetails) => {
+  try {
+    const updatedRow = await db
+      .update(hotelVoucher)
+      .set({ 
+        status: voucher.status, 
+        responsiblePerson:confirmationDetails.responsiblePerson, 
+        confirmationNumber:confirmationDetails.confirmationNumber, 
+        reminderDate:confirmationDetails.reminderDate 
+      })
+      .where(eq(hotelVoucher.id, voucher.id ?? ""))
+      .returning();
+    return updatedRow ? true : false;
+  } catch (error) {
+    console.error(`Failed to update voucher rate for ID ${voucher.id}:`, error);
+    return false;
   }
 };

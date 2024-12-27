@@ -26,6 +26,7 @@ import { createRoot } from "react-dom/client";
 import HotelVoucherView from "../voucherTemplate/viewableHotelVoucher";
 import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
+import { VoucherConfirmationDetails } from "~/lib/types/booking";
 
 
 interface TasksTabProps<T, L> {
@@ -45,7 +46,7 @@ interface TasksTabProps<T, L> {
       billingInstructions:string
     },
   ) => Promise<void>;
-  updateVoucherStatus: (data: any) => Promise<boolean>;
+  updateVoucherStatus: (selectedVoucher: any, confirmationDetails?:VoucherConfirmationDetails) => Promise<boolean>;
   contactDetails?: { phone: string; email: string };
   selectedVendor?: any;
   setSelectedVendor?: React.Dispatch<React.SetStateAction<any>>;

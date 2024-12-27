@@ -3,6 +3,7 @@ import { eq, or } from "drizzle-orm"
 import { db } from "~/server/db"
 import { restaurantVoucher, restaurant, restaurantMeal, restaurantVoucherLine, user } from './../../../schema';
 import { SelectRestaurantVoucher, SelectRestaurantVoucherLine } from "~/server/db/schemaTypes";
+import { VoucherConfirmationDetails } from "~/lib/types/booking";
 
 
 export const getAllRestaurants = ()=>{
@@ -139,11 +140,35 @@ export const getMeals = (restaurantId:string)=>{
 
       export const updateRestaurantVoucherStatus = async (voucher: SelectRestaurantVoucher) =>{
         try {
-          await db.update(restaurantVoucher)
+          const updatedRow = await db.update(restaurantVoucher)
             .set({ status: voucher.status })
-            .where(eq(restaurantVoucher.id, voucher.id ?? ""));
+            .where(eq(restaurantVoucher.id, voucher.id ?? ""))
+            .returning();
+          return updatedRow ? true : false;
         } catch (error) {
           console.error(`Failed to update voucher rate for ID ${voucher.id}:`, error);
-          throw error; // Ensure to propagate the error for transaction handling
+          return false;
+        }
+      }
+
+      //Update restaurant voucher status with confirmation details
+      export const updateRestaurantVoucherStatusWithConfirmationDetails = async (
+        voucher: SelectRestaurantVoucher,
+        confirmationDetails: VoucherConfirmationDetails
+      ) => {
+        try {
+          const updatedRow = await db.update(restaurantVoucher)
+            .set({
+              status: voucher.status,
+              responsiblePerson: confirmationDetails.responsiblePerson,
+              reminderDate: confirmationDetails.reminderDate,
+              confirmationNumber: confirmationDetails.confirmationNumber,
+            })
+            .where(eq(restaurantVoucher.id, voucher.id ?? ""))
+            .returning();
+          return updatedRow ? true : false;
+        } catch (error) {
+          console.error(`Failed to update voucher rate for ID ${voucher.id}:`, error);
+          return false;
         }
       }

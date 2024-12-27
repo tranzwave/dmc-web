@@ -49,3 +49,10 @@ export type TourPacket = {
   documents: { item: string; count: number }[];
   accessories: { item: string; count: number }[];
 };
+
+//Type for voucher confirmation details (responsiblePerson:string, confirmationNumber:string, reminderDate:string)
+export type VoucherConfirmationDetails = {
+  responsiblePerson: string;
+  confirmationNumber: string;
+  reminderDate: string;
+};

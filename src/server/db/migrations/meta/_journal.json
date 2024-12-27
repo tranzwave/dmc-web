@@ -260,6 +260,20 @@
       "when": 1735037335704,
       "tag": "0034_classy_roland_deschain",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "6",
+      "when": 1735142683299,
+      "tag": "0035_even_tarantula",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "6",
+      "when": 1735206554091,
+      "tag": "0036_even_electro",
+      "breakpoints": true
     }
   ]
 }

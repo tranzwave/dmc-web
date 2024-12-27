@@ -320,6 +320,11 @@ export const hotelVoucher = createTable("hotel_vouchers", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 
   amendedCount: integer("amend_count").default(0),
+  //Voucher confirmation details (responsiblePerson, confirmationNumber, reminderDate)
+  responsiblePerson: varchar("responsible_person", { length: 255 }),
+  confirmationNumber: varchar("confirmation_number", { length: 255 }),
+  reminderDate: varchar("reminder_date", { length: 100 }),
+
 });
 
 // Hotel Voucher Lines table
@@ -417,6 +422,9 @@ export const restaurantVoucher = createTable("restaurant_vouchers", {
   ),
   specialNote: varchar("special_note", { length: 255 }).default(""),
   amendedCount: integer("amend_count").default(0),
+  responsiblePerson: varchar("responsible_person", { length: 255 }),
+  confirmationNumber: varchar("confirmation_number", { length: 255 }),
+  reminderDate: varchar("reminder_date", { length: 100 }),
 });
 
 // Restaurant Voucher Lines table

@@ -11,10 +11,12 @@ import {
   bulkUpdateRestaurantVoucherRates,
   getRestaurantVouchers,
   updateRestaurantVoucherStatus,
+  updateRestaurantVoucherStatusWithConfirmationDetails,
 } from "~/server/db/queries/booking/restaurantVouchers";
 import TasksTab from "~/components/common/tasksTab";
 import RestaurantsVoucherForm from "./form";
 import RestaurantVouchersTasksTab from "./taskTab";
+import { VoucherConfirmationDetails } from "~/lib/types/booking";
 
 export type RestaurantVoucherData = SelectRestaurantVoucher & {
   restaurant: SelectRestaurant;
@@ -103,10 +105,10 @@ const updateVoucherLinesRates = async (
   }
 };
 
-const updateVoucherStatus = async (voucher: SelectRestaurantVoucher) => {
+const updateVoucherStatus = async (voucher: SelectRestaurantVoucher, confirmationDetails?:VoucherConfirmationDetails) => {
   alert("Updating voucher status:");
   try {
-    const bulkUpdateResponse = updateRestaurantVoucherStatus(voucher);
+    const bulkUpdateResponse = confirmationDetails ? await updateRestaurantVoucherStatusWithConfirmationDetails(voucher, confirmationDetails) :  await updateRestaurantVoucherStatus(voucher);
 
     if (!bulkUpdateResponse) {
       throw new Error("Failed");
