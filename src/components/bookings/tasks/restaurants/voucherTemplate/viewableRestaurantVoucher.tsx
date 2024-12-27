@@ -19,11 +19,12 @@ type RestaurantVoucherPDFProps = {
   voucher: RestaurantVoucherData;
   bookingName: string
   organization: OrganizationResource;
+  currency: string;
   user: UserResource
   cancellation?: boolean
 };
 
-const RestaurantVoucherView = ({ voucher, cancellation, bookingName,organization, user }: RestaurantVoucherPDFProps) => {
+const RestaurantVoucherView = ({ voucher, cancellation, bookingName,organization, user, currency }: RestaurantVoucherPDFProps) => {
 
   return (
     <div className="flex flex-col border">
@@ -74,7 +75,7 @@ const RestaurantVoucherView = ({ voucher, cancellation, bookingName,organization
         </div>
 
         <div className="flex w-full flex-row justify-end p-4 text-[13px] font-semibold">
-          {`Total(USD) - ${voucher.voucherLines[0]?.rate ?? 0}`}
+          {`Total(${currency}) - ${voucher.voucherLines[0]?.rate ?? 0}`}
         </div>
 
         <div className="text-[13px] font-normal">

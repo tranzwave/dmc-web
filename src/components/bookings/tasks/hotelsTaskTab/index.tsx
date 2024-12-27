@@ -85,9 +85,11 @@ const hotelColumns: ColumnDef<HotelVoucherData>[] = [
 const HotelsTasksTab = ({
   bookingLineId,
   vouchers,
+  currency
 }: {
   bookingLineId: string;
   vouchers: HotelVoucherData[]; // Accept vouchers as a prop
+  currency: string;
 }) => {
   const { toast } = useToast();
   const updateVoucherLinesRates = async (
@@ -144,7 +146,7 @@ const HotelsTasksTab = ({
     }
   };
 
-  const [selectedHotel, setSelectedHotel] = useState<SelectHotel>()
+  const [selectedHotel, setSelectedHotel] = useState<SelectHotel>();
 
 
   return (
@@ -162,6 +164,7 @@ const HotelsTasksTab = ({
       }
       setSelectedVendor={setSelectedHotel}
       selectedVendor={selectedHotel}
+      currency={currency}
     />
   );
 };

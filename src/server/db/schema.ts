@@ -43,6 +43,19 @@ export const tenant = createTable("tenants", {
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+
+  //voucher settings jsonb field (hotelVoucher currency, restaurant voucher currency, activity voucher currency, shop voucher currency, transport voucher currency)
+  voucherSettings: jsonb("voucher_settings")
+    .$type<{
+      hotelVoucherCurrency: string;
+      restaurantVoucherCurrency: string;
+      activityVoucherCurrency: string;
+      shopVoucherCurrency: string;
+      transportVoucherCurrency: string;
+    }>()
+    .default(
+      sql`'{"hotelVoucherCurrency": "USD", "restaurantVoucherCurrency": "USD", "activityVoucherCurrency": "USD", "shopVoucherCurrency": "USD", "transportVoucherCurrency": "USD"}'::jsonb`,
+    ),
 });
 
 // Users table (admin, members)

@@ -45,6 +45,7 @@ interface ProceedContentProps {
   setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
   type: string
   bookingName: string
+  currency: string
   viewCancellationVoucher?: boolean
 }
 
@@ -59,6 +60,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   setStatusChanged,
   type,
   viewCancellationVoucher,
+  currency,
   bookingName
 }) => {
   // pdfMake.vfs = (pdfFonts as any).vfs || pdfFonts.pdfMake?.vfs;
@@ -91,7 +93,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
     console.log(ratesMapRef)
   };
 
-  const VoucherLineColumnsWithRate = [...voucherColumns, CreateRateColumn({ handleRateChange: handleRateChange })]
+  const VoucherLineColumnsWithRate = [...voucherColumns, CreateRateColumn({ handleRateChange: handleRateChange, currency})]
 
   const organization = useOrganization();
   const { isLoaded, user } = useUser();
@@ -206,7 +208,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
                 // </PDFDownloadLink>
                 <VoucherButton voucherComponent={
                   <div>
-                    <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} bookingName={bookingName} organization={organization} user={user as UserResource} />
+                    <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} bookingName={bookingName} organization={organization} user={user as UserResource} currency={currency}/>
                   </div>
                 } />
               )}
@@ -229,7 +231,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
                 // </PDFDownloadLink>
                 <VoucherButton voucherComponent={
                   <div>
-                    <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} bookingName={bookingName} organization={organization} user={user as UserResource} />
+                    <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} bookingName={bookingName} organization={organization} user={user as UserResource} currency={currency}/>
                   </div>
                 } />
               )}
@@ -240,12 +242,12 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
                 <>
                   {viewCancellationVoucher ? (<div>
                     <div>
-                      <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} cancellation={true} bookingName={bookingName} organization={organization} user={user as UserResource}/>
+                      <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} cancellation={true} bookingName={bookingName} organization={organization} user={user as UserResource} currency={currency}/>
 
                     </div>
                   </div>) : (<div>
                     <div>
-                    <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} cancellation={false} bookingName={bookingName} organization={organization} user={user as UserResource}/>
+                    <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} cancellation={false} bookingName={bookingName} organization={organization} user={user as UserResource} currency={currency}/>
 
                     </div>
                   </div>)}
@@ -257,11 +259,11 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
                 <>
                   {viewCancellationVoucher ? (<div>
                     <div>
-                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} cancellation={true} bookingName={bookingName} organization={organization} user={user as UserResource}/>
+                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} cancellation={true} bookingName={bookingName} organization={organization} user={user as UserResource} currency={currency}/>
                     </div>
                   </div>) : (<div>
                     <div>
-                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} bookingName={bookingName} organization={organization} user={user as UserResource}/>
+                      <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} bookingName={bookingName} organization={organization} user={user as UserResource} currency={currency}/>
                     </div>
                   </div>)}
 

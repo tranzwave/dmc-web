@@ -56,3 +56,12 @@ export type VoucherConfirmationDetails = {
   confirmationNumber: string;
   reminderDate: string;
 };
+
+//Voucher settings type (hotelVoucher currency, restaurant voucher currency, activity voucher currency, shop voucher currency, transport voucher currency)
+export type VoucherSettings = {
+  hotelVoucherCurrency: string;
+  restaurantVoucherCurrency: string;
+  activityVoucherCurrency: string;
+  shopVoucherCurrency: string;
+  transportVoucherCurrency: string;
+};

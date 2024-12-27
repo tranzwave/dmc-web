@@ -8,7 +8,7 @@ import ShopsTasksTab from "~/components/bookings/tasks/shops";
 import TransportTasksTab from "~/components/bookings/tasks/transport";
 import TitleBar from "~/components/common/titleBar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { BookingLineWithAllData } from "~/lib/types/booking";
+import { BookingLineWithAllData, VoucherSettings } from "~/lib/types/booking";
 import { getBookingLineWithAllData } from "~/server/db/queries/booking";
 import { SelectBookingLine } from "~/server/db/schemaTypes";
 import { AddBookingProvider } from "../../add/context";
@@ -21,6 +21,7 @@ const Page = ({ params }: { params: { id: string } }) => {
   const [bookingLine, setBookingLine] = useState<BookingLineWithAllData>();
   const searchParams = useSearchParams();
   const tab = searchParams.get("tab");
+  const [voucherSettings, setVoucherSettings] = useState<VoucherSettings | null>(null)
 
   // Fetch the booking details when the component mounts
   const fetchBooking = async () => {
@@ -32,6 +33,14 @@ const Page = ({ params }: { params: { id: string } }) => {
         setError("Booking not found");
       }
       setBookingLine(bookingLineData);
+
+      //Get voucher settings from local storage
+      const voucherSettingsLocal = localStorage.getItem("voucherSettings");
+      if (voucherSettingsLocal) {
+        console.log("Voucher settings already set: ", JSON.parse(voucherSettingsLocal ?? "{}"));
+        setVoucherSettings(JSON.parse(voucherSettingsLocal ?? "{}"));
+      }
+
       setLoading(false);
     } catch (error) {
       console.error(error);
@@ -135,6 +144,7 @@ const Page = ({ params }: { params: { id: string } }) => {
                 <HotelsTasksTab
                   bookingLineId={params.id}
                   vouchers={bookingLine?.hotelVouchers ?? []}
+                  currency = {voucherSettings?.hotelVoucherCurrency ?? ""}
                 />
                 {/* <HotelsTasksTab bookingLineId={params.id}/> */}
               </TabsContent>
@@ -143,6 +153,7 @@ const Page = ({ params }: { params: { id: string } }) => {
                 <RestaurantsTasksTab
                   bookingLineId={params.id}
                   vouchers={bookingLine?.restaurantVouchers ?? []}
+                  currency={voucherSettings?.restaurantVoucherCurrency ?? ""}
                 />
               </TabsContent>
               <TabsContent value="activities">

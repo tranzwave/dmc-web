@@ -48,6 +48,7 @@ interface TasksTabProps<T, L> {
     },
   ) => Promise<void>;
   updateVoucherStatus: (selectedVoucher: any, confirmationDetails?:VoucherConfirmationDetails) => Promise<boolean>;
+  currency:string;
   contactDetails?: { phone: string; email: string };
   selectedVendor?: any;
   setSelectedVendor?: React.Dispatch<React.SetStateAction<any>>;
@@ -70,6 +71,7 @@ const HotelVouchersTasksTab = <
   contactDetails,
   selectedVendor,
   setSelectedVendor,
+  currency
 }: TasksTabProps<T, L>) => {
   const [selectedVoucher, setSelectedVoucher] = useState<HotelVoucherData>();
   const [selectedVoucherLine, setSelectedVoucherLine] =
@@ -443,6 +445,7 @@ const HotelVouchersTasksTab = <
                         type="hotel"
                         viewCancellationVoucher={true}
                         bookingName={bookingName}
+                        currency={currency}
                       />
                     }
                     size="large"
@@ -551,6 +554,7 @@ const HotelVouchersTasksTab = <
                         setStatusChanged={setStatusChanged}
                         type="hotel"
                         bookingName={bookingName}
+                        currency={currency}
                       />
                     }
                     size="large"
