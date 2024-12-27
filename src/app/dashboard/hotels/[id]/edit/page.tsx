@@ -15,7 +15,7 @@ import { AddHotelProvider, useAddHotel } from "../../add/context";
 
 const EditHotel = ({ id }: { id: string }) => {
   const pathname = usePathname();
-  const { hotelGeneral, hotelRooms, hotelStaff, setActiveTab, activeTab, setHotelGeneral,addHotelRoom, addHotelStaff } =
+  const { hotelGeneral, hotelRooms, hotelStaff, setActiveTab, activeTab, setHotelGeneral,addHotelRoom, addHotelStaff, addBulkHotelRooms, addBulkHotelStaff } =
     useAddHotel();
     const searchParams = useSearchParams();
   const [hotel, setHotel] = useState<CompleteHotel>();
@@ -32,12 +32,14 @@ const EditHotel = ({ id }: { id: string }) => {
         if(!result){
             throw new Error("Couldn't fetch hotel")
         }
-        const { hotelRoom, hotelStaff, ...restOfHotel } = result;
+
+        console.log("Fetched hotel data:", result);
+        const { hotelRoom: hotelRooms, hotelStaff: hotelStaffs, ...restOfHotel } = result;
 
         setHotel({
             hotel: restOfHotel,
-            hotelRooms:hotelRoom,
-            hotelStaffs:hotelStaff
+            hotelRooms:hotelRooms,
+            hotelStaffs:hotelStaffs
         });
         setHotelGeneral({
             name: restOfHotel.name,
@@ -50,14 +52,15 @@ const EditHotel = ({ id }: { id: string }) => {
             province: restOfHotel.province,
             hasRestaurant: restOfHotel.hasRestaurant,
           });
-        hotelRoom.forEach(room =>{
-            addHotelRoom(room)
-            console.log(room.id)
-        })
-        hotelStaff.forEach(staff=>{
-            addHotelStaff(staff)
-            console.log(staff.id)
-        })
+        
+          if(hotelRooms){
+            addBulkHotelRooms(hotelRooms)
+            console.log(hotelRooms[0]?.id)
+          }
+          if(hotelStaffs){
+            addBulkHotelStaff(hotelStaffs)
+            console.log(hotelStaffs[0]?.id)
+          }
 
       } catch (error) {
         console.error("Failed to fetch hotel data:", error);

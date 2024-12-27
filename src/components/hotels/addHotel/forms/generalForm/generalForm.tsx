@@ -26,6 +26,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { toast } from "~/hooks/use-toast";
+import { toTitleCase } from "~/lib/utils/index";
 import { getAllCities } from "~/server/db/queries/activities";
 import { InsertHotel, SelectCity } from "~/server/db/schemaTypes";
 
@@ -96,7 +98,7 @@ const HotelGeneralForm = ({
       primaryEmail: defaultValues.primaryEmail,
       primaryContactNumber: defaultValues.primaryContactNumber,
       streetName: defaultValues.streetName,
-      city: defaultValues.cityId.toString(),
+      // city: cities.find((city) => city.id === defaultValues.cityId)?.name,
       province: defaultValues.province,
       hasRestaurant: defaultValues.hasRestaurant
     },
@@ -105,6 +107,13 @@ const HotelGeneralForm = ({
   const { reset } = generalForm; // Destructure the reset method
 
   const onGeneralSubmit: SubmitHandler<HotelGeneralFormData> = (values) => {
+    if(!organization){
+      toast({
+        title: "Uh Oh!",
+        description: "Couldn't fetch organization",
+      });
+      return
+    }
     console.log(values);
     setHotelGeneral({
       name: values.name,
@@ -112,10 +121,11 @@ const HotelGeneralForm = ({
       primaryEmail: values.primaryEmail,
       primaryContactNumber: values.primaryContactNumber,
       streetName: values.streetName,
-      cityId: Number(values.city),
-      tenantId: hotelGeneral.tenantId ?? "",
+      cityId: cities.find((city) => city.name === toTitleCase(values.city))?.id ?? 0,
+      tenantId: hotelGeneral.tenantId && hotelGeneral.tenantId !== "" ? hotelGeneral.tenantId : organization.id,
       province: values.province,
       hasRestaurant: values.hasRestaurant,
+      city:toTitleCase(values.city)
     });
 
     setActiveTab("rooms");
@@ -279,12 +289,13 @@ const HotelGeneralForm = ({
               <FormField
                 name="city"
                 control={generalForm.control}
+                defaultValue={toTitleCase(cities.find((city) => city.id === defaultValues.cityId)?.name ?? "")}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>City</FormLabel>
                     <FormControl>
-                      {/* <Input placeholder="Enter city" {...field} /> */}
-                      <Select
+                      <Input placeholder="Enter city" {...field} defaultValue={toTitleCase(cities.find((city) => city.id === defaultValues.cityId)?.name ?? "")}/>
+                      {/* <Select
                         onValueChange={(value) => {
                           field.onChange(value);
                         }}
@@ -311,7 +322,7 @@ const HotelGeneralForm = ({
                             </SelectItem>
                           ))}
                         </SelectContent>
-                      </Select>
+                      </Select> */}
                     </FormControl>
                     <FormMessage />
                   </FormItem>

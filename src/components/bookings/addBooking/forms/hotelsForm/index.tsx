@@ -16,6 +16,7 @@ import {
 } from "~/server/db/schemaTypes";
 import { Hotel, voucherColumns } from "./columns";
 import HotelsForm from "./hotelsForm";
+import { useOrganization } from "@clerk/nextjs";
 
 const HotelsTab = () => {
   const [addedHotels, setAddedHotels] = useState<Hotel[]>([]);
@@ -24,6 +25,7 @@ const HotelsTab = () => {
   const [hotels, setHotels] = useState<SelectHotel[]>([]);
   const [error, setError] = useState<string | null>();
   const { toast } = useToast();
+  const {organization, isLoaded:isOrgLoaded} = useOrganization();
 
   const updateHotels = (
     data: InsertHotelVoucherLine,
@@ -53,7 +55,7 @@ const HotelsTab = () => {
     setLoading(true);
 
     try {
-      const newResponse = await getAllHotelsV2();
+      const newResponse = await getAllHotelsV2(organization?.id ?? "");
 
       if (!newResponse) {
         throw new Error(`Error: Couldn't get hotels`);
@@ -126,6 +128,10 @@ const HotelsTab = () => {
       end: voucher.voucherLines[0]?.checkOutDate ?? '',
     })),
   ];
+
+  if (!isOrgLoaded) {
+    return <div>Loading</div>;
+  }
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">

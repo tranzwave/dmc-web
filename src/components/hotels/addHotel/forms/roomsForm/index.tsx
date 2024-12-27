@@ -21,6 +21,8 @@ const RoomsTab = () => {
         hotelId:""
       });
 
+    console.log({hotelRooms: hotelRooms});
+
     const updateRooms = (room: HotelRoomType) => {
         console.log("Hereeee");
         addHotelRoom(room); // Adding the room to the context
@@ -62,6 +64,7 @@ const RoomsTab = () => {
             </div>
             <div className='flex flex-col gap-2 items-center justify-center w-[90%]'>
                 <div className='w-full'>
+                    
                     <DataTableWithActions columns={columns} data={hotelRooms}
                                 onDelete={onRowDelete}
                                 onEdit={onRowEdit}

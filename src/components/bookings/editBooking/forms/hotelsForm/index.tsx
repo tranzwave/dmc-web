@@ -29,6 +29,7 @@ import HotelsForm from "./hotelsForm";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table";
 import { ExpandableDataTableWithActions } from "~/components/common/expnadableDataTable";
+import { useOrganization } from "@clerk/nextjs";
 
 const HotelsTab = () => {
   const [addedHotels, setAddedHotels] = useState<Hotel[]>([]);
@@ -61,6 +62,7 @@ const HotelsTab = () => {
   const [triggerRefetch, setTriggerRefetch] = useState(false);
   const [voucherToEdit, setVoucherToEdit] = useState<HotelVoucher | null>()
   const [triggerEdit, setTriggerEdit] = useState(false);
+  const {organization, isLoaded: isOrgLoaded} = useOrganization();
 
   const pathname = usePathname();
   const bookingLineId = pathname.split("/")[3];
@@ -171,7 +173,7 @@ const HotelsTab = () => {
     setLoading(true);
 
     try {
-      const newResponse = await getAllHotelsV2();
+      const newResponse = await getAllHotelsV2(organization?.id ?? "");
 
       if (!newResponse) {
         throw new Error(`Error: Couldn't get hotels`);
@@ -201,7 +203,7 @@ const HotelsTab = () => {
     getHotels();
   }, []);
 
-  if (loading) {
+  if (loading || !isOrgLoaded) {
     return <div>Loading</div>;
   }
 

@@ -22,7 +22,7 @@ export interface HotelDetails {
 
 // Define the shape of the context
 interface AddHotelContextProps {
-  hotelGeneral: InsertHotel;
+  hotelGeneral: InsertHotel & {city?:string};
   hotelRooms: InsertHotelRoom[];
   hotelStaff: InsertHotelStaff[];
   restaurants: InsertRestaurant[];
@@ -31,13 +31,17 @@ interface AddHotelContextProps {
   deleteStaff: (name:string, email: string) => void;
   deleteRoom: (typeName: string, roomType: string, count:number, amenities:string, floor:number, bedCount:number) => void;
   setActiveTab: (tab: string) => void;
-  setHotelGeneral: (hotel: InsertHotel) => void;
+  setHotelGeneral: (hotel: InsertHotel & {city?:string}) => void;
   addHotelRoom: (room: InsertHotelRoom) => void;
   addHotelStaff: (staff: InsertHotelStaff) => void;
   addRestaurant: (restaurant: InsertRestaurant) => void;
   addRestaurantMeal: (meal: InsertMeal, restaurantName:string) => void;
   duplicateHotelRoom: (typeName: string, roomType: string, count:number, amenities:string, floor:number, bedCount:number) => void;
   duplicateHotelStaff: (name:string, email: string)=>void
+
+  //Bulk hotel rooms data setter and bulk hotel staff data setter
+  addBulkHotelRooms: (rooms: InsertHotelRoom[]) => void;
+  addBulkHotelStaff: (staff: InsertHotelStaff[]) => void;
 }
 
 // Provide default values
@@ -94,8 +98,25 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [activeTab, setActiveTab] = useState<string>("general");
 
   const addHotelRoom = (room: InsertHotelRoom) => {
+    //Check whether the room already exists
+    console.log("Adding room:", room);
+    const existingRoom = hotelRooms.find(
+      (r) => (r.typeName === room.typeName && r.roomType === room.roomType && r.count === room.count && r.amenities === room.amenities && r.floor === room.floor && r.bedCount === room.bedCount) || r.id === room.id
+    );
+    if (existingRoom) {
+      console.error(`Room with typeName "${room.typeName}" and roomType "${room.roomType}" already exists.`);
+      return;
+    }
     setHotelRooms(prev => [...prev, room]);
   };
+
+  const addBulkHotelRooms = (rooms: InsertHotelRoom[]) => {
+    setHotelRooms(rooms);
+  }
+
+  const addBulkHotelStaff = (staff: InsertHotelStaff[]) => {
+    setHotelStaff(staff);
+  }
 
   const addHotelStaff = (staff: InsertHotelStaff) => {
     setHotelStaff(prev => [...prev, staff]);
@@ -186,7 +207,9 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
         addRestaurant,
         addRestaurantMeal,
         duplicateHotelRoom,
-        duplicateHotelStaff
+        duplicateHotelStaff,
+        addBulkHotelRooms,
+        addBulkHotelStaff
         
       }}
     >
