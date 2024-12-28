@@ -27,6 +27,7 @@ import HotelVoucherView from "../voucherTemplate/viewableHotelVoucher";
 import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { VoucherConfirmationDetails } from "~/lib/types/booking";
+import { useOrganization } from "@clerk/nextjs";
 
 
 interface TasksTabProps<T, L> {
@@ -47,6 +48,7 @@ interface TasksTabProps<T, L> {
     },
   ) => Promise<void>;
   updateVoucherStatus: (selectedVoucher: any, confirmationDetails?:VoucherConfirmationDetails) => Promise<boolean>;
+  currency:string;
   contactDetails?: { phone: string; email: string };
   selectedVendor?: any;
   setSelectedVendor?: React.Dispatch<React.SetStateAction<any>>;
@@ -69,6 +71,7 @@ const HotelVouchersTasksTab = <
   contactDetails,
   selectedVendor,
   setSelectedVendor,
+  currency
 }: TasksTabProps<T, L>) => {
   const [selectedVoucher, setSelectedVoucher] = useState<HotelVoucherData>();
   const [selectedVoucherLine, setSelectedVoucherLine] =
@@ -89,6 +92,7 @@ const HotelVouchersTasksTab = <
   const [bookingLoading, setBookingLoading] = useState(false)
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const {organization, isLoaded:isOrgLoaded} = useOrganization();
 
   const { toast } = useToast();
 
@@ -98,7 +102,7 @@ const HotelVouchersTasksTab = <
     setLoading(true);
 
     try {
-      const newResponse = await getAllHotelsV2();
+      const newResponse = await getAllHotelsV2(organization?.id ?? "");
 
       if (!newResponse) {
         throw new Error(`Error: Couldn't get hotels`);
@@ -233,9 +237,9 @@ const HotelVouchersTasksTab = <
     return () => {
       console.log("Return");
     };
-  }, [statusChanged]);
+  }, [statusChanged, organization]);
 
-  if (loading || bookingLoading) {
+  if (loading || bookingLoading || !isOrgLoaded) {
     return <LoadingLayout />;
   }
 
@@ -441,6 +445,7 @@ const HotelVouchersTasksTab = <
                         type="hotel"
                         viewCancellationVoucher={true}
                         bookingName={bookingName}
+                        currency={currency}
                       />
                     }
                     size="large"
@@ -549,6 +554,7 @@ const HotelVouchersTasksTab = <
                         setStatusChanged={setStatusChanged}
                         type="hotel"
                         bookingName={bookingName}
+                        currency={currency}
                       />
                     }
                     size="large"

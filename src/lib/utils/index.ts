@@ -70,3 +70,10 @@ export function calculateNights(checkIn: Date | string, checkOut: Date | string)
 
   return Math.floor(nights);
 }
+
+//Make first letter of each word uppercase
+export function toTitleCase(str: string): string {
+  return str.replace(/\w\S*/g, function(txt) {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
+}

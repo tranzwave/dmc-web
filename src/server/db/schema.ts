@@ -16,6 +16,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { AdapterAccount } from "next-auth/adapters";
+import { FlightDetails, TourExpense } from "~/lib/types/booking";
 
 export const createTable = pgTableCreator((name) => `dmc-web_${name}`);
 
@@ -43,6 +44,19 @@ export const tenant = createTable("tenants", {
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+
+  //voucher settings jsonb field (hotelVoucher currency, restaurant voucher currency, activity voucher currency, shop voucher currency, transport voucher currency)
+  voucherSettings: jsonb("voucher_settings")
+    .$type<{
+      hotelVoucherCurrency: string;
+      restaurantVoucherCurrency: string;
+      activityVoucherCurrency: string;
+      shopVoucherCurrency: string;
+      transportVoucherCurrency: string;
+    }>()
+    .default(
+      sql`'{"hotelVoucherCurrency": "USD", "restaurantVoucherCurrency": "USD", "activityVoucherCurrency": "USD", "shopVoucherCurrency": "USD", "transportVoucherCurrency": "USD"}'::jsonb`,
+    ),
 });
 
 // Users table (admin, members)
@@ -177,6 +191,15 @@ export const bookingLine = createTable("booking_lines", {
       accessories: { item: string; count: number }[];
     }>()
     .default(sql`'{"documents": [], "accessories": []}'::jsonb`),
+  //jsonb field for tour expenses a record includes {expense, description, amount}
+  tourExpenses: jsonb("tour_expenses")
+    .$type<TourExpense[]>()
+    .default(sql`'[]'::jsonb`),
+    //flight details jsonb{arrivalFlight, arrivalDate, arrivalTime, departureFlight, departureDate, departureTime}
+  flightDetails: jsonb("flight_details")
+    .$type<FlightDetails>()
+    .default(sql`'{"arrivalFlight": "", "arrivalDate": "", "arrivalTime": "", "departureFlight": "", "departureDate": "", "departureTime": ""}'::jsonb`),
+
 });
 
 export const city = createTable(

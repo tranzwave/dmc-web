@@ -1,4 +1,5 @@
 "use client";
+import { useOrganization } from "@clerk/nextjs";
 import { ColumnDef } from "@tanstack/react-table";
 import { Search } from "lucide-react";
 import Link from "next/link";
@@ -58,6 +59,7 @@ const HotelsHome = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const {organization, isLoaded:isOrgLoaded} = useOrganization();
 
   const pathname = usePathname();
 
@@ -66,7 +68,7 @@ const HotelsHome = () => {
       setLoading(true);
       try {
         // const result = await getHotelData();
-        const result = await getAllHotels();
+        const result = await getAllHotels(organization?.id ?? "");
 
         setData(result);
       } catch (error) {
@@ -98,6 +100,12 @@ const HotelsHome = () => {
   const handleCloseSidePanel = () => {
     setSelectedHotel(null);
   };
+
+  if(!isOrgLoaded){
+    return (
+      <LoadingLayout/>
+    )
+  }
 
   if (loading) {
     return (

@@ -18,10 +18,11 @@ type HotelVoucherPDFProps = {
   bookingName: string;
   organization: OrganizationResource;
   user: UserResource;
+  currency: string;
   cancellation?: boolean;
 };
 
-const HotelVoucherView = ({ voucher, cancellation, bookingName, organization, user }: HotelVoucherPDFProps) => {
+const HotelVoucherView = ({ voucher, cancellation, bookingName, organization, user, currency }: HotelVoucherPDFProps) => {
   // const organization = useOrganization();
   // const { isLoaded, user } = useUser();
 
@@ -42,9 +43,8 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName, organization, us
     <div className="flex flex-col border">
       <VoucherHeader organization={organization}/>
       <div className="p-4">
-        <div className="card-title w-full text-center text-[15px] font-bold">
-          {cancellation ? (<div className="text-red-500">Cancellation Voucher</div>) : `Hotel Reservation Voucher-${voucher.status === 'amended' ? 'Amendment' : ''}`}
-
+        <div className="w-full text-center" style={{ fontWeight: 'bold', fontSize: '20px' }}>
+          {cancellation ? (<div className="text-red-500">Cancellation Voucher</div>) : `Hotel Reservation Voucher${voucher.status === 'amended' ? 'Amendment' : ''}`}
         </div>
         <div className="flex w-full flex-row justify-between">
           <div className="text-[13px]">
@@ -101,7 +101,7 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName, organization, us
         </div>
 
         <div className="flex w-full flex-row justify-end p-4 text-[13px] font-semibold">
-          {`Total(USD) - ${calculateTotal()}`}
+          {`Total(${currency}) - ${calculateTotal()}`}
         </div>
 
         <div className="text-[13px] font-normal">

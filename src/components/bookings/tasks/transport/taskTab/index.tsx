@@ -28,6 +28,7 @@ import LoadingLayout from "~/components/common/dashboardLoading";
 import { useOrganization, useUser } from "@clerk/nextjs";
 import { UserResource } from "@clerk/types";
 import VoucherButton from "../../hotelsTaskTab/taskTab/VoucherButton";
+import TourExpenseTrigger from "../tourExpenseSheetTemplate/tourExpenseTrigger";
 
 interface TasksTabProps {
   bookingLineId: string;
@@ -328,22 +329,28 @@ const TransportVouchersTab = ({
             </div>
 
             {selectedVoucher && bookingData && (
-              <Popup
-                title={"Log Sheet"}
-                description="Please click on preview button to get the document"
-                trigger={<Button variant={"primaryGreen"}>Log Sheet</Button>}
-                onConfirm={handleConfirm}
-                onCancel={() => console.log("Cancelled")}
-                dialogContent={
-                  <ProceedContent
-                    voucherColumns={voucherColumns}
-                    voucher={selectedVoucher}
-                    setStatusChanged={setStatusChanged}
-                    bookingData={bookingData}
-                  />
-                }
-                size="large"
-              />
+              <div className="flex flex-row gap-2">
+                <Popup
+                  title={"Log Sheet"}
+                  description="Please click on preview button to get the document"
+                  trigger={<Button variant={"primaryGreen"}>Log Sheet</Button>}
+                  onConfirm={handleConfirm}
+                  onCancel={() => console.log("Cancelled")}
+                  dialogContent={
+                    <ProceedContent
+                      voucherColumns={voucherColumns}
+                      voucher={selectedVoucher}
+                      setStatusChanged={setStatusChanged}
+                      bookingData={bookingData}
+                    />
+                  }
+                  size="large"
+                />
+
+                <TourExpenseTrigger
+                  bookingData={bookingData}
+                />
+              </div>
             )}
           </div>
 

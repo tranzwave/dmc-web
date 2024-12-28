@@ -24,15 +24,15 @@ export type CompleteHotel = {
   hotelStaffs: InsertHotelStaff[];
 };
 
-export const getStat = async (orgId: string) => {
+export const getStat = async (tenantId: string) => {
   try {
-    const tenantId = db.query.tenant.findFirst({
-      where: eq(tenant.clerkId, orgId),
-    });
+    // const tenantId = db.query.tenant.findFirst({
+    //   where: eq(tenant.clerkId, orgId),
+    // });
 
-    if (!tenantId) {
-      throw new Error("Couldn't find your organization");
-    }
+    // if (!tenantId) {
+    //   throw new Error("Couldn't find your organization");
+    // }
     const [
       bookingCountResult,
       clientCountResult,
@@ -43,23 +43,23 @@ export const getStat = async (orgId: string) => {
       db
         .select({ bookingCount: count() })
         .from(booking)
-        .where(eq(booking.tenantId, tenant.id)),
+        .where(eq(booking.tenantId, tenantId)),
       db
         .select({ clientCount: count() })
         .from(client)
-        .where(eq(client.tenantId, tenant.id)),
+        .where(eq(client.tenantId, tenantId)),
       db
         .select({ hotelCount: count() })
         .from(hotel)
-        .where(eq(hotel.tenantId, tenant.id)),
+        .where(eq(hotel.tenantId, tenantId)),
       db
         .select({ activityVendorCount: count() })
         .from(activityVendor)
-        .where(eq(activityVendor.tenantId, tenant.id)),
+        .where(eq(activityVendor.tenantId, tenantId)),
       db
         .select({ driverCount: count() })
         .from(driver)
-        .where(eq(driver.tenantId, tenant.id)),
+        .where(eq(driver.tenantId, tenantId)),
     ]);
 
     const bookingCount = bookingCountResult[0]?.bookingCount ?? 0;

@@ -124,9 +124,11 @@ const updateVoucherStatus = async (voucher: SelectRestaurantVoucher, confirmatio
 const RestaurantsTasksTab = ({
   bookingLineId,
   vouchers,
+  currency
 }: {
   bookingLineId: string;
   vouchers: RestaurantVoucherData[];
+  currency:string
 }) => (
   <RestaurantVouchersTasksTab
     bookingLineId={bookingLineId}
@@ -136,6 +138,7 @@ const RestaurantsTasksTab = ({
     // formComponent={RestaurantsVoucherForm}
     updateVoucherLine={updateVoucherLinesRates}
     updateVoucherStatus={updateVoucherStatus}
+    currency={currency}
   />
 );
 

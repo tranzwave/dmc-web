@@ -31,7 +31,7 @@ const GuideTransportVoucherPDF = ({
     <div className="flex flex-col border">
       <VoucherHeader organization={organization}/>
       <div className="p-4">
-        <div className="card-title w-full text-center">
+      <div className="w-full text-center" style={{ fontWeight: 'bold', fontSize: '20px' }}>
           {cancellation ? (
             <div className="text-red-500">Cancellation Voucher</div>
           ) : (

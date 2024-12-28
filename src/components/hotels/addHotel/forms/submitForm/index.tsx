@@ -96,7 +96,7 @@ const AddHotelSubmitView = () => {
             </tr>
             <tr>
               <td className="border px-4 py-2 font-bold">City:</td>
-              <td className="border px-4 py-2">{hotelGeneral.cityId}</td>
+              <td className="border px-4 py-2">{hotelGeneral.city}</td>
             </tr>
             <tr>
               <td className="border px-4 py-2 font-bold">Province:</td>

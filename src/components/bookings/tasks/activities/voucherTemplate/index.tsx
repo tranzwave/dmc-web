@@ -24,7 +24,7 @@ const ActivityVoucherPDF = ({ vouchers, cancellation, bookingName, organization,
     <div className="flex flex-col border">
       <VoucherHeader organization={organization} />
       <div className="p-4">
-        <div className="card-title w-full text-center text-[16px]">
+      <div className="w-full text-center" style={{ fontWeight: 'bold', fontSize: '20px' }}>
           Activities by Date
         </div>
 
