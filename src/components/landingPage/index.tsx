@@ -13,40 +13,42 @@ export default function LandingPage() {
       <section className="relative h-[90vh] pt-24 flex justify-center mb-24">
         <div className="absolute inset-0 z-0">
           <Image
-        src="/placeholder.svg?height=1080&width=1920"
-        alt="Misty forest background"
-        layout="fill"
-        className="object-cover"
-        priority
+            src="/placeholder.svg?height=1080&width=1920"
+            alt="Misty forest background"
+            layout="fill"
+            className="object-cover"
+            priority
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#287f71]/90 to-[#287f71]/40" />
         </div>
 
         <div className="relative z-10 container mx-auto px-4 text-center text-white">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-        Modern Platform For
-        <span className="block text-primary-green">Travel Management</span>
+            Modern Platform For
+            <span className="block text-primary-green">Travel Management</span>
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">
-        Your one-stop solution for managing all your guests. Provide seamless journeys to your clients with our comprehensive platform.
+            Your one-stop solution for managing all your guests. Provide seamless journeys to your clients with our comprehensive platform.
           </p>
           <div className="flex gap-4 justify-center mb-8">
-        <Button size="lg" className="bg-white text-[#287f71] hover:bg-white/90">
-          Get Started
-        </Button>
-        <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 bg-transparent">
-          Book a Demo
-        </Button>
+            <Link href={`/dashboard/overview`}>
+              <Button size="lg" className="bg-white text-[#287f71] hover:bg-white/90">
+                Get Started
+              </Button>
+            </Link>
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 bg-transparent">
+              Book a Demo
+            </Button>
           </div>
 
           <div className="relative w-full max-w-4xl mx-auto">
-        <Image
-          src="/assets/landing/landing-ss.webp"
-          alt="System screenshot"
-          width={1280}
-          height={720}
-          priority
-        />
+            <Image
+              src="/assets/landing/landing-ss.webp"
+              alt="System screenshot"
+              width={1280}
+              height={720}
+              priority
+            />
           </div>
         </div>
       </section>
