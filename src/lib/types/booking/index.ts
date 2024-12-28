@@ -65,3 +65,20 @@ export type VoucherSettings = {
   shopVoucherCurrency: string;
   transportVoucherCurrency: string;
 };
+
+//Type for tour expenses
+export type TourExpense = {
+  expense: string;
+  description: string;
+  amount: number;
+};
+
+//Type for flight details
+export type FlightDetails = {
+  arrivalFlight: string;
+  arrivalDate: string;
+  arrivalTime: string;
+  departureFlight: string;
+  departureDate: string;
+  departureTime: string;
+};
