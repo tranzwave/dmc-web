@@ -39,7 +39,10 @@ export const hotelRoomTypes = [
   "01 Bedroom",
   "02 Bedroom",
   "03 Bedroom",
-  "04 Bedroom"
+  "04 Bedroom",
+  "Extra Bed",
+  "Sharing Double",
+  "Sharing Triple"
 ];
 
 
