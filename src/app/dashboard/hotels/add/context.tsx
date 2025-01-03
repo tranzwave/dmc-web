@@ -100,10 +100,16 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
   const addHotelRoom = (room: InsertHotelRoom) => {
     //Check whether the room already exists
     console.log("Adding room:", room);
-    const existingRoom = hotelRooms.find(
-      (r) => (r.typeName === room.typeName && r.roomType === room.roomType && r.count === room.count && r.amenities === room.amenities && r.floor === room.floor && r.bedCount === room.bedCount) || r.id === room.id
+    const roomExists = hotelRooms.some(
+      (r) => (
+        (r.typeName === room.typeName 
+        && r.roomType === room.roomType 
+        && r.count === room.count 
+        && r.amenities === room.amenities 
+        && r.floor === room.floor 
+        && r.bedCount === room.bedCount) || (r.id && r.id !== "" && r.id === room.id))
     );
-    if (existingRoom) {
+    if (roomExists) {
       console.error(`Room with typeName "${room.typeName}" and roomType "${room.roomType}" already exists.`);
       return;
     }
