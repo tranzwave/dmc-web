@@ -65,7 +65,7 @@ export const OrganizationRolesAndPermissions = () => {
         <div className="items-center border-b pb-4 text-base font-bold">
           Roles & Permissions
         </div>
-        <OrganizationSwitcher
+        {/* <OrganizationSwitcher
           defaultOpen={true}
           hidePersonal={true}
           appearance={{
@@ -74,7 +74,7 @@ export const OrganizationRolesAndPermissions = () => {
                 "hidden",
             },
           }}
-        />
+        /> */}
       </div>
 
       <div className="mt-4">
