@@ -1,28 +1,41 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   OrganizationSwitcher,
   SignedIn,
   SignedOut,
   SignInButton,
+  useAuth,
   UserButton,
 } from "@clerk/nextjs";
 import {
-  SearchIcon,
   Info,
   Settings,
   Bell,
-  Building2,
-  House,
 } from "lucide-react";
-import { OrganizationRolesAndPermissions } from "~/components/organization/managePermissions";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "~/components/ui/breadcrumb";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { toast } from "~/hooks/use-toast";
 
 // TopBar component
 const TopBar = () => {
   const pathname = usePathname();
+  const { orgRole, isLoaded } = useAuth();
+  const router = useRouter();
+
+  const handleSettingsOnClick = () => {
+    if (orgRole === 'org:admin') {
+      router.push('/dashboard/admin')
+    } else {
+      // alert('You are not authorized to access the settings for the selected organization')
+      console.log(toast)
+      toast({
+        title: 'Unauthorized',
+        description: 'You are not authorized to access the settings for the selected organization'
+      })
+    }
+  }
   return (
     <div className="flex w-full flex-row items-center justify-between bg-white p-4">
       <div className="flex flex-row items-center gap-2">
@@ -45,14 +58,27 @@ const TopBar = () => {
       <div className="flex flex-row items-center gap-8">
         <div className="flex flex-row items-center gap-3">
           <Info size={20} color="#697077" className="cursor-pointer" />
-          <Link href={"/dashboard/admin"} className="hover:cursor-pointer">
-            <Settings size={20} color="#697077" className="cursor-pointer" />
-          </Link>
+          <Settings size={20} color="#697077" className="cursor-pointer" onClick={handleSettingsOnClick}/>
           <Bell size={20} color="#697077" className="cursor-pointer" />
         </div>
         <SignedIn>
-          <UserButton>
-          </UserButton>
+          <div className="flex flex-row gap-3">
+          <OrganizationSwitcher
+          defaultOpen={false}
+          hidePersonal={true}
+          appearance={{
+            elements: {
+              organizationSwitcherPopoverActionButton__createOrganization:
+                "hidden",
+            },
+          }}
+          afterSelectOrganizationUrl={(org) => {
+            return pathname;
+          }
+          }
+        />
+            <UserButton />
+          </div>
         </SignedIn>
         <SignedOut>
           <SignInButton />
