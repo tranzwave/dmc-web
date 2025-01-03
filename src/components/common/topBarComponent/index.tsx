@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "~/components/ui/breadcrumb";
 import { usePathname, useRouter } from "next/navigation";
-import Link from "next/link";
 import { toast } from "~/hooks/use-toast";
 
 // TopBar component
