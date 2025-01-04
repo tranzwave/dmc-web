@@ -1,8 +1,8 @@
 "use client";
 import html2pdf from "html2pdf.js";
 import { usePathname, useRouter } from "next/navigation";
-import { useRef, useState } from "react";
-import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
+import { useEffect, useRef, useState } from "react";
+import { BookingDetails, BookingSummary, useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 import { Button } from "~/components/ui/button";
 import ContactBox from "~/components/ui/content-box";
 import {
@@ -16,6 +16,13 @@ import {
 import SummaryCard, { formatDateToWeekdayMonth } from "./summaryCard";
 
 import './pdfStyles.css';
+import { useOrganization, useUser } from "@clerk/nextjs";
+import LoadingLayout from "~/components/common/dashboardLoading";
+import VoucherButton from "~/components/bookings/tasks/hotelsTaskTab/taskTab/VoucherButton";
+import SummaryDocument from "./summaryDocumentTemplate";
+import { OrganizationMembershipResource, UserResource } from "@clerk/types";
+import { SelectAgent } from "~/server/db/schemaTypes";
+import { getAgentVendorById } from "~/server/db/queries/agents";
 
 const AddBookingSubmitTab = () => {
   const { bookingDetails, getBookingSummary } = useEditBooking();
@@ -26,46 +33,51 @@ const AddBookingSubmitTab = () => {
   const pathname = usePathname();
   const router = useRouter();
   const summaryRef = useRef(null); // Ref to hold the summary section
+  const [summary, setSummary] = useState<BookingSummary[]>([]);
+  const { organization, isLoaded: isOrgLoaded } = useOrganization();
+  const { isLoaded, user } = useUser();
+  const [coordinatorAndManager, setCoordinatorAndManager] = useState<string[]>(['init-c', 'init-m'])
+  const [members, setMembers] = useState<OrganizationMembershipResource[]>([]); // Correct type for members
+  const [agent, setAgent] = useState<SelectAgent>();
 
-  const handleSubmit = async () => {
-    setLoading(true);
-    try {
-      const bookingData = {
-        newBooking: bookingDetails.general,
-        generalData: bookingDetails.general,
-        hotelVouchers: bookingDetails.vouchers,
-      };
-    } catch (error) {
-      setMessage("An error occurred while processing the booking.");
-      console.error("Error in handleSubmit:", error);
-    } finally {
-      setLoading(false);
+  const fetchMembers = async () => {
+    if (organization) {
+      try {
+        setLoading(true);
+        const memberships = await organization.getMemberships();
+        const agent = await getAgentVendorById(bookingDetails.general.agent ?? "");
+        setMembers(memberships.data); // Set the 'items' array containing memberships
+        console.log(memberships);
+        setLoading(false);
+        console.log(memberships)
+        if (memberships && bookingDetails) {
+          const manager = memberships?.data?.find(m => m.id === bookingDetails.general.marketingManager)
+          const managerFullName = manager ? `${manager.publicUserData.firstName} ${manager.publicUserData.lastName}` : ''
+
+          setCoordinatorAndManager(['', managerFullName])
+        }
+        if (agent) {
+          setAgent(agent);
+        }
+
+      } catch (error) {
+        console.error("Error fetching members:", error);
+        setLoading(false);
+      }
     }
   };
 
-  const handleYes = () => {
-    setShowModal(false);
-    router.push(`${pathname.split("add")[0]}/${id}/tasks`); // Redirect to tasks page
-  };
-
-  const handleNo = () => {
-    setShowModal(false);
-  };
-
-  const downloadPDF = () => {
+  useEffect(() => {
     const bookingId = pathname.split('/')[3] ?? 'Unknown'
-    const summaryFileName = `${bookingId}_summary.pdf`
-    const element = summaryRef.current;
-    const options = {
-      filename: summaryFileName,
-      jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
-      html2canvas: { scale: 2 }, 
-      margin: [10, 10, 10, 10], 
-    };
-    html2pdf().set(options).from(element).save();
-  };
+    setId(bookingId);
+    const summary = getBookingSummary();
+    setSummary(summary);
 
-  const summary = getBookingSummary();
+    if (isLoaded && bookingDetails) {
+      fetchMembers();
+    }
+  }
+  , []);
 
   return (
     <div className="mt-4 flex h-full flex-col gap-3">
@@ -87,22 +99,9 @@ const AddBookingSubmitTab = () => {
         >
           <div className="card-title flex w-full flex-row justify-between">
             <div>Booking Summary</div>
-            {/* <Button
-              variant="primaryGreen"
-              onClick={handleSubmit}
-              disabled={loading}
-            >
-              {loading ? (
-                <div className="flex flex-row gap-2">
-                  <div>
-                    <Loader2Icon className="animate-spin" />
-                  </div>{" "}
-                  <div> Saving </div>
-                </div>
-              ) : (
-                "Submit Booking"
-              )}
-            </Button> */}
+            <Button onClick={()=> {setShowModal(true)}} variant="primaryGreen">
+              Download Summary as PDF
+            </Button>
           </div>
           <div ref={summaryRef} className="pdf-summary">
             {summary.map((sum, index) => {
@@ -111,35 +110,81 @@ const AddBookingSubmitTab = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-col w-[20%] justify-end">
-        <Button onClick={downloadPDF} variant="primaryGreen">
-          Download Summary as PDF
-        </Button>
+      {/* <div className="flex flex-col w-[20%] justify-end">
+
         <div className="text-[8px] font-normal text-neutral-400">
           Please expand all the dates before downloading
         </div>
-      </div>
+      </div> */}
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent>
+        <DialogContent className="max-w-fit max-h-[90%] overflow-y-scroll">
           <DialogHeader>
-            <DialogTitle>{pathname.includes("edit") ? "Booking Updated!" : "Booking Added!"}</DialogTitle>
+            <DialogTitle>{`Tour Summary | ${id}`}</DialogTitle>
             <DialogDescription>
               {message}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="primaryGreen" onClick={handleYes}>
-              Yes
-            </Button>
-            <Button variant="secondary" onClick={handleNo}>
-              No
-            </Button>
-          </DialogFooter>
+          <ProceedContent summary={summary} bookingLineId={id} bookingLine={bookingDetails} agentAndManager={
+            {
+              agent: agent?.name ?? '',
+              manager: coordinatorAndManager[1] ?? ''
+            }
+          }/>
         </DialogContent>
       </Dialog>
     </div>
   );
 };
 
+
+
 export default AddBookingSubmitTab;
+
+
+interface ProceedContentProps {
+  summary: BookingSummary[];
+  bookingLineId: string;
+  bookingLine: BookingDetails;
+  agentAndManager: {
+    agent: string;
+    manager: string;
+  };
+}
+
+const ProceedContent: React.FC<ProceedContentProps> = ({
+  summary,
+  bookingLineId,
+  bookingLine,
+  agentAndManager,
+}) => {
+
+  const { organization, isLoaded: isOrgLoaded } = useOrganization();
+  const { isLoaded, user } = useUser();
+
+  if (!isLoaded || !isOrgLoaded) {
+    return (
+      <LoadingLayout />
+    )
+  }
+
+  return (
+    <div className="mb-9 space-y-6">
+      <div className="flex flex-row justify-end">
+        {organization && user && (
+          <VoucherButton voucherComponent={
+            <div>
+              <SummaryDocument summary={summary} booking={bookingLine} bookingLineId={bookingLineId} organization={organization} user={user as UserResource} agentAndManager={agentAndManager}/>
+            </div>
+          } />
+
+        )}
+      </div>
+      <div>
+        {organization && user && (
+          <SummaryDocument summary={summary} booking={bookingLine} bookingLineId={bookingLineId} organization={organization} user={user as UserResource} agentAndManager={agentAndManager}/>
+        )}
+      </div>
+    </div>
+  );
+};
