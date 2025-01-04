@@ -361,7 +361,7 @@ const EditBooking = ({ id }: { id: string }) => {
                   isCompleted = {false}
                   inProgress = {activeTab == "submit"}
                 >
-                  Summary
+                  Itinerary
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="general">
