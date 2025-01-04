@@ -12,6 +12,7 @@ import {
 } from "~/components/ui/navigation-menu"
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet"
 import { Menu } from 'lucide-react'
+import Image from "next/image"
 
 export function Navbar() {
   return (
@@ -19,7 +20,12 @@ export function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="text-xl font-bold text-[#287f71]">
-            COORD.TRAVEL
+            <Image
+              src="/assets/new-logo.png" style={{ width: '130px', height: '60px' }}
+              alt="Logo"
+              width={130} // Adjust the width as per your requirement
+              height={60} // Adjust the height as per your requirement
+            />
           </Link>
 
           {/* Mobile Menu */}
