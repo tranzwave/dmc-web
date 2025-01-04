@@ -257,7 +257,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
         </div>
 
         <Link href={`${pathname}/${booking.id}/edit?tab=submit`}>
-          <Button variant={"primaryGreen"}>Summary</Button>
+            <Button variant={"primaryGreen"}>Itinerary</Button>
         </Link>
       </div>
       <div className="grid grid-cols-3 rounded-lg shadow-sm">
