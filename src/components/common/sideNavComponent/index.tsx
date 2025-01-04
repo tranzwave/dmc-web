@@ -65,7 +65,7 @@ const SideNavBar = () => {
       {/* Logo Section */}
       <div className="flex flex-col items-center justify-center">
         <Image
-          src="/assets/new-logo.png" style={{ width: '130px', height: '60px' }}
+          src="/assets/coord-white-logo-new.svg" style={{ width: '130px', height: '60px' }}
           alt="Logo"
           width={130} // Adjust the width as per your requirement
           height={60} // Adjust the height as per your requirement
