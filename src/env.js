@@ -31,7 +31,9 @@ export const env = createEnv({
     
     CLERK_SECRET_KEY:z.string(),
     DB_SEEDING:stringBoolean,
-    DB_MIGRATING:stringBoolean
+    DB_MIGRATING:stringBoolean,
+    PAYHERE_MERCHANT_ID:z.string(),
+    PAYHERE_MERCHANT_SECRET:z.string(),
   },
 
   /**
@@ -42,7 +44,7 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:z.string(),
     NEXT_PUBLIC_CLERK_SIGN_IN_URL:z.string(),
-    NEXT_PUBLIC_CLERK_SIGN_UP_URL:z.string(),
+    NEXT_PUBLIC_CLERK_SIGN_UP_URL:z.string()
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
   },
 
@@ -62,7 +64,9 @@ export const env = createEnv({
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     CLERK_SECRET_KEY:process.env.CLERK_SECRET_KEY,
     NEXT_PUBLIC_CLERK_SIGN_IN_URL:process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL,
-    NEXT_PUBLIC_CLERK_SIGN_UP_URL:process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL
+    NEXT_PUBLIC_CLERK_SIGN_UP_URL:process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL,
+    PAYHERE_MERCHANT_ID:process.env.PAYHERE_MERCHANT_ID,
+    PAYHERE_MERCHANT_SECRET:process.env.PAYHERE_MERCHANT_SECRET,
 
   },
   /**

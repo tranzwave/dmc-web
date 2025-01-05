@@ -1,3 +1,6 @@
+import { Crown, Star, Zap } from "lucide-react";
+import { Package } from "../types/payment";
+
 export const tourTypes = [
   "General",
   "Cultural",
@@ -8,7 +11,7 @@ export const tourTypes = [
   "Culinary",
   "Religious",
   "Professional",
-  "Honeymoon"
+  "Honeymoon",
 ];
 
 export const hotelRoomCategories = [
@@ -27,7 +30,7 @@ export const hotelRoomCategories = [
   "Tropical Garden Room",
   "Junior Suite",
   "Senior Suite",
-  "Executive Suite"
+  "Executive Suite",
 ];
 
 export const hotelRoomTypes = [
@@ -42,23 +45,21 @@ export const hotelRoomTypes = [
   "04 Bedroom",
   "Extra Bed",
   "Sharing Double",
-  "Sharing Triple"
+  "Sharing Triple",
 ];
-
 
 export const hotelBoardBasis = [
-  "Room Only",              // No meals included
-  "Bed and Breakfast (B&B)",// Includes breakfast
-  "Half Board",             // Includes breakfast and one other main meal (usually dinner)
-  "Full Board",             // Includes breakfast, lunch, and dinner
-  "All-Inclusive",          // Includes all meals, drinks, and sometimes snacks
-  "Ultra All-Inclusive",    // Includes premium meals, drinks, snacks, and extra services
-  "Self-Catering",          // No meals included, guests have access to kitchen facilities
-  "Full American Plan",     // Includes breakfast, lunch, and dinner (often more elaborate)
+  "Room Only", // No meals included
+  "Bed and Breakfast (B&B)", // Includes breakfast
+  "Half Board", // Includes breakfast and one other main meal (usually dinner)
+  "Full Board", // Includes breakfast, lunch, and dinner
+  "All-Inclusive", // Includes all meals, drinks, and sometimes snacks
+  "Ultra All-Inclusive", // Includes premium meals, drinks, snacks, and extra services
+  "Self-Catering", // No meals included, guests have access to kitchen facilities
+  "Full American Plan", // Includes breakfast, lunch, and dinner (often more elaborate)
   "Modified American Plan", // Includes breakfast and either lunch or dinner
-  "European Plan"           // Room-only, meals are paid separately
+  "European Plan", // Room-only, meals are paid separately
 ];
-
 
 export const permissionsList = [
   "booking_activity:manage",
@@ -75,3 +76,33 @@ export const permissionsList = [
   "sys_profile:delete",
   "sys_profile:manage",
 ];
+
+export const packages:Package[] = [
+  {
+    id: 1,
+    name: "Basic",
+    tabValue: "basic",
+    description: "Essential features for individuals",
+    price: 9.99,
+    icon: Zap,
+    features: ["Feature 1", "Feature 2", "Feature 3"],
+  },
+  {
+    id: 2,
+    name: "Pro",
+    tabValue: "pro",
+    description: "Advanced tools for professionals",
+    price: 19.99,
+    icon: Star,
+    features: ["All Basic features", "Feature 4", "Feature 5", "Feature 6"],
+  },
+  {
+    id: 3,
+    name: "Enterprise",
+    tabValue: "enterprise",
+    description: "Comprehensive solution for large teams",
+    price: 49.99,
+    icon: Crown,
+    features: ["All Pro features", "Feature 7", "Feature 8", "Feature 9", "24/7 Support"],
+  },
+]

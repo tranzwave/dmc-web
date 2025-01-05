@@ -37,6 +37,7 @@ import { useRouter } from "next/navigation";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import PaymentForm from "../payment/PaymentForm";
 
 // Zod schemas for validation
 const personalDetailsSchema = z.object({
@@ -74,7 +75,7 @@ export type OrganizationDetailsFormValues = z.infer<
 >;
 
 const OnboardingFlow = () => {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(3);
   const { user, isLoaded } = useUser();
   const { session } = useSession();
   const { organization } = useOrganization();
@@ -169,7 +170,9 @@ const OnboardingFlow = () => {
         description: "Your organization has been created successfully",
       });
       setIsLoading(false);
-      router.push(`/dashboard/overview?orgId=${createdOrg.clerkResponse}`)
+
+      setStep(3);
+      // router.push(`/dashboard/overview?orgId=${createdOrg.clerkResponse}`)
     } catch (error) {
       console.log(error);
       setIsLoading(false);
@@ -187,7 +190,7 @@ const OnboardingFlow = () => {
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center p-5 text-[#111729] shadow-2xl">
-      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-md">
+      <div className="w-full max-w-fit rounded-lg bg-white p-6 shadow-md">
         {step === 1 ? (
           <Form {...personalFormMethods}>
             <form
@@ -209,7 +212,7 @@ const OnboardingFlow = () => {
               </Button>
             </form>
           </Form>
-        ) : (
+        ) : step === 2 ? (
           <div>
             <div className="my-2 cursor-pointer">
               <ArrowLeft
@@ -254,6 +257,17 @@ const OnboardingFlow = () => {
               </form>
             </Form>
           </div>
+        ) : step === 3 ? (
+          <div>
+            <h2 className="mb-4 text-center text-2xl font-bold text-[#287F71]">
+              Choose Your Perfect Plan
+            </h2>
+            <div>
+              <PaymentForm/>
+            </div>
+          </div>
+        ) : (
+          ""
         )}
       </div>
       <div className="text-[13px]">Sign in with a different account</div>

@@ -29,7 +29,7 @@ export async function POST(req: Request, res: NextApiResponse) {
   const data: CreateParams = await req.json();
 
   try {
-    const response = await clerkClient.organizations.createOrganization({
+    const organizationResponse = await clerkClient.organizations.createOrganization({
       name: data.name,
       createdBy: data.createdBy,
       publicMetadata: {
@@ -41,13 +41,13 @@ export async function POST(req: Request, res: NextApiResponse) {
       },
     });
 
-    if (!response) {
+    if (!organizationResponse) {
       throw new Error('Error creating organization');
     }
 
 
 
-    const metadataResponse = await clerkClient.users.updateUserMetadata(data.id, {
+    const userResponse = await clerkClient.users.updateUserMetadata(data.id, {
       publicMetadata: {
         role: "admin",
         permissions: [
@@ -72,27 +72,30 @@ export async function POST(req: Request, res: NextApiResponse) {
       },
     })
 
-    if(!metadataResponse){
+    if(!userResponse){
       throw new Error('Error making the user admin');
     }
 
-    const dbTenant = await db
-    .insert(tenant)
-    .values({
-      id:response.id,
-      clerkId: response.id,
-      country: data.publicMetadata.country,
-      name: data.name,
-      domain: data.publicMetadata.domainName,
-      subscriptionPlan: 'basic',
-    });
+    // Step 3: Redirect user to payment page
 
-  if(!dbTenant){
-    throw new Error('Error creating organization');
-  }
+
+    // const dbTenant = await db
+    // .insert(tenant)
+    // .values({
+    //   id:response.id,
+    //   clerkId: response.id,
+    //   country: data.publicMetadata.country,
+    //   name: data.name,
+    //   domain: data.publicMetadata.domainName,
+    //   subscriptionPlan: 'basic',
+    // });
+
+  // if(!dbTenant){
+  //   throw new Error('Error creating organization');
+  // }
 
     // Step 4: Return the newly created organization details
-    return NextResponse.json({ tenant: dbTenant, clerkResponse: response.id }, { status: 200 });
+    return NextResponse.json({ organization: organizationResponse, user:userResponse, clerkResponse: organizationResponse.id }, { status: 200 });
 
   } catch (error) {
     console.error('Error:', error);
