@@ -6,7 +6,8 @@ const isPublicRoute = createRouteMatcher([
   '/sign-in(.*)',
   '/sign-up(.*)',
   '/api/webhooks(.*)',
-  '/onboarding'
+  '/onboarding',
+  '/payment(.*)',
 ]);
 
 // Define protected admin routes

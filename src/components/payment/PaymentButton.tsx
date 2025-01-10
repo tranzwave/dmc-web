@@ -63,10 +63,10 @@ const PaymentButton = ({ selectedPackage }: PaymentButtonProps) => {
                 const payment = {
                     sandbox: true, // Use sandbox for testing
                     merchant_id: merchantId,
-                    return_url: "http://localhost:3000/payment/success", // Replace with your return URL
-                    cancel_url: "http://localhost:3000/payment/cancel", // Replace with your cancel URL
+                    return_url: "http://localhost:3001/payment/success", // Replace with your return URL
+                    cancel_url: "http://localhost:3001/payment/cancel", // Replace with your cancel URL
                     notify_url:
-                        "https://sea-lion-app-qfh5d.ondigitalocean.app/payment/notify", // Replace with your notify URL - This should be public IP (No Localhost)
+                        "https://e1e1-2402-4000-2080-875a-6feb-c94c-a877-54da.ngrok-free.app/api/webhooks/payment-notify", // Replace with your notify URL - This should be public IP (No Localhost)
                     order_id: paymentDetails.order_id,
                     items: "Item Title",
                     amount: paymentDetails.amount,
