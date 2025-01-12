@@ -2,13 +2,15 @@
 
 import { and, eq, inArray, sql, SQL } from "drizzle-orm";
 import { db } from "../..";
-import { InsertDriver, InsertGuide, InsertLanguage, InsertVehicle } from "../../schemaTypes";
+import { InsertDriver, InsertGuide, InsertLanguage, InsertOtherTransport, InsertVehicle } from "../../schemaTypes";
 import {
   driver,
   driverLanguage,
   driverVehicle,
   guide,
   guideLanguage,
+  otherTransport,
+  tenant,
   transportVoucher,
   vehicle
 } from "./../../schema";
@@ -702,3 +704,192 @@ export async function deleteGuideCascade(guideId: string) {
     throw error; // Re-throw the error to handle it elsewhere if needed
   }
 }
+
+// Other transport related queries
+
+// Get all other transports
+export const getAllOtherTransports = () => {
+  return db.query.otherTransport.findMany(
+    {
+      with: {
+        city: true,
+      },
+    }
+  );
+};
+
+// Get other transport by id
+export const getOtherTransportById = (id: string) => {
+  return db.query.otherTransport.findFirst({
+    where: eq(otherTransport.id, id),
+  });
+};
+
+// Get other transport by city
+export const getOtherTransportByCity = (cityId: number) => {
+  db.query.otherTransport.findMany({
+    where: eq(otherTransport.cityId, cityId),
+  });
+};
+
+//Get other transport by type
+export const getOtherTransportByType = (type: string) => {
+  db.query.otherTransport.findMany({
+    where: eq(otherTransport.transportMethod, type),
+  });
+};
+
+//Get other transport by vehicle type
+export const getOtherTransportByVehicleType = (vehicleType: string) => {
+  db.query.otherTransport.findMany({
+    where: eq(otherTransport.vehicleType, vehicleType),
+  });
+};
+
+//Get other transport by city, transport method and vehicle type
+export const getOtherTransportByCityTransportAndVehicle = (
+  cityId: number,
+  transportMethod: string,
+  vehicleType: string
+) => {
+  db.query.otherTransport.findMany({
+    where: and(
+      eq(otherTransport.cityId, cityId),
+      eq(otherTransport.transportMethod, transportMethod),
+      eq(otherTransport.vehicleType, vehicleType)
+    ),
+  });
+};
+
+//Get other transport by city and transport method
+export const getOtherTransportByCityAndTransport = (
+  cityId: number,
+  transportMethod: string
+) => {
+  db.query.otherTransport.findMany({
+    where: and(
+      eq(otherTransport.cityId, cityId),
+      eq(otherTransport.transportMethod, transportMethod)
+    ),
+  });
+};
+
+//Insert other transport
+export const insertOtherTransport = async (data: Partial<InsertOtherTransport>, tenantId:string) => {
+  try {
+    const newOtherTransport = await db.transaction(async (trx) => {
+      const foundTenant = await trx.query.tenant.findFirst(
+        {
+          where: eq(tenant.id, tenantId)
+        }
+      );
+
+      if (!foundTenant) {
+        throw new Error("Couldn't find any tenant");
+      }
+
+      //Check if same other transport already exists
+      const foundOtherTransport = await trx.query.otherTransport.findFirst({
+        where: and(
+          eq(otherTransport.tenantId, foundTenant.id),
+          eq(otherTransport.primaryEmail, data.primaryEmail ?? '')
+        ),
+      });
+
+      if (foundOtherTransport) {
+        throw new Error(`A transport from same vendor with email ${data.primaryEmail} already exists`);
+      }
+
+      const insertedOtherTransport = await trx
+        .insert(otherTransport)
+        .values({
+          name: data.name ?? '',
+          tenantId: foundTenant.id,
+          primaryEmail: data.primaryEmail ?? '',
+          primaryContactNumber: data.primaryContactNumber ?? '',
+          streetName: data.streetName ?? '',
+          cityId: data.cityId ?? 0,
+          province: data.province ?? '',
+          notes: data.notes ?? '',
+          transportMethod: data.transportMethod ?? '',
+          vehicleType: data.vehicleType ?? '',
+          startLocation: data.startLocation ?? '',
+          destination: data.destination ?? '',
+          capacity: data.capacity ?? 0,
+          price: data.price ?? '0',
+        })
+        .returning({
+          id: otherTransport.id,
+        });
+
+      return insertedOtherTransport;
+    });
+
+    return newOtherTransport;
+  } catch (error: any) {
+    console.error("Error in insertOtherTransport:", error?.detail ?? error.message);
+    throw error;
+  }
+};
+
+//Update other transport
+export const updateOtherTransport = async (id: string, data: Partial<InsertOtherTransport>) => {
+  try {
+    const updatedOtherTransport = await db.transaction(async (trx) => {
+      const updatedOtherTransport = await trx
+        .update(otherTransport)
+        .set({
+          name: data.name ?? '',
+          primaryEmail: data.primaryEmail ?? '',
+          primaryContactNumber: data.primaryContactNumber ?? '',
+          streetName: data.streetName ?? '',
+          cityId: data.cityId ?? 0,
+          province: data.province ?? '',
+          notes: data.notes ?? '',
+          transportMethod: data.transportMethod ?? '',
+          vehicleType: data.vehicleType ?? '',
+          startLocation: data.startLocation ?? '',
+          destination: data.destination ?? '',
+          capacity: data.capacity ?? 0,
+          price: data.price ?? '0',
+        })
+        .where(eq(otherTransport.id, id))
+        .returning({
+          id: otherTransport.id,
+        });
+
+      return updatedOtherTransport;
+    });
+
+    return updatedOtherTransport;
+  } catch (error: any) {
+    console.error("Error in updateOtherTransport:", error?.detail ?? error.message);
+    throw error;
+  }
+};
+
+//cascade delete other transport
+export const deleteOtherTransportCascade = async (id: string) => {
+  try {
+    const deletedOtherTransport = await db.transaction(async (trx) => {
+      await trx.delete(otherTransport).where(eq(otherTransport.id, id));
+
+      return { id: id };
+    });
+
+    return deletedOtherTransport;
+  } catch (error: any) {
+    console.error("Error in deleteOtherTransportCascade:", error?.detail ?? error.message);
+    throw error;
+  }
+};
+
+// Get all other transport voucher lines by voucher id
+export const getOtherTransportVoucherLinesByVoucherId = (voucherId: string) =>
+  db.query.otherTransportVoucherLine.findMany({
+    where: eq(transportVoucher.id, voucherId),
+  });
+
+
+
+

@@ -1,20 +1,17 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
-import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
-import { StatsCard } from "~/components/ui/stats-card";
-import { DriverDTO } from "~/lib/types/driver/type";
+import { GuideDTO } from "~/lib/types/guide/type";
 import { formatDate } from "~/lib/utils/index";
 import {
-  getDriverByIdQuery,
-  getTransportVouchersForDriver,
+  getGuideByIdQuery
 } from "~/server/db/queries/transport";
 import { SelectTransportVoucher } from "~/server/db/schemaTypes";
 
 const Page = ({ params }: { params: { id: string } }) => {
-  const [driver, setDriver] = useState<DriverDTO | null>(null);
+  const [driver, setDriver] = useState<GuideDTO | null>(null);
   const [data, setData] = useState<SelectTransportVoucher[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,39 +23,39 @@ const Page = ({ params }: { params: { id: string } }) => {
 
   const today = new Date();
 
-  const fetchDriverDetails = async () => {
+  const fetchGuideDetails = async () => {
     try {
-      const selectedDriver = await getDriverByIdQuery(params.id);
-      setDriver(selectedDriver ?? null);
+      const selectedGuide = await getGuideByIdQuery(params.id);
+      setDriver(selectedGuide ?? null);
     } catch (error) {
-      console.error("Failed to fetch driver details:", error);
-      setError("Failed to load driver details.");
+      console.error("Failed to fetch guide details:", error);
+      setError("Failed to load guide details.");
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchData = async () => {
-    try {
-      const result = await getTransportVouchersForDriver(params.id);
-      setData(result);
-    } catch (error) {
-      console.error("Failed to fetch activity data:", error);
-      setError("Failed to load data.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const fetchData = async () => {
+  //   try {
+  //     const result = await getTransportVouchersForDriver(params.id);
+  //     setData(result);
+  //   } catch (error) {
+  //     console.error("Failed to fetch activity data:", error);
+  //     setError("Failed to load data.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
     setLoading(true);
-    fetchDriverDetails();
-    fetchData();
+    fetchGuideDetails();
+    // fetchData();
   }, [params.id]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
-  if (!driver) return <div>No driver found with the given ID.</div>;
+  if (!driver) return <div>No guide found with the given ID.</div>;
 
   const driverVoucherColumns: ColumnDef<SelectTransportVoucher>[] = [
     {
@@ -115,7 +112,7 @@ const Page = ({ params }: { params: { id: string } }) => {
 
   return (
     <div className="flex w-full flex-col justify-between gap-3">
-      <TitleBar title={`Driver - ${driver.name}`} link="toAddTransport" />
+      <TitleBar title={`Guide - ${driver.name}`} link="toAddTransport" />
       <div className="mx-9 flex flex-row justify-between">
         <div className="w-[30%]">
           <ContactBox
@@ -127,7 +124,7 @@ const Page = ({ params }: { params: { id: string } }) => {
             email={driver.primaryEmail}
           />
         </div>
-        <div className="card w-[70%] space-y-6">
+        {/* <div className="card w-[70%] space-y-6">
           <div>Current Booking</div>
           <div className="flex gap-5">
             <DateInput
@@ -170,7 +167,7 @@ const Page = ({ params }: { params: { id: string } }) => {
             columns={driverVoucherColumns}
             data={filteredTripHistoryData}
           />
-        </div>
+        </div> */}
       </div>
     </div>
   );
@@ -188,7 +185,7 @@ const DateInput = ({
   <div className="flex items-center gap-3 text-sm text-gray-500">
     <label className="mb-1 block">{label}</label>
     <input
-      title="Start Date"
+     title="Start Date"
       type="date"
       value={value ?? ""}
       onChange={(e) => onChange(e.target.value)}
