@@ -5,7 +5,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Driver } from "~/lib/types/driver/type";
 import { Guide } from "~/lib/types/guide/type";
 
-export type Transport = {
+export type OtherTransport = {
   transportType: Driver | Guide | null;
   vehicleType: string;
   startDate: string;
@@ -15,36 +15,43 @@ export type Transport = {
   remarks?: string; // Optional field
 };
 
-export type OtherTransportSearchType = {
-  transportType: 'Sea' | 'Land' | 'Air';
-  vehicleType: string;
-  cityId: number;
-}
+import { format } from "date-fns";
 
-export const columns: ColumnDef<TransportVoucher, unknown>[] = [
+export const otherTransportVoucherLineColumns: ColumnDef<TransportVoucher, unknown>[] = [
   {
     header: "Name",
-    accessorFn: row => row.driver?.name ?? row.guide?.name ?? "-",
+    accessorFn: row => row.otherTransport?.name ?? "-",
   },
   {
     header: "Vehicle",
-    accessorFn: row => row.driverVoucherLine?.vehicleType ?? "-"
+    accessorFn: row => row.otherTransport?.vehicleType ?? "-"
+  },
+  //city
+  {
+    header: "City",
+    accessorFn: row => row.otherTransport?.city.name ?? "-"
+  },
+  //start andend locations
+  {
+    header: "Start Location",
+    accessorFn: row => row.otherTransportVoucherLine?.startLocation ?? "-"
+  },
+  {
+    header: "End Location",
+    accessorFn: row => row.otherTransportVoucherLine?.endLocation ?? "-"
+  },
+  // adults and kids counts
+  {
+    header: "Adults",
+    accessorFn: row => row.otherTransportVoucherLine?.adultsCount ?? "-"
+  },
+  {
+    header: "Kids",
+    accessorFn: row => row.otherTransportVoucherLine?.kidsCount ?? "-"
   },
   {
     header: "Start Date",
-    accessorFn: row => row.voucher?.startDate
-  },
-  {
-    header: "End Date",
-    accessorFn: row => row.voucher.endDate
-  },
-  {
-    header: "Language",
-    accessorFn: row => row.voucher.language
-  },
-  {
-    header: "Type",
-    accessorFn: row => row.driver?.type ?? row.guide?.type ?? "-"
+    accessorFn: row => row.otherTransportVoucherLine?.date ? format(new Date(row.otherTransportVoucherLine.date), 'dd/MM/yyyy') : '-'
   },
   {
     header: "Remarks",
@@ -54,13 +61,6 @@ export const columns: ColumnDef<TransportVoucher, unknown>[] = [
     header: "Status",
     accessorFn: (row) => row.voucher.status
   },
-  // {
-  //   id: "actions",
-  //   header: "",
-  //   cell: ({ row }) => (
-  //     <ActionsDropdown row={row.original} />
-  //   ),
-  // },
 ];
 
 const ActionsDropdown = ({ row }: { row: TransportVoucher }) => {

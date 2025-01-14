@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { EllipsisVertical } from "lucide-react";
-import { TransportVoucher } from "~/app/dashboard/bookings/add/context";
+import { TransportVoucher } from "~/app/dashboard/bookings/[id]/edit/context";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
 import { Driver } from "~/lib/types/driver/type";
 import { Guide } from "~/lib/types/guide/type";

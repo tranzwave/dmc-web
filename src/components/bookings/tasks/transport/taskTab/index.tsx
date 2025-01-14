@@ -29,6 +29,8 @@ import { useOrganization, useUser } from "@clerk/nextjs";
 import { UserResource } from "@clerk/types";
 import VoucherButton from "../../hotelsTaskTab/taskTab/VoucherButton";
 import TourExpenseTrigger from "../tourExpenseSheetTemplate/tourExpenseTrigger";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import OtherTransportTab from "~/components/bookings/editBooking/forms/transportForm/otherTransportTab";
 
 interface TasksTabProps {
   bookingLineId: string;
@@ -293,169 +295,169 @@ const TransportVouchersTab = ({
   }
 
   return (
+    //Shadcn tabs Component
     <div className="flex flex-col items-center justify-center gap-3">
       <div className="flex w-full flex-row justify-center gap-3">
         <div>
           <Calendar />
         </div>
-        <div className="card w-full space-y-6">
-          <div className="flex justify-between">
-            <div className="card-title">Voucher Information</div>
-            <Link href={`${pathname.replace("/tasks", "")}/edit?tab=transport`}>
-              <Button variant={"outline"}>Add Vouchers</Button>
-            </Link>
-          </div>
-          <div className="text-sm font-normal">
-            Click the line to send the voucher
-          </div>
-          <DataTable
-            data={vouchers}
-            columns={voucherColumns}
-            onRowClick={onVoucherRowClick}
-          />
-          {/* <DataTableWithActions
-            data={vouchers}
-            columns={voucherColumns}
-            onRowClick={onVoucherRowClick}
-            onView={() => alert("View action triggered")}
-            onEdit={() => alert("Edit action triggered")}
-            onDelete={() => alert("Delete action triggered")}
-          /> */}
-          <div className="flex flex-row items-center justify-between">
-            <div className="text-sm font-normal">
-              {selectedVoucher
-                ? `${selectedVoucher.driver?.name ?? selectedVoucher.guide?.name} - Voucher`
-                : "Select a voucher from above table"}
-            </div>
+        <Tabs defaultValue="driverAndGuide" className="w-full">
+          <TabsList className="w-[30%]">
+            <TabsTrigger value="driverAndGuide" className="rounded-l-md">Drivers & Guides</TabsTrigger>
+            <TabsTrigger value="otherTransport" className="rounded-r-md">Other Transports</TabsTrigger>
+          </TabsList>
+          <TabsContent value="driverAndGuide" className="w-full px-0">
+              <div className="card w-full space-y-6">
+                <div className="flex justify-between">
+                  <div className="card-title">Voucher Information</div>
+                  <Link href={`${pathname.replace("/tasks", "")}/edit?tab=transport`}>
+                    <Button variant={"outline"}>Add Vouchers</Button>
+                  </Link>
+                </div>
+                <div className="text-sm font-normal">
+                  Click the line to send the voucher
+                </div>
+                <DataTable
+                  data={vouchers}
+                  columns={voucherColumns}
+                  onRowClick={onVoucherRowClick}
+                />
+                <div className="flex flex-row items-center justify-between">
+                  <div className="text-sm font-normal">
+                    {selectedVoucher
+                      ? `${selectedVoucher.driver?.name ?? selectedVoucher.guide?.name} - Voucher`
+                      : "Select a voucher from above table"}
+                  </div>
 
-            {selectedVoucher && bookingData && (
-              <div className="flex flex-row gap-2">
-                <Popup
-                  title={"Log Sheet"}
-                  description="Please click on preview button to get the document"
-                  trigger={<Button variant={"primaryGreen"}>Log Sheet</Button>}
-                  onConfirm={handleConfirm}
-                  onCancel={() => console.log("Cancelled")}
-                  dialogContent={
-                    <ProceedContent
-                      voucherColumns={voucherColumns}
-                      voucher={selectedVoucher}
-                      setStatusChanged={setStatusChanged}
-                      bookingData={bookingData}
-                    />
-                  }
-                  size="large"
+                  {selectedVoucher && bookingData && (
+                    <div className="flex flex-row gap-2">
+                      <Popup
+                        title={"Log Sheet"}
+                        description="Please click on preview button to get the document"
+                        trigger={<Button variant={"primaryGreen"}>Log Sheet</Button>}
+                        onConfirm={handleConfirm}
+                        onCancel={() => console.log("Cancelled")}
+                        dialogContent={
+                          <ProceedContent
+                            voucherColumns={voucherColumns}
+                            voucher={selectedVoucher}
+                            setStatusChanged={setStatusChanged}
+                            bookingData={bookingData}
+                          />
+                        }
+                        size="large"
+                      />
+
+                      <TourExpenseTrigger
+                        bookingData={bookingData}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <DataTable
+                  columns={voucherColumns}
+                  data={selectedVoucher ? [selectedVoucher] : []}
+                  onRowClick={() => console.log("Row clicked")}
                 />
 
-                <TourExpenseTrigger
-                  bookingData={bookingData}
-                />
-              </div>
-            )}
-          </div>
-
-          <DataTable
-            columns={voucherColumns}
-            data={selectedVoucher ? [selectedVoucher] : []}
-            onRowClick={() => console.log("Row clicked")}
-          />
-
-          {/* <DataTableWithActions
-            columns={voucherColumns}
-            data={selectedVoucher ? [selectedVoucher] : []}
-            onRowClick={() => console.log("Row clicked")}
-            onView={() => alert("View action triggered")}
-            onEdit={() => alert("Edit action triggered")}
-            onDelete={() => alert("Delete action triggered")}
-          /> */}
-          <div
-            className={`flex flex-row items-end justify-end ${!selectedVoucher ? "hidden" : ""}`}
-          >
-            <div className="flex flex-row gap-2">
-              {selectedVoucher ? (
-                <div className="flex flex-row gap-2">
-                  <Button
-                    variant={"outline"}
-                    className="border-red-600"
-                    onClick={renderCancelContent}
-                    disabled={isDeleting}
-                  >
-                    {isDeleting ? (
+                
+                <div
+                  className={`flex flex-row items-end justify-end ${!selectedVoucher ? "hidden" : ""}`}
+                >
+                  <div className="flex flex-row gap-2">
+                    {selectedVoucher ? (
                       <div className="flex flex-row gap-2">
-                        <LoaderCircle size={16} />{" "}
-                        <div>
-                          {selectedVoucher.status === "cancelled"
-                            ? "Loading"
-                            : "Cancelling"}
-                        </div>
+                        <Button
+                          variant={"outline"}
+                          className="border-red-600"
+                          onClick={renderCancelContent}
+                          disabled={isDeleting}
+                        >
+                          {isDeleting ? (
+                            <div className="flex flex-row gap-2">
+                              <LoaderCircle size={16} />{" "}
+                              <div>
+                                {selectedVoucher.status === "cancelled"
+                                  ? "Loading"
+                                  : "Cancelling"}
+                              </div>
+                            </div>
+                          ) : (
+                            <div>
+                              {selectedVoucher.status === "cancelled"
+                                ? "Reason"
+                                : "Cancel"}
+                            </div>
+                          )}
+                        </Button>
+
+                        <Popup
+                          title="Contact"
+                          description="Loading Contact Details"
+                          trigger={contactButton}
+                          onConfirm={handleConfirm}
+                          onCancel={() => console.log("Cancelled")}
+                          dialogContent={ContactContent(
+                            selectedVoucher?.driver?.primaryContactNumber ??
+                            selectedVoucher?.guide?.primaryContactNumber ??
+                            "N/A",
+                            selectedVoucher?.driver?.primaryEmail ??
+                            selectedVoucher?.guide?.primaryEmail ??
+                            "N/A",
+                          )}
+                          size="small"
+                        />
+                        <Button
+                          variant={"primaryGreen"}
+                          onClick={handleConfirm}
+                          disabled={isConfirming}
+                        >
+                          Confirm Driver
+                        </Button>
+                        <DeletePopup
+                          itemName={`Voucher for ${selectedVoucher?.driver?.name}`}
+                          onDelete={handleInProgressVoucherDelete}
+                          isOpen={isInProgressVoucherDelete}
+                          setIsOpen={setIsInProgressVoucherDelete}
+                          isDeleting={isDeleting}
+                          description="You haven't confirmed with the driver yet. You can delete the
+                voucher straight away"
+                        />
+                        <DeleteReasonPopup
+                          itemName={`Voucher for ${selectedVoucher?.driver?.name}`}
+                          onDelete={handleProceededVoucherDelete}
+                          isOpen={isProceededVoucherDelete}
+                          setIsOpen={setIsProceededVoucherDelete}
+                          isDeleting={isDeleting}
+                          description={`You have already proceeded with this driver/guide, and it's in the status of ${selectedVoucher.status} \n
+                Are you sure you want to cancel this driver/guide? This will delete the driver from this booking`}
+                        />
+
+                        <CancellationReasonPopup
+                          itemName={`Voucher for ${selectedVoucher?.driver?.name ?? selectedVoucher?.guide?.name}`}
+                          cancellationReason={
+                            selectedVoucher?.reasonToDelete ??
+                            "No reason provided. This is cancelled before confirm."
+                          }
+                          isOpen={isVoucherDelete}
+                          setIsOpen={setIsVoucherDelete}
+                        />
                       </div>
                     ) : (
-                      <div>
-                        {selectedVoucher.status === "cancelled"
-                          ? "Reason"
-                          : "Cancel"}
-                      </div>
+                      ""
                     )}
-                  </Button>
-
-                  <Popup
-                    title="Contact"
-                    description="Loading Contact Details"
-                    trigger={contactButton}
-                    onConfirm={handleConfirm}
-                    onCancel={() => console.log("Cancelled")}
-                    dialogContent={ContactContent(
-                      selectedVoucher?.driver?.primaryContactNumber ??
-                      selectedVoucher?.guide?.primaryContactNumber ??
-                      "N/A",
-                      selectedVoucher?.driver?.primaryEmail ??
-                      selectedVoucher?.guide?.primaryEmail ??
-                      "N/A",
-                    )}
-                    size="small"
-                  />
-                  <Button
-                    variant={"primaryGreen"}
-                    onClick={handleConfirm}
-                    disabled={isConfirming}
-                  >
-                    Confirm Driver
-                  </Button>
-                  <DeletePopup
-                    itemName={`Voucher for ${selectedVoucher?.driver?.name}`}
-                    onDelete={handleInProgressVoucherDelete}
-                    isOpen={isInProgressVoucherDelete}
-                    setIsOpen={setIsInProgressVoucherDelete}
-                    isDeleting={isDeleting}
-                    description="You haven't confirmed with the driver yet. You can delete the
-                voucher straight away"
-                  />
-                  <DeleteReasonPopup
-                    itemName={`Voucher for ${selectedVoucher?.driver?.name}`}
-                    onDelete={handleProceededVoucherDelete}
-                    isOpen={isProceededVoucherDelete}
-                    setIsOpen={setIsProceededVoucherDelete}
-                    isDeleting={isDeleting}
-                    description={`You have already proceeded with this driver/guide, and it's in the status of ${selectedVoucher.status} \n
-                Are you sure you want to cancel this driver/guide? This will delete the driver from this booking`}
-                  />
-
-                  <CancellationReasonPopup
-                    itemName={`Voucher for ${selectedVoucher?.driver?.name ?? selectedVoucher?.guide?.name}`}
-                    cancellationReason={
-                      selectedVoucher?.reasonToDelete ??
-                      "No reason provided. This is cancelled before confirm."
-                    }
-                    isOpen={isVoucherDelete}
-                    setIsOpen={setIsVoucherDelete}
-                  />
+                  </div>
                 </div>
-              ) : (
-                ""
-              )}
+              </div>
+          </TabsContent>
+          <TabsContent value="otherTransport">
+            <div>
+              
             </div>
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
+
       </div>
     </div>
   );

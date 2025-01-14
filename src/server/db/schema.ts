@@ -661,6 +661,10 @@ export const transportVoucher = createTable("transport_vouchers", {
     .notNull(),
   driverId: varchar("driver_id", { length: 255 }).references(() => driver.id),
   guideId: varchar("guide_id", { length: 255 }).references(() => guide.id),
+  //other transport id
+  otherTransportId: varchar("other_transport_id", { length: 255 }).references(
+    () => otherTransport.id,
+  ),
   coordinatorId: varchar("coordinator_id", { length: 255 }),
   // .references(() => user.id),
   status: statusEnum("status").default("inprogress"),
@@ -721,9 +725,16 @@ export const otherTransportVoucherLine = createTable(
     transportVoucherId: varchar("transport_voucher_id", { length: 255 })
       .references(() => transportVoucher.id)
       .notNull(),
+    
+    otherTransportId: varchar("other_transport_id", { length: 255 })
+      .references(() => otherTransport.id)
+      .notNull(),
     //date and time
     date: varchar("date", { length: 100 }).notNull(),
     time: varchar("time", { length: 10 }).notNull(),
+    //Start and end location
+    startLocation: varchar("start_location", { length: 255 }).notNull(),
+    endLocation: varchar("end_location", { length: 255 }).notNull(),
     //adults and kids count
     adultsCount: integer("adults_count").notNull(),
     kidsCount: integer("kids_count").notNull(),
@@ -1113,7 +1124,8 @@ export const otherTransportRelations = relations(
       fields: [otherTransport.cityId],
       references: [city.id],
     }),
-    transportVoucher: many(otherTransportVoucherLine),
+    transportVoucher: many(transportVoucher),
+    otherTransportVoucherLines: many(otherTransportVoucherLine),
   }),
 );
 
@@ -1183,6 +1195,10 @@ export const otherTransportVoucherLineRelations = relations(
       fields: [otherTransportVoucherLine.transportVoucherId],
       references: [transportVoucher.id],
     }),
+    otherTransport: one(otherTransport, {
+      fields: [otherTransportVoucherLine.otherTransportId],
+      references: [otherTransport.id],
+    }),
   }),
 );
 
@@ -1201,6 +1217,10 @@ export const transportVouchersRelations = relations(
     guide: one(guide, {
       fields: [transportVoucher.guideId],
       references: [guide.id],
+    }),
+    otherTransport: one(otherTransport, {
+      fields: [transportVoucher.otherTransportId],
+      references: [otherTransport.id],
     }),
     driverVoucherLines: many(driverVoucherLine),
     guideVoucherLines: many(guideVoucherLine),

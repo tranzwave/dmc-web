@@ -7,7 +7,6 @@ import {
   HotelVoucher,
   RestaurantVoucher,
   ShopVoucher,
-  TransportVoucher,
 } from "~/app/dashboard/bookings/add/context";
 import { db } from "../..";
 import {
@@ -17,8 +16,10 @@ import {
   bookingLine,
   client,
   driverVoucherLine,
+  guideVoucherLine,
   hotelVoucher,
   hotelVoucherLine,
+  otherTransportVoucherLine,
   restaurantVoucher,
   restaurantVoucherLine,
   shopVoucher,
@@ -37,6 +38,7 @@ import {
   SelectRestaurantVoucherLine,
 } from "../../schemaTypes";
 import { TourExpense, TourPacket } from "~/lib/types/booking";
+import { TransportVoucher } from "~/app/dashboard/bookings/[id]/edit/context";
 
 export const getAllBookings = () => {
   return db.query.booking.findMany();
@@ -110,8 +112,15 @@ export const getBookingLineWithAllData = (id: string) => {
         with: {
           driver: true,
           guide: true,
+          otherTransport: {
+            with: {
+              city: true,
+            },
+          },
           guideVoucherLines: true,
           driverVoucherLines: true,
+          otherTransportVoucherLines: true,
+
         },
       },
       activityVouchers: {
@@ -1338,13 +1347,36 @@ export const insertTransportVoucherTx = async (
 
       const voucherId = newVoucher[0]?.id;
 
-      await trx
-        .insert(driverVoucherLine)
-        .values({
-          transportVoucherId: voucherId,
-          vehicleType: currentVoucher.driverVoucherLine?.vehicleType,
-        })
-        .returning();
+      if(currentVoucher.driverVoucherLine) {
+        // Insert into driver_voucher_lines table
+        await trx
+          .insert(driverVoucherLine)
+          .values({
+            transportVoucherId: voucherId,
+            vehicleType: currentVoucher.driverVoucherLine?.vehicleType,
+          })
+          .returning();
+      }
+      else if(currentVoucher.guideVoucherLine) {  
+        // Insert into guide_voucher_lines table
+        await trx
+          .insert(guideVoucherLine)
+          .values({
+            transportVoucherId: voucherId,
+          })
+          .returning();
+      } 
+      else if(currentVoucher.otherTransportVoucherLine) {
+        // Insert into other_transport_voucher_lines table
+        await trx
+          .insert(otherTransportVoucherLine)
+          .values({
+            ...currentVoucher.otherTransportVoucherLine,
+            transportVoucherId: voucherId,
+            
+          })
+          .returning();
+      }
 
       // if (currentVoucher.voucher.guideId === null) {
       //   await trx

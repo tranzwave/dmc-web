@@ -708,7 +708,7 @@ export async function deleteGuideCascade(guideId: string) {
 // Other transport related queries
 
 // Get all other transports
-export const getAllOtherTransports = () => {
+export const getAllOtherTransports = async() => {
   return db.query.otherTransport.findMany(
     {
       with: {
@@ -719,40 +719,40 @@ export const getAllOtherTransports = () => {
 };
 
 // Get other transport by id
-export const getOtherTransportById = (id: string) => {
+export const getOtherTransportById = async(id: string) => {
   return db.query.otherTransport.findFirst({
     where: eq(otherTransport.id, id),
   });
 };
 
 // Get other transport by city
-export const getOtherTransportByCity = (cityId: number) => {
+export const getOtherTransportByCity = async(cityId: number) => {
   db.query.otherTransport.findMany({
     where: eq(otherTransport.cityId, cityId),
   });
 };
 
 //Get other transport by type
-export const getOtherTransportByType = (type: string) => {
+export const getOtherTransportByType = async(type: string) => {
   db.query.otherTransport.findMany({
     where: eq(otherTransport.transportMethod, type),
   });
 };
 
 //Get other transport by vehicle type
-export const getOtherTransportByVehicleType = (vehicleType: string) => {
+export const getOtherTransportByVehicleType = async(vehicleType: string) => {
   db.query.otherTransport.findMany({
     where: eq(otherTransport.vehicleType, vehicleType),
   });
 };
 
 //Get other transport by city, transport method and vehicle type
-export const getOtherTransportByCityTransportAndVehicle = (
+export const getOtherTransportByCityTransportAndVehicle = async(
   cityId: number,
   transportMethod: string,
   vehicleType: string
 ) => {
-  db.query.otherTransport.findMany({
+  return db.query.otherTransport.findMany({
     where: and(
       eq(otherTransport.cityId, cityId),
       eq(otherTransport.transportMethod, transportMethod),
@@ -762,7 +762,7 @@ export const getOtherTransportByCityTransportAndVehicle = (
 };
 
 //Get other transport by city and transport method
-export const getOtherTransportByCityAndTransport = (
+export const getOtherTransportByCityAndTransport = async(
   cityId: number,
   transportMethod: string
 ) => {
@@ -885,7 +885,7 @@ export const deleteOtherTransportCascade = async (id: string) => {
 };
 
 // Get all other transport voucher lines by voucher id
-export const getOtherTransportVoucherLinesByVoucherId = (voucherId: string) =>
+export const getOtherTransportVoucherLinesByVoucherId = async (voucherId: string) =>
   db.query.otherTransportVoucherLine.findMany({
     where: eq(transportVoucher.id, voucherId),
   });
