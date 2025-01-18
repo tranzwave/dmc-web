@@ -6,16 +6,19 @@ await import("./src/env.js");
 
 /** @type {import("next").NextConfig} */
 const config = {
-    images: {
-        remotePatterns: [
-            {
-                protocol: 'https',
-                hostname: 'xsgames.co',
-                port: '',
-                pathname: '/randomusers/avatar.php**',
-            },
-        ],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "img.clerk.com",
+        port: "",
+        pathname: "/**",
       },
+    ],
+  },
+  experimental: {
+    esmExternals: "loose",
+  },
 };
 
 export default config;

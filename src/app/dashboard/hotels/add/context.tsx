@@ -1,22 +1,47 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
-import { InsertHotel, InsertHotelRoom, InsertHotelStaff, InsertMeal, InsertRestaurant } from '~/server/db/schemaTypes';
+import { InsertHotel, InsertHotelRoom, InsertHotelStaff, InsertMeal, InsertRestaurant, SelectCity } from '~/server/db/schemaTypes';
 
+export type Hotel = InsertHotel & {
+  city?: SelectCity;
+};
 
+export type HotelRoom = InsertHotelRoom & {
+  typeName?: string;
+};
+
+export type HotelStaff = InsertHotelStaff & {
+  name?: string;
+};
+
+// Interface for RestaurantDetails
+export interface HotelDetails {
+  general: Hotel;
+  hotelRoom: HotelRoom[];
+  hotelStaff: HotelStaff[];
+}
 
 // Define the shape of the context
 interface AddHotelContextProps {
-  hotelGeneral: InsertHotel;
+  hotelGeneral: InsertHotel & {city?:string};
   hotelRooms: InsertHotelRoom[];
   hotelStaff: InsertHotelStaff[];
   restaurants: InsertRestaurant[];
   restaurantMeals: InsertMeal[];
   activeTab: string;
+  deleteStaff: (name:string, email: string) => void;
+  deleteRoom: (typeName: string, roomType: string, count:number, amenities:string, floor:number, bedCount:number) => void;
   setActiveTab: (tab: string) => void;
-  setHotelGeneral: (hotel: InsertHotel) => void;
+  setHotelGeneral: (hotel: InsertHotel & {city?:string}) => void;
   addHotelRoom: (room: InsertHotelRoom) => void;
   addHotelStaff: (staff: InsertHotelStaff) => void;
   addRestaurant: (restaurant: InsertRestaurant) => void;
   addRestaurantMeal: (meal: InsertMeal, restaurantName:string) => void;
+  duplicateHotelRoom: (typeName: string, roomType: string, count:number, amenities:string, floor:number, bedCount:number) => void;
+  duplicateHotelStaff: (name:string, email: string)=>void
+
+  //Bulk hotel rooms data setter and bulk hotel staff data setter
+  addBulkHotelRooms: (rooms: InsertHotelRoom[]) => void;
+  addBulkHotelStaff: (staff: InsertHotelStaff[]) => void;
 }
 
 // Provide default values
@@ -49,6 +74,12 @@ export const defaultHotelRoom: InsertHotelRoom = {
   id: undefined, 
 };
 
+const defaultHotelDetails: HotelDetails = {
+  general: defaultHotelGeneral,
+  hotelRoom: [],
+  hotelStaff: []
+};
+
 const defaultHotelRooms: InsertHotelRoom[] = [];
 const defaultHotelStaff: InsertHotelStaff[] = [];
 const defaultRestaurants: InsertRestaurant[] = [];
@@ -58,6 +89,7 @@ const defaultRestaurantMeals: InsertMeal[] = [];
 const AddHotelContext = createContext<AddHotelContextProps | undefined>(undefined);
 
 export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [hotelDetails, setHotelDetails] = useState<HotelDetails>(defaultHotelDetails);
   const [hotelGeneral, setHotelGeneral] = useState<InsertHotel>(defaultHotelGeneral);
   const [hotelRooms, setHotelRooms] = useState<InsertHotelRoom[]>(defaultHotelRooms);
   const [hotelStaff, setHotelStaff] = useState<InsertHotelStaff[]>(defaultHotelStaff);
@@ -66,8 +98,25 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [activeTab, setActiveTab] = useState<string>("general");
 
   const addHotelRoom = (room: InsertHotelRoom) => {
+    //Check whether the room already exists
+    console.log("Adding room:", room);
+    const existingRoom = hotelRooms.find(
+      (r) => (r.typeName === room.typeName && r.roomType === room.roomType && r.count === room.count && r.amenities === room.amenities && r.floor === room.floor && r.bedCount === room.bedCount) || r.id === room.id
+    );
+    if (existingRoom) {
+      console.error(`Room with typeName "${room.typeName}" and roomType "${room.roomType}" already exists.`);
+      return;
+    }
     setHotelRooms(prev => [...prev, room]);
   };
+
+  const addBulkHotelRooms = (rooms: InsertHotelRoom[]) => {
+    setHotelRooms(rooms);
+  }
+
+  const addBulkHotelStaff = (staff: InsertHotelStaff[]) => {
+    setHotelStaff(staff);
+  }
 
   const addHotelStaff = (staff: InsertHotelStaff) => {
     setHotelStaff(prev => [...prev, staff]);
@@ -87,6 +136,58 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
     )
   );
   };
+  
+
+  const duplicateHotelRoom = (typeName: string, roomType: string, count:number, amenities:string, floor:number, bedCount:number) => {
+    const hotelRoomToDuplicate = hotelRooms.find(
+      (room) => room.typeName === typeName && room.roomType === roomType  && room.count === count  && room.amenities === amenities && room.floor === floor && room.bedCount === bedCount
+    );
+  
+    if (hotelRoomToDuplicate) {
+      const duplicatedHotelRoom = {
+        ...hotelRoomToDuplicate,
+        id: undefined,
+        typeName: `${hotelRoomToDuplicate.typeName}`,
+        roomType: `${hotelRoomToDuplicate.roomType}`,
+      };
+  
+      setHotelRooms((prev) => [...prev, duplicatedHotelRoom]);
+      console.log("Duplicated hotel room added:", duplicatedHotelRoom);
+    } else {
+      console.error(`Room with typeName "${typeName}" and roomType "${roomType}" not found.`);
+    }
+  };
+  
+
+  const duplicateHotelStaff = (name: string, email: string,) => {
+    const hotelStaffToDuplicate = hotelStaff.find(
+      (staff) => staff.name === name && staff.email === email
+    );
+  
+    if (hotelStaffToDuplicate) {
+      const duplicatedHotelStaff = {
+        ...hotelStaffToDuplicate,
+        id: undefined,
+        name: `${hotelStaffToDuplicate.name}`, 
+        primaryEmail: `${hotelStaffToDuplicate.email.replace(/@/, '_copy@')}`,
+      };
+  
+      setHotelStaff((prev) => [...prev, duplicatedHotelStaff]);
+      console.log("Duplicated hotel staff added:", duplicatedHotelStaff);
+    } else {
+      console.error(`Staff with name "${name}" and email "${email}" not found.`);
+    }
+  };
+
+  const deleteRoom = (typeName: string, roomType: string, count:number, amenities:string, floor:number, bedCount:number) => {
+    // alert(`Deleting room with typeName: ${typeName}, roomType: ${roomType}`);
+    setHotelRooms((prev) => prev.filter((room) => !(room.typeName === typeName && room.roomType === roomType && room.count === count  && room.amenities === amenities && room.floor === floor && room.bedCount === bedCount)));
+  };
+
+  const deleteStaff = (name: string, email: string) => {
+    alert(`Deleting staff with name: ${name}, email: ${email}`);
+    setHotelStaff((prev) => prev.filter((staff) => !(staff.name === name && staff.email === email)));
+  };
 
   return (
     <AddHotelContext.Provider
@@ -97,12 +198,19 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
         restaurants,
         restaurantMeals,
         activeTab,
+        deleteStaff,
+        deleteRoom,
         setActiveTab,
         setHotelGeneral,
-        addHotelRoom,
         addHotelStaff,
+        addHotelRoom,
         addRestaurant,
-        addRestaurantMeal
+        addRestaurantMeal,
+        duplicateHotelRoom,
+        duplicateHotelStaff,
+        addBulkHotelRooms,
+        addBulkHotelStaff
+        
       }}
     >
       {children}

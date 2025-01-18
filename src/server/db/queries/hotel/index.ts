@@ -10,11 +10,12 @@ import {
   hotelVoucher,
   hotelVoucherLine,
 } from "~/server/db/schema";
-import { and, eq, inArray, SQL, sql } from "drizzle-orm";
+import { and, eq, inArray, or, SQL, sql } from "drizzle-orm";
 import {
   InsertHotel,
   InsertHotelRoom,
   InsertHotelStaff,
+  SelectCity,
   SelectHotel,
   SelectHotelRoom,
   SelectHotelStaff,
@@ -27,8 +28,9 @@ export type CompleteHotel = {
   hotelStaffs: InsertHotelStaff[];
 };
 
-export const getAllHotels = () => {
+export const getAllHotels = (tenantId:string) => {
   return db.query.hotel.findMany({
+    where: eq(hotel.tenantId, tenantId),
     columns: {
       cityId: false,
     },
@@ -42,8 +44,10 @@ export const getAllHotels = () => {
   });
 };
 
-export const getAllHotelsV2 = () => {
-  return db.query.hotel.findMany();
+export const getAllHotelsV2 = (tenantId:string) => {
+  return db.query.hotel.findMany({
+    where:eq(hotel.tenantId, tenantId),
+  });
 };
 
 export const getHotelByIdQuery = (id: string) => {
@@ -109,10 +113,11 @@ export const getHotelVouchersForHotel = (hotelId: string) => {
 export const getVoucherLinesByHotelId = async (hotelId: string) => {
   const voucherLines = await db
     .select({
-      voucherLineId: hotelVoucherLine.id,
+      id: hotelVoucherLine.id,
       hotelVoucherId: hotelVoucherLine.hotelVoucherId,
       rate: hotelVoucherLine.rate,
       roomType: hotelVoucherLine.roomType,
+      roomCategory:hotelVoucherLine.roomCategory,
       basis: hotelVoucherLine.basis,
       checkInDate: hotelVoucherLine.checkInDate,
       checkInTime: hotelVoucherLine.checkInTime,
@@ -133,10 +138,11 @@ export const getVoucherLinesByHotelId = async (hotelId: string) => {
     .where(eq(hotelVoucher.hotelId, hotelId));
 
   return voucherLines.map((row) => ({
-    voucherLineId: row.voucherLineId,
+    id: row.id,
     hotelVoucherId: row.hotelVoucherId,
     rate: row.rate,
     roomType: row.roomType,
+    roomCategory: row.roomCategory,
     basis: row.basis,
     checkInDate: row.checkInDate,
     checkInTime: row.checkInTime,
@@ -152,19 +158,22 @@ export const getVoucherLinesByHotelId = async (hotelId: string) => {
 };
 
 export async function insertHotel(hotels: CompleteHotel[]) {
-  //Fetch a tenant
-  const foundTenant = await db.query.tenant.findFirst();
-
-  if (!foundTenant) {
-    throw new Error("Couldn't find any tenant");
-  }
-
-  // Fetch or create city
   const cities = await Promise.all(
     hotels.map(async (currentHotel) => {
       const foundCity = await db.query.city.findFirst({
-        where: eq(city.id, currentHotel.hotel.cityId),
+        where: or(
+          eq(city.id, currentHotel.hotel.cityId),
+          eq(city.name, currentHotel.hotel.city ?? "")
+        ),
       });
+
+      const foundTenant = await db.query.tenant.findFirst({
+        where: eq(tenant.id, currentHotel.hotel.tenantId),
+      });
+
+      if (!foundTenant) {
+        throw new Error("Couldn't find any tenant");
+      }
 
       if (!foundCity) {
         // Create a new city if it does not exist
@@ -197,7 +206,7 @@ export async function insertHotel(hotels: CompleteHotel[]) {
   const newHotels = await Promise.all(
     hotels.map(async (currentHotel) => {
       const cityObject = citiesList.find(
-        (city) => city?.id === currentHotel.hotel.cityId,
+        (city) => city?.id === currentHotel.hotel.cityId || city?.name === currentHotel.hotel.city,
       );
 
       if (!cityObject) {
@@ -219,7 +228,7 @@ export async function insertHotel(hotels: CompleteHotel[]) {
           .insert(hotel)
           .values({
             ...currentHotel.hotel,
-            tenantId: foundTenant.id,
+            tenantId: currentHotel.hotel.tenantId,
             cityId: cityObject.id,
           })
           .returning({
@@ -264,9 +273,14 @@ export async function insertOrUpdateHotel(hotels: CompleteHotel[]) {
   // Fetch or create city
   const cities = await Promise.all(
     hotels.map(async (currentHotel) => {
-      const foundCity = await db.query.city.findFirst({
-        where: eq(city.id, currentHotel.hotel.cityId),
-      });
+      const foundCity: SelectCity[] = await db.select().from(city).where(
+        or(
+        eq(city.id, currentHotel.hotel.cityId),
+        eq(city.name, currentHotel.hotel.city ?? "")
+        )
+      )
+
+      console.log(foundCity);
 
       if (!foundCity) {
         // Create a new city if it does not exist
@@ -276,7 +290,7 @@ export async function insertOrUpdateHotel(hotels: CompleteHotel[]) {
         const newCity = await db
           .insert(city)
           .values({
-            name: currentHotel.hotel.city ?? "",
+            name: currentHotel.hotel.city,
             country: foundTenant.country,
           })
           .returning({
@@ -287,7 +301,7 @@ export async function insertOrUpdateHotel(hotels: CompleteHotel[]) {
         return newCity[0];
       }
 
-      return foundCity;
+      return foundCity[0];
     }),
   );
 
@@ -299,7 +313,7 @@ export async function insertOrUpdateHotel(hotels: CompleteHotel[]) {
   const updatedHotels = await Promise.all(
     hotels.map(async (currentHotel) => {
       const cityObject = citiesList.find(
-        (city) => city?.id === currentHotel.hotel.cityId,
+        (currentCity) => currentCity?.id === currentHotel.hotel.cityId,
       );
 
       if (!cityObject) {
@@ -440,7 +454,7 @@ export async function insertOrUpdateHotel(hotels: CompleteHotel[]) {
 
 export async function updateHotelAndRelatedData(
   hotelId: string,
-  updatedHotel: InsertHotel,
+  updatedHotel: InsertHotel & { city?: string },
   updatedRooms: InsertHotelRoom[],
   updatedStaff: InsertHotelStaff[]
 ) {
@@ -449,12 +463,49 @@ export async function updateHotelAndRelatedData(
 
   // Begin a transaction
   const updated = await db.transaction(async (trx) => {
+
+    //Insert new city if cityId is 0
+    let newCity : {id:number, name:string}[] = [{id:-1, name:""}];
+    if(updatedHotel.cityId === 0){
+      // Create a new city if it does not exist
+      const foundTenant = await trx
+        .query.tenant.findFirst({
+          where: eq(tenant.id, updatedHotel.tenantId),
+        });
+
+      if (!foundTenant) {
+        throw new Error("Couldn't find any tenant");
+      }
+
+      if (!updatedHotel.city) {
+        throw new Error("Couldn't add city");
+      }
+      newCity = await trx
+        .insert(city)
+        .values({
+          country: foundTenant.country,
+          name: updatedHotel.city,
+        })
+        .returning({
+          id: city.id,
+          name: city.name,
+        });
+
+      if(newCity.length === 0 || newCity[0]?.id === -1){
+        throw new Error("Couldn't add city");
+      }
+    }
     // Update the hotel
     const updatedHotelResult = await trx
       .update(hotel)
       .set({
         name: updatedHotel.name,
         stars: updatedHotel.stars,
+        primaryEmail: updatedHotel.primaryEmail,
+        primaryContactNumber: updatedHotel.primaryContactNumber,
+        streetName: updatedHotel.streetName,
+        cityId: updatedHotel.cityId === 0 ? newCity[0]?.id : updatedHotel.cityId,
+        province: updatedHotel.province
       })
       .where(eq(hotel.id, hotelId))
       .returning({ updatedId: hotel.id });

@@ -6,7 +6,7 @@ import { DriverData } from "~/app/dashboard/transport/[id]/edit/page";
 import { useAddTransport } from "~/app/dashboard/transport/add/context";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
-import { insertDriver, updateDriverAndRelatedData } from "~/server/db/queries/transport";
+import { updateDriverAndRelatedData } from "~/server/db/queries/transport";
 import { InsertDriver, InsertLanguage, InsertVehicle } from "~/server/db/schemaTypes";
 
 const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriverData:DriverData | null}) => {
@@ -35,12 +35,13 @@ const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriv
             cityId: Number(general.city),
             driversLicense: documents.driverLicense,
             insurance: documents.insurance,
-            isGuide: general.guide,
+            type: general.type,
             guideLicense: documents.guideLicense,
             accommodationAllowance: charges.accommodationAllowance,
             fuelAllowance:charges.fuelAllowance,
             mealAllowance:charges.mealAllowance,
             feePerKM:charges.feePerKm,
+            feePerDay:charges.feePerDay,
             createdAt:originalDriverData?.createdAt ?? new Date("22/10/2022"),
             id: originalDriverData?.id ?? ""
         }]
@@ -146,7 +147,8 @@ const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriv
                     </tbody>
                 </table>
             </div>
-
+            {general.type !== "Guide" && (
+                <>
             {/* Vehicles Section */}
             <div className="bg-primary-green text-white font-bold text-sm p-1 rounded-t-xl w-24 flex justify-center items-center">
                 <div>Vehicles</div>
@@ -211,6 +213,10 @@ const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriv
                             <td className="border px-4 py-2 w-1/2 ">{charges.feePerKm}</td>
                         </tr>
                         <tr>
+                            <td className="border px-4 py-2 font-bold w-1/2 ">Fee Per Day:</td>
+                            <td className="border px-4 py-2 w-1/2 ">{charges.feePerDay}</td>
+                        </tr>
+                        <tr>
                             <td className="border px-4 py-2 font-bold">Fuel Allowance:</td>
                             <td className="border px-4 py-2">{charges.fuelAllowance}</td>
                         </tr>
@@ -237,6 +243,8 @@ const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriv
                             <td className="border px-4 py-2 font-bold w-1/2 ">Driver License:</td>
                             <td className="border px-4 py-2 w-1/2 ">{documents.driverLicense}</td>
                         </tr>
+                        {general.type !== "Driver" && (
+                            <>
                         <tr>
                             <td className="border px-4 py-2 font-bold">Guide License:</td>
                             <td className="border px-4 py-2">{documents.guideLicense}</td>
@@ -249,9 +257,13 @@ const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriv
                             <td className="border px-4 py-2 font-bold">Insurance:</td>
                             <td className="border px-4 py-2">{documents.insurance}</td>
                         </tr>
+                        </>
+                        )}
                     </tbody>
                 </table>
             </div>
+            </>
+            )}
 
             {/* Submit Button */}
             <div className="flex w-full justify-center mt-4">

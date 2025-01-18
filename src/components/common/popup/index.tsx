@@ -24,7 +24,7 @@ const Popup: React.FC<PopupProps> = ({
   const sizeClass = {
     small: "w-[30%] max-w-[1500px]",
     medium: "w-[50%] max-w-[1500px]",
-    large: "w-[80%] max-w-[1500px]",
+    large: "w-[80%] max-w-[1500px] max-h-[95%] overflow-y-scroll",
   }[size];
 
   return (

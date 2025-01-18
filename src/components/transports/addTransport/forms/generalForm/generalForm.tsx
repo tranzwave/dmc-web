@@ -1,8 +1,12 @@
 "use client";
 
+import { useOrganization } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import { z } from "zod";
 import { useAddTransport } from "~/app/dashboard/transport/add/context";
 import { Button } from "~/components/ui/button";
@@ -15,7 +19,13 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { getAllCities } from "~/server/db/queries/activities";
 import { getAllLanguages } from "~/server/db/queries/transport";
 import { SelectCity, SelectLanguage } from "~/server/db/schemaTypes";
@@ -23,13 +33,19 @@ import { SelectCity, SelectLanguage } from "~/server/db/schemaTypes";
 // Define the schema for form validation
 export const generalSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  language: z.string().min(1, "Activity is required"),
+  language: z.string().min(1, "Language is required"),
   primaryEmail: z.string().email("Invalid email address"),
-  primaryContactNumber: z.string().min(1, "Contact number is required"),
+  primaryContactNumber: z.string().refine(
+    (value) => {
+      const phoneNumber = parsePhoneNumberFromString(value);
+      return phoneNumber?.isValid() ?? false;
+    },
+    { message: "Invalid phone number" },
+  ),
   streetName: z.string().min(1, "Street name is required"),
   city: z.string().min(1, "City is required"),
   province: z.string().min(1, "Province is required"),
-  guide: z.boolean().default(false),
+  type: z.string().min(1, "Type is required"),
   includes: z.object({
     vehicles: z.boolean(),
     charges: z.boolean(),
@@ -51,26 +67,32 @@ const GeneralForm = () => {
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState<SelectCity[]>([]);
-  const [languages, setLanguages] = useState<SelectLanguage[]>([])
-  const { setGeneralDetails, transportDetails, setActiveTab } = useAddTransport();
+  const [languages, setLanguages] = useState<SelectLanguage[]>([]);
+  const { setGeneralDetails, transportDetails, setActiveTab } =
+    useAddTransport();
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
     defaultValues: transportDetails.general,
   });
+  const {memberships, organization, isLoaded} = useOrganization();
+
 
   const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
     console.log(data);
     setGeneralDetails(data);
-    setActiveTab("vehicles")
+    setActiveTab("vehicles");
   };
 
   const fetchData = async () => {
     try {
       // Run both requests in parallel
       setLoading(true);
-      const [citiesResponse, languagesResponse] =
-        await Promise.all([getAllCities("LK"), getAllLanguages()]);
+      const country = organization?.publicMetadata.country as string ?? "LK";
 
+      const [citiesResponse, languagesResponse] = await Promise.all([
+        getAllCities(country),
+        getAllLanguages(),
+      ]);
 
       if (!citiesResponse) {
         throw new Error("Error fetching cities");
@@ -83,9 +105,8 @@ const GeneralForm = () => {
       console.log("Fetched cities:", citiesResponse);
       console.log("Fetched langs:", languagesResponse);
 
-
       setCities(citiesResponse);
-      setLanguages(languagesResponse)
+      setLanguages(languagesResponse);
 
       setLoading(false);
     } catch (error) {
@@ -101,6 +122,10 @@ const GeneralForm = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  if (loading || !isLoaded) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Form {...form}>
@@ -180,10 +205,12 @@ const GeneralForm = () => {
               <FormItem>
                 <FormLabel>Contact Number</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="Enter contact number"
-                    {...field}
+                <PhoneInput
+                    country={"us"}
+                    value={field.value}
+                    onChange={(phone) => field.onChange(`+${phone}`)}
+                    inputClass="w-full shadow-md"
+                    inputStyle={{ width: "inherit" }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -220,26 +247,26 @@ const GeneralForm = () => {
                     <FormControl>
                       {/* <Input placeholder="Enter city" {...field} /> */}
                       <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
-                    value={field.value}
-                    defaultValue={form.getValues("city")}
-                  >
-                    <SelectTrigger className="bg-slate-100 shadow-md">
-                      <SelectValue placeholder="Select city"/>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {cities.map((city) => (
-                        <SelectItem
-                          key={city.id}
-                          value={String(city.id ?? 0) ?? "0"}
-                        >
-                          {city.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                        }}
+                        value={field.value}
+                        defaultValue={form.getValues("city")}
+                      >
+                        <SelectTrigger className="bg-slate-100 shadow-md">
+                          <SelectValue placeholder="Select city" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {cities.map((city) => (
+                            <SelectItem
+                              key={city.id}
+                              value={String(city.id ?? 0) ?? "0"}
+                            >
+                              {city.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -260,22 +287,28 @@ const GeneralForm = () => {
               />
 
               <FormField
-                name="guide"
+                name="type"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Guide</FormLabel>
+                    <FormLabel>Type</FormLabel>
                     <FormControl>
-                      {/* <Input placeholder="Enter guid" {...field} /> */}
-                      <Select onValueChange={(value)=>field.onChange(value === "Yes")} value={field.value ? "Yes" :"No"}>
-                    <SelectTrigger className="bg-slate-100 shadow-md">
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={"Yes"}>Yes</SelectItem>
-                      <SelectItem value={"No"}>No</SelectItem>
-                    </SelectContent>
-                  </Select>
+                      <Select
+                        onValueChange={(value) => field.onChange(value)}
+                        value={
+                          typeof field.value === "string"
+                            ? field.value
+                            : undefined
+                        }
+                      >
+                        <SelectTrigger className="bg-slate-100 shadow-md">
+                          <SelectValue placeholder="Select type"/>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Driver">Driver</SelectItem>
+                          <SelectItem value="Chauffeur">Chauffeur</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

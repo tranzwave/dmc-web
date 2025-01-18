@@ -1,0 +1,116 @@
+{
+  "hotel-structure": {
+    "hotel": {
+      "tenantId": "tenant1",
+      "name": "The Grand Colombo",
+      "stars": 5,
+      "primaryEmail": "contact@grandcolombo.com",
+      "primaryContactNumber": "+94112345678",
+      "streetName": "Galle Road",
+      "city": "Colombo",
+      "province": "Western Province",
+      "hasRestaurant": true
+    },
+    "hotelRooms": [
+      {
+        "hotelId": "hotel1",
+        "roomType": "Deluxe",
+        "typeName": "Deluxe King Room",
+        "count": 10,
+        "amenities": "Free Wi-Fi, Air Conditioning, Mini Bar",
+        "floor": 5,
+        "bedCount": 1,
+        "additionalComments": "Sea view"
+      },
+      {
+        "hotelId": "hotel1",
+        "roomType": "Standard",
+        "typeName": "Standard Double Room",
+        "count": 20,
+        "amenities": "Free Wi-Fi, Air Conditioning",
+        "floor": 3,
+        "bedCount": 2,
+        "additionalComments": "City view"
+      }
+    ],
+    "hotelStaffs": [
+      {
+        "hotelId": "hotel1",
+        "name": "John Smith",
+        "email": "john.smith@grandcolombo.com",
+        "contactNumber": "+94112345679",
+        "occupation": "Manager"
+      },
+      {
+        "hotelId": "hotel1",
+        "name": "Sarah Johnson",
+        "email": "sarah.johnson@grandcolombo.com",
+        "contactNumber": "+94112345680",
+        "occupation": "Front Desk Officer"
+      }
+    ]
+  },
+
+  "restaurant-structure": {
+    "restaurant": {
+      "tenantId": "tenant1",
+      "hotelId": "hotel1",
+      "name": "The Gourmet Kitchen",
+      "streetName": "Ocean Drive",
+      "city": "Colombo",
+      "province": "Western Province",
+      "contactNumber": "+94112233456"
+    },
+    "restaurantMeals": [
+      {
+        "restaurantId": "restaurant1",
+        "mealType": "Breakfast",
+        "startTime": "07:00 AM",
+        "endTime": "10:00 AM"
+      },
+      {
+        "restaurantId": "restaurant1",
+        "mealType": "Lunch",
+        "startTime": "12:00 PM",
+        "endTime": "03:00 PM"
+      },
+      {
+        "restaurantId": "restaurant1",
+        "mealType": "Dinner",
+        "startTime": "07:00 PM",
+        "endTime": "10:00 PM"
+      }
+    ]
+  },
+
+  "shops-structure": {
+    "tenantId": "tenant1",
+    "name": "The Book Nook",
+    "streetName": "123 Literary Lane",
+    "city": "Colombo",
+    "province": "Western Province",
+    "contactNumber": "+94112233456",
+    "shopTypes": [
+      {
+        "name": "Bookstore"
+      }
+    ]
+  },
+
+  "activities-structure": {
+    "tenantId": "tenant1",
+    "name": "Adventure Co.",
+    "streetName": "123 Adventure Lane",
+    "city": "Colombo",
+    "province": "Western Province",
+    "contactNumber": "+94112233456",
+    "primaryEmail": "test@gmail.com",
+    "activities": [
+      {
+        "activityType": "adventure",
+        "name": "Mountain Hiking",
+        "capacity": 20
+      }
+    ]
+  }
+}

@@ -1,14 +1,12 @@
-'use client'
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useEffect } from 'react';
-import GeneralTab from '~/components/activities/addActivity/forms/generalForm';
-import SubmitForm from '~/components/activities/addActivity/forms/submitForm';
-import TitleBar from '~/components/common/titleBar';
-import { Button } from '~/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
-import { AddActivityProvider, useAddActivity } from './context';
-import ActivityTab from '~/components/activities/addActivity/forms/activityForm';
+"use client";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+import ActivityTab from "~/components/activities/addActivity/forms/activityForm";
+import GeneralTab from "~/components/activities/addActivity/forms/generalForm";
+import SubmitForm from "~/components/activities/addActivity/forms/submitForm";
+import TitleBar from "~/components/common/titleBar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { AddActivityProvider, useAddActivity } from "./context";
 
 // const SubmitForm = () => {
 //   const { activityDetails } = useAddAgent();
@@ -34,37 +32,58 @@ import ActivityTab from '~/components/activities/addActivity/forms/activityForm'
 
 const AddActivityVendor = () => {
   const pathname = usePathname();
-  const { setGeneralDetails } = useAddActivity();
+  const { activityVendorDetails, activeTab, setActiveTab } = useAddActivity();
 
   useEffect(() => {
-    console.log('Add Activity Component');
+    console.log("Add Activity Component");
   }, []);
 
   return (
     <div className="flex">
       <div className="flex-1">
         <div className="flex flex-col gap-3">
-          <div className="flex flex-row gap-1 w-full justify-between">
+          <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title="Add Activity Vendor" link="toAddActivity" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
-          <div className='w-full'>
-            <Tabs defaultValue="general" className="w-full border">
-              <TabsList className='flex justify-evenly w-full'>
-                <TabsTrigger value="general" statusLabel="Mandatory">General</TabsTrigger>
-                <TabsTrigger value="activities" statusLabel="Mandatory">Activities</TabsTrigger>
-                <TabsTrigger value="submit">Submit</TabsTrigger>
+          <div className="w-full">
+            <Tabs defaultValue="general" className="w-full border" value={activeTab}>
+              <TabsList className="flex w-full justify-evenly">
+                <TabsTrigger
+                  value="general"
+                  isCompleted={false}
+                  onClick={() => setActiveTab("general")}
+                  inProgress={activeTab == "general"}
+                >
+                  General
+                </TabsTrigger>
+                <TabsTrigger
+                  value="activities"
+                  statusLabel="Mandatory"
+                  isCompleted={activityVendorDetails.activities.length > 0}
+                  inProgress={activeTab == "activities"}
+                  disabled={!activityVendorDetails.general.streetName}
+                >
+                  Activities
+                </TabsTrigger>
+                <TabsTrigger
+                  value="submit"
+                  isCompleted={false}
+                  disabled={activityVendorDetails.activities.length == 0}
+                >
+                  Submit
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="general">
                 {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
-                <GeneralTab/>
+                <GeneralTab />
               </TabsContent>
               <TabsContent value="activities">
-                <ActivityTab/>
+                <ActivityTab />
               </TabsContent>
               <TabsContent value="submit">
                 <SubmitForm />

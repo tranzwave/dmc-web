@@ -1,18 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
   DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "~/components/ui/dialog";
-import { deleteHotelCascade } from "~/server/db/queries/hotel";
 import { useToast } from "~/hooks/use-toast";
+import { deleteHotelCascade } from "~/server/db/queries/hotel";
 
 export default function DeleteHotelPage({ params }: { params: { id: string } }) {
   const [isDialogOpen, setIsDialogOpen] = useState(true); // Dialog initially open
@@ -28,7 +28,7 @@ export default function DeleteHotelPage({ params }: { params: { id: string } }) 
       if(!response){
         throw new Error("Couldn't delete hotel")
       }
-      alert(response)
+      // alert(response)
       setLoading(false);
       router.push("/dashboard/hotels");
     } catch (error) {

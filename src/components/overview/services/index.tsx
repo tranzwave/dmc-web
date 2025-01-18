@@ -9,9 +9,9 @@ type Service = {
 };
 
 const services: Service[] = [
-  { icon: <Car size={50} color='#636363' />, title: 'Transport' },
-  { icon: <Home size={50} color='#636363' />, title: 'Hotels' },
   { icon: <Book size={50} color='#636363' />, title: 'Bookings' },
+  { icon: <Home size={50} color='#636363' />, title: 'Hotels' },
+  { icon: <Car size={50} color='#636363' />, title: 'Transport' },
   { icon: <Activity size={50} color='#636363' />, title: 'Activities' },
   { icon: <Notebook size={50} color='#636363' />, title: 'Reports' },
   { icon: <Users size={50} color='#636363' />, title: 'Agents' },

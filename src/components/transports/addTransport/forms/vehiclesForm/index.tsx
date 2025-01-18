@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { useAddTransport } from "~/app/dashboard/transport/add/context";
-import { DataTable } from "~/components/bookings/home/dataTable";
+import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 import { Button } from "~/components/ui/button";
 import { columns, Vehicles } from "./columns";
 import VehiclesForm from "./vehiclesForm";
-import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 
 const VehiclesTab = () => {
   const [addedVehicle, setAddedVehicle] = useState<Vehicles[]>([]);
@@ -18,7 +17,7 @@ const VehiclesTab = () => {
     vrl: "",
   });
 
-  const { addVehicles, transportDetails, setActiveTab, deleteVehicle } =
+  const { addVehicles, transportDetails, setActiveTab, deleteVehicle, duplicateVehicle } =
     useAddTransport();
 
   const updateVehicles = (vehicles: Vehicles) => {
@@ -38,6 +37,10 @@ const VehiclesTab = () => {
   const onRowEdit = (row: Vehicles) => {
     console.log(row);
     setSelectedVehicle(row);
+  };
+
+  const onRowDuplicate = (row: Vehicles) => {
+    duplicateVehicle(row.numberPlate);
   };
 
   const onRowDelete = (row: Vehicles) => {
@@ -62,7 +65,7 @@ const VehiclesTab = () => {
             onDelete={onRowDelete}
             onEdit={onRowEdit}
             onRowClick={onRowEdit}
-            onDuplicate={onRowEdit}
+            onDuplicate={onRowDuplicate}
           />
         </div>
         <div className="flex w-full justify-end">

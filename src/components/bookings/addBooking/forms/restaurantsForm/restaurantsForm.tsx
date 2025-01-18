@@ -1,5 +1,6 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
@@ -12,14 +13,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Restaurant } from "./columns";
-import {
-  InsertRestaurantVoucherLine,
-  SelectMeal,
-  SelectRestaurant,
-  SelectRestaurantVoucherLine,
-} from "~/server/db/schemaTypes";
-import { restaurant } from "~/server/db/schema";
 import {
   Select,
   SelectContent,
@@ -27,10 +20,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { useEffect, useState } from "react";
-import { getMeals } from "~/server/db/queries/booking/restaurantVouchers";
+import {
+  InsertRestaurantVoucherLine,
+  SelectMeal,
+  SelectRestaurant
+} from "~/server/db/schemaTypes";
 import { RestaurantData } from ".";
-import { RestaurantVoucher } from "~/app/dashboard/bookings/add/context";
+import { CalendarIcon, LoaderCircle } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
+import { cn } from "~/lib/utils";
+import { format, parse } from "date-fns";
+import { Calendar } from "~/components/ui/calendar";
+import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 
 interface RestaurantFormProps {
   onAddRestaurant: (
@@ -38,8 +39,16 @@ interface RestaurantFormProps {
     restaurant: RestaurantData,
   ) => void;
   restaurants: RestaurantData[];
-  defaultValues:InsertRestaurantVoucherLine | null;
-  lockedVendorId?:string
+  defaultValues: 
+  | (InsertRestaurantVoucherLine & {
+    restaurant: SelectRestaurant;
+  })
+| null
+| undefined;
+  lockedVendorId?: string;
+  amendment?: boolean;  // Add this to include 'amendment'
+  isUpdating?: boolean
+  isSaving?: boolean
 }
 
 export const restaurantSchema = z.object({
@@ -49,7 +58,7 @@ export const restaurantSchema = z.object({
     kids: z.number().min(0, "Kids quantity is required"),
   }),
   date: z.string().min(1, "Date is required"),
-  time: z.string().min(1, "Time is required"),
+  time: z.string().optional().or(z.literal("12:00")),
   mealType: z.string().min(1, "Meal type is required"),
   remarks: z.string().optional(), // Optional field
 });
@@ -58,14 +67,19 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
   onAddRestaurant,
   restaurants,
   defaultValues,
-  lockedVendorId
+  lockedVendorId,
+  amendment,
+  isUpdating,
+  isSaving
 }) => {
   const [selectedRestaurant, setSelectedRestaurant] =
     useState<RestaurantData | null>();
   const [meals, setMeals] = useState<SelectMeal[]>([]);
 
   const [selectedMeal, setSelectedMeal] = useState<SelectMeal>();
-  const [rests, setRests] = useState<RestaurantData[]>([])
+  const [rests, setRests] = useState<RestaurantData[]>([]);
+  const [showTimeField, setShowTimeField] = useState(false);
+  const { bookingDetails } = useEditBooking();
 
   // const fetchMeals = async (restaurantId: string) => {
   //   const response = await getMeals;
@@ -74,29 +88,36 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
     resolver: zodResolver(restaurantSchema),
     defaultValues: {
       date: defaultValues?.date,
-      mealType:defaultValues?.mealType,
-      name:defaultValues?.restaurantVoucherId,
-      quantity:{
-        adults:defaultValues?.adultsCount,
-        kids:defaultValues?.kidsCount,
+      mealType: defaultValues?.mealType,
+      name: defaultValues?.restaurant.name,
+      quantity: {
+        adults: defaultValues?.adultsCount,
+        kids: defaultValues?.kidsCount,
       },
-      remarks:defaultValues?.remarks ?? "",
-      time:defaultValues?.time ?? ""
+      remarks: defaultValues?.remarks ?? "",
+      time: defaultValues?.time ?? "12:00",
     },
   });
 
   function onSubmit(values: z.infer<typeof restaurantSchema>) {
     const voucherLine: InsertRestaurantVoucherLine = {
+      //TODO:
       adultsCount: Number(form.getValues("quantity.adults")),
       kidsCount: Number(form.getValues("quantity.kids")),
       date: form.getValues("date").toString(),
       mealType: form.getValues("mealType"),
       restaurantVoucherId: "",
-      time: form.getValues("time"),
+      time: form.getValues("time") ?? "10:00",
       remarks: form.getValues("remarks"),
     };
-    if(!selectedRestaurant){
-      throw new Error("Can't fetch selected restaurant")
+    if (!selectedRestaurant) {
+      throw new Error("Can't fetch selected restaurant");
+    }
+
+    if(amendment) {
+      onAddRestaurant(voucherLine, selectedRestaurant)
+      form.reset()
+      return
     }
     onAddRestaurant(voucherLine, selectedRestaurant);
     form.reset();
@@ -110,23 +131,27 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
     setSelectedRestaurant(restaurant);
   }
 
-  useEffect(()=>{
-    setRests(restaurants)
-    if(lockedVendorId){
-      const lockedRestaurant = restaurants.find((res)=> res.id === lockedVendorId)
-      if(lockedRestaurant){
-        setRests([lockedRestaurant])
-        setSelectedRestaurant(lockedRestaurant)
-        if(defaultValues?.mealType){
-          const meal = lockedRestaurant.restaurantMeal.find((m)=> m.mealType === defaultValues.mealType)
-          if(meal){
-            setSelectedMeal(meal)
+  useEffect(() => {
+    setRests(restaurants);
+    if (lockedVendorId) {
+      const lockedRestaurant = restaurants.find(
+        (res) => res.id === lockedVendorId,
+      );
+      if (lockedRestaurant) {
+        setRests([lockedRestaurant]);
+        setSelectedRestaurant(lockedRestaurant);
+        if (defaultValues?.mealType) {
+          const meal = lockedRestaurant.restaurantMeal.find(
+            (m) => m.mealType === defaultValues.mealType,
+          );
+          if (meal) {
+            setSelectedMeal(meal);
           }
         }
       }
     }
     console.log(restaurants);
-  }, [defaultValues])
+  }, [defaultValues]);
 
   return (
     <Form {...form}>
@@ -146,6 +171,7 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
                       getRestaurantId(value);
                     }}
                     value={field.value}
+                    disabled={amendment}
                   >
                     <SelectTrigger className="bg-slate-100 shadow-md">
                       <SelectValue placeholder="Select restaurant" />
@@ -204,25 +230,61 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            name="time"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Time</FormLabel>
-                <FormControl>
-                  <Input type="time" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+              <FormLabel>Check-in Date</FormLabel>
+              <FormControl>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !field.value && "text-muted-foreground",
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {field.value ? (
+                      format(new Date(field.value), "LLL dd, y")
+                    ) : (
+                      <span>Pick the check-in date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    initialFocus
+                    selected={
+                      field.value
+                        ? parse(field.value, "MM/dd/yyyy", new Date())
+                        : new Date()
+                    }
+                    onSelect={(date: Date | undefined) => {
+                      const dateString = format(
+                        date ?? new Date(),
+                        "MM/dd/yyyy",
+                      );
+                      field.onChange(dateString);
+                    }}
+                    disabled={(date) => {
+                      const min = new Date(bookingDetails.general.startDate);
+                      const max = new Date(bookingDetails.general.endDate)
+                      min.setHours(0, 0, 0, 0);
+                      max.setHours(0, 0, 0, 0)
+                      return date < min || date > max;
+                    }}
+                    numberOfMonths={1}
+                  />
+                </PopoverContent>
+              </Popover>
+                {/* <Input
+                  type="date"
+                  {...field}
+                  min={bookingDetails.general.startDate ?? ""}
+                  max={bookingDetails.general.endDate ?? ""}
+                /> */}
+              </FormControl>
+              <FormMessage />
+            </FormItem>
             )}
           />
           <FormField
@@ -247,7 +309,7 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
                         value={field.value}
                       >
                         <SelectTrigger className="bg-slate-100 shadow-md">
-                          <SelectValue placeholder="Select restaurant" />
+                          <SelectValue placeholder="Select meal type" />
                         </SelectTrigger>
                         <SelectContent>
                           {selectedRestaurant?.restaurantMeal.map((meal) => (
@@ -276,19 +338,45 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Remarks</FormLabel>
+              <FormLabel>Special Notes</FormLabel>
               <FormControl>
-                <Input placeholder="Enter any remarks" {...field} />
+                {/* <Input placeholder="Enter any special note" {...field} /> */}
+                <textarea
+                      placeholder="Enter any special notes"
+                      {...field}
+                      className="h-20 w-full rounded-md border border-gray-300 p-2 text-sm"
+                    />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <div className="flex w-full flex-row justify-end">
-          <Button variant={"primaryGreen"} type="submit" className="px-5">
-            Add
-          </Button>
-        </div>
+          <div className="flex w-full flex-row justify-end">
+            <Button
+              variant={"primaryGreen"}
+              type="submit"
+              className="px-5"
+              disabled={isUpdating ? isUpdating : isSaving ? isSaving : false}
+            >
+              {amendment ? (
+                isUpdating ? (
+                  <div className="flex flex-row items-center gap-1">
+                    <LoaderCircle size={16} className="animate-spin" />
+                    <div>Updating</div>
+                  </div>
+                ) : (
+                  "Amend"
+                )
+              ) : isSaving ? (
+                <div className="flex flex-row items-center gap-1">
+                  <LoaderCircle size={16} className="animate-spin" />
+                  <div>Adding</div>
+                </div>
+              ) : (
+                "Add"
+              )}
+            </Button>
+          </div>
       </form>
     </Form>
   );

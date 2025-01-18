@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useAddBooking } from "~/app/dashboard/bookings/add/context";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -27,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select"; // Import Shadcn Select components
+import { hotelBoardBasis, hotelRoomTypes } from "~/lib/constants";
 import {
   InsertHotelVoucherLine,
   SelectHotel,
@@ -35,7 +37,7 @@ import {
 
 interface HotelsFormProps {
   onAddHotel: (
-    data: SelectHotelVoucherLine,
+    data: InsertHotelVoucherLine,
     isNewVoucher: boolean,
     hotel: any,
   ) => void;
@@ -49,9 +51,9 @@ export const hotelsSchema = z.object({
   kidsCount: z.number().min(1, "Quantity is required"),
   roomCount: z.number().min(1, "Room count is required"),
   checkInDate: z.string().min(1, "Check-in date is required"),
-  checkInTime: z.string().min(1, "Check-in time is required"),
+  // checkInTime: z.string().min(1, "Check-in time is required").optional(),
   checkOutDate: z.string().min(1, "Check-out date is required"),
-  checkOutTime: z.string().min(1, "Check-out time is required"),
+  // checkOutTime: z.string().min(1, "Check-out time is required").optional(),
   roomType: z.string().min(1, "Room type is required"),
   basis: z.string().min(1, "Basis is required"),
   remarks: z.string().min(1, "Remarks required"), // Optional field
@@ -64,6 +66,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
 }) => {
   const [selectedHotel, setSelectedHotel] = useState<SelectHotel | null>();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { bookingDetails } = useAddBooking();
 
   const form = useForm<z.infer<typeof hotelsSchema>>({
     resolver: zodResolver(hotelsSchema),
@@ -73,22 +76,20 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
     },
     values: {
       adultsCount: defaultValues?.adultsCount ?? 0,
-      kidsCount:defaultValues?.kidsCount ?? 0,
+      kidsCount: defaultValues?.kidsCount ?? 0,
       name: hotels[0]?.name ?? "",
-      checkInDate:defaultValues?.checkInDate ?? "",
-      checkInTime: defaultValues?.checkInTime ?? "",
-      checkOutDate:defaultValues?.checkOutDate ?? "",
-      checkOutTime:defaultValues?.checkOutTime ?? "",
-      roomType:defaultValues?.roomType ?? "",
-      basis:defaultValues?.basis ?? "",
-      roomCount:defaultValues?.roomCount ?? 0,
-      remarks:defaultValues?.remarks ?? ""
-    }
+      checkInDate: defaultValues?.checkInDate ?? "",
+      // checkInTime: defaultValues?.checkInTime ?? "10:00",
+      checkOutDate: defaultValues?.checkOutDate ?? "",
+      // checkOutTime: defaultValues?.checkOutTime ?? "10:00",
+      roomType: defaultValues?.roomType ?? "",
+      basis: defaultValues?.basis ?? "",
+      roomCount: defaultValues?.roomCount ?? 0,
+      remarks: defaultValues?.remarks ?? "",
+    },
   });
 
-  function onSubmit(values: z.infer<typeof hotelsSchema>) {
-    setIsModalOpen(true);
-  }
+
 
   function handleModalResponse(isNewVoucher: boolean) {
     const voucherLine: InsertHotelVoucherLine = {
@@ -98,9 +99,9 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       roomType: form.getValues("roomType"), // Room type from the form.
       basis: form.getValues("basis"), // Basis from the form.
       checkInDate: form.getValues("checkInDate").toString(), // Convert check-in date from form to a Date object.
-      checkInTime: form.getValues("checkInTime"),
+      checkInTime: "10:00",
       checkOutDate: form.getValues("checkOutDate").toString(), // Convert check-out date from form to a Date object.
-      checkOutTime: form.getValues("checkOutTime"),
+      checkOutTime: "10:00",
       roomCount: Number(form.getValues("roomCount")), // Room count from the form, converted to a number.
       remarks: form.getValues("remarks"),
     };
@@ -116,6 +117,11 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
     setIsModalOpen(false);
   }
 
+  function onSubmit(values: z.infer<typeof hotelsSchema>) {
+    // setIsModalOpen(true);
+    handleModalResponse(true)
+  }
+
   function getHotelId(name: string) {
     const hotel = hotels.find((hotel) => hotel.name === name);
     const id = hotel?.id;
@@ -127,7 +133,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   }, [defaultValues]);
 
   return (
-    <>
+    <div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-3 gap-3">
@@ -173,6 +179,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                         type="number"
                         value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        min={0}
                       />
                     </FormControl>
                     <FormMessage />
@@ -190,6 +197,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                         type="number"
                         value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        min={0}
                       />
                     </FormControl>
                     <FormMessage />
@@ -229,19 +237,19 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                 </FormItem>
               )}
             />
-            <FormField
+            {/* <FormField
               name="checkInTime"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Check-in Time</FormLabel>
                   <FormControl>
-                    <Input type="time" {...field} />
+                    <Input type="time" {...field} defaultValue={"10:00"}/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
             <FormField
               name="checkOutDate"
               control={form.control}
@@ -259,29 +267,31 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                 </FormItem>
               )}
             />
-            <FormField
-              name="checkOutTime"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Check-out Time</FormLabel>
-                  <FormControl>
-                    <Input type="time" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            <FormField
+                        <FormField
               name="roomType"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Room Type</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter room type" {...field} />
+                    {/* <Input placeholder="Enter room type" {...field} /> */}
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                      }}
+                      value={field.value}
+                    >
+                      <SelectTrigger className="bg-slate-100 shadow-md">
+                        <SelectValue placeholder="Select room type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {hotelRoomTypes.map((room) => (
+                          <SelectItem key={room} value={room}>
+                            {room}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -294,20 +304,58 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                 <FormItem>
                   <FormLabel>Basis</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter basis" {...field} />
+                    {/* <Input placeholder="Enter basis" {...field} /> */}
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                      }}
+                      value={field.value}
+                    >
+                      <SelectTrigger className="bg-slate-100 shadow-md">
+                        <SelectValue placeholder="Select Basis" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {hotelBoardBasis.map((basis) => (
+                          <SelectItem key={basis} value={basis}>
+                            {basis}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            {/* <FormField
+              name="checkOutTime"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Check-out Time</FormLabel>
+                  <FormControl>
+                    <Input type="time" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            /> */}
+          </div>
+          <div className="grid grid-cols-1 gap-3">
+
             <FormField
               name="remarks"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Remarks</FormLabel>
+                  <FormLabel>Special Notes</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter any remarks" {...field} />
+                    {/* <Input placeholder="Enter any special notes" {...field} /> */}
+                    <textarea
+                      placeholder="Enter any special notes"
+                      {...field}
+                      className="h-20 w-full rounded-md border border-gray-300 p-2 text-sm"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -325,32 +373,53 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       {/* Modal Component */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add to Voucher</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p>
-              Would you like to add this to a new voucher or an existing
-              voucher?
-            </p>
-          </div>
-          <DialogFooter>
-            <Button
-              variant={"primaryGreen"}
-              onClick={() => handleModalResponse(true)}
-            >
-              New Voucher
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => handleModalResponse(false)}
-            >
-              Existing Voucher
-            </Button>
-          </DialogFooter>
+          {bookingDetails.vouchers.length > 0 ? (
+            <div>
+              <DialogHeader>
+                <DialogTitle>Add to Voucher</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <p>
+                  Would you like to add this to a new voucher or an existing
+                  voucher?
+                </p>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant={"primaryGreen"}
+                  onClick={() => handleModalResponse(true)}
+                >
+                  New Voucher
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleModalResponse(false)}
+                >
+                  Existing Voucher
+                </Button>
+              </DialogFooter>
+            </div>
+          ) : (
+            <div>
+              <DialogHeader>
+                <DialogTitle>Add to Voucher</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <p>This hotel will get added to a new voucher</p>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant={"primaryGreen"}
+                  onClick={() => handleModalResponse(true)}
+                >
+                  OK
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 };
 

@@ -34,10 +34,6 @@ export const restaurantVoucherColumns: ColumnDef<RestaurantVoucher>[] = [
     accessorFn: (row) => row.voucherLines[0]?.date
   },
   {
-    header: "Time",
-    accessorFn: (row) => row.voucherLines[0]?.time
-  },
-  {
     header: "Meal Type",
     accessorFn: (row) => row.voucherLines[0]?.mealType
   },

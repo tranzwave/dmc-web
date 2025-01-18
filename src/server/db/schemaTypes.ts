@@ -1,4 +1,4 @@
-import { hotel, driver, activityVendor, shop, booking, bookingLine, hotelVoucher, restaurantVoucher, transportVoucher, activityVoucher, shopVoucher, restaurant, restaurantMeal, hotelStaff, hotelRoom, hotelVoucherLine, tenant, city, client, agent, user, country, restaurantVoucherLine, activityType, activity, shopType, shopShopType, language, vehicle, driverVehicle, driverLanguage } from './schema'
+import { activity, activityType, activityVendor, activityVoucher, agent, booking, bookingAgent, bookingLine, city, client, country, driver, driverLanguage, driverVehicle, driverVoucherLine, guide, guideLanguage, guideVoucherLine, hotel, hotelRoom, hotelStaff, hotelVoucher, hotelVoucherLine, language, restaurant, restaurantMeal, restaurantVoucher, restaurantVoucherLine, shop, shopShopType, shopType, shopVoucher, tenant, transportVoucher, user, vehicle } from './schema';
 
 //Country Types
 export type InsertCountry = typeof country.$inferInsert;
@@ -20,6 +20,8 @@ export type SelectClient = typeof client.$inferSelect;
 //Agent Type
 export type InsertAgent = typeof agent.$inferInsert;
 export type SelectAgent = typeof agent.$inferSelect;
+
+export type SelectBookingAgent = typeof bookingAgent.$inferSelect
 
 //User Type
 export type InsertUser = typeof user.$inferInsert;
@@ -51,7 +53,11 @@ export type SelectDriverVehicle = typeof driverVehicle.$inferSelect;
 export type InsertDriverLanguage = typeof driverLanguage.$inferInsert;
 export type SelectDriverLanguage = typeof driverLanguage.$inferSelect;
 
+export type InsertGuide = typeof guide.$inferInsert;
+export type SelectGuide = typeof guide.$inferSelect;
 
+export type InsertGuideLanguage = typeof guideLanguage.$inferInsert;
+export type SelectGuideLanguage = typeof guideLanguage.$inferSelect;
 
 export type InsertLanguage = typeof language.$inferInsert;
 export type SelectLanguage = typeof language.$inferSelect;
@@ -96,7 +102,7 @@ export type InsertHotelVoucher = typeof hotelVoucher.$inferInsert;
 export type SelectHotelVoucher = typeof hotelVoucher.$inferSelect;
 
 export type InsertHotelVoucherLine = typeof hotelVoucherLine.$inferInsert;
-export type SelectHotelVoucherLine = typeof hotelVoucherLine.$inferInsert;
+export type SelectHotelVoucherLine = typeof hotelVoucherLine.$inferSelect;
 
 //Combined Hotel voucher details
 export type CombinedHotelVoucher = InsertHotelVoucher & {
@@ -124,6 +130,14 @@ export type SelectRestaurantVoucherLine = typeof restaurantVoucherLine.$inferSel
 // Transport Voucher Types
 export type InsertTransportVoucher = typeof transportVoucher.$inferInsert;
 export type SelectTransportVoucher = typeof transportVoucher.$inferSelect;
+
+// Transport Voucher Types
+export type InsertDriverVoucherLine = typeof driverVoucherLine.$inferInsert;
+export type SelectDriverVoucherLine = typeof driverVoucherLine.$inferSelect;
+
+// Transport Voucher Types
+export type InsertGuideVoucherLine = typeof guideVoucherLine.$inferInsert;
+export type SelectGuideVoucherLine = typeof guideVoucherLine.$inferSelect;
 
 // Activity Voucher Types
 export type InsertActivityVoucher = typeof activityVoucher.$inferInsert;

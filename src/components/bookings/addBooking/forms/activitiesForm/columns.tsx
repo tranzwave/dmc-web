@@ -1,8 +1,6 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { ActivityData } from "./actvitiesForm";
-import { SelectActivityVendor, SelectActivityVoucher } from "~/server/db/schemaTypes";
 import { ActivityVoucher } from "~/app/dashboard/bookings/add/context";
 
 export type Activity = {
@@ -26,7 +24,7 @@ export const columns: ColumnDef<ActivityVoucher>[] = [
   },
   {
     
-    header: "City",
+    header: "Location",
     accessorFn: row => row.voucher.city
   },
   {
@@ -39,24 +37,25 @@ export const columns: ColumnDef<ActivityVoucher>[] = [
     header: "Date",
     accessorFn: row => row.voucher.date
   },
+  // {
+    
+  //   header: "Time",
+  //   accessorFn: row => row.voucher.time
+  // },
+  // {
+    
+  //   header: "Hours",
+  //   accessorFn: row => row.voucher.hours
+  // },
   {
     
-    header: "Time",
-    accessorFn: row => row.voucher.time
+    header: "Adults & Kids",
+    accessorFn: row => (row.voucher.adultsCount ?? 1)+ (row.voucher.kidsCount ?? 0)
   },
   {
-    
-    header: "Hours",
-    accessorFn: row => row.voucher.hours
-  },
-  {
-    
-    header: "Head Count",
-    accessorFn: row => row.voucher.participantsCount
-  },
-  {
-    
     header: "Remarks",
     accessorFn: row => row.voucher.remarks
   },
+
+ 
 ];

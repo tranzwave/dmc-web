@@ -1,5 +1,4 @@
 "use client";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import {
   Activity,
   BarChart2,
@@ -7,7 +6,9 @@ import {
   Calendar,
   Car,
   Home,
+  Store,
   User,
+  Utensils
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -32,6 +33,8 @@ const SideNavBar = () => {
       path: "/hotels",
       icon: <Building className="icon-size" />,
     },
+    { name: 'Restaurants', path: '/restaurants', icon: <Utensils className='icon-size'/> },
+
     {
       name: "Transport",
       path: "/transport",
@@ -43,24 +46,31 @@ const SideNavBar = () => {
       icon: <Activity className="icon-size" />,
     },
     {
+      name: "Shops",
+      path: "/shops",
+      icon: <Store className="icon-size" />,
+    },
+    {
       name: "Reports",
       path: "/reports",
       icon: <BarChart2 className="icon-size" />,
     },
     { name: "Agents", path: "/agents", icon: <User className="icon-size" /> },
+    // { name: "Admin", path: "/admin", icon: <User2 className="icon-size" /> },
+
   ];
 
   return (
     <div className="flex h-full flex-col gap-4 bg-primary-green text-white">
       {/* Logo Section */}
-      <div className="mb-2 flex items-center justify-center p-4">
+      <div className="flex flex-col items-center justify-center">
         <Image
-          src="/assets/logo.png"
+          src="/assets/coord-white-logo-new.svg" style={{ width: '130px', height: '60px' }}
           alt="Logo"
-          width={145} // Adjust the width as per your requirement
-          height={39} // Adjust the height as per your requirement
-          className="h-auto w-auto"
+          width={20} // Adjust the width as per your requirement
+          height={20} // Adjust the height as per your requirement
         />
+        {/* <div className="font-semibold">COORD.TRAVEL</div> */}
       </div>
       {/* Navigation Links */}
       <nav className="flex-1 overflow-y-auto">
@@ -83,14 +93,17 @@ const SideNavBar = () => {
         </div>
       </nav>
       {/* Contact Us Section */}
-      <div className="mb-8 w-full rounded-lg border-t bg-white p-4">
+      <div className="w-full rounded-lg border-t bg-white px-4 py-2 -mb-3">
         <div className="base-text mb-3 font-medium text-primary-green">
           <div>Developed By</div>
-          <div>Tranzwave System</div>
+          <div>COORD.TRAVEL</div>
         </div>
         <div className="base-text flex cursor-pointer items-center justify-center rounded-lg bg-primary-green px-4 py-2 font-medium text-white">
           Contact Now
         </div>
+      </div>
+      <div className="w-full flex justify-start items-center">
+        <div className="text-[10px]">v1.0.0</div>
       </div>
     </div>
   );

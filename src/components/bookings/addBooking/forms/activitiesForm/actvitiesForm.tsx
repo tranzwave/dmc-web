@@ -1,6 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircle } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import {
+  ActivityVoucher,
+  useAddBooking,
+} from "~/app/dashboard/bookings/add/context";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -11,14 +17,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Activity } from "./columns";
-import {
-  SelectActivity,
-  SelectActivityType,
-  SelectActivityVendor,
-  SelectActivityVoucher,
-  SelectCity,
-} from "~/server/db/schemaTypes";
 import {
   Select,
   SelectContent,
@@ -26,13 +24,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { useState } from "react";
 import { getActivitiesByTypeAndCity } from "~/server/db/queries/activities";
-import { LoaderCircle } from "lucide-react";
 import {
-  ActivityVoucher,
-  useAddBooking,
-} from "~/app/dashboard/bookings/add/context";
+  SelectActivity,
+  SelectActivityType,
+  SelectActivityVendor,
+  SelectCity
+} from "~/server/db/schemaTypes";
 
 export type ActivityData = SelectActivity & {
   activityVendor: SelectActivityVendor & {
@@ -50,9 +48,9 @@ export const activitySchema = z.object({
   city: z.string().min(1, "City is required"),
   vendor: z.string().min(1, "Vendor is required"),
   checkInDate: z.string().min(1, "Check-in date is required"),
-  time: z.string().min(1, "Time is required"),
-  headCount: z.number().min(1, "Head count is required"),
-  hours: z.number().min(1, "Hours are required"),
+  time: z.string().min(1, "Time is required").optional().or(z.literal("12:00")),
+  adultsCount: z.number().min(0, "Add adult count"),
+  kidsCount: z.number().min(0, "Add kids count"),
   remarks: z.string().optional(), // Optional field
 });
 
@@ -78,9 +76,9 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
       city: "",
       vendor: "",
       checkInDate: "",
-      time: "",
-      headCount: 1,
-      hours: 1,
+      time: "12:00",
+      kidsCount: 0,
+      adultsCount:0,
       remarks: "",
     },
   });
@@ -97,9 +95,10 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
           activityVendorId: selectedActivity.activityVendor.id,
           bookingLineId: "",
           coordinatorId: bookingDetails.general.marketingManager,
-          participantsCount: values.headCount,
-          time: values.time,
-          hours: values.hours,
+          adultsCount: values.adultsCount,
+          kidsCount: values.kidsCount,
+          time: values.time ?? "10:00",
+          hours: 1,
           remarks: values.remarks,
         },
       });
@@ -210,7 +209,7 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>City</FormLabel>
+                  <FormLabel>Location</FormLabel>
                   <FormControl>
                     {/* <Input placeholder="Enter city" {...field} /> */}
                     <Select
@@ -321,7 +320,7 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
               </FormItem>
             )}
           />
-          <FormField
+          {/* <FormField
             name="time"
             control={form.control}
             render={({ field }) => (
@@ -333,13 +332,31 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
           <FormField
-            name="headCount"
+            name="adultsCount"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Head Count</FormLabel>
+                <FormLabel>Adults</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    min={0}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+                    <FormField
+            name="kidsCount"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Kids</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -351,7 +368,7 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
               </FormItem>
             )}
           />
-          <FormField
+          {/* <FormField
             name="hours"
             control={form.control}
             render={({ field }) => (
@@ -367,16 +384,21 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
         </div>
         <FormField
           name="remarks"
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Remarks</FormLabel>
+              <FormLabel>Special Notes</FormLabel>
               <FormControl>
-                <Input placeholder="Enter any remarks" {...field} />
+                {/* <Input placeholder="Enter any special note" {...field} /> */}
+                <textarea
+                      placeholder="Enter any special notes"
+                      {...field}
+                      className="h-20 w-full rounded-md border border-gray-300 p-2 text-sm"
+                    />
               </FormControl>
               <FormMessage />
             </FormItem>

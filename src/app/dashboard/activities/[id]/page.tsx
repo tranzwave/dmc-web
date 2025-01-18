@@ -5,9 +5,14 @@ import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
 import { StatsCard } from "~/components/ui/stats-card";
-import { getActivityVendorById, getActivityVouchersForVendor } from "~/server/db/queries/activities";
-import { SelectActivityVoucher } from "~/server/db/schemaTypes";
-import { ActivityVendorData } from "../page";
+import { getActivityVendorDataById } from "~/server/db/queries/activities";
+import { SelectActivity, SelectActivityType, SelectActivityVoucher } from "~/server/db/schemaTypes";
+
+export type FetchedActivityVendorData = Awaited<ReturnType<typeof getActivityVendorDataById>>;
+
+export type Activity = SelectActivity & {
+  activityType: SelectActivityType
+}
 
 const Page = ({ params }: { params: { id: string } }) => {
 
@@ -26,38 +31,35 @@ const Page = ({ params }: { params: { id: string } }) => {
     },
     {
       header: "Participant Count",
-      accessorFn: (row) => row.participantsCount
+      accessorFn: (row) => (row.adultsCount ?? 1)+ (row.kidsCount ?? 0)
     },
   
   ];
-  const [activityVendor, setActivityVendor] = useState<ActivityVendorData | null>(null);
-  const [data, setData] = useState<SelectActivityVoucher[]>([]);
+
+  const activityTypeColumns: ColumnDef<Activity>[] = [
+    {
+      header: "Activity Type",
+      accessorFn: (row) => row.activityType.name,
+    },
+    {
+      header: "Activity",
+      accessorFn: (row) => row.name,
+    },
+    {
+      header: "Capacity",
+      accessorFn: (row) => row.capacity,
+    }
+  ];
+  const [activityVendor, setActivityVendor] = useState<FetchedActivityVendorData | null>(null);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>();
 
   useEffect(() => {
-    async function fetchActivityVoucherDetails() {
-      try {
-        setLoading(true);
-        const vouchers = await getActivityVouchersForVendor(params.id);
-        setData(vouchers)
-      } catch (error) {
-        console.error("Failed to fetch activity details:", error);
-        setError("Failed to load activity details.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchActivityVoucherDetails();
-  }, [params.id]);
-
-  useEffect(() => {
     async function fetchVendorData() {
       try {
         setLoading(true);
-        const result = await getActivityVendorById(params.id);
+        const result = await getActivityVendorDataById(params.id);
         setActivityVendor(result ?? null);
       } catch (error) {
         console.error("Failed to fetch activity data:", error);
@@ -68,7 +70,7 @@ const Page = ({ params }: { params: { id: string } }) => {
     }
 
     fetchVendorData();
-  }, []);
+  }, [params.id]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -107,17 +109,17 @@ const Page = ({ params }: { params: { id: string } }) => {
         </div>
         <div className="card w-[70%] space-y-6">
           <div>Current Booking</div>
-          <DataTable columns={activityVoucherColumns} data={data} />
+          <DataTable columns={activityVoucherColumns} data={activityVendor.activityVoucher} />
 
-          <div>Booking History</div>
+          <div>Bookings</div>
           <div className="col-span-3 flex justify-between gap-6">
-            <StatsCard label="5 Star ratings" value="10" />
-            <StatsCard label="Bookings Completed" value="20" />
-            <StatsCard label="Upcoming Bookings" value="5" />
+            <StatsCard label="Provided Activities" value={activityVendor.activity.length} />
+            <StatsCard label="Bookings Completed" value={activityVendor.activityVoucher.filter(v => v.status == "confirmed").length} />
+            <StatsCard label="Upcoming Bookings" value={activityVendor.activityVoucher.length} />
           </div>
 
-          <div>Trip History</div>
-          <DataTable columns={activityVoucherColumns} data={data} />
+          <div>Provided Activities</div>
+          <DataTable columns={activityTypeColumns} data={activityVendor.activity} />
         </div>
       </div>
     </div>

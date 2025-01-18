@@ -1,25 +1,21 @@
 "use client";
-import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import LoadingLayout from "~/components/common/dashboardLoading";
 import TitleBar from "~/components/common/titleBar";
 import HotelGeneralTab from "~/components/hotels/addHotel/forms/generalForm";
-import { Button } from "~/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import RoomsTab from "~/components/hotels/addHotel/forms/roomsForm";
 import StaffTab from "~/components/hotels/addHotel/forms/staffForm";
-import AddHotelSubmitView from "~/components/hotels/addHotel/forms/submitForm";
-import { AddHotelProvider, useAddHotel } from "../../add/context";
-import { SelectHotel } from "~/server/db/schemaTypes";
-import { CompleteHotel, getHotelByIdQuery, getRawHotelById } from "~/server/db/queries/hotel";
-import LoadingLayout from "~/components/common/dashboardLoading";
 import EditHotelSubmitView from "~/components/hotels/addHotel/forms/submitForm/editHotelSubmit";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { CompleteHotel, getRawHotelById } from "~/server/db/queries/hotel";
+import { AddHotelProvider, useAddHotel } from "../../add/context";
 
 
 
 const EditHotel = ({ id }: { id: string }) => {
   const pathname = usePathname();
-  const { hotelGeneral, hotelRooms, hotelStaff, setActiveTab, activeTab, setHotelGeneral,addHotelRoom, addHotelStaff } =
+  const { hotelGeneral, hotelRooms, hotelStaff, setActiveTab, activeTab, setHotelGeneral,addHotelRoom, addHotelStaff, addBulkHotelRooms, addBulkHotelStaff } =
     useAddHotel();
     const searchParams = useSearchParams();
   const [hotel, setHotel] = useState<CompleteHotel>();
@@ -36,12 +32,14 @@ const EditHotel = ({ id }: { id: string }) => {
         if(!result){
             throw new Error("Couldn't fetch hotel")
         }
-        const { hotelRoom, hotelStaff, ...restOfHotel } = result;
+
+        console.log("Fetched hotel data:", result);
+        const { hotelRoom: hotelRooms, hotelStaff: hotelStaffs, ...restOfHotel } = result;
 
         setHotel({
             hotel: restOfHotel,
-            hotelRooms:hotelRoom,
-            hotelStaffs:hotelStaff
+            hotelRooms:hotelRooms,
+            hotelStaffs:hotelStaffs
         });
         setHotelGeneral({
             name: restOfHotel.name,
@@ -54,14 +52,15 @@ const EditHotel = ({ id }: { id: string }) => {
             province: restOfHotel.province,
             hasRestaurant: restOfHotel.hasRestaurant,
           });
-        hotelRoom.forEach(room =>{
-            addHotelRoom(room)
-            console.log(room.id)
-        })
-        hotelStaff.forEach(staff=>{
-            addHotelStaff(staff)
-            console.log(staff.id)
-        })
+        
+          if(hotelRooms){
+            addBulkHotelRooms(hotelRooms)
+            console.log(hotelRooms[0]?.id)
+          }
+          if(hotelStaffs){
+            addBulkHotelStaff(hotelStaffs)
+            console.log(hotelStaffs[0]?.id)
+          }
 
       } catch (error) {
         console.error("Failed to fetch hotel data:", error);
@@ -84,11 +83,11 @@ const EditHotel = ({ id }: { id: string }) => {
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title={`Edit Hotel - ${hotel?.hotel.name}`} link="toAddBooking" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className="w-full">
             <Tabs

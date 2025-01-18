@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import TitleBar from "~/components/common/titleBar";
@@ -8,38 +7,15 @@ import DocumentsTab from "~/components/transports/addTransport/forms/documentsFo
 import GeneralTab from "~/components/transports/addTransport/forms/generalForm";
 import SubmitForm from "~/components/transports/addTransport/forms/submitForm";
 import VehiclesTab from "~/components/transports/addTransport/forms/vehiclesForm";
-import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { AddTransportProvider, useAddTransport } from "./context";
-
-// const SubmitForm = () => {
-//   const { transportDetails } = useAddTransport();
-
-//   const handleSubmit = () => {
-//     // Handle the submission of activityDetails
-//     console.log('Submitting booking details:', transportDetails);
-//   };
-
-//   return (
-//     <div className='flex flex-col gap-3'>
-//       <div className='card w-full h-10'>
-//         <p>Review all the details and submit your activity.</p>
-//       </div>
-//       <div className='flex w-full justify-center'>
-//         <Button variant="primaryGreen" onClick={handleSubmit}>
-//           Submit
-//         </Button>
-//       </div>
-
-//     </div>
-//   );
-// };
 
 const AddTransport = () => {
   const pathname = usePathname();
   const { setGeneralDetails, activeTab, setActiveTab, transportDetails } =
     useAddTransport();
 
+    const isDriver = transportDetails.general.type === 'Driver'
   useEffect(() => {
     console.log("Add Transport Component");
   }, []);
@@ -50,20 +26,24 @@ const AddTransport = () => {
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title="Add Driver" link="toAddTransport" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className="w-full">
-            <Tabs defaultValue="general" className="w-full border" value={activeTab}>
+            <Tabs
+              defaultValue="general"
+              className="w-full border"
+              value={activeTab}
+            >
               <TabsList className="flex w-full justify-evenly">
                 <TabsTrigger
                   value="general"
                   isCompleted={false}
                   onClick={() => setActiveTab("general")}
-                  inProgress={activeTab == "general"}
+                  inProgress={activeTab === "general"}
                 >
                   General
                 </TabsTrigger>
@@ -71,7 +51,7 @@ const AddTransport = () => {
                   value="vehicles"
                   statusLabel="Mandatory"
                   isCompleted={transportDetails.vehicles.length > 0}
-                  inProgress={activeTab == "vehicles"}
+                  inProgress={activeTab === "vehicles"}
                   disabled={!transportDetails.general.name}
                 >
                   Vehicles
@@ -80,8 +60,8 @@ const AddTransport = () => {
                   value="charges"
                   statusLabel="Mandatory"
                   isCompleted={transportDetails.charges.feePerKm > 0}
-                  inProgress={activeTab == "charges"}
-                  disabled={transportDetails.vehicles.length == 0}
+                  inProgress={activeTab === "charges"}
+                  disabled={transportDetails.vehicles.length === 0}
                 >
                   Charges
                 </TabsTrigger>
@@ -91,12 +71,12 @@ const AddTransport = () => {
                   isCompleted={
                     transportDetails.documents.vehicleEmissionTest.length > 1
                   }
-                  inProgress={activeTab == "documents"}
+                  inProgress={activeTab === "documents"}
                   disabled={
-                    transportDetails.charges.accommodationAllowance !> 0 ||
-                    transportDetails.charges.feePerKm == 0 ||
-                    transportDetails.charges.fuelAllowance !> 0 ||
-                    transportDetails.charges.mealAllowance !> 0
+                    transportDetails.charges.accommodationAllowance <= 0 ||
+                    transportDetails.charges.feePerKm === 0 ||
+                    transportDetails.charges.fuelAllowance <= 0 ||
+                    transportDetails.charges.mealAllowance <= 0
                   }
                 >
                   Documents
@@ -104,21 +84,19 @@ const AddTransport = () => {
                 <TabsTrigger
                   value="submit"
                   isCompleted={transportDetails.vehicles.length > 0}
-                  inProgress={activeTab == "vehicles"}
+                  inProgress={activeTab === "submit"}
                   disabled={
                     !transportDetails.documents.driverLicense ||
-                    !transportDetails.documents.guideLicense ||
-                    !transportDetails.documents.insurance ||
-                    !transportDetails.documents.vehicleEmissionTest
+                    !transportDetails.documents.guideLicense
                   }
                 >
                   Submit
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="general">
-                {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
                 <GeneralTab />
               </TabsContent>
+
               <TabsContent value="vehicles">
                 <VehiclesTab />
               </TabsContent>
@@ -126,7 +104,7 @@ const AddTransport = () => {
                 <ChargesTab />
               </TabsContent>
               <TabsContent value="documents">
-                <DocumentsTab />
+                <DocumentsTab isDriver={isDriver}/>
               </TabsContent>
               <TabsContent value="submit">
                 <SubmitForm />

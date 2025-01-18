@@ -1,26 +1,37 @@
 "use client"
+import { LoaderCircle } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 import { useAddActivity } from "~/app/dashboard/activities/add/context";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { Button } from "~/components/ui/button";
-import { columns } from "../activityForm/columns";
-import { insertActivityVendor } from "~/server/db/queries/activities";
-import { useState } from "react";
 import { useToast } from "~/hooks/use-toast";
+import { insertActivityVendor } from "~/server/db/queries/activities";
+import { columns } from "../activityForm/columns";
 
 const SubmitForm = () => {
     const { activityVendorDetails } = useAddActivity();
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const { toast } = useToast()
-
+    const router = useRouter()
+    const pathname = usePathname()
 
     const handleSubmit = async() => {
+
         // Handle the submission of activityDetails
         console.log('Submitting activity details:', activityVendorDetails);
-
+        setLoading(true)
         try {
-            // Replace insertDriver with your function to handle the insertion of driver details
-            const response = await insertActivityVendor([activityVendorDetails]);
+            let response;
+            // Replace insertActivity with your function to handle the insertion of activity details
+            if(pathname.includes("/edit")){
+                setLoading(false)
+                alert("Updated")
+                return
+            } else{
+                response = await insertActivityVendor([activityVendorDetails]);
+            }
         
             if (!response) {
               throw new Error(`Error: Inserting Activity Vendor`);
@@ -32,8 +43,9 @@ const SubmitForm = () => {
             // Handle successful response (e.g., show a success message)
             toast({
               title: "Success",
-              description: "Driver added successfully",
+              description: "Activity added successfully",
             });
+            router.push("/dashboard/activities");
           } catch (error) {
             if (error instanceof Error) {
               setError(error.message);
@@ -78,7 +90,7 @@ const SubmitForm = () => {
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">City:</td>
-                            <td className="border px-4 py-2">{activityVendorDetails.general.city}</td>
+                            <td className="border px-4 py-2">{activityVendorDetails.general.city?.name}</td>
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">Province:</td>
@@ -98,8 +110,8 @@ const SubmitForm = () => {
             </div>
 
             <div className="flex w-full justify-center mt-4">
-                <Button variant="primaryGreen" onClick={handleSubmit}>
-                    Submit
+                <Button variant="primaryGreen" onClick={handleSubmit} disabled={loading}>
+                    {loading && (<LoaderCircle className="animate-spin" size={18}/>)} Submit
                 </Button>
             </div>
         </div>

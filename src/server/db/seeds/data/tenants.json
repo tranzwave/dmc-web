@@ -1,6 +1,7 @@
 [
     {
       "name": "Tranzwave",
+      "clerkId": "Tranzwave",
       "country": "LK",
       "domain": "tranzwave.com",
       "subscriptionPlan": "premium",
@@ -8,6 +9,7 @@
     },
     {
       "name": "Innovate Inc.",
+      "clerkId": "Innovate",
       "country": "LK",
       "domain": "innovateinc.com",
       "subscriptionPlan": "standard",
@@ -15,6 +17,7 @@
     },
     {
       "name": "Global Solutions",
+      "clerkId": "global",
       "country": "LK",
       "domain": "globalsolutions.org",
       "subscriptionPlan": "basic",
@@ -22,6 +25,7 @@
     },
     {
       "name": "FutureTech",
+      "clerkId": "futureTech",
       "country": "LK",
       "domain": "futuretech.co",
       "subscriptionPlan": "premium",
@@ -29,6 +33,7 @@
     },
     {
       "name": "NextGen Ventures",
+      "clerkId": "nextgen",
       "country": "LK",
       "domain": "nextgenventures.net",
       "subscriptionPlan": "standard",

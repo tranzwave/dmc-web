@@ -2,6 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { ShopVoucher } from "~/app/dashboard/bookings/add/context";
+import { formatDate } from "~/lib/utils/index";
 
 export type Shop = {
   shopType: string;
@@ -29,15 +30,21 @@ export const columns: ColumnDef<ShopVoucher>[] = [
   },
   {
     header: "Date",
-    accessorFn: row => row.voucher.date
+    // accessorFn: row => row.voucher.date
+    accessorFn: row => formatDate(row.voucher?.date ?? ""),
+
   },
   {
     header: "Time",
     accessorFn: row => row.voucher.time
   },
   {
-    header: "Head Count",
-    accessorFn: row => row.voucher.participantsCount
+    header: "Adluts Count",
+    accessorFn: row => row.voucher.adultsCount
+  },
+  {
+    header: "Kids Count",
+    accessorFn: row => row.voucher.kidsCount
   },
   {
     header: "Hours",

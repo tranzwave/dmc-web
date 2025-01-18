@@ -1,0 +1,1 @@
+ALTER TABLE "dmc-web_hotel_voucher_lines" ALTER COLUMN "basis" SET DATA TYPE varchar(50);

@@ -1,41 +1,78 @@
-import React from 'react';
-import { getTransportVouchers } from "~/server/db/queries/booking/transportVouchers";
 import { ColumnDef } from "@tanstack/react-table";
-import { formatDate } from "~/lib/utils/index";
-import { SelectDriver, SelectTransportVoucher } from "~/server/db/schemaTypes";
-import TasksTab from "~/components/common/tasksTab";
-import TransportForm from './form';
+import { useEffect, useState } from "react";
+import { SelectDriver, SelectDriverVoucherLine, SelectGuide, SelectTransportVoucher } from "~/server/db/schemaTypes";
+import TransportVouchersTasksTab from './taskTab';
 
 export type TransportVoucherData = SelectTransportVoucher & {
-  driver: SelectDriver
+  driver: SelectDriver | null
+  guide: SelectGuide | null
+  driverVoucherLines: SelectDriverVoucherLine[]
+  // guideVoucherLines: SelectGuideVoucherLine[]
 }
 
 // Define specific columns for transport
-const transportColumns: ColumnDef<TransportVoucherData>[] = [
+const voucherColumns: ColumnDef<TransportVoucherData>[] = [
   {
-    accessorKey: "driver.name",
-    header: "Driver",
+    accessorFn: (row) => row.driver?.name ?? row.guide?.name,
+    header: "Name",
   },
   {
-    accessorKey: "driver.contactNumber",
+    header: "Type",
+    accessorFn: (row) => row.driver?.type ?? row.guide?.type,
+  },
+  {
+    header: "Vehicle",
+    accessorFn: (row) => {
+      let vehicle = "N/A";
+      if(row.driver) {
+        vehicle = row.driverVoucherLines[0]?.vehicleType ?? "Not Assigned"
+      }
+      return vehicle;
+    },
+  },
+  {
+    header: "Language",
+    accessorFn: (row) => row.language,
+  },
+  {
+    header: "Pickup Date",
+    accessorFn: (row) => row.startDate,
+  },
+  {
+    header: "Drop Off Date",
+    accessorFn: (row) => row.endDate,
+  },
+
+  {
+    accessorFn: (row) => row.driver?.contactNumber ?? row.guide?.primaryContactNumber,
     header: "Contact Number",
     cell: (info) => info.getValue() ?? "N/A",
   },
   {
-    header: "Voucher Lines",
-    accessorFn: (row) => 1,
+    accessorKey: "status",
+    header: "Status",
+    accessorFn: (row) => row.status,
   },
-  {
-    accessorKey: "voucherLine",
-    header: "Progress",
-    accessorFn: (row) => 1,
-  },
+  // {
+  //   header: "Progress",
+  //   accessorFn: (row) => row.status,
+  // },
 ];
 
-const transportVoucherLineColumns: ColumnDef<SelectTransportVoucher>[] = [
+const selectedVoucherColumns: ColumnDef<TransportVoucherData>[] = [
+  {
+    accessorKey: "driver.name",
+    header: "Driver",
+    accessorFn: (row) => `${row.driver?.name}`,
+  },
+  {
+    accessorKey: "driver.contactNumber",
+    header: "Contact Number",
+    accessorFn: (row) => `${row.driver?.primaryContactNumber}`,
+  },
   {
     header: "Vehicle",
-    accessorFn: (row) => `${row.vehicleType}`,
+    accessorFn: (row) => row.driverVoucherLines.map((t)=>t.vehicleType),
   },
   {
     header: "Language",
@@ -63,17 +100,25 @@ const updateVoucherStatus = async(voucher:any)=>{
   return true
 }
 // Use TasksTab for Transport
-const TransportTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string, vouchers: TransportVoucherData[] }) => (
-  <TasksTab
+const TransportTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string, vouchers: TransportVoucherData[] }) => {
+  const [statusChanged, setStatusChanged] = useState<boolean>(false);
+
+  useEffect(()=>{
+    console.log("Status changed")
+  },[statusChanged])
+
+
+  return(
+  <TransportVouchersTasksTab
     bookingLineId={bookingLineId}
-    columns={transportColumns}
-    voucherColumns={transportVoucherLineColumns}
+    voucherColumns={voucherColumns}
+    selectedVoucherColumns={selectedVoucherColumns}
     vouchers={vouchers}
-    formComponent={TransportForm}
     updateVoucherLine={updateVoucherLine}
-    updateVoucherStatus={updateVoucherStatus}
+    statusChanged={statusChanged}
+    setStatusChanged={setStatusChanged}
 
   />
-);
+)};
 
 export default TransportTasksTab;

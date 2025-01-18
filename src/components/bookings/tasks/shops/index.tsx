@@ -1,14 +1,14 @@
-import React from 'react';
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDate } from "~/lib/utils/index";
 import { SelectShop, SelectShopVoucher } from "~/server/db/schemaTypes";
-import TasksTab from "~/components/common/tasksTab";
-import ShopsForm from './form';
+import ShopVouchersTasksTab from "./taskTab";
+
+
 
 export type ShopVoucherData = SelectShopVoucher & {
-  shop:SelectShop
-}
+  shop: SelectShop;
 
+};
 
 // Define specific columns for shops
 const shopColumns: ColumnDef<ShopVoucherData>[] = [
@@ -17,39 +17,57 @@ const shopColumns: ColumnDef<ShopVoucherData>[] = [
     header: "Shop",
   },
   {
+    header: "Shop Type",
+    accessorFn: (row) => row.shopType,
+  },
+  {
+    header: "City",
+    accessorFn: (row) => row.city,
+  },
+  {
     accessorKey: "shop.contactNumber",
     header: "Contact Number",
     cell: (info) => info.getValue() ?? "N/A",
   },
   {
-    accessorKey: "voucherLine",
-    header: "Voucher Lines",
-    accessorFn: (row) => 1,
+    header: "Date",
+    accessorFn: (row) => formatDate(row.date),
   },
   {
-    accessorKey: "voucherLine",
-    header: "Progress",
-    accessorFn: (row) => 1,
+    header: "Adults Count",
+    accessorFn: (row) => `${row.adultsCount}`,
   },
+  {
+    header: "Kids Count",
+    accessorFn: (row) => `${row.kidsCount}`,
+  },
+  {
+    header: "Status",
+    accessorFn: (row) => row.status,
+  },
+
 ];
 
-const shopVoucherLineColumns: ColumnDef<SelectShopVoucher>[] = [
+const shopVoucherLineColumns: ColumnDef<ShopVoucherData>[] = [
   {
     header: "Shop Type",
-    accessorFn: row => row.shopType
+    accessorFn: (row) => row.shopType,
   },
   {
-    header: "Head Count",
-    accessorFn: (row) => `${row.participantsCount}`,
+    header: "Adults Count",
+    accessorFn: (row) => `${row.adultsCount}`,
+  },
+  {
+    header: "Kids Count",
+    accessorFn: (row) => `${row.kidsCount}`,
   },
   {
     header: "Date",
     accessorFn: (row) => formatDate(row.date),
   },
-
   {
     header: "Time",
-    accessorFn: row => row.time
+    accessorFn: (row) => row.time,
   },
   {
     header: "Remarks",
@@ -57,25 +75,29 @@ const shopVoucherLineColumns: ColumnDef<SelectShopVoucher>[] = [
   },
 ];
 
-const updateVoucherLine = async(voucher:any)=>{
-  console.log("Updating")
-}
+const updateVoucherLine = async (voucher: ShopVoucherData) => {
+  console.log("Updating");
+};
 
-const updateVoucherStatus = async(voucher:any)=>{
-  console.log("Updating")
-  return true
-}
+const updateVoucherStatus = async (voucher: ShopVoucherData) => {
+  console.log("Updating");
+  return true;
+};
 
 // Use TasksTab for Shops
-const ShopsTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string ; vouchers: ShopVoucherData[] }) => (
-  <TasksTab
+const ShopsTasksTab = ({
+  bookingLineId,
+  vouchers,
+}: {
+  bookingLineId: string;
+  vouchers: ShopVoucherData[];
+}) => (
+  <ShopVouchersTasksTab
     bookingLineId={bookingLineId}
-    columns={shopColumns}
-    voucherColumns={shopVoucherLineColumns}
+    voucherColumns={shopColumns}
+    selectedVoucherColumns={shopVoucherLineColumns}
     vouchers={vouchers}
-    formComponent={ShopsForm}
     updateVoucherLine={updateVoucherLine}
-    updateVoucherStatus={updateVoucherStatus}
   />
 );
 

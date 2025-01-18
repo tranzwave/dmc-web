@@ -1,16 +1,14 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
-import { Booking, columns } from "~/components/bookings/home/columns";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
 import { StatsCard } from "~/components/ui/stats-card";
-import { BookingDTO } from "~/lib/types/booking";
 import { HotelDTO } from "~/lib/types/hotel";
 import { formatDate } from "~/lib/utils/index";
-import { getHotelByIdQuery, getHotelVouchersForHotel, getVoucherLinesByHotelId } from "~/server/db/queries/hotel";
-import { SelectHotelVoucher, SelectHotelVoucherLine } from "~/server/db/schemaTypes";
+import { getHotelByIdQuery, getVoucherLinesByHotelId } from "~/server/db/queries/hotel";
+import { SelectHotelVoucherLine } from "~/server/db/schemaTypes";
 
 
 
@@ -49,6 +47,7 @@ const Page = ({ params }: { params: { id: string } }) => {
         setLoading(true);
         const result = await getVoucherLinesByHotelId(params.id);
         setVouchers(result);
+        //TODO:
         const upcoming = result.filter(voucher => Date.parse(voucher.checkInDate) > Date.now()).length
         setVoucherCounts({
             upcomingBookings: upcoming,
@@ -126,13 +125,18 @@ const voucherLinesColumns: ColumnDef<SelectHotelVoucherLine>[] = [
       accessorFn: (row) => formatDate(row.checkOutDate.toString())
     },
     {
-        header: "Adults",
-        accessorFn: (row) => row.adultsCount,
-    },
-    {
-        header: "Kids",
-        accessorFn: (row) => row.kidsCount,
-    },
+      header: "Room Category",
+      accessorFn: (row) => row.roomType,
+  },
+//   {
+//     header: "Room Type",
+//     accessorFn: (row) => row.,
+// },
+  {
+    header: "Basis",
+    accessorFn: (row) => row.basis,
+},
+
     {
         header: "Rate",
         accessorFn: (row) => row.rate,

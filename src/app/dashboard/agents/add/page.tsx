@@ -1,38 +1,37 @@
 'use client'
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import GeneralTab from '~/components/agents/addAgent/forms/generalForm';
+import SubmitForm from '~/components/agents/addAgent/forms/submitForm';
 import TitleBar from '~/components/common/titleBar';
-import { Button } from '~/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { AddAgentProvider, useAddAgent } from './context';
 
-const SubmitForm = () => {
-  const { agentDetails: agentDetails } = useAddAgent();
+// const SubmitForm = () => {
+//   const { agentDetails: agentDetails } = useAddAgent();
 
-  const handleSubmit = () => {
-    // Handle the submission of agentDetails
-    console.log('Submitting agent details:', agentDetails);
-  };
+//   const handleSubmit = () => {
+//     // Handle the submission of agentDetails
+//     console.log('Submitting agent details:', agentDetails);
+//   };
 
-  return (
-    <div className='flex flex-col gap-3'>
-      <div className='card w-full h-10'>
-        <p>Review all the details and submit your agent.</p>
-      </div>
-      <div className='flex w-full justify-center'>
-        <Button variant="primaryGreen" onClick={handleSubmit}>
-          Submit
-        </Button>
-      </div>
-    </div>
-  );
-};
+//   return (
+//     <div className='flex flex-col gap-3'>
+//       <div className='card w-full h-10'>
+//         <p>Review all the details and submit your agent.</p>
+//       </div>
+//       <div className='flex w-full justify-center'>
+//         <Button variant="primaryGreen" onClick={handleSubmit}>
+//           Submit
+//         </Button>
+//       </div>
+//     </div>
+//   );
+// };
 
 const AddAgent = () => {
   const pathname = usePathname();
-  const { setGeneralDetails } = useAddAgent();
+  const { setGeneralDetails, activeTab, setActiveTab, agentDetails } = useAddAgent();
 
   useEffect(() => {
     console.log('Add Agent Component');
@@ -44,17 +43,31 @@ const AddAgent = () => {
         <div className="flex flex-col gap-3">
           <div className="flex flex-row gap-1 w-full justify-between">
             <TitleBar title="Add Agent" link="toAddAgent" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className='w-full'>
-            <Tabs defaultValue="general" className="w-full border">
+            <Tabs defaultValue="general" className="w-full border" value={activeTab}>
               <TabsList className='flex justify-evenly w-full'>
-                <TabsTrigger value="general" statusLabel="Mandatory">General</TabsTrigger>
-                <TabsTrigger value="submit">Submit</TabsTrigger>
+                <TabsTrigger 
+                value="general"
+                isCompleted={false}
+                onClick={() => setActiveTab("general")}
+                inProgress={activeTab == "general"}
+                  >
+                    General
+                    </TabsTrigger>
+                <TabsTrigger  
+                value="submit" inProgress = {activeTab == "submit"}
+                  disabled={
+                    !agentDetails.general.name ||
+                    !agentDetails.general.email ||
+                    !agentDetails.general.primaryContactNumber ||
+                    !agentDetails.general.agency
+                  }>Submit</TabsTrigger>
               </TabsList>
               <TabsContent value="general">
                 {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}

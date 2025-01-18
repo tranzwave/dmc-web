@@ -11,13 +11,16 @@ import {
   bulkUpdateRestaurantVoucherRates,
   getRestaurantVouchers,
   updateRestaurantVoucherStatus,
+  updateRestaurantVoucherStatusWithConfirmationDetails,
 } from "~/server/db/queries/booking/restaurantVouchers";
 import TasksTab from "~/components/common/tasksTab";
 import RestaurantsVoucherForm from "./form";
+import RestaurantVouchersTasksTab from "./taskTab";
+import { VoucherConfirmationDetails } from "~/lib/types/booking";
 
 export type RestaurantVoucherData = SelectRestaurantVoucher & {
   restaurant: SelectRestaurant;
-  voucherLine: SelectRestaurantVoucherLine[];
+  voucherLines: SelectRestaurantVoucherLine[];
 };
 // Define specific columns for restaurant vouchers
 const restaurantColumns: ColumnDef<RestaurantVoucherData>[] = [
@@ -33,27 +36,31 @@ const restaurantColumns: ColumnDef<RestaurantVoucherData>[] = [
   {
     accessorKey: "voucherLine",
     header: "Voucher Lines",
-    accessorFn: (row) => row.voucherLine?.length ?? "Not found",
+    accessorFn: (row) => row.voucherLines?.length ?? "Not found",
   },
   {
-    accessorKey: "voucherLine",
-    header: "Progress",
-    accessorFn: (row) => row.voucherLine?.length ?? "Not found",
+    accessorKey: "status",
+    header: "Status",
+    accessorFn: (row) => row.status ?? "Not found",
   },
 ];
 
 const restaurantVoucherLineColumns: ColumnDef<SelectRestaurantVoucherLine>[] = [
   {
-    header: "Head Count",
-    accessorFn: (row) => `${row.adultsCount}-Adults | ${row.kidsCount}-Kids`,
+    header: "Adults",
+    accessorFn: (row) => `${row.adultsCount}`,
+  },
+  {
+    header: "Kids",
+    accessorFn: (row) => `${row.kidsCount}`,
+  },
+  {
+    header: "Pax",
+    accessorFn: (row) => `${row.adultsCount + row.kidsCount}`,
   },
   {
     header: "Date",
     accessorFn: (row) => formatDate(row.date),
-  },
-  {
-    header: "Time",
-    accessorFn: (row) => row.time,
   },
   {
     header: "Meal Type",
@@ -61,24 +68,47 @@ const restaurantVoucherLineColumns: ColumnDef<SelectRestaurantVoucherLine>[] = [
   },
 ];
 
-const updateVoucherLine = async (voucherLines: any[]) => {
+const updateVoucherLinesRates = async (
+  ratesMap: Map<string,string>,
+  voucherId:string,
+  confirmationDetails?: {
+    availabilityConfirmedBy: string;
+    availabilityConfirmedTo: string;
+    ratesConfirmedBy: string;
+    ratesConfirmedTo: string;
+    specialNote:string;
+    billingInstructions:string;
+  },
+) => {
+  if (!confirmationDetails) {
+    throw new Error("Failed");
+  }
   alert("Updating voucher line:");
   try {
-    const bulkUpdateResponse = bulkUpdateRestaurantVoucherRates(voucherLines);
+    const bulkUpdateResponse = bulkUpdateRestaurantVoucherRates(ratesMap,voucherId, {
+      availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
+      availabilityConfirmedTo: confirmationDetails.availabilityConfirmedTo,
+      ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
+      ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
+      specialNote:confirmationDetails.specialNote,
+      billingInstructions:confirmationDetails.billingInstructions
+
+    });
 
     if (!bulkUpdateResponse) {
       throw new Error("Failed");
     }
+    window.location.reload();
   } catch (error) {
     console.error("Error updating voucher line:", error);
     alert("Failed to update voucher line. Please try again.");
   }
 };
 
-const updateVoucherStatus = async (voucher: SelectRestaurantVoucher) => {
+const updateVoucherStatus = async (voucher: SelectRestaurantVoucher, confirmationDetails?:VoucherConfirmationDetails) => {
   alert("Updating voucher status:");
   try {
-    const bulkUpdateResponse = updateRestaurantVoucherStatus(voucher);
+    const bulkUpdateResponse = confirmationDetails ? await updateRestaurantVoucherStatusWithConfirmationDetails(voucher, confirmationDetails) :  await updateRestaurantVoucherStatus(voucher);
 
     if (!bulkUpdateResponse) {
       throw new Error("Failed");
@@ -94,18 +124,21 @@ const updateVoucherStatus = async (voucher: SelectRestaurantVoucher) => {
 const RestaurantsTasksTab = ({
   bookingLineId,
   vouchers,
+  currency
 }: {
   bookingLineId: string;
   vouchers: RestaurantVoucherData[];
+  currency:string
 }) => (
-  <TasksTab
+  <RestaurantVouchersTasksTab
     bookingLineId={bookingLineId}
     columns={restaurantColumns}
     voucherColumns={restaurantVoucherLineColumns}
     vouchers={vouchers}
-    formComponent={RestaurantsVoucherForm}
-    updateVoucherLine={updateVoucherLine}
+    // formComponent={RestaurantsVoucherForm}
+    updateVoucherLine={updateVoucherLinesRates}
     updateVoucherStatus={updateVoucherStatus}
+    currency={currency}
   />
 );
 

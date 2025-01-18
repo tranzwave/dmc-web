@@ -4,14 +4,15 @@
 export type General = {
   clientName: string;
   country:string;
-  primaryEmail: string;
+  directCustomer:boolean;
+
   adultsCount: number,
   kidsCount: number,
   startDate: string;
   numberOfDays: number;
   endDate: string;
   marketingManager: string;
-  agent: string;
+  
   tourType: string;
   includes: {
     hotels: boolean;
@@ -20,4 +21,7 @@ export type General = {
     transport: boolean;
     shops:boolean,
   };
+  primaryEmail?: string;
+  primaryContactNumber?:string;
+  agent?: string;
 };

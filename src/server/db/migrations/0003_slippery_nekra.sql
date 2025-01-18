@@ -1,0 +1,1 @@
+ALTER TABLE "dmc-web_activity_vendors" ALTER COLUMN "primary_email" DROP NOT NULL;

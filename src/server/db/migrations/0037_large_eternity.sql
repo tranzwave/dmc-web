@@ -1,0 +1,1 @@
+ALTER TABLE "dmc-web_tenants" ADD COLUMN "voucher_settings" jsonb DEFAULT '{"hotelVoucherCurrency": "USD", "restaurantVoucherCurrency": "USD", "activityVoucherCurrency": "USD", "shopVoucherCurrency": "USD", "transportVoucherCurrency": "USD"}'::jsonb;

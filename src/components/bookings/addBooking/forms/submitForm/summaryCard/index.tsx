@@ -23,16 +23,17 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ summary }) => {
   const { day, date, hotel, restaurants, activities, transport, shops } =
     summary;
 
+    const dateValue = formatDateToWeekdayMonth(date)
   return (
-    <Accordion type="single" collapsible>
-      <AccordionItem value={formatDateToWeekdayMonth(date)}>
+    <Accordion type="single" collapsible defaultValue={dateValue}>
+      <AccordionItem value={dateValue}>
         <AccordionTrigger className="">
           <div className="items-start justify-start space-y-0 w-[10%]">
             <div className="text-base font-bold bg-primary-green text-white px-1 rounded-t-lg text-center">
               Day {day}
             </div>
             <div className="items-start text-xs text-zinc-800">
-                {formatDateToWeekdayMonth(date)}
+                {dateValue}
             </div>
           </div>
         </AccordionTrigger>
@@ -126,7 +127,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ summary }) => {
                 transport.map((trans, index) => (
                   <div key={index} className="mb-2">
                     <h4 className="text-base font-medium text-gray-800">
-                      Driver: {trans.driver.name}
+                      Driver: {trans.driver?.name}
                     </h4>
                     <p className="text-gray-600">
                       Transport Date:{" "}

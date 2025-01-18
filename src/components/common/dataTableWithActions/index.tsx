@@ -1,4 +1,5 @@
-import React from "react";
+import { ColumnDef } from "@tanstack/react-table";
+import { MoreVertical } from "lucide-react";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { Button } from "~/components/ui/button";
 import {
@@ -8,17 +9,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { MoreVertical } from "lucide-react";
-import { ColumnDef } from "@tanstack/react-table";
 
 interface DataTableWithActionsProps<T> {
   data: T[];
   columns: ColumnDef<T>[];
   onRowClick: (row: T) => void;
   onEdit: (row:T) => void;
-  onDelete: (row:T) => void;
+  onDelete?: (row:T) => void;
   onView?: () => void;
   onDuplicate?: (row:T) => void;
+  selectedRow?: T;
+  renderExpandedRow?: (row: T) => JSX.Element;
 }
 
 export const DataTableWithActions = <T extends object>({
@@ -29,6 +30,8 @@ export const DataTableWithActions = <T extends object>({
   onEdit,
   onDelete,
   onDuplicate,
+  selectedRow,
+  renderExpandedRow
 }: DataTableWithActionsProps<T>) => (
   <DataTable
     columns={[
@@ -47,24 +50,30 @@ export const DataTableWithActions = <T extends object>({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {onView && (
-                  <>
+                  <div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onSelect={onView}>View</DropdownMenuItem>
-                  </>
+                    <DropdownMenuSeparator />
+                  </div>
                 )}
                 
-                <DropdownMenuSeparator />
+                
                 <DropdownMenuItem onSelect={() => onEdit(row.original)}>Edit</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => onDelete(row.original)}>Delete</DropdownMenuItem>
+                {onDelete && (
+                  <div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => onDelete(row.original)}>Delete</DropdownMenuItem>
+                  </div>
+                )}
+                
 
                 {onDuplicate && (
-                  <>
+                  <div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onSelect={() => onDuplicate(row.original)}>
                       Duplicate
                     </DropdownMenuItem>
-                  </>
+                  </div>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
@@ -74,6 +83,8 @@ export const DataTableWithActions = <T extends object>({
     ]}
     data={data}
     onRowClick={onRowClick}
+    selectedRow={selectedRow}
+    renderExpandedRow={renderExpandedRow}
   />
 );
 

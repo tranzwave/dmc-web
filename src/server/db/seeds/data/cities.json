@@ -1,34 +1,52 @@
 [
-  {
-    "name": "New York",
-    "country": "US"
-  },
-  {
-    "name": "Toronto",
-    "country": "CA"
-  },
-  {
-    "name": "London",
-    "country": "GB"
-  },
-  {
-    "name": "Sydney",
-    "country": "AU"
-  },
-  {
-    "name": "Mumbai",
-    "country": "IN"
-  },
-  {
-    "name": "Colombo",
-    "country": "LK"
-  },
-  {
-    "name": "Kandy",
-    "country": "LK"
-  },
-  {
-    "name": "Galle",
-    "country": "LK"
-  }
+  { "name": "Colombo", "country": "LK" },
+  { "name": "Kandy", "country": "LK" },
+  { "name": "Galle", "country": "LK" },
+  { "name": "Jaffna", "country": "LK" },
+  { "name": "Matara", "country": "LK" },
+  { "name": "Nuwara Eliya", "country": "LK" },
+  { "name": "Anuradhapura", "country": "LK" },
+  { "name": "Trincomalee", "country": "LK" },
+  { "name": "Batticaloa", "country": "LK" },
+  { "name": "Ratnapura", "country": "LK" },
+  { "name": "Kurunegala", "country": "LK" },
+  { "name": "Negombo", "country": "LK" },
+  { "name": "Badulla", "country": "LK" },
+  { "name": "Polonnaruwa", "country": "LK" },
+  { "name": "Chilaw", "country": "LK" },
+  { "name": "Kalutara", "country": "LK" },
+  { "name": "Puttalam", "country": "LK" },
+  { "name": "Vavuniya", "country": "LK" },
+  { "name": "Mannar", "country": "LK" },
+  { "name": "Hambantota", "country": "LK" },
+  { "name": "Tangalle", "country": "LK" },
+  { "name": "Hatton", "country": "LK" },
+  { "name": "Haputale", "country": "LK" },
+  { "name": "Dambulla", "country": "LK" },
+  { "name": "Kegalle", "country": "LK" },
+  { "name": "Embilipitiya", "country": "LK" },
+  { "name": "Horana", "country": "LK" },
+  { "name": "Panadura", "country": "LK" },
+  { "name": "Beruwala", "country": "LK" },
+  { "name": "Katunayake", "country": "LK" },
+  { "name": "Gampaha", "country": "LK" },
+  { "name": "Kadawatha", "country": "LK" },
+  { "name": "Peliyagoda", "country": "LK" },
+  { "name": "Dehiwala", "country": "LK" },
+  { "name": "Mount Lavinia", "country": "LK" },
+  { "name": "Moratuwa", "country": "LK" },
+  { "name": "Wattala", "country": "LK" },
+  { "name": "Maharagama", "country": "LK" },
+  { "name": "Homagama", "country": "LK" },
+  { "name": "Avissawella", "country": "LK" },
+  { "name": "Balangoda", "country": "LK" },
+  { "name": "Hikkaduwa", "country": "LK" },
+  { "name": "Aluthgama", "country": "LK" },
+  { "name": "Weligama", "country": "LK" },
+  { "name": "Kataragama", "country": "LK" },
+  { "name": "Monaragala", "country": "LK" },
+  { "name": "Ampara", "country": "LK" },
+  { "name": "Mullaitivu", "country": "LK" },
+  { "name": "Kilinochchi", "country": "LK" },
+  { "name": "Nawalapitiya", "country": "LK" }
 ]

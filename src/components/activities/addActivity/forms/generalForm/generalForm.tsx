@@ -1,8 +1,12 @@
 "use client";
 
+import { useOrganization } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import { z } from "zod";
 import { useAddActivity } from "~/app/dashboard/activities/add/context";
 import { Button } from "~/components/ui/button";
@@ -15,18 +19,32 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { getAllCities } from "~/server/db/queries/activities";
 import { SelectCity } from "~/server/db/schemaTypes";
+
+
 
 // Define the schema for form validation
 export const generalSchema = z.object({
   name: z.string().min(1, "Name is required"),
   // activity: z.string().min(1, "Activity is required"),
   primaryEmail: z.string().email("Invalid email address"),
-  primaryContactNumber: z.string().min(1, "Contact number is required"),
+  contactNumber: z.string().refine(
+    (value) => {
+      const phoneNumber = parsePhoneNumberFromString(value);
+      return phoneNumber?.isValid() ?? false;
+    },
+    { message: "Invalid phone number" },
+  ),
   streetName: z.string().min(1, "Street name is required"),
-  city: z.string().min(1, "City is required"),
+  cityName: z.string().min(1, "City is required"),
   province: z.string().min(1, "Province is required"),
 });
 
@@ -37,28 +55,43 @@ const GeneralForm = () => {
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState<SelectCity[]>([]);
-  const { setGeneralDetails, activityVendorDetails } = useAddActivity();
+  const { setGeneralDetails, activityVendorDetails, setActiveTab } =
+    useAddActivity();
+  const [selectedCity, setSelectedCity] = useState<SelectCity>();
+  const { city, ...general } = activityVendorDetails.general;
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
+    defaultValues: {
+      ...general,
+      cityName: city?.name,
+      primaryEmail:general.primaryEmail ?? "N/A"
+    },
   });
+  const {organization, isLoaded} = useOrganization();
+
 
   const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
     console.log(data);
     setGeneralDetails({
-      cityId: Number(data.city),
+      cityId: selectedCity?.id ?? 0,
       name: data.name,
-      contactNumber: data.primaryContactNumber,
+      contactNumber: data.contactNumber,
+      primaryEmail: data.primaryEmail,
       province: data.province,
       streetName: data.streetName,
       tenantId: "",
+      city: selectedCity,
     });
+    setActiveTab("activities");
   };
 
   const fetchData = async () => {
     try {
       // Run both requests in parallel
       setLoading(true);
-      const [citiesResponse] = await Promise.all([getAllCities("LK")]);
+      const country = organization?.publicMetadata.country as string ?? "LK";
+
+      const [citiesResponse] = await Promise.all([getAllCities(country)]);
 
       if (!citiesResponse) {
         throw new Error("Error fetching cities");
@@ -67,6 +100,7 @@ const GeneralForm = () => {
       console.log("Fetched cities:", citiesResponse);
 
       setCities(citiesResponse);
+      setSelectedCity(city);
 
       setLoading(false);
     } catch (error) {
@@ -79,9 +113,15 @@ const GeneralForm = () => {
     }
   };
 
+  const { reset } = form;
   useEffect(() => {
     fetchData();
-  }, []);
+    form.setValue("cityName", city?.name ?? "");
+  }, [city]);
+
+  if (loading || !isLoaded) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Form {...form}>
@@ -134,16 +174,18 @@ const GeneralForm = () => {
           />
 
           <FormField
-            name="primaryContactNumber"
+            name="contactNumber"
             control={form.control}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Contact Number</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="Enter contact number"
-                    {...field}
+                <PhoneInput
+                    country={"us"}
+                    value={field.value}
+                    onChange={(phone) => field.onChange(`+${phone}`)}
+                    inputClass="w-full shadow-md"
+                    inputStyle={{ width: "inherit" }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -167,29 +209,28 @@ const GeneralForm = () => {
             )}
           />
           <FormField
-            name="city"
+            name="cityName"
             control={form.control}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>City</FormLabel>
                 <FormControl>
-                  {/* <Input placeholder="Enter city" {...field} /> */}
                   <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      alert(value);
+                    onValueChange={(valueFromSelection) => {
+                      field.onChange(valueFromSelection);
+                      setSelectedCity(
+                        cities.find((c) => c.name === valueFromSelection),
+                      );
                     }}
                     value={field.value}
+                    defaultValue={field.value}
                   >
                     <SelectTrigger className="bg-slate-100 shadow-md">
                       <SelectValue placeholder="Select city" />
                     </SelectTrigger>
                     <SelectContent>
                       {cities.map((city) => (
-                        <SelectItem
-                          key={city.id}
-                          value={String(city.id ?? 0) ?? "0"}
-                        >
+                        <SelectItem key={city.id} value={city.name}>
                           {city.name}
                         </SelectItem>
                       ))}

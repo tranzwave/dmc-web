@@ -1,17 +1,12 @@
-import React from 'react';
-import { getActivityVouchers } from "~/server/db/queries/booking/activityVouchers";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDate } from "~/lib/utils/index";
-import TasksTab from "~/components/common/tasksTab";
-import ActivityVoucherForm from './form';
 import { SelectActivity, SelectActivityVendor, SelectActivityVoucher } from '~/server/db/schemaTypes';
+import ActivityVouchersTasksTab from './taskTab';
 
 export type ActivityVoucherData = SelectActivityVoucher & {
   activity: SelectActivity,
   activityVendor: SelectActivityVendor
 }
-
-
 
 // Define specific columns for activities
 const activityColumns: ColumnDef<ActivityVoucherData>[] = [
@@ -24,20 +19,42 @@ const activityColumns: ColumnDef<ActivityVoucherData>[] = [
     accessorFn: (row) => row.activityName,
   },
   {
+    header: "City",
+    accessorFn: (row) => row.city,
+  },
+  {
+    header: "Date",
+    accessorFn: (row) => row.date,
+  },
+  {
+    header: "Pax",
+    accessorFn: (row) => Number(row.adultsCount )+ Number(row.kidsCount),
+  },
+  {
     header: "Contact Number",
     accessorFn: (row) => row.activityVendor.contactNumber,
   },
   {
-    header: "Voucher Lines",
-    accessorFn: (row) => 1,
+    accessorKey: "status",
+    header: "Status",
+    accessorFn: (row) => row.status,
   },
-  {
-    header: "Progress",
-    accessorFn: (row) => 1,
-  },
+  // {
+  //   accessorKey: "reasonToDelete",
+  //   header: "",
+  //   accessorFn: (row) => row.reasonToDelete,
+  // },
+  // {
+  //   header: "Voucher Lines",
+  //   accessorFn: (row) => 1,
+  // },
+  // {
+  //   header: "Progress",
+  //   accessorFn: (row) => 1,
+  // },
 ];
 
-const activityVoucherLineColumns: ColumnDef<SelectActivityVoucher>[] = [
+const activityVoucherLineColumns: ColumnDef<ActivityVoucherData>[] = [
   {
     header: "City",
     accessorFn: row => row.city
@@ -52,7 +69,7 @@ const activityVoucherLineColumns: ColumnDef<SelectActivityVoucher>[] = [
   },
   {
     header: "Head Count",
-    accessorFn: (row) => `${row.participantsCount}`,
+    accessorFn: (row) => `${Number(row.adultsCount )+ Number(row.kidsCount)}`,
   },
   {
     header: "Remarks",
@@ -60,25 +77,24 @@ const activityVoucherLineColumns: ColumnDef<SelectActivityVoucher>[] = [
   },
 ];
 
-const updateVoucherLine = async(voucher:any)=>{
+const updateVoucherLine = async(voucher:ActivityVoucherData)=>{
   console.log("Updating")
 }
 
-const updateVoucherStatus = async(voucher:any)=>{
+const updateVoucherStatus = async(voucher:ActivityVoucherData)=>{
   console.log("Updating")
   return true
 }
 
 // Use TasksTab for Activities
 const ActivitiesTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string ; vouchers:ActivityVoucherData[] }) => (
-  <TasksTab
+  <ActivityVouchersTasksTab
     bookingLineId={bookingLineId}
-    columns={activityColumns}
-    voucherColumns={activityVoucherLineColumns}
+    voucherColumns={activityColumns}
+    selectedVoucherColumns={activityVoucherLineColumns}
     vouchers={vouchers}
-    formComponent={ActivityVoucherForm}
     updateVoucherLine={updateVoucherLine}
-    updateVoucherStatus={updateVoucherStatus}
+    // updateVoucherStatus={updateVoucherStatus}
   />
 );
 

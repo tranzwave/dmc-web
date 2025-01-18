@@ -1,18 +1,29 @@
 "use client";
-import Link from "next/link";
+import dynamic from 'next/dynamic';
+
+// Dynamically load the components that may cause SSR issues
+const GeneralTab = dynamic(() => import('~/components/bookings/addBooking/forms/generalForm'), { ssr: false });
+const HotelsTab = dynamic(() => import('~/components/bookings/addBooking/forms/hotelsForm'), { ssr: false });
+const RestaurantsTab = dynamic(() => import('~/components/bookings/addBooking/forms/restaurantsForm'), { ssr: false });
+const ActivitiesTab = dynamic(() => import('~/components/bookings/addBooking/forms/activitiesForm'), { ssr: false });
+const TransportTab = dynamic(() => import('~/components/bookings/addBooking/forms/transportForm'), { ssr: false });
+const ShopsTab = dynamic(() => import('~/components/bookings/addBooking/forms/shopsForm'), { ssr: false });
+const AddBookingSubmitTab = dynamic(() => import('~/components/bookings/addBooking/forms/submitForm'), { ssr: false });
+
+
+
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import ActivitiesTab from "~/components/bookings/addBooking/forms/activitiesForm";
-import GeneralTab from "~/components/bookings/addBooking/forms/generalForm";
-import HotelsTab from "~/components/bookings/addBooking/forms/hotelsForm";
-import RestaurantsTab from "~/components/bookings/addBooking/forms/restaurantsForm";
-import ShopsTab from "~/components/bookings/addBooking/forms/shopsForm";
-import TransportTab from "~/components/bookings/addBooking/forms/transportForm";
+// import ActivitiesTab from "~/components/bookings/addBooking/forms/activitiesForm";
+// import GeneralTab from "~/components/bookings/addBooking/forms/generalForm";
+// import HotelsTab from "~/components/bookings/addBooking/forms/hotelsForm";
+// import RestaurantsTab from "~/components/bookings/addBooking/forms/restaurantsForm";
+// import ShopsTab from "~/components/bookings/addBooking/forms/shopsForm";
+// import TransportTab from "~/components/bookings/addBooking/forms/transportForm";
 import TitleBar from "~/components/common/titleBar";
-import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { AddBookingProvider, useAddBooking } from "./context";
-import AddBookingSubmitTab from "~/components/bookings/addBooking/forms/submitForm";
+// import AddBookingSubmitTab from "~/components/bookings/addBooking/forms/submitForm";
 
 const AddBooking = () => {
   const pathname = usePathname();
@@ -39,11 +50,11 @@ const AddBooking = () => {
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title="Add Booking" link="toAddBooking" />
-            <div>
+            {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className="w-full">
             <Tabs
@@ -60,7 +71,7 @@ const AddBooking = () => {
                 >
                   General
                 </TabsTrigger>
-                <TabsTrigger
+                {/* <TabsTrigger
                   value="hotels"
                   onClick={() => setActiveTab("hotels")}
                   disabled={bookingDetails.vouchers.length == 0 || !bookingDetails.general.includes.hotels}
@@ -118,35 +129,29 @@ const AddBooking = () => {
                   inProgress = {activeTab == "submit"}
                 >
                   Submit
-                </TabsTrigger>
+                </TabsTrigger> */}
               </TabsList>
               <TabsContent value="general">
-                {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
                 <GeneralTab />
               </TabsContent>
-              <TabsContent value="hotels">
-                {/* <HotelsTab onAddHotel={addHotel} /> */}
+              {/* <TabsContent value="hotels">
                 <HotelsTab />
               </TabsContent>
               <TabsContent value="restaurants">
-                {/* <RestaurantsTab onAddRestaurant={addRestaurant} /> */}
                 <RestaurantsTab />
               </TabsContent>
               <TabsContent value="activities">
-                {/* <ActivitiesTab onAddActivity={addActivity} /> */}
                 <ActivitiesTab />
               </TabsContent>
               <TabsContent value="transport">
-                {/* <TransportTab onAddTransport={addTransport} /> */}
                 <TransportTab />
               </TabsContent>
               <TabsContent value="shops">
-                {/* <ShopsTab onAddShop={addShop} /> */}
                 <ShopsTab />
               </TabsContent>
               <TabsContent value="submit">
                 <AddBookingSubmitTab />
-              </TabsContent>
+              </TabsContent> */}
             </Tabs>
           </div>
         </div>

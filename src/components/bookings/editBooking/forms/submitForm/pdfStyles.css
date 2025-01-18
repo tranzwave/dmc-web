@@ -1,0 +1,20 @@
+.pdf-summary {
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.pdf-summary div {
+  page-break-inside: avoid;
+}
+
+.card {
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+
+.card-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+}

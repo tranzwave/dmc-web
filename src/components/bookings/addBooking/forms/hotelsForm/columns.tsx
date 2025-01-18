@@ -67,18 +67,18 @@ export const columns: ColumnDef<HotelDTO>[] = [
       header: "Check-In Date",
       accessorFn: row => formatDate(row.voucherLines[0]?.checkInDate ?? ""),
     },
-    {
-      header: "Check-In Time",
-      accessorFn: row => row.voucherLines[0]?.checkInTime ?? ""
-    },
+    // {
+    //   header: "Check-In Time",
+    //   accessorFn: row => row.voucherLines[0]?.checkInTime ?? ""
+    // },
     {
       header: "Check-Out Date",
       accessorFn: row => formatDate(row.voucherLines[0]?.checkOutDate ?? ""),
     },
-    {
-      header: "Check-Out Time",
-      accessorFn: row => row.voucherLines[0]?.checkOutTime ?? ""
-    },
+    // {
+    //   header: "Check-Out Time",
+    //   accessorFn: row => row.voucherLines[0]?.checkOutTime ?? ""
+    // },
     {
       header: "Rooms",
       accessorFn: row =>  `${row.voucherLines[0]?.roomType}-${row.voucherLines[0]?.roomCount}`

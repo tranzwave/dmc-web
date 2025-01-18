@@ -50,7 +50,6 @@ export default async function seed(db:DB) {
         });
   
         if (!foundTenant) {
-          // Create a new tenant if it does not exist
           await db.insert(tenant).values(currentTenant);
         }
       })

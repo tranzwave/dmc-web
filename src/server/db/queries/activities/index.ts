@@ -1,15 +1,16 @@
 "use server";
 
-import {
-  activityVendor,
-  city,
-  activity,
-  activityVoucher,
-  activityType,
-} from "./../../schema";
-import { db } from "../..";
 import { and, eq } from "drizzle-orm";
 import { ActivityVendorDetails } from "~/app/dashboard/activities/add/context";
+import { db } from "../..";
+import { InsertActivity, InsertActivityVendor } from "../../schemaTypes";
+import {
+  activity,
+  activityType,
+  activityVendor,
+  activityVoucher,
+  city,
+} from "./../../schema";
 
 export const getAllCities = (countryCode: string) => {
   return db.query.city.findMany({
@@ -39,6 +40,23 @@ export const getActivityVouchersForVendor = (id: string) => {
     where: eq(activityVoucher.activityVendorId, id),
   });
 };
+
+export const getActivityVendorDataById = (id: string) => {
+  return db.query.activityVendor.findFirst({
+    where: eq(activityVendor.id, id),
+    with: {
+      city: true,
+      activity: {
+        with: {
+          activityType: true
+        }
+      },
+      activityVoucher: true,
+    },
+  });
+};
+
+
 
 export const getActivitiesByTypeAndCity = async (
   typeId: number,
@@ -101,7 +119,7 @@ export const insertActivityVendor = async (
             eq(activityVendor.tenantId, foundTenant.id),
             eq(activityVendor.name, vendorData.name),
             eq(activityVendor.streetName, vendorData.streetName),
-            eq(activityVendor.cityId, general.cityId), // Adjust based on how city is referenced
+            eq(activityVendor.cityId, general.cityId),
           ),
         });
 
@@ -173,7 +191,7 @@ export const insertActivityVendor = async (
 
       return addedVendors
 
-      
+
     });
 
     return newActivityVendors;
@@ -182,3 +200,83 @@ export const insertActivityVendor = async (
     throw error;
   }
 };
+
+
+
+export async function updateRestaurantAndRelatedData(
+  activityVendorId: string,
+  updatedActivityVendor: InsertActivityVendor | null,
+  updatedActivity: InsertActivity[],
+) {
+  console.log(activityVendorId);
+  console.log(updatedActivityVendor);
+
+  // Begin a transaction
+  const updated = await db.transaction(async (trx) => {
+    // Update the restaurant
+    if (!updatedActivityVendor) {
+      throw new Error("Please provide updated data")
+    }
+    const updatedActivityvendorResult = await trx
+      .update(activityVendor)
+      .set({
+        name: updatedActivityVendor.name,
+        contactNumber: updatedActivityVendor.contactNumber,
+        streetName: updatedActivityVendor.streetName,
+        province: updatedActivityVendor.province,
+        cityId: updatedActivityVendor.cityId,
+
+      })
+      .where(eq(activityVendor.id, activityVendorId))
+      .returning({ updatedId: activityVendor.id });
+
+    if (updatedActivityvendorResult.length === 0) {
+      throw new Error(`Restaurant with id ${activityVendorId} not found.`);
+    }
+
+    // Update related vehicles
+    const updatedActivityData = await updateActivity(trx, activityVendorId, updatedActivity);
+
+    return { updatedActivityVendorResult: updatedActivityvendorResult };
+  });
+
+  console.log(updated);
+  return updated;
+}
+
+async function updateActivity(
+  trx: any,
+  activityVendorId: string,
+  updatedActivities: InsertActivity[]
+) {
+  // If there are no vehicles to update, return early
+  if (updatedActivities.length === 0) {
+    return [];
+  }
+}
+
+
+export async function deleteActivitytCascade(activityVendorId: string) {
+  try {
+    // Start the transaction
+    const deletedActivityVendorId = await db.transaction(async (trx) => {
+      // Delete related activity-activityvendor relationships
+      await trx
+        .delete(activity)
+        .where(eq(activity.activityVendorId, activityVendorId));
+
+      // Finally, delete the activity
+      const deletedActivityVendor = await trx
+        .delete(activityVendor)
+        .where(eq(activityVendor.id, activityVendorId)).returning({ id: activityVendor.id });
+
+      return deletedActivityVendor;
+    });
+
+    console.log("Activity and related data deleted successfully");
+    return deletedActivityVendorId;
+  } catch (error) {
+    console.error("Error deleting activity and related data:", error);
+    throw error; // Re-throw the error to handle it elsewhere if needed
+  }
+}

@@ -1,9 +1,8 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
-import { General } from '~/components/activities/addActivity/forms/generalForm/columns';
-import { InsertActivity, InsertActivityVendor } from '~/server/db/schemaTypes'; // Import the activity type definition
+import { InsertActivity, InsertActivityVendor, SelectCity } from '~/server/db/schemaTypes'; // Import the activity type definition
 
 export type ActivityVendorDTO = InsertActivityVendor & {
-  city?:string
+  city?:SelectCity
 }
 
 export type ActivityTypeDTO = InsertActivity & {
@@ -12,53 +11,124 @@ export type ActivityTypeDTO = InsertActivity & {
 
 export interface ActivityVendorDetails {
   general: ActivityVendorDTO;
-  activities: ActivityTypeDTO[]; // Activities array for the vendor
+  activities: ActivityTypeDTO[];
 }
 
 // Define context properties
 interface AddActivityContextProps {
   activityVendorDetails: ActivityVendorDetails;
-  setGeneralDetails: (details: InsertActivityVendor) => void;
-  addActivity: (activity: InsertActivity) => void; // Method to add activities
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  setGeneralDetails: (details: ActivityVendorDTO) => void;
+  addActivity: (activity: ActivityTypeDTO) => void;
+  deleteActivity: (name: string, activityType:number, capacity:number) => void;
+  duplicateActivity: (name: string, activityType:number, capacity:number) => void
+
 }
 
 // Provide default values
-const defaultGeneral: InsertActivityVendor = {
+const defaultGeneral: ActivityVendorDTO = {
   name: "",
   streetName: "",
   province: "",
   cityId:0,
   contactNumber:"",
+  primaryEmail:"",
   tenantId:"",
+  city:{
+    id:0,
+    name:'',
+    country:''
+  }
 };
 
 const defaultActivityVendorDetails: ActivityVendorDetails = {
   general: defaultGeneral,
-  activities: [], // Initialize with an empty array
+  activities: [],
 };
 
 const AddActivityContext = createContext<AddActivityContextProps | undefined>(undefined);
 
 export const AddActivityProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [activityVendorDetails, setActivityVendorDetails] = useState<ActivityVendorDetails>(defaultActivityVendorDetails);
-
+  const [activeTab, setActiveTab] = useState<string>("general");
   const setGeneralDetails = (details: InsertActivityVendor) => {
     setActivityVendorDetails(prev => ({ ...prev, general: details }));
   };
 
   const addActivity = (activity: InsertActivity) => {
+    setActivityVendorDetails((prev) => {
+      const exists = prev.activities.some(
+        (a) =>
+          a.name === activity.name &&
+          a.activityType === activity.activityType &&
+          a.capacity === activity.capacity
+      );
+  
+      if (exists) {
+        return prev;
+      }
+  
+      return {
+        ...prev,
+        activities: [...prev.activities, activity],
+      };
+    });
+  };
+
+  // const deleteActivity = (name: string, activityType: number) => {
+  //   setActivityVendorDetails(prev => ({
+  //     ...prev,
+  //     activities: prev.activities.filter(
+  //       (activity) => activity.name !== name && activity.activityType !== activityType
+  //     ),
+  //   }));
+  // };
+
+  const deleteActivity = (name: string, activityType: number, capacity:number) => {
     setActivityVendorDetails(prev => ({
       ...prev,
-      activities: [...prev.activities, activity],
+      activities: prev.activities.filter(
+        (activity) => !(activity.name === name && activity.activityType === activityType && activity.capacity === capacity)
+      ),
     }));
   };
+
+  
+  const duplicateActivity = (name: string, activityType: number, capacity: number) => {
+    const activityToDuplicate = activityVendorDetails.activities.find(
+      (activity) => activity.name === name && activity.activityType === activityType && activity.capacity === capacity
+    );
+
+    if (activityToDuplicate) {
+      const duplicatedActivity = {
+        ...activityToDuplicate,
+        id: undefined,
+        name: `${activityToDuplicate.name}`,
+      };
+
+      setActivityVendorDetails(prev => ({
+        ...prev,
+        activities: [...prev.activities, duplicatedActivity],
+      }));
+
+      console.log('Duplicated activity added:', duplicatedActivity);
+    } else {
+      console.error(`Activity with name "${name}" and activityType "${activityType}" not found.`);
+    }
+  };
+  
 
   return (
     <AddActivityContext.Provider
       value={{
         activityVendorDetails,
         setGeneralDetails,
-        addActivity
+        addActivity,
+        activeTab,
+        setActiveTab,
+        deleteActivity,
+        duplicateActivity
       }}
     >
       {children}

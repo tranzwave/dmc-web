@@ -1,12 +1,11 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { DriverData } from "~/components/bookings/addBooking/forms/transportForm";
 import DataTableDropDown from "~/components/common/dataTableDropdown";
-import { InsertCity, InsertDriver, SelectDriver, SelectLanguage } from "~/server/db/schemaTypes";
+import { InsertCity, SelectLanguage } from "~/server/db/schemaTypes";
 
 // Define the Address type
 type Address = {
   streetName: string;
-  city: string;
+  city: string; // Change if city needs to include more detail
   province: string;
 };
 
@@ -45,11 +44,9 @@ type Documents = {
   insurance: string;
 };
 
-
-
 // Define the Driver type
 type Driver = {
-  id: number
+  id: number;
   general: {
     name: string;
     languages: string[];
@@ -61,8 +58,9 @@ type Driver = {
   vehicles: Vehicle[];
   charges: Charges;
   documents: Documents;
-  languages?:SelectLanguage[]
+  languages?: SelectLanguage[];
 };
+
 
 export type DriverDTO = {
   id?: string;
@@ -72,7 +70,7 @@ export type DriverDTO = {
   primaryContactNumber: string;
   streetName: string;
   province: string;
-  isGuide?: boolean; 
+  type: string;
   feePerKM?: number | null; 
   fuelAllowance?: number; 
   accommodationAllowance?: number; 
@@ -83,9 +81,10 @@ export type DriverDTO = {
   contactNumber: string;
   createdAt?: Date | null; 
   updatedAt?: Date | null; 
-  city: InsertCity;
-}
+  city: InsertCity; // Ensure InsertCity is correctly defined
+};
 
+// Define Driver columns
 export const driverColumns: ColumnDef<DriverDTO>[] = [
   {
     accessorKey: "name",
@@ -107,22 +106,23 @@ export const driverColumns: ColumnDef<DriverDTO>[] = [
     accessorKey: "city.name",
     header: "City",
   },
-
   {
     accessorKey: "province",
     header: "Province",
   },
   {
-    accessorKey: 'id',
-    header: '',
+    accessorKey: "id",
+    header: "",
     cell: ({ getValue, row }) => {
       const transport = row.original;
-
       return (
-          <DataTableDropDown data={transport} routeBase="/transport" 
-          onViewPath={(data) => `/dashboard/transport/${data.id}`} 
+        <DataTableDropDown
+          data={transport}
+          routeBase="/transport"
+          onViewPath={(data) => `/dashboard/transport/${data.id}`}
           onEditPath={(data) => `/dashboard/transport/${data.id}/edit`}
-          onDeletePath={(data) => `/dashboard/transport/${data.id}/delete`}/>
+          onDeletePath={(data) => `/dashboard/transport/${data.id}/delete`}
+        />
       );
     },
   },

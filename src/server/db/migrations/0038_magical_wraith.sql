@@ -1,0 +1,2 @@
+ALTER TABLE "dmc-web_booking_lines" ADD COLUMN "tour_expenses" jsonb DEFAULT '[]'::jsonb;--> statement-breakpoint
+ALTER TABLE "dmc-web_booking_lines" ADD COLUMN "flight_details" jsonb DEFAULT '{"arrivalFlight": "", "arrivalDate": "", "arrivalTime": "", "departureFlight": "", "departureDate": "", "departureTime": ""}'::jsonb;

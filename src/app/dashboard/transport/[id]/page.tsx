@@ -1,68 +1,65 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
-import { columns } from "~/components/bookings/home/columns";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
 import { StatsCard } from "~/components/ui/stats-card";
 import { DriverDTO } from "~/lib/types/driver/type";
 import { formatDate } from "~/lib/utils/index";
-import { getDriverByIdQuery, getTransportVouchersForDriver } from "~/server/db/queries/transport";
+import {
+  getDriverByIdQuery,
+  getTransportVouchersForDriver,
+} from "~/server/db/queries/transport";
 import { SelectTransportVoucher } from "~/server/db/schemaTypes";
 
 const Page = ({ params }: { params: { id: string } }) => {
   const [driver, setDriver] = useState<DriverDTO | null>(null);
   const [data, setData] = useState<SelectTransportVoucher[]>([]);
-
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchDriverDetails() {
-      try {
-        setLoading(true);
-        const selectedDriver = await getDriverByIdQuery(params.id);
-        setDriver(selectedDriver ?? null);
-      } catch (error) {
-        console.error("Failed to fetch driver details:", error);
-        setError("Failed to load driver details.");
-      } finally {
-        setLoading(false);
-      }
-    }
+  const [currentStartDate, setCurrentStartDate] = useState<string | null>(null);
+  const [currentEndDate, setCurrentEndDate] = useState<string | null>(null);
+  const [historyStartDate, setHistoryStartDate] = useState<string | null>(null);
+  const [historyEndDate, setHistoryEndDate] = useState<string | null>(null);
 
+  const today = new Date();
+
+  const fetchDriverDetails = async () => {
+    try {
+      const selectedDriver = await getDriverByIdQuery(params.id);
+      setDriver(selectedDriver ?? null);
+    } catch (error) {
+      console.error("Failed to fetch driver details:", error);
+      setError("Failed to load driver details.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchData = async () => {
+    try {
+      const result = await getTransportVouchersForDriver(params.id);
+      setData(result);
+    } catch (error) {
+      console.error("Failed to fetch activity data:", error);
+      setError("Failed to load data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    setLoading(true);
     fetchDriverDetails();
+    fetchData();
   }, [params.id]);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        const result = await getTransportVouchersForDriver(params.id);
-        setData(result);
-      } catch (error) {
-        console.error("Failed to fetch activity data:", error);
-        setError("Failed to load data.");
-      } finally {
-        setLoading(false);
-      }
-    }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!driver) return <div>No driver found with the given ID.</div>;
 
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
-  if (!driver) {
-    return <div>No driver found with the given ID.</div>;
-  }
   const driverVoucherColumns: ColumnDef<SelectTransportVoucher>[] = [
     {
       accessorKey: "startDate",
@@ -72,57 +69,131 @@ const Page = ({ params }: { params: { id: string } }) => {
     {
       accessorKey: "endDate",
       header: "End Date",
-      accessorFn: (row) => formatDate(row.endDate.toString())
+      accessorFn: (row) => formatDate(row.endDate.toString()),
     },
-    {
-      header: "Vehicle Type",
-      accessorFn: (row) => row.vehicleType
-    },
-    {
-      header: "Remarks",
-      accessorFn: (row) => row.remarks
-    }
-  
+    // { header: "Vehicle Type", accessorFn: (row) => row.vehicleType },
+    { header: "Remarks", accessorFn: (row) => row.remarks },
+    { header: "Rate", accessorFn: (row) => row.rate },
   ];
 
-  return (
-    <div className="flex flex-col gap-3 w-full justify-between">
+  const filterData = (
+    data: SelectTransportVoucher[],
+    startDate: string | null,
+    endDate: string | null,
+    isCurrent: boolean,
+  ) => {
+    return data.filter((transport) => {
+      const transportStartDate = new Date(transport.startDate);
+      const transportEndDate = new Date(transport.endDate);
+      const isEndDateValid = isCurrent
+        ? transportEndDate >= today
+        : transportEndDate < today;
 
+      const matchesStartDate = startDate
+        ? transportStartDate >= new Date(startDate)
+        : true;
+      const matchesEndDate = endDate
+        ? transportEndDate <= new Date(endDate)
+        : true;
+
+      return isEndDateValid && matchesStartDate && matchesEndDate;
+    });
+  };
+
+  const filteredCurrentData = filterData(
+    data,
+    currentStartDate,
+    currentEndDate,
+    true,
+  );
+  const filteredTripHistoryData = filterData(
+    data,
+    historyStartDate,
+    historyEndDate,
+    false,
+  );
+
+  return (
+    <div className="flex w-full flex-col justify-between gap-3">
       <TitleBar title={`Driver - ${driver.name}`} link="toAddTransport" />
       <div className="mx-9 flex flex-row justify-between">
         <div className="w-[30%]">
-          <div className="w-full">
-            <ContactBox
-              title={driver.name}
-              description="Egestas elit dui scelerisque ut eu purus aliquam vitae habitasse."
-              location={driver.city.name}
-              address={
-                driver.streetName +
-                ", " +
-                driver.city.name
-              }
-              phone={driver.primaryContactNumber}
-              email={driver.primaryEmail}
-            />{" "}
-          </div>
+          <ContactBox
+            title={driver.name}
+            description="Egestas elit dui scelerisque ut eu purus aliquam vitae habitasse."
+            location={driver.city.name}
+            address={`${driver.streetName}, ${driver.city.name}`}
+            phone={driver.primaryContactNumber}
+            email={driver.primaryEmail}
+          />
         </div>
         <div className="card w-[70%] space-y-6">
           <div>Current Booking</div>
-          <DataTable columns={driverVoucherColumns} data={data} />
+          <div className="flex gap-5">
+            <DateInput
+              label="Start Date"
+              value={currentStartDate}
+              onChange={setCurrentStartDate}
+            />
+            <DateInput
+              label="End Date"
+              value={currentEndDate}
+              onChange={setCurrentEndDate}
+            />
+          </div>
+          <DataTable
+            columns={driverVoucherColumns}
+            data={filteredCurrentData}
+          />
 
           <div>Booking History</div>
           <div className="col-span-3 flex justify-between gap-6">
             <StatsCard label="Fee Per KM (LKR)" value={driver.feePerKM ?? 0} />
-            <StatsCard label="Bookings Completed" value={data.length}/>
+            <StatsCard label="Bookings Completed" value={data.length} />
             <StatsCard label="Upcoming Bookings" value={data.length} />
           </div>
 
           <div>Trip History</div>
-          <DataTable columns={driverVoucherColumns} data={data} />
+          <div className="flex gap-5">
+            <DateInput
+              label="Start Date"
+              value={historyStartDate}
+              onChange={setHistoryStartDate}
+            />
+            <DateInput
+              label="End Date"
+              value={historyEndDate}
+              onChange={setHistoryEndDate}
+            />
+          </div>
+          <DataTable
+            columns={driverVoucherColumns}
+            data={filteredTripHistoryData}
+          />
         </div>
       </div>
     </div>
   );
 };
+
+const DateInput = ({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string | null;
+  onChange: (value: string) => void;
+}) => (
+  <div className="flex items-center gap-3 text-sm text-gray-500">
+    <label className="mb-1 block">{label}</label>
+    <input
+      type="date"
+      value={value ?? ""}
+      onChange={(e) => onChange(e.target.value)}
+      className="rounded-md border p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-400"
+    />
+  </div>
+);
 
 export default Page;
