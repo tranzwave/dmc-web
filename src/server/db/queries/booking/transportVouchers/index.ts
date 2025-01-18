@@ -130,6 +130,8 @@ export const deleteGuideTransportVoucher = async (transportVoucherId: string, re
         )
         .execute();
 
+        //Test comment
+
       // Update the status of the selected activity voucher line to "deleted"
       const [updatedVoucherLine] = await trx
         .update(transportVoucher)  // Update activityVoucher
