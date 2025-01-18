@@ -118,6 +118,8 @@ export const deleteGuideTransportVoucher = async (transportVoucherId: string, re
 
       const { guideId } = voucherLine;
 
+      //Tst comment
+
       // Check if there are other lines associated with this voucher
       const remainingVoucherLines = await trx
         .select()
