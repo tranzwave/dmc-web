@@ -67,8 +67,8 @@ const SideNavBar = () => {
         <Image
           src="/assets/coord-white-logo-new.svg" style={{ width: '130px', height: '60px' }}
           alt="Logo"
-          width={20} // Adjust the width as per your requirement
-          height={20} // Adjust the height as per your requirement
+          width={130} // Adjust the width as per your requirement
+          height={60} // Adjust the height as per your requirement
         />
         {/* <div className="font-semibold">COORD.TRAVEL</div> */}
       </div>

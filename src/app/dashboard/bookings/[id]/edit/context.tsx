@@ -2,9 +2,10 @@ import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { General } from '~/components/bookings/addBooking/forms/generalForm/columns';
 import { Hotel } from '~/components/bookings/addBooking/forms/hotelsForm/columns';
 import { Transport } from '~/components/bookings/addBooking/forms/transportForm/columns';
+import { OtherTransportWithCity } from '~/components/transports/addTransport/forms/generalForm/other-transport/columns';
 import { Driver } from '~/lib/types/driver/type';
 import { calculateDaysBetween } from '~/lib/utils/index';
-import { InsertActivityVoucher, InsertDriverVoucherLine, InsertGuideVoucherLine, InsertHotelVoucher, InsertHotelVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectDriver, SelectGuide, SelectHotel, SelectRestaurant, SelectShop } from '~/server/db/schemaTypes';
+import { InsertActivityVoucher, InsertDriverVoucherLine, InsertGuideVoucherLine, InsertHotelVoucher, InsertHotelVoucherLine, InsertOtherTransportVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectDriver, SelectGuide, SelectHotel, SelectOtherTransport, SelectRestaurant, SelectShop } from '~/server/db/schemaTypes';
 
 export interface TransportWithDriver {
   transport: Transport;
@@ -34,11 +35,13 @@ export type ShopVoucher = {
 }
 
 export type TransportVoucher = {
+  voucher: InsertTransportVoucher;
   driver?: SelectDriver | null; 
   guide?: SelectGuide | null;
-  voucher: InsertTransportVoucher;
-  driverVoucherLine?: InsertDriverVoucherLine;
-  guideVoucherLine?: InsertGuideVoucherLine;
+  otherTransport?: OtherTransportWithCity | null;
+  driverVoucherLine?: InsertDriverVoucherLine | null;
+  guideVoucherLine?: InsertGuideVoucherLine | null;
+  otherTransportVoucherLine?: InsertOtherTransportVoucherLine | null;
 }
 
 export interface BookingDetails {

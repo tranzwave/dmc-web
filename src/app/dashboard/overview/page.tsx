@@ -1,5 +1,6 @@
 "use client";
 import { useOrganization, useUser } from "@clerk/nextjs";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import TitleBar from "~/components/common/titleBar";
@@ -27,13 +28,33 @@ const Overview = () => {
 
   const [loading, setLoading] = useState(true);
   const { user, isSignedIn, isLoaded } = useUser();
-  const {organization, isLoaded:isOrgLoaded} = useOrganization();
+  const {organization, isLoaded:isOrgLoaded, membership} = useOrganization();
+
+  //check params
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
+        //Check for unathetnicated param
+        if(searchParams.get("unauthenticated")){
+          toast({
+            title: "Access Denied",
+            description: "You are not authenticated to access settings",
+            duration: 5000,
+          });
+        }
+
+        // Remove the query parameter after the toast is shown
+      const newParams = new URLSearchParams(searchParams.toString());
+      newParams.delete('unauthenticated');
+      const newUrl = `${window.location.pathname}?${newParams.toString()}`;
+
+      // Update the URL without the query parameter
+      router.replace(newUrl, { scroll: false });
 
         const [statsData, touristsData] = await Promise.all([
           getStat(organization?.id ?? ""),
@@ -42,6 +63,8 @@ const Overview = () => {
 
         console.log("Stats Data:", statsData);
         console.log("Tourists Data:", touristsData);
+        console.log("Organization Data:", membership);
+        console.log("User Data:", user);
 
         // Transform statsData to match the required structure
         const transformedStatsData = [
@@ -85,7 +108,7 @@ const Overview = () => {
     };
 
     fetchData();
-  }, [organization]);
+  }, [organization, searchParams, router]);
 
   const calculatePercentage = (value: number) => {
 

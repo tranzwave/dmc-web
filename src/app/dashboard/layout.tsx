@@ -7,12 +7,13 @@ import TopBar from "~/components/common/topBarComponent";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import { OrganizationProvider } from "./context";
 import type { OrganizationResource } from "@clerk/types"; // Import OrganizationResource type
+import { CustomOrganizationSwitcher } from "~/components/orgSwitcher";
 
 export default function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const { user, isSignedIn, isLoaded } = useUser();
-  const { setActive, userInvitations } = useOrganizationList();
+  const { setActive, userInvitations, userMemberships, isLoaded:isOrgListLoaded } = useOrganizationList();
   const [organization, setOrganization] = useState<OrganizationResource | null>(null); // Use undefined as default
   const router = useRouter();
   const searchParams = useSearchParams()
@@ -27,8 +28,10 @@ export default function DashboardLayout({
       console.log(memberships);
       console.log(userInvitations);
 
+      
+
       // If no memberships or multiple memberships, redirect to onboarding
-      if (memberships && memberships.length !== 1 && userInvitations.data?.length === 0) {
+      if (memberships && memberships.length === 0 && userInvitations.data?.length === 0) {
         router.push("/onboarding");
         return;
       }
@@ -39,9 +42,9 @@ export default function DashboardLayout({
         setOrganization(org);
       }
     }
-  }, [isSignedIn, isLoaded]);
+  }, [isSignedIn, isLoaded, isOrgListLoaded]);
 
-  if (!isLoaded || !isSignedIn || !organization) {
+  if (!isLoaded || !isSignedIn || !organization || !isOrgListLoaded) {
     return (
       <div className="layout">
         <div className="side-nav">
@@ -57,23 +60,29 @@ export default function DashboardLayout({
     );
   }
 
-  if (!(user?.organizationMemberships && user?.organizationMemberships.length !== 1 && userInvitations.data?.length === 0)) {
-    return (
-      <OrganizationProvider initialOrg={organization}>
-        <div className="layout">
-          <div className="side-nav">
-            <SideNavBar />
-          </div>
-          <div className="top-bar">
-            <TopBar />
-          </div>
-          <div className="dashboard-content">
-            {children}
-          </div>
-        </div>
-      </OrganizationProvider>
-    );
-  }
+  // if(userMemberships.data?.length > 1){
+  //   return (
+  //     <CustomOrganizationSwitcher/>
+  //   )
+  // }
 
-  return null;
+  return (
+    <OrganizationProvider initialOrg={organization}>
+      <div className="layout">
+        <div className="side-nav">
+          <SideNavBar />
+        </div>
+        <div className="top-bar">
+          <TopBar />
+        </div>
+        <div className="dashboard-content">
+          {children}
+        </div>
+      </div>
+    </OrganizationProvider>
+  );
+  // if (!(user?.organizationMemberships && user?.organizationMemberships.length !== 1 && userInvitations.data?.length === 0)) {
+  // }
+
+  // return null;
 }

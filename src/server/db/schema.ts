@@ -620,6 +620,36 @@ export const guideLanguage = createTable(
   },
 );
 
+// Other transport table
+export const otherTransport = createTable("other_transports", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  tenantId: varchar("tenant_id", { length: 255 })
+    .references(() => tenant.id)
+    .notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  primaryEmail: varchar("primary_email", { length: 255 }).notNull(),
+  primaryContactNumber: varchar("primary_contact_number", {
+    length: 20,
+  }).notNull(),
+  streetName: varchar("street_name", { length: 255 }).notNull(),
+  cityId: integer("city_id")
+    .references(() => city.id)
+    .notNull(),
+  province: varchar("province", { length: 255 }).notNull(),
+  transportMethod: varchar("transport_method", { length: 255 }).notNull(),
+  vehicleType: varchar("vehicle_type", { length: 255 }).notNull(),
+  startLocation: varchar("start_location", { length: 255 }).notNull(),
+  destination: varchar("destination", { length: 255 }).notNull(),
+  capacity: integer("capacity").notNull(),
+  price: numeric("price", { precision: 4 }).notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
 // Transport Vouchers table
 export const transportVoucher = createTable("transport_vouchers", {
   id: varchar("id", { length: 255 })
@@ -631,6 +661,10 @@ export const transportVoucher = createTable("transport_vouchers", {
     .notNull(),
   driverId: varchar("driver_id", { length: 255 }).references(() => driver.id),
   guideId: varchar("guide_id", { length: 255 }).references(() => guide.id),
+  //other transport id
+  otherTransportId: varchar("other_transport_id", { length: 255 }).references(
+    () => otherTransport.id,
+  ),
   coordinatorId: varchar("coordinator_id", { length: 255 }),
   // .references(() => user.id),
   status: statusEnum("status").default("inprogress"),
@@ -679,6 +713,37 @@ export const guideVoucherLine = createTable("guide_voucher_lines", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
+
+//Other transport voucher line
+export const otherTransportVoucherLine = createTable(
+  "other_transport_voucher_lines",
+  {
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    transportVoucherId: varchar("transport_voucher_id", { length: 255 })
+      .references(() => transportVoucher.id)
+      .notNull(),
+    
+    otherTransportId: varchar("other_transport_id", { length: 255 })
+      .references(() => otherTransport.id)
+      .notNull(),
+    //date and time
+    date: varchar("date", { length: 100 }).notNull(),
+    time: varchar("time", { length: 10 }).notNull(),
+    //Start and end location
+    startLocation: varchar("start_location", { length: 255 }).notNull(),
+    endLocation: varchar("end_location", { length: 255 }).notNull(),
+    //adults and kids count
+    adultsCount: integer("adults_count").notNull(),
+    kidsCount: integer("kids_count").notNull(),
+    //remarks
+    remarks: text("remarks"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  },
+);
 
 // Activity Vendors table
 export const activityVendor = createTable("activity_vendors", {
@@ -1050,6 +1115,20 @@ export const guideRelations = relations(guide, ({ many, one }) => ({
   transportVouchers: many(transportVoucher),
 }));
 
+// Other Transport table relations
+
+export const otherTransportRelations = relations(
+  otherTransport,
+  ({ one, many }) => ({
+    city: one(city, {
+      fields: [otherTransport.cityId],
+      references: [city.id],
+    }),
+    transportVoucher: many(transportVoucher),
+    otherTransportVoucherLines: many(otherTransportVoucherLine),
+  }),
+);
+
 // Driver-Vehicle join table relations
 export const driverVehicleRelations = relations(driverVehicle, ({ one }) => ({
   driver: one(driver, {
@@ -1108,6 +1187,21 @@ export const guideVoucherLineRelations = relations(
   }),
 );
 
+// OtherTransportVoucherLine table relations
+export const otherTransportVoucherLineRelations = relations(
+  otherTransportVoucherLine,
+  ({ one }) => ({
+    transportVoucher: one(transportVoucher, {
+      fields: [otherTransportVoucherLine.transportVoucherId],
+      references: [transportVoucher.id],
+    }),
+    otherTransport: one(otherTransport, {
+      fields: [otherTransportVoucherLine.otherTransportId],
+      references: [otherTransport.id],
+    }),
+  }),
+);
+
 // Transport Vouchers table relations
 export const transportVouchersRelations = relations(
   transportVoucher,
@@ -1124,8 +1218,13 @@ export const transportVouchersRelations = relations(
       fields: [transportVoucher.guideId],
       references: [guide.id],
     }),
+    otherTransport: one(otherTransport, {
+      fields: [transportVoucher.otherTransportId],
+      references: [otherTransport.id],
+    }),
     driverVoucherLines: many(driverVoucherLine),
     guideVoucherLines: many(guideVoucherLine),
+    otherTransportVoucherLines: many(otherTransportVoucherLine),
   }),
 );
 

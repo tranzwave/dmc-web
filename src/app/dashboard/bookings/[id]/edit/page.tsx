@@ -144,8 +144,8 @@ const EditBooking = ({ id }: { id: string }) => {
         // }
 
         if (transportVouchers) {
-          const vouchers = transportVouchers.map((v) => {
-            const { driver, guide, guideVoucherLines, ...voucher } = v;
+          const vouchers:TransportVoucher[] = transportVouchers.map((v) => {
+            const { driver, guide, otherTransport, otherTransportVoucherLines, guideVoucherLines, ...voucher } = v;
         
             const driverVoucherLine = v.driverVoucherLines && v.driverVoucherLines.length > 0
               ? v.driverVoucherLines[0]
@@ -154,58 +154,18 @@ const EditBooking = ({ id }: { id: string }) => {
             const guideVoucherLine = guideVoucherLines && guideVoucherLines.length > 0
               ? guideVoucherLines[0]
               : undefined;
+
+            const otherTransportVoucherLine = otherTransportVoucherLines && otherTransportVoucherLines.length > 0
+              ? otherTransportVoucherLines[0]
+              : undefined;
         
             return {
-              driver: driver
-                ? {
-                    id: driver.id,
-                    name: driver.name,
-                    createdAt: driver.createdAt,
-                    updatedAt: driver.updatedAt,
-                    tenantId: driver.tenantId,
-                    primaryEmail: driver.primaryEmail,
-                    primaryContactNumber: driver.primaryContactNumber,
-                    streetName: driver.streetName,
-                    province: driver.province,
-                    cityId: driver.cityId,
-                    type: driver.type,
-                    driversLicense: driver.driversLicense,
-                    insurance: driver.insurance,
-                  }
-                : null,
-              guide: guide
-                ? {
-                    id: guide.id,
-                    name: guide.name,
-                    createdAt: guide.createdAt,
-                    updatedAt: guide.updatedAt,
-                    tenantId: guide.tenantId,
-                    primaryEmail: guide.primaryEmail,
-                    primaryContactNumber: guide.primaryContactNumber,
-                    streetName: guide.streetName,
-                    province: guide.province,
-                    cityId: guide.cityId,
-                    type: guide.type,
-                    guideLicense: guide.guideLicense,
-                  }
-                : null,
-              driverVoucherLine: driverVoucherLine
-                ? {
-                    id: driverVoucherLine.id,
-                    transportVoucherId: driverVoucherLine.transportVoucherId,
-                    createdAt: driverVoucherLine.createdAt,
-                    updatedAt: driverVoucherLine.updatedAt,
-                    vehicleType: driverVoucherLine.vehicleType
-                  }
-                : undefined,
-              guideVoucherLine: guideVoucherLine
-                ? {
-                    id: guideVoucherLine.id,
-                    transportVoucherId: guideVoucherLine.transportVoucherId,
-                    createdAt: guideVoucherLine.createdAt,
-                    updatedAt: guideVoucherLine.updatedAt,
-                  }
-                : undefined,
+              driver: driver ?? null,
+              guide: guide ?? null,
+              otherTransport: otherTransport ?? null,
+              otherTransportVoucherLine: otherTransportVoucherLine ?? null, 
+              driverVoucherLine: driverVoucherLine ?? undefined,
+              guideVoucherLine: guideVoucherLine ?? undefined,
               voucher,
             };
           });
@@ -361,7 +321,7 @@ const EditBooking = ({ id }: { id: string }) => {
                   isCompleted = {false}
                   inProgress = {activeTab == "submit"}
                 >
-                  Summary
+                  Itinerary
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="general">

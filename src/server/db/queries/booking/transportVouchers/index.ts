@@ -175,3 +175,49 @@ export const deleteGuideTransportVoucher = async (transportVoucherId: string, re
     throw new Error(`Failed to update activity voucher line or associated voucher`);
   }
 };
+
+//delete other transport voucher
+export const deleteOtherTransportVoucher = async (transportVoucherId: string, reasonToDelete: string) => {
+  try {
+    const result = await db.transaction(async (trx) => {
+      // Fetch the activity voucher line to check if it exists
+      const [voucherLine] = await trx
+        .select()
+        .from(transportVoucher)  // Assuming activityVoucher exists
+        .where(eq(transportVoucher.id, transportVoucherId))  // Updated for activityVoucher.id
+        .execute();
+
+      if (!voucherLine || !voucherLine.otherTransportId) {
+        throw new Error(`No transport voucher line found with ID: ${transportVoucherId}`);
+      }
+
+      const { otherTransportId } = voucherLine;
+
+      //update the status of the selected transport voucher line to "deleted"
+      const [updatedVoucherLine] = await trx
+        .update(transportVoucher)  // Update activityVoucher
+        .set({
+          status: 'cancelled',  // Update the status to "deleted"
+          reasonToDelete: reasonToDelete
+        })
+        .where(eq(transportVoucher.id, transportVoucherId))  // Where id matches voucherLineId
+        .returning()
+        .execute();
+
+      if (!updatedVoucherLine?.id) {
+        throw new Error(`Failed to update the status of voucher line with ID: ${transportVoucherId}`);
+      }
+
+      // Return the updated voucher line and potentially the updated voucher
+      return {
+        updatedVoucherLine,
+      };
+    });
+
+    return result;
+
+    } catch (error) {
+      console.error(`Error updating voucher line with ID: ${transportVoucherId}`, error);
+      throw new Error(`Failed to update transport voucher line or associated voucher`);
+    }
+  }

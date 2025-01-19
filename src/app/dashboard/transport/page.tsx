@@ -2,24 +2,29 @@
 import { Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import TitleBar from "~/components/common/titleBar";
+import { otherTransportColumns, OtherTransportWithCity } from "~/components/transports/addTransport/forms/generalForm/other-transport/columns";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import {
   driverColumns,
   DriverDTO,
 } from "~/lib/types/driver/type";
 import { guideColumns, GuideDTO } from "~/lib/types/guide/type";
-import { getAllDrivers, getAllGuides } from "~/server/db/queries/transport";
+import { getAllDrivers, getAllGuides, getAllOtherTransports } from "~/server/db/queries/transport";
+import { SelectCity, SelectOtherTransport } from "~/server/db/schemaTypes";
 
 const TransportHome = () => {
   const pathname = usePathname();
 
   const [data, setData] = useState<DriverDTO[]>([]);
   const [guideData, setGuideData] = useState<GuideDTO[]>([]);
+  const [otherTransportData, setOtherTransportData] = useState<OtherTransportWithCity[]>([]);
+  const [cityData, setCityData] = useState<(SelectOtherTransport & SelectCity)[]>([]);
   // const [selectedTransport, setSelectedTransport] = useState<Driver | null>(null);
   const [loading, setLoading] = useState<boolean>(true); // Added loading state
   const [error, setError] = useState<string | null>(null); // Added error state
@@ -59,6 +64,24 @@ const TransportHome = () => {
     fetchGuideData();
   }, []);
 
+  //Fetch other transport data
+  useEffect(() => {
+    async function fetchOtherTransportData() {
+      try {
+        setLoading(true);
+        const result = await getAllOtherTransports();
+        setOtherTransportData(result);
+      } catch (error) {
+        console.error("Failed to fetch transport data:", error);
+        setError("Failed to load data.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchOtherTransportData();
+  }, []);
+
   const filteredData = data.filter((driver) => {
     const searchTerm = searchQuery.toLowerCase();
 
@@ -74,6 +97,18 @@ const TransportHome = () => {
     const searchTerm = searchQuery.toLowerCase();
 
     const matchesSearch = guide.name
+      .toString()
+      .toLowerCase()
+      .includes(searchTerm);
+
+    return matchesSearch;
+  });
+
+  //filtered other transport data
+  const filteredOtherTransportData = otherTransportData.filter((otherTransport) => {
+    const searchTerm = searchQuery.toLowerCase();
+
+    const matchesSearch = otherTransport.name
       .toString()
       .toLowerCase()
       .includes(searchTerm);
@@ -116,6 +151,9 @@ const TransportHome = () => {
               <Link href={`${pathname}/add`}>
                 <Button variant="primaryGreen">Add Driver / Chauffeur</Button>
               </Link>
+              <Link href={`${pathname}/other-transport/add`}>
+                <Button variant="primaryGreen">Add Other</Button>
+              </Link>
             </div>
           </div>
           <div className="relative w-[40%]">
@@ -129,17 +167,30 @@ const TransportHome = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="flex flex-row justify-center gap-3 mb-4">
-            <div className="w-[90%]">
-              <div>Driver and Chauffeur</div>
-              <DataTable columns={driverColumns} data={filteredData} />
-            </div>
-          </div>
-          <div className="flex flex-row justify-center gap-3 mb-4">
-            <div className="w-[90%]">
-              <div>Guide</div>
-              <DataTable columns={guideColumns} data={filteredGuideData} />
-            </div>
+          <div className="w-full flex items-center justify-center">
+              <Tabs defaultValue="driver" className="w-full justify-center">
+              <TabsList>
+                <TabsTrigger value="driver">Driver and Chauffeur</TabsTrigger>
+                <TabsTrigger value="guide">Guide</TabsTrigger>
+                <TabsTrigger value="other">Other Transport</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="driver" className="flex justify-center">
+                <div className="w-[90%]">
+                <DataTable columns={driverColumns} data={filteredData} />
+                </div>
+              </TabsContent>
+              <TabsContent value="guide" className="flex justify-center">
+                <div className="w-[90%]">
+                <DataTable columns={guideColumns} data={filteredGuideData} />
+                </div>
+              </TabsContent>
+              <TabsContent value="other" className="flex justify-center">
+                <div className="w-[90%]">
+                <DataTable columns={otherTransportColumns} data={filteredOtherTransportData} />
+                </div>
+              </TabsContent>
+              </Tabs>
           </div>
         </div>
       </div>

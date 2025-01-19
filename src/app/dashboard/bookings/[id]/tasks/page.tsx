@@ -167,7 +167,19 @@ const Page = ({ params }: { params: { id: string } }) => {
                 {/* <TransportTab onAddTransport={addTransport} /> */}
                 <TransportTasksTab
                   bookingLineId={params.id}
-                  vouchers={bookingLine?.transportVouchers ?? []}
+                  bookingData={bookingLine}
+                  vouchers={bookingLine?.transportVouchers.map(t => {
+                    const { driver,guide,otherTransport,driverVoucherLines, guideVoucherLines, otherTransportVoucherLines, ...voucher } = t;
+                    return {
+                      voucher: voucher,
+                      driver: driver,
+                      guide: guide,
+                      otherTransport: otherTransport,
+                      driverVoucherLine: driver ? driverVoucherLines[0] : null,
+                      guideVoucherLine: guide ? guideVoucherLines[0] : null,
+                      otherTransportVoucherLine: otherTransport ? otherTransportVoucherLines[0] : null
+                    }
+                  }) ?? []}
                 />
               </TabsContent>
               <TabsContent value="shops">

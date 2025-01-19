@@ -247,12 +247,6 @@ const TransportForm: React.FC<TransportFormProps> = ({
                         />
                       </PopoverContent>
                     </Popover>
-                  {/* <Input
-                    type="date"
-                    {...field}
-                    min={bookingDetails.general.startDate ?? ""}
-                    max={bookingDetails.general.endDate ?? ""}
-                  /> */}
                 </FormControl>
                 <FormMessage />
               </FormItem>
