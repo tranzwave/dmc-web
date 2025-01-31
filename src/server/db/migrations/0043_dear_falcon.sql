@@ -1,0 +1,1 @@
+ALTER TABLE "dmc-web_booking_lines" ALTER COLUMN "tour_invoice" SET DEFAULT '{}'::jsonb;

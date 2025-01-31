@@ -87,3 +87,29 @@ export type FlightDetails = {
   departureDate: string;
   departureTime: string;
 };
+
+export type InvoiceDetails = {
+  dueDate: string;
+  depositPayment: string;
+  currency: string;
+  bankCharges: string;
+  methodOfPayment: string;
+  creditPeriod: string;
+  issuedFor: string;
+  issuedBy: string;
+}
+
+//type for tour invoice entry
+export type TourInvoiceEntry = {
+  service: string;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+};
+
+export type TourInvoice = {
+  entries: TourInvoiceEntry[];
+  invoiceDetails: InvoiceDetails;
+};
+

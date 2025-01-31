@@ -55,7 +55,7 @@ export default function LandingPage() {
       {/* Screenshot Section */}
 
       {/* Logos Section */}
-      <section className="py-16 bg-gray-50">
+      {/* <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 items-center justify-items-center">
             {[...Array(6)].map((_, i) => (
@@ -70,7 +70,7 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Features Section */}
       <section className="py-20">

@@ -27,6 +27,8 @@ import { TourPacket } from "~/lib/types/booking";
 import { updateTourPacketList } from "~/server/db/queries/booking";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import TourPacketCheckListPDF from "./tourPacketCheckListDocument";
+import TourInvoiceModal from "./proformaInvoice/tourInvoiceModal";
+import TourInvoiceModalTrigger from "./proformaInvoice/tourInvoiceModalTrigger";
 
 interface SidePanelProps {
   booking: BookingDTO | null;
@@ -44,6 +46,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
   const [coordinatorAndManager, setCoordinatorAndManager] = useState<string[]>(['init-c', 'init-m'])
   const [members, setMembers] = useState<OrganizationMembershipResource[]>([]); // Correct type for members
   const [showTourPacket, setShowTourPacket] = useState(false);
+  const [showTourInvoice, setShowTourInvoice] = useState(false);
 
   const { organization, isLoaded: isOrgLoaded } = useOrganization();
   const { isLoaded, user } = useUser();
@@ -132,6 +135,10 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
 
   const onTourPacketClick = () => {
     setShowTourPacket(true);
+  }
+
+  const onTourInvoiceClick = () => {
+    setShowTourInvoice(true);
   }
 
   const fetchMembers = async () => {
@@ -257,7 +264,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
         </div>
 
         <Link href={`${pathname}/${booking.id}/edit?tab=submit`}>
-            <Button variant={"primaryGreen"}>Itinerary</Button>
+          <Button variant={"primaryGreen"}>Itinerary</Button>
         </Link>
       </div>
       <div className="grid grid-cols-3 rounded-lg shadow-sm">
@@ -298,11 +305,22 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
         locked: booking.includes?.shops ? false : true,
         statusCount: getStatusesCount(shopVouchers),
       })}
-      <Button
-        variant={"primaryGreen"}
-        onClick={onTourPacketClick}
-        className="w-full"
-      >Tour Packet - Check List</Button>
+      <div className="flex flex-row justify-stretch gap-2">
+        <Button
+          variant={"primaryGreen"}
+          onClick={onTourPacketClick}
+          className="w-full"
+        >Tour Packet - Check List</Button>
+        {/* <Button
+          variant={"primaryGreen"}
+          onClick={onTourInvoiceClick}
+          className="w-full"
+        >Proforma Invoice</Button> */}
+        <div className="w-full">
+        <TourInvoiceModalTrigger bookingData={booking} />
+        </div>
+
+      </div>
       <Dialog open={showTourPacket} onOpenChange={setShowTourPacket} >
         <DialogContent className="max-w-fit max-h-[90%] overflow-y-scroll">
           <DialogHeader>
@@ -318,13 +336,31 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
               </div>
             )}
             {booking !== null && organization && user && (
-              <div>
-                <TourPacketCheckList organization={organization} user={user as UserResource} bookingData={booking}/>
-              </div>
+                <TourPacketCheckList organization={organization} user={user as UserResource} bookingData={booking} />
             )}
           </div>
         </DialogContent>
       </Dialog>
+      {/* <Dialog open={showTourInvoice} onOpenChange={setShowTourInvoice} >
+        <DialogContent className="max-w-fit max-h-[90%] overflow-y-scroll">
+          <DialogHeader>
+            <DialogTitle>Proforma Invoice | {booking.id}</DialogTitle>
+            <DialogDescription>
+              You can add or remove entries to the proforma invoice
+            </DialogDescription>
+          </DialogHeader>
+          <div>
+            {!booking.tourPacket && (
+              <div className="flex items-center justify-center">
+                Loading...
+              </div>
+            )}
+            {booking !== null && organization && user && (
+                <TourInvoiceModal organization={organization} user={user as UserResource} bookingData={booking} />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog> */}
     </div>
   );
 };

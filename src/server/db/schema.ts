@@ -16,7 +16,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { AdapterAccount } from "next-auth/adapters";
-import { FlightDetails, TourExpense } from "~/lib/types/booking";
+import { FlightDetails, TourExpense, TourInvoice, TourInvoiceEntry } from "~/lib/types/booking";
 
 export const createTable = pgTableCreator((name) => `dmc-web_${name}`);
 
@@ -199,6 +199,10 @@ export const bookingLine = createTable("booking_lines", {
   flightDetails: jsonb("flight_details")
     .$type<FlightDetails>()
     .default(sql`'{"arrivalFlight": "", "arrivalDate": "", "arrivalTime": "", "departureFlight": "", "departureDate": "", "departureTime": ""}'::jsonb`),
+  //jsonb field for tour invoice. use TourInvoiceEntry
+  tourInvoice: jsonb("tour_invoice")
+    .$type<TourInvoice>()
+    .default(sql`'{"entries": [], "invoiceDetails": {}}'::jsonb`),
 
 });
 

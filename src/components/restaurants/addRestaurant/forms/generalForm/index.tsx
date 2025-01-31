@@ -1,3 +1,4 @@
+import { CityAdder } from "~/components/common/cityAdder";
 import GeneralForm from "./generalForm";
 
 const GeneralTab = ()=>{
@@ -6,6 +7,7 @@ const GeneralTab = ()=>{
             <div className='card w-[100%] space-y-6'>
                 <div className='card-title'>General Information</div>
                 <GeneralForm />
+                <CityAdder />
             </div>
         </div>
     )
