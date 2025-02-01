@@ -1,3 +1,4 @@
+import CityAdder from "~/components/common/cityAdder";
 import AddOtherTransportGeneralForm from "./generalForm";
 
 const AddOtherTransportGeneralTab = ()=>{
@@ -6,6 +7,7 @@ const AddOtherTransportGeneralTab = ()=>{
             <div className='card w-[100%] space-y-6'>
                 <div className='card-title'>General Information</div>
                 <AddOtherTransportGeneralForm />
+                <CityAdder />
             </div>
         </div>
     )

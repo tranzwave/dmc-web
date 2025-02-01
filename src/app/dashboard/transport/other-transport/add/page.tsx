@@ -1,6 +1,7 @@
 "use client";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import CityAdder from "~/components/common/cityAdder";
 import TitleBar from "~/components/common/titleBar";
 import AddOtherTransportGeneralForm from "~/components/transports/addTransport/forms/generalForm/other-transport/generalForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
@@ -55,6 +56,7 @@ const AddOtherTransport = () => {
               </TabsList>
               <TabsContent value="general">
                 <AddOtherTransportGeneralForm />
+                <CityAdder />
               </TabsContent>
                   {/* <TabsContent value="documents">
                     <DocumentsTab />
