@@ -1,4 +1,5 @@
-import { CityAdder } from "~/components/common/cityAdder";
+
+import CityAdder from "~/components/common/cityAdder";
 import GeneralForm from "./generalForm";
 
 const GeneralTab = ()=>{

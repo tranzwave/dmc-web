@@ -1,3 +1,4 @@
+"use client";
 import { useOrganization } from "@clerk/nextjs";
 import { use, useEffect, useState } from "react";
 import { Button } from "~/components/ui/button"
@@ -14,8 +15,12 @@ import {
 import { SelectCity } from "~/server/db/schemaTypes";
 import LoadingLayout from "../dashboardLoading";
 import { getAllCities } from "~/server/db/queries/restaurants";
+import { set } from "date-fns";
+import { create } from "domain";
+import { createCity } from "~/server/db/queries/cities";
+import { LoaderCircle } from "lucide-react";
 
-export function CityAdder() {
+const CityAdder = () => {
 
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -23,6 +28,8 @@ export function CityAdder() {
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredCities, setFilteredCities] = useState<SelectCity[]>([]);
     const { organization, isLoaded } = useOrganization();
+    const [newCity, setNewCity] = useState<string>('');
+    const [saving, setSaving] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -57,6 +64,41 @@ export function CityAdder() {
         setFilteredCities(cities.filter(city => city.name.toLowerCase().includes(query)));
     };
 
+    const handleCityInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const query = e.target.value.toLowerCase();
+        setNewCity(query);
+    }
+
+    const handleAddCity = async () => {
+        try {
+            setSaving(true);
+            const country = organization?.publicMetadata.country as string ?? "LK";
+            const cityExists = cities.find(city => city.name.toLowerCase() === newCity.toLowerCase());
+
+            if (cityExists) {
+                throw new Error("City already exists");
+            }
+
+            // make new city name sentence case
+            const cityName = newCity.charAt(0).toUpperCase() + newCity.slice(1);
+
+            const response = await createCity(cityName, country);
+
+            if (!response[0]) {
+                throw new Error("Failed to add city");
+            }
+            setCities([...cities, response[0]]);
+            setFilteredCities([...filteredCities, response[0]]);
+
+            setSaving(false);
+        } catch (error) {
+            console.error(error);
+            setError("Failed to add city");
+        } finally {
+            setSaving(false);
+        }
+    }
+
     if (loading) {
         <div className="text-[13px] cursor-pointer">Loading the city adder</div>
     }
@@ -80,10 +122,17 @@ export function CityAdder() {
                 <div className="my-2 flex flex-col gap-2">
                     <div>
                         <Label htmlFor="city">Add a new city</Label>
-                        <Input id="city" />
+                        <Input id="city" onChange={handleCityInput} />
                     </div>
                     <div className="w-full flex justify-end">
-                        <Button variant={"primaryGreen"}>Add City</Button>
+                        <Button variant={"primaryGreen"} onClick={handleAddCity} disabled={saving}>
+                            {saving ? (
+                                <div className="flex flex-row items-center">
+                                    <LoaderCircle size={16} className="mr-2 animate-spin" />
+                                    <span>Adding</span>
+                                </div>
+                            ) : "Add City"}
+                        </Button>
                     </div>
                 </div>
                 <div className="my-2">
@@ -107,3 +156,4 @@ export function CityAdder() {
         </Sheet>
     )
 }
+  export default CityAdder;
