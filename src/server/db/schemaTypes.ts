@@ -1,4 +1,4 @@
-import { activity, activityType, activityVendor, activityVoucher, agent, booking, bookingAgent, bookingLine, city, client, country, driver, driverLanguage, driverVehicle, driverVoucherLine, guide, guideLanguage, guideVoucherLine, hotel, hotelRoom, hotelStaff, hotelVoucher, hotelVoucherLine, language, restaurant, restaurantMeal, restaurantVoucher, restaurantVoucherLine, shop, shopShopType, shopType, shopVoucher, tenant, transportVoucher, user, vehicle } from './schema';
+import { activity, activityType, activityVendor, activityVoucher, agent, booking, bookingAgent, bookingLine, city, client, country, driver, driverLanguage, driverVehicle, driverVoucherLine, guide, guideLanguage, guideVoucherLine, hotel, hotelRoom, hotelStaff, hotelVoucher, hotelVoucherLine, language, otherTransport, otherTransportVoucherLine, restaurant, restaurantMeal, restaurantVoucher, restaurantVoucherLine, shop, shopShopType, shopType, shopVoucher, tenant, transportVoucher, user, vehicle } from './schema';
 
 //Country Types
 export type InsertCountry = typeof country.$inferInsert;
@@ -61,6 +61,10 @@ export type SelectGuideLanguage = typeof guideLanguage.$inferSelect;
 
 export type InsertLanguage = typeof language.$inferInsert;
 export type SelectLanguage = typeof language.$inferSelect;
+
+//Other transport types
+export type InsertOtherTransport = typeof otherTransport.$inferInsert;
+export type SelectOtherTransport = typeof otherTransport.$inferSelect;
 
 
 // Activity Vendor Types
@@ -138,6 +142,11 @@ export type SelectDriverVoucherLine = typeof driverVoucherLine.$inferSelect;
 // Transport Voucher Types
 export type InsertGuideVoucherLine = typeof guideVoucherLine.$inferInsert;
 export type SelectGuideVoucherLine = typeof guideVoucherLine.$inferSelect;
+
+//Other transport voucher lines
+export type InsertOtherTransportVoucherLine = typeof otherTransportVoucherLine.$inferInsert;
+export type SelectOtherTransportVoucherLine = typeof otherTransportVoucherLine.$inferSelect;
+
 
 // Activity Voucher Types
 export type InsertActivityVoucher = typeof activityVoucher.$inferInsert;

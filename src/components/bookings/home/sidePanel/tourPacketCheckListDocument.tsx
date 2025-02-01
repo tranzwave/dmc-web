@@ -20,7 +20,7 @@ const TourPacketCheckListPDF = ({ organization, user, bookingData }: TourPacketC
   console.log(bookingData.tourPacket)
 
   return (
-    <div className="flex flex-col border">
+    <div className="flex flex-col border text-lg">
       <VoucherHeader organization={organization}/>
       <div className="p-4">
         <div className="card-title w-full text-center text-[15px] font-bold">

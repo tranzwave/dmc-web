@@ -23,9 +23,9 @@ const VoucherHeader: React.FC<VoucherHeaderProps> = ({ organization }) => {
 
   const imageSrc = `${imageUrl}?${params.toString()}`
   return (
-    <div className="flex flex-row justify-center items-center p-4 border-b border-black w-full">
+    <div className="flex flex-row justify-center items-center p-4 border-b border-black w-full gap-3">
       <div>
-        <Image src={imageSrc} height={50} width={100} alt="orgLogo" />
+        <Image width={1000} height={100} src={imageUrl} alt="orgLogo" style={{ width: 'auto', height: '100px' }}/>
       </div>
       <div>
         <div className="flex flex-col justify-center">

@@ -1,4 +1,6 @@
-import { SelectActivity, SelectActivityVendor, SelectActivityVoucher, SelectAgent, SelectBooking, SelectBookingAgent, SelectBookingLine, SelectClient, SelectDriver, SelectDriverVoucherLine, SelectGuide, SelectGuideVoucherLine, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectRestaurant, SelectRestaurantVoucher, SelectRestaurantVoucherLine, SelectShop, SelectShopVoucher, SelectTenant, SelectTransportVoucher } from "~/server/db/schemaTypes";
+import { TransportVoucher } from "~/app/dashboard/bookings/[id]/edit/context";
+import { OtherTransportWithCity } from "~/components/transports/addTransport/forms/generalForm/other-transport/columns";
+import { SelectActivity, SelectActivityVendor, SelectActivityVoucher, SelectAgent, SelectBooking, SelectBookingAgent, SelectBookingLine, SelectClient, SelectDriver, SelectDriverVoucherLine, SelectGuide, SelectGuideVoucherLine, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectOtherTransport, SelectOtherTransportVoucherLine, SelectRestaurant, SelectRestaurantVoucher, SelectRestaurantVoucherLine, SelectShop, SelectShopVoucher, SelectTenant, SelectTransportVoucher } from "~/server/db/schemaTypes";
 
 export type BookingLineWithAllData = SelectBookingLine & {
   booking: SelectBooking & {
@@ -19,8 +21,11 @@ export type BookingLineWithAllData = SelectBookingLine & {
   transportVouchers: Array<SelectTransportVoucher & {
     driver: SelectDriver | null;
     guide: SelectGuide | null;
+    otherTransport: OtherTransportWithCity | null;
     driverVoucherLines: SelectDriverVoucherLine[];
     guideVoucherLines: SelectGuideVoucherLine[];
+    otherTransportVoucherLines: SelectOtherTransportVoucherLine[];
+
   }>;
   activityVouchers: Array<SelectActivityVoucher & {
     activity: SelectActivity;
@@ -82,3 +87,29 @@ export type FlightDetails = {
   departureDate: string;
   departureTime: string;
 };
+
+export type InvoiceDetails = {
+  dueDate: string;
+  depositPayment: string;
+  currency: string;
+  bankCharges: string;
+  methodOfPayment: string;
+  creditPeriod: string;
+  issuedFor: string;
+  issuedBy: string;
+}
+
+//type for tour invoice entry
+export type TourInvoiceEntry = {
+  service: string;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+};
+
+export type TourInvoice = {
+  entries: TourInvoiceEntry[];
+  invoiceDetails: InvoiceDetails;
+};
+
