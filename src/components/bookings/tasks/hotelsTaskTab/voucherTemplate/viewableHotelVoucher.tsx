@@ -40,7 +40,7 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName, organization, us
 
 
   return (
-    <div className="flex flex-col border">
+    <div className="flex flex-col">
       <VoucherHeader organization={organization}/>
       <div className="p-4">
         <div className="w-full text-center" style={{ fontWeight: 'bold', fontSize: '20px' }}>
