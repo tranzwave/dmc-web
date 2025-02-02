@@ -1,3 +1,5 @@
+import { OrganizationResource } from "@clerk/types";
+
 export function formatDate(dateString: string) {
   // Convert the date string to a Date object
   const date = new Date(dateString);
