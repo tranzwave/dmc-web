@@ -15,6 +15,12 @@ export type Transport = {
   remarks?: string; // Optional field
 };
 
+export type OtherTransportSearchType = {
+  transportType: 'Sea' | 'Land' | 'Air';
+  vehicleType: string;
+  cityId: number;
+}
+
 export const columns: ColumnDef<TransportVoucher, unknown>[] = [
   {
     header: "Name",

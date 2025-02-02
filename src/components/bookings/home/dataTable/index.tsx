@@ -80,7 +80,7 @@ export function DataTable<TData, TValue>({
                   onClick={() => handleRowClick(row.original)}
                   className={`cursor-pointer hover:bg-gray-100 ${
                     selectedRow && selectedRow === row.original
-                      ? "bg-green-200"
+                      ? "bg-gray-100"
                       : ""
                   }`}
                 >

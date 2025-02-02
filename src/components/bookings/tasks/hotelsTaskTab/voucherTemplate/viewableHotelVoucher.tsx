@@ -35,12 +35,12 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName, organization, us
     voucher.voucherLines.forEach(l => {
       sum += l.roomCount * (Number(l.rate) ?? 0)
     })
-    return sum;
+    return sum ? sum.toFixed(2) : "-";
   }
 
 
   return (
-    <div className="flex flex-col border">
+    <div className="flex flex-col justify-center">
       <VoucherHeader organization={organization}/>
       <div className="p-4">
         <div className="w-full text-center" style={{ fontWeight: 'bold', fontSize: '20px' }}>

@@ -50,9 +50,11 @@ export function Navbar() {
                 <Link href="#contact" className="text-lg font-medium">
                   Contact
                 </Link>
-                <Button className="w-full bg-[#287f71] hover:bg-[#287f71]/90">
-                  Get Started
-                </Button>
+                <Link href="/dashboard/overview">
+                  <Button className="w-full bg-[#287f71] hover:bg-[#287f71]/90">
+                    Get Started
+                  </Button>
+                </Link>
               </nav>
             </SheetContent>
           </Sheet>
@@ -67,7 +69,7 @@ export function Navbar() {
                     <div className="grid gap-3 p-6 w-[400px]">
                       <div className="grid grid-cols-2 gap-4">
                         <Link
-                          href="#guest-management"
+                          href="#features"
                           className="group grid h-auto w-full items-center justify-start gap-1 rounded-md p-4 hover:bg-muted"
                         >
                           <div className="text-sm font-medium group-hover:underline">Guest Management</div>
@@ -76,7 +78,7 @@ export function Navbar() {
                           </div>
                         </Link>
                         <Link
-                          href="#booking-system"
+                          href="#features"
                           className="group grid h-auto w-full items-center justify-start gap-1 rounded-md p-4 hover:bg-muted"
                         >
                           <div className="text-sm font-medium group-hover:underline">Booking System</div>
@@ -111,9 +113,11 @@ export function Navbar() {
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
-            <Button className="bg-[#287f71] hover:bg-[#287f71]/90">
-              Get Started
-            </Button>
+            <Link href="/dashboard/overview">
+              <Button className="w-full bg-[#287f71] hover:bg-[#287f71]/90">
+                Get Started
+              </Button>
+            </Link>
           </nav>
         </div>
       </div>

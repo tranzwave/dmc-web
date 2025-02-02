@@ -288,6 +288,48 @@
       "when": 1735372805019,
       "tag": "0038_magical_wraith",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "6",
+      "when": 1736676901595,
+      "tag": "0039_powerful_spectrum",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "6",
+      "when": 1736699264231,
+      "tag": "0040_smart_shape",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "6",
+      "when": 1736754533204,
+      "tag": "0041_smooth_steel_serpent",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "6",
+      "when": 1738165071085,
+      "tag": "0042_flawless_kang",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "6",
+      "when": 1738169969487,
+      "tag": "0043_dear_falcon",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "6",
+      "when": 1738170050147,
+      "tag": "0044_conscious_puma",
+      "breakpoints": true
     }
   ]
 }

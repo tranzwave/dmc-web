@@ -9,9 +9,10 @@ import { TransportVoucherData } from ".."; // Assuming TransportVoucherData is d
 import VoucherHeader from "~/components/common/voucher/VoucherHeader";
 import { BookingLineWithAllData } from "~/lib/types/booking";
 import { OrganizationResource, UserResource } from "@clerk/types";
+import { TransportVoucher } from "~/app/dashboard/bookings/[id]/edit/context";
 
 type TransportVoucherPDFProps = {
-  voucher: TransportVoucherData;
+  voucher: TransportVoucher;
   bookingData: BookingLineWithAllData;
   organization: OrganizationResource;
   user: UserResource
@@ -42,23 +43,23 @@ const DriverTransportVoucherPDF = ({
         <div className="flex w-full flex-row justify-between">
           {/* Tour Details */}
           <div className="text-[13px]">
-            <div>Tour ID: {voucher.bookingLineId}</div>
+            <div>Tour ID: {voucher.voucher.bookingLineId}</div>
             <div>Booking Name: {bookingData.booking.client.name}</div>
             <div>Transport Type : {voucher.driver?.type}</div>
-            <div>Vehicle Type : {voucher.driverVoucherLines.map((type) => type.vehicleType)[0]}</div>
+            <div>Vehicle Type : {voucher.driverVoucherLine?.vehicleType}</div>
             <div>Driver Name : {voucher.driver?.name}</div>
             <div>No of Pax: {`${bookingData.adultsCount} Adults | ${bookingData.kidsCount} Kids`}</div>
-            <div>Language : {voucher.language}</div>
+            <div>Language : {voucher.voucher.language}</div>
           </div>
 
           <div className="text-[13px]">
-            <div>Voucher ID : {voucher.id}</div>
+            <div>Voucher ID : {voucher.voucher.id}</div>
             <div className="font-bold">Flight Details</div>
             <div>
-              Arrival by: {voucher.startDate}
+              Arrival by: {voucher.voucher.startDate}
             </div>
             <div>
-              Departure by: {voucher.endDate}
+              Departure by: {voucher.voucher.endDate}
             </div>
           </div>
         </div>

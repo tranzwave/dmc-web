@@ -3,7 +3,8 @@ import { General } from '~/components/bookings/addBooking/forms/generalForm/colu
 import { Hotel } from '~/components/bookings/addBooking/forms/hotelsForm/columns';
 import { Transport } from '~/components/bookings/addBooking/forms/transportForm/columns';
 import { Driver } from '~/lib/types/driver/type';
-import { InsertActivityVoucher, InsertDriverVoucherLine, InsertGuideVoucherLine, InsertHotelVoucher, InsertHotelVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectDriver, SelectGuide, SelectHotel, SelectRestaurant, SelectShop } from '~/server/db/schemaTypes';
+import { InsertActivityVoucher, InsertDriverVoucherLine, InsertGuideVoucherLine, InsertHotelVoucher, InsertHotelVoucherLine, InsertOtherTransportVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectDriver, SelectGuide, SelectHotel, SelectOtherTransport, SelectRestaurant, SelectShop } from '~/server/db/schemaTypes';
+import { TransportVoucher } from '../[id]/edit/context';
 
 export interface TransportWithDriver {
   transport: Transport;
@@ -32,13 +33,16 @@ export type ShopVoucher = {
   voucher: InsertShopVoucher;
 }
 
-export type TransportVoucher = {
-  driver?: SelectDriver | null
-  guide?: SelectGuide | null
-  voucher: InsertTransportVoucher;
-  driverVoucherLine?: InsertDriverVoucherLine
-  guideVoucherLine?: InsertGuideVoucherLine
-}
+// export type TransportVoucher = {
+//   voucher: InsertTransportVoucher;
+//   driver?: SelectDriver | null
+//   guide?: SelectGuide | null
+//   otherTransport?: SelectOtherTransport | null
+//   driverVoucherLine?: InsertDriverVoucherLine
+//   guideVoucherLine?: InsertGuideVoucherLine
+//   otherTransportVoucherLine?: InsertOtherTransportVoucherLine
+
+// }
 
 export interface BookingDetails {
   general: General; 

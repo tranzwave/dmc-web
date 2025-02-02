@@ -38,7 +38,8 @@ export const getBookingCountByMonth = async () => {
         })
         .from(bookingLine)
         .where(sql`${bookingLine.startDate} >= ${lastYearDate}`)
-        .groupBy(sql`DATE_TRUNC('month', ${bookingLine.startDate})`);
+        .groupBy(sql`DATE_TRUNC('month', ${bookingLine.startDate})`)
+        .orderBy(sql`DATE_TRUNC('month', ${bookingLine.startDate})`); // Ensure the data is sorted by month in the query
 
     const getMonthAndYear = (date: any) => {
         const monthNames = [

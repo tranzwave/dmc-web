@@ -3,6 +3,7 @@ import { Calendar } from "~/components/ui/calendar";
 import HotelGeneralForm from "./generalForm";
 import { useAddHotel } from "~/app/dashboard/hotels/add/context";
 import { useEffect } from "react";
+import CityAdder from "~/components/common/cityAdder";
 
 const HotelGeneralTab = ()=>{
     const {hotelGeneral} = useAddHotel()
@@ -15,6 +16,7 @@ const HotelGeneralTab = ()=>{
             <div className='card w-[90%] space-y-6'>
                 <div className='card-title'>General Information</div>
                 <HotelGeneralForm defaultValues={hotelGeneral}/>
+                <CityAdder />
             </div>
         </div>
     )

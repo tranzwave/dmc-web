@@ -4,8 +4,7 @@ import { LoaderCircle, SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
-import { TransportVoucher } from "~/app/dashboard/bookings/add/context";
+import { TransportVoucher, useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 import DeletePopup from "~/components/common/deletePopup";
@@ -36,6 +35,8 @@ import {
 } from "~/server/db/schemaTypes";
 import { columns, Transport } from "./columns";
 import TransportForm from "./transportsForm";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import OtherTransportTab from "./otherTransportTab";
 
 type DriverWithoutVehiclesAndLanguages = Omit<
   DriverData,
@@ -131,43 +132,6 @@ const TransportTab = () => {
     fetchData();
   }, []);
 
-  // const handleRowClick = (type: DriverData | GuideData) => {
-  //   const {
-  //     vehicles,
-  //     languages,
-  //     ...driverOrGuideWithoutExtraFields
-  //   }: DriverWithoutVehiclesAndLanguages | GuideWithoutLanguages | any = type;
-
-  //   if (searchDetails) {
-  //     const isDriver = "vehicles" in type;
-  //     addTransport({
-  //       driver: isDriver ? driverOrGuideWithoutExtraFields : null,
-  //       guide: !isDriver ? driverOrGuideWithoutExtraFields : null,
-  //       voucher: {
-  //         bookingLineId: bookingLineId ?? "",
-  //         coordinatorId: bookingDetails.general.marketingManager,
-  //         driverId: isDriver ? type.id : undefined,
-  //         guideId: !isDriver ? type.id : undefined,
-  //         startDate: searchDetails.startDate,
-  //         endDate: searchDetails.endDate,
-  //         language: searchDetails.languageCode,
-  //         remarks: searchDetails.remarks,
-  //       },
-  //       driverVoucherLine: isDriver
-  //         ? {
-  //             transportVoucherId: 'transportVoucher.id',
-  //             vehicleType: searchDetails.vehicleType,
-  //           }
-  //         : undefined,
-  //       guideVoucherLine: !isDriver
-  //         ? {
-  //             transportVoucherId: 'transportVoucher.id',
-  //           }
-  //         : undefined,
-  //     });
-  //   }
-  // };
-
   const handleRowClick = (type: DriverData | GuideData) => {
     const {
       vehicles,
@@ -201,15 +165,15 @@ const TransportTab = () => {
         // Add driverVoucherLine if it's a driver
         driverVoucherLine: isDriver
           ? {
-              transportVoucherId: "transportVoucher.id", // Ensure this is dynamically set
-              vehicleType: searchDetails.vehicleType || "DefaultVehicleType", // Fallback value if missing
-            }
+            transportVoucherId: "transportVoucher.id", // Ensure this is dynamically set
+            vehicleType: searchDetails.vehicleType || "DefaultVehicleType", // Fallback value if missing
+          }
           : undefined,
         // Add guideVoucherLine if it's a guide
         guideVoucherLine: !isDriver
           ? {
-              transportVoucherId: "transportVoucher.id", // Ensure this is dynamically set
-            }
+            transportVoucherId: "transportVoucher.id", // Ensure this is dynamically set
+          }
           : undefined,
       });
     }
@@ -298,18 +262,6 @@ const TransportTab = () => {
       setGuides(filteredGuides);
     } catch (error) {
       console.error("Error searching for guides:", error);
-    }
-  };
-
-  const onNextClick = () => {
-    console.log(bookingDetails);
-    if (bookingDetails.transport.length > 0) {
-      setActiveTab("shops");
-    } else {
-      toast({
-        title: "Uh Oh!",
-        description: "You must add hotel transport to continue",
-      });
     }
   };
 
@@ -445,7 +397,7 @@ const TransportTab = () => {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="mx-9 flex flex-row justify-center gap-3">
+      <div className="flex flex-row justify-center gap-3">
         <div className="flex flex-col gap-3">
           <Calendar
             mode="range"
@@ -457,94 +409,115 @@ const TransportTab = () => {
           />
           {/* <div className="border card"></div> */}
         </div>
-        <div className="card w-full space-y-6">
-          <div className="card-title">Transport Information</div>
-          <TransportForm
-            onSearchTransport={updateSearchData}
-            vehicleTypes={vehicleTypes}
-            languages={languages}
-          />
-          <div className="w-full space-y-2">
-            <div className="flex flex-row items-center justify-between">
-              {searchDetails?.type !== "Guide" ? (
-                <div>
-                  {searchDetails?.type} - {searchDetails?.vehicleType}
+        <Tabs defaultValue="driversAndGuides" className="w-full">
+          <TabsList className="w-[30%]">
+            <TabsTrigger value="driversAndGuides" className="rounded-l-md">Drivers & Guides</TabsTrigger>
+            <TabsTrigger value="otherTransport" className="rounded-r-md">Other Transport</TabsTrigger>
+          </TabsList>
+          <TabsContent value="driversAndGuides" className="px-0">
+            <div className="card w-full space-y-6">
+              <div className="card-title">Transport Information</div>
+              <TransportForm
+                onSearchTransport={updateSearchData}
+                vehicleTypes={vehicleTypes}
+                languages={languages}
+              />
+              <div className="w-full space-y-2">
+                <div className="flex flex-row items-center justify-between">
+                  {searchDetails?.type !== "Guide" ? (
+                    <div>
+                      {searchDetails?.type} - {searchDetails?.vehicleType}
+                    </div>
+                  ) : (
+                    <div>{searchDetails?.type}</div>
+                  )}
+                  <div className="flex flex-row items-center gap-2 rounded-lg border px-4 py-2">
+                    <SearchIcon size={18} color="#697077" />
+                    <div className="font-sans text-sm font-light text-[#697077]">
+                      Search for a name here
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <div>{searchDetails?.type}</div>
-              )}
-              <div className="flex flex-row items-center gap-2 rounded-lg border px-4 py-2">
-                <SearchIcon size={18} color="#697077" />
-                <div className="font-sans text-sm font-light text-[#697077]">
-                  Search for a name here
-                </div>
+                <DataTable
+                  columns={dataColumns}
+                  data={
+                    currentSearchType === "Driver"
+                      ? drivers
+                      : currentSearchType === "Chauffeur"
+                        ? drivers
+                        : currentSearchType === "Guide"
+                          ? guides
+                          : []
+                  }
+                  onRowClick={handleRowClick} // onRowClick={handleRowClick}
+                />
+              </div>
+              <div className="w-full">
+                <DataTableWithActions
+                  columns={columns}
+                  data={bookingDetails.transport.filter(t => t.otherTransport === null && t.voucher.status !== "cancelled")}
+                  onEdit={() => {
+                    console.log("edit");
+                  }}
+                  onDelete={onDelete}
+                  onRowClick={() => {
+                    console.log("row");
+                  }}
+                />
+              </div>
+              <div className="flex w-full justify-end gap-2">
+                <Button
+                  variant={"primaryGreen"}
+                  onClick={onSaveClick}
+                  disabled={saving}
+                >
+                  {saving ? (
+                    <div className="flex flex-row gap-1">
+                      <div>
+                        <LoaderCircle className="animate-spin" size={10} />
+                      </div>
+                      Saving
+                    </div>
+                  ) : (
+                    "Save"
+                  )}
+                </Button>
+                <Link href={`${pathname.split("edit")[0]}/tasks?tab=transport`}>
+                  <Button variant={"primaryGreen"}>Send Vouchers</Button>
+                </Link>
               </div>
             </div>
-            <DataTable
-              columns={dataColumns}
-              data={
-                currentSearchType === "Driver"
-                  ? drivers
-                  : currentSearchType === "Chauffeur"
-                    ? drivers
-                    : currentSearchType === "Guide"
-                      ? guides
-                      : []
-              }
-              onRowClick={handleRowClick} // onRowClick={handleRowClick}
-            />
-          </div>
-          <div className="w-full">
-            <DataTableWithActions
-              columns={columns}
-              data={bookingDetails.transport}
-              onEdit={() => {
-                console.log("edit");
-              }}
-              onDelete={onDelete}
-              onRowClick={() => {
-                console.log("row");
-              }}
-            />
-          </div>
-          <div className="flex w-full justify-end gap-2">
-            <Button
-              variant={"primaryGreen"}
-              onClick={onSaveClick}
-              disabled={saving}
-            >
-              {saving ? (
-                <div className="flex flex-row gap-1">
-                  <div>
-                    <LoaderCircle className="animate-spin" size={10} />
-                  </div>
-                  Saving
-                </div>
-              ) : (
-                "Save"
-              )}
-            </Button>
-            <Link href={`${pathname.split("edit")[0]}/tasks?tab=transport`}>
-              <Button variant={"primaryGreen"}>Send Vouchers</Button>
-            </Link>
-          </div>
-        </div>
+          </TabsContent>
+          <TabsContent value="otherTransport" className="px-0">
+            <div>
+            <OtherTransportTab />
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
-      <DeletePopup
-        itemName={`Voucher for ${selectedVoucher?.driver?.name ?? selectedVoucher?.guide?.name}`}
-        onDelete={deleteVoucherLineFromLocalContext}
-        isOpen={isUnsavedVoucherDelete}
-        setIsOpen={setIsUnsavedVoucherDelete}
-        isDeleting={isDeleting}
-      />
 
-      <DeletePopup
-        itemName={`Voucher for ${selectedVoucher?.driver?.name ?? selectedVoucher?.guide?.name}`}
-        onDelete={handleExistingVoucherDelete}
-        isOpen={isExistingVoucherDelete}
-        setIsOpen={setIsExistingVoucherDelete}
-        isDeleting={isDeleting}
-      />
+      {selectedVoucher && (selectedVoucher.driver ?? selectedVoucher?.guide) && (
+        <>
+          <DeletePopup
+            itemName={`Voucher for ${selectedVoucher?.driver?.name ?? selectedVoucher?.guide?.name}`}
+            onDelete={deleteVoucherLineFromLocalContext}
+            isOpen={isUnsavedVoucherDelete}
+            setIsOpen={setIsUnsavedVoucherDelete}
+            isDeleting={isDeleting}
+          />
+
+          <DeletePopup
+            itemName={`Voucher for ${selectedVoucher?.driver?.name ?? selectedVoucher?.guide?.name}`}
+            onDelete={handleExistingVoucherDelete}
+            isOpen={isExistingVoucherDelete}
+            setIsOpen={setIsExistingVoucherDelete}
+            isDeleting={isDeleting}
+          />
+        
+        </>
+          )
+        }
+
     </div>
   );
 };
