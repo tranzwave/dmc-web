@@ -49,6 +49,7 @@ export default function Bookings() {
     });
 
     setData(sortedResult);
+    setSelectedBooking(sortedResult[0]);
       setLoading(false);
     } catch (error) {
       console.error("Failed to fetch booking data:", error);
@@ -185,6 +186,7 @@ export default function Bookings() {
                   columns={columns}
                   data={paginatedData}
                   onRowClick={handleRowClick}
+                  selectedRow={selectedBooking ?? undefined}
                 />
                 <Pagination
                   currentPage={currentPage}

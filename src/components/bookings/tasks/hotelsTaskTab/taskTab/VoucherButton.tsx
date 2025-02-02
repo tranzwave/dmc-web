@@ -33,6 +33,7 @@ const VoucherButton: React.FC<VoucherButtonProps> = ({ voucherComponent, buttonT
           /* Custom styles */
           body {
             font-family: sans-serif;
+            font-size: 13px;
           }
 
           /* Define bg-primary-green color */

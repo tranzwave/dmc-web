@@ -22,10 +22,12 @@ const TourInvoicePDF = ({ organization, user, bookingData }: TourInvoiceDocument
   const invoiceTotal = bookingData.tourInvoice?.entries.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
 
   return (
-    <div className="flex flex-col border justify-center">
+    <div className="flex flex-col justify-center">
       <VoucherHeader organization={organization}/>
       <div className="p-4 px-7">
-        <div className="card-title w-full text-center text-[18px] font-bold">
+        <div className="card-title w-full text-center text-[18px] font-bold" style={{
+          fontSize: "18px",
+        }}>
           Proforma Invoice
         </div>
 

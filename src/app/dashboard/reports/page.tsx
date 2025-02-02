@@ -124,23 +124,22 @@ const Reports = () => {
 
   return (
     <div>
-      <div className="flex w-full flex-row justify-between gap-1">
+      <div className="flex w-full flex-row justify-between gap-1 mb-3">
         <TitleBar title="Reports" link="to AddReport" />
      
       </div>
       <div className="flex gap-10">
-        <div className="w-[40%] grid-flow-col">
+        <div className="w-[100%] flex flex-col gap-6">
           <div className="text-sm text-primary-gray">
             Number of bookings within a year
+            <BookingsByCountry />
           </div>
-          <BookingsByCountry />
 
           <div>
             <div className="card-title">Tourists By Country</div>
             <div className="text-sm text-primary-gray">
               Countries with highest number of tourists
             </div>
-          </div>
           <div>
             <TouristsByCountry data={paginatedTourists} />
             <Pagination
@@ -148,6 +147,7 @@ const Reports = () => {
               totalPages={totalPages}
               onPageChange={(page) => setCurrentPage(page)}
             />
+          </div>
           </div>
         </div>
 
