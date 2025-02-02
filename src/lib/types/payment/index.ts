@@ -19,3 +19,12 @@ export type Package = {
     icon: LucideIcon;
     features: string[];
 };
+
+export type BankDetails = {
+    accountName: string;
+    accountNumber: string;
+    bankName: string;
+    branchName: string;
+    branchAddress: string;
+    SWIFTCode: string;
+};
