@@ -1,3 +1,4 @@
+'use client'
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "~/components/ui/button"
@@ -75,7 +76,7 @@ export default function LandingPage() {
       {/* Features Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+          <div className="text-center mb-16"  id="features">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               The Platform Your Travel Business Will Love
             </h2>
@@ -137,7 +138,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto" id="pricing">
             {[
               {
                 name: "Starter",
@@ -210,7 +211,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="py-8 bg-gray-900 text-white">
         <div className="container mx-auto px-4 text-center">
-          <p>© 2024 COORD.TRAVEL. All rights reserved.</p>
+          <p>© 2025 COORD.TRAVEL. All rights reserved.</p>
         </div>
       </footer>
     </div>
