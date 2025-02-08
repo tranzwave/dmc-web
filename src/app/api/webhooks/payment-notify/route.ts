@@ -29,7 +29,8 @@ export const POST = async (req: Request) => {
             status_message,
             card_holder_name,
             card_no,
-            card_expiry
+            card_expiry,
+            subscription_id
         } = params;
         const localMd5sig = crypto
             .createHash('md5')

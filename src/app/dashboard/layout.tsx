@@ -8,6 +8,7 @@ import LoadingLayout from "~/components/common/dashboardLoading";
 import { OrganizationProvider } from "./context";
 import type { OrganizationResource } from "@clerk/types"; // Import OrganizationResource type
 import { CustomOrganizationSwitcher } from "~/components/orgSwitcher";
+import { TopBarFlag } from "~/components/common/topBarComponent/freeTrialFlag";
 
 export default function DashboardLayout({
   children,
@@ -17,6 +18,7 @@ export default function DashboardLayout({
   const [organization, setOrganization] = useState<OrganizationResource | null>(null); // Use undefined as default
   const router = useRouter();
   const searchParams = useSearchParams()
+  const [isTrial, setIsTrial] = useState(true);
 
   useEffect(() => {
     const orgId = searchParams.get('orgId');
@@ -46,7 +48,9 @@ export default function DashboardLayout({
 
   if (!isLoaded || !isSignedIn || !organization || !isOrgListLoaded) {
     return (
-      <div className="layout">
+      <div className="layout" style={{
+        gridTemplateRows: '0 8% 92%',
+      }}>
         <div className="side-nav">
           <SideNavBar />
         </div>
@@ -68,10 +72,14 @@ export default function DashboardLayout({
 
   return (
     <OrganizationProvider initialOrg={organization}>
-      <div className="layout">
+      
+      <div className="layout" style={{
+        gridTemplateRows: `${isTrial ? '6% 7% 87%': '0 8% 92%'}`,
+      }}>
         <div className="side-nav">
           <SideNavBar />
         </div>
+        <TopBarFlag trialEndDate={new Date('2025/12/31')}/>
         <div className="top-bar">
           <TopBar />
         </div>

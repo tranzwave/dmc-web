@@ -17,6 +17,8 @@ export type Package = {
     description: string;
     price: number;
     icon: LucideIcon;
+    users: number | string;
+    trialPeriod: string;
     features: string[];
 };
 

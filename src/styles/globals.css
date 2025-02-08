@@ -89,12 +89,13 @@
 .layout {
   display: grid;
   grid-template-areas: 
+    "sidebar trial"
     "sidebar topbar"
     "sidebar content";
   grid-template-columns: 16% 84%; /* Sidebar takes 25% of the width, content takes 75% */
-  grid-template-rows: 8% 92%; /* Top bar takes 10% of the height, content takes 90% */
   height: 100vh;
   width: 100vw;
+  /* overflow-y: scroll */
 }
 
 /* Ensure that the sidebar and top bar stay in place */
@@ -102,6 +103,12 @@
   @apply bg-primary-green p-4;
   grid-area: sidebar;
   height: 100%; /* Full height of its grid area */
+}
+
+/* Free trial flag */
+.free-trial-flag {
+  grid-area: trial;
+  width: 100%;
 }
 
 .top-bar {

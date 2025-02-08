@@ -1,4 +1,4 @@
-import { Crown, Star, Zap } from "lucide-react";
+import { Crown, GiftIcon, Star, Zap } from "lucide-react";
 import { Package } from "../types/payment";
 
 export const tourTypes = [
@@ -77,32 +77,68 @@ export const permissionsList = [
   "sys_profile:manage",
 ];
 
-export const packages:Package[] = [
+export const packages: Package[] = [
+  {
+    id: 0,
+    name: "Free",
+    tabValue: "free",
+    description: "For individuals and small teams",
+    price: 0.0,
+    icon: GiftIcon,
+    users: 1,
+    trialPeriod: "Unlimited",
+    features: [
+      "Basic access",
+      "1 User",
+      "Upto 10 Bookings",
+      "Community support",
+    ],
+  },
   {
     id: 1,
-    name: "Basic",
-    tabValue: "basic",
-    description: "Essential features for individuals",
-    price: 9.99,
+    name: "Start",
+    tabValue: "start",
+    description: "For entrepreneurial businesses",
+    price: 5.0,
     icon: Zap,
-    features: ["Feature 1", "Feature 2", "Feature 3"],
+    users: 5,
+    trialPeriod: "1 month",
+    features: [
+      "Start Your Free 1 month Trial",
+      "Up to 5 users",
+      "Unlimited Bookings",
+      "Everything included in FREE and:",
+    ],
   },
   {
     id: 2,
-    name: "Pro",
-    tabValue: "pro",
-    description: "Advanced tools for professionals",
-    price: 19.99,
+    name: "Plus",
+    tabValue: "plus",
+    description: "For growing businesses",
+    price: 20.0,
     icon: Star,
-    features: ["All Basic features", "Feature 4", "Feature 5", "Feature 6"],
+    users: 20,
+    trialPeriod: "1 month",
+    features: [
+      "Start Your Free 1 month Trial",
+      "Up to 20 users",
+      "Everything included in START",
+    ],
   },
   {
     id: 3,
-    name: "Enterprise",
-    tabValue: "enterprise",
-    description: "Comprehensive solution for large teams",
-    price: 49.99,
+    name: "Premium",
+    tabValue: "premium",
+    description: "For sophisticated, high volume businesses",
+    price: 69.0,
     icon: Crown,
-    features: ["All Pro features", "Feature 7", "Feature 8", "Feature 9", "24/7 Support"],
+    users: "Unlimited",
+    trialPeriod: "1 month",
+    features: [
+      "Start Your Free 1 month Trial",
+      "Unlimited users",
+      "Everything included in PLUS",
+    ],
   },
-]
+];
+

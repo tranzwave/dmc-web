@@ -38,7 +38,7 @@ export const tenant = createTable("tenants", {
   country: varchar("country_code", { length: 3 })
     .references(() => country.code)
     .notNull(),
-  name: varchar("name", { length: 255 }).notNull().unique(),
+  name: varchar("name", { length: 255 }).notNull(),
   domain: varchar("domain", { length: 255 }).notNull().unique(),
   subscriptionPlan: varchar("subscription", { length: 255 }).notNull(),
   isActive: boolean("is_active").notNull().default(true),
@@ -57,6 +57,28 @@ export const tenant = createTable("tenants", {
     .default(
       sql`'{"hotelVoucherCurrency": "USD", "restaurantVoucherCurrency": "USD", "activityVoucherCurrency": "USD", "shopVoucherCurrency": "USD", "transportVoucherCurrency": "USD"}'::jsonb`,
     ),
+});
+
+export const subscription = createTable("subscriptions", {
+  id: varchar("id", { length: 255 })
+  .notNull()
+  .primaryKey()
+  .$defaultFn(() => crypto.randomUUID()),
+  payhereSubscriptionId: varchar("payhere_subscription_id", { length: 255 }),
+  clerkOrgId: varchar("org_id", { length: 255 }),
+  tenantId: varchar("tenant_id", { length: 255 })
+    .references(() => tenant.id)
+    .notNull(),
+  plan: varchar("plan", { length: 255 }).notNull(),
+  startDate: timestamp("start_date", { withTimezone: true }).notNull(),
+  isTrial: boolean("is_trial").notNull().default(true),
+  trialEndDate: timestamp("trial_end_date", { withTimezone: true }),
+  clerkUserId: varchar("user_id", { length: 255 }),
+  nextBillingDate: timestamp("next_billing_date", { withTimezone: true }),
+  endDate: timestamp("end_date", { withTimezone: true }),
+  status: varchar("status", { length: 255 }).notNull().default("active"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
 // Users table (admin, members)
@@ -907,6 +929,13 @@ export const tenantRelations = relations(tenant, ({ one, many }) => ({
   client: many(client),
   agent: many(agent),
   coordinator: many(user),
+}));
+
+export const subscriptionRelations = relations(subscription, ({ one }) => ({
+  tenant: one(tenant, {
+    fields: [subscription.tenantId],
+    references: [tenant.id],
+  }),
 }));
 
 export const agentRelations = relations(agent, ({ one, many }) => ({

@@ -1,79 +1,6 @@
 "use server"
-import { eq } from 'drizzle-orm';
-import clerkClient from '~/server/auth';
-// import { db } from "~/server/db";
 import crypto from 'crypto';
-import { tenant } from '~/server/db/schema';
-
-// export const updateDatabaseForPayment = async (clerkId: string) => {
-//     try {
-//         // Fetch the tenant using clerkId
-//         const existingTenant = await db
-//             .select()
-//             .from(tenant)
-//             .where(eq(tenant.clerkId, clerkId))
-//             .execute();
-
-//         if (!existingTenant || existingTenant.length === 0) {
-//             throw new Error(`Tenant not found for Clerk ID: ${clerkId}`);
-//         }
-
-//         const tenantData = existingTenant[0] ?? null;
-
-//         if (!tenantData) {
-//             throw new Error(`Tenant not found for Clerk ID: ${clerkId}`);
-//         }
-
-//         // Update tenant subscription and activation status
-//         await db
-//             .update(tenant)
-//             .set({
-//                 isActive: true,
-//                 updatedAt: new Date(),
-//             })
-//             .where(eq(tenant.id, tenantData.id))
-//             .execute();
-
-//         console.log(`Tenant ${tenantData.id} subscription updated successfully.`);
-//     } catch (error) {
-//         console.error('Error updating tenant for payment:', error);
-//         throw error;
-//     }
-// };
-
-
-// export const deleteClerkUserAndOrganization = async (clerkId: string) => {
-//     try {
-//         const clerkServerClient = clerkClient;
-//         // Fetch the tenant using clerkId
-//         const existingTenant = await db
-//             .select()
-//             .from(tenant)
-//             .where(eq(tenant.clerkId, clerkId))
-//             .execute();
-
-//         if (!existingTenant || existingTenant.length === 0) {
-//             throw new Error(`Tenant not found for Clerk ID: ${clerkId}`);
-//         }
-
-//         const tenantData = existingTenant[0] ?? null;
-
-//         if (!tenantData) {
-//             throw new Error(`Tenant not found for Clerk ID: ${clerkId}`);
-//         }
-//         // Delete the Clerk organization
-//         await clerkServerClient.organizations.deleteOrganization(tenantData.clerkId);
-//         console.log(`Clerk organization ${tenantData.clerkId} deleted successfully.`);
-
-//         // Delete the tenant from the database
-//         await db.delete(tenant).where(eq(tenant.id, tenantData.id)).execute();
-
-//         console.log(`Tenant ${tenantData.id} deleted successfully.`);
-//     } catch (error) {
-//         console.error('Error deleting Clerk organization and tenant:', error);
-//         throw error;
-//     }
-// };
+import { revalidatePath } from 'next/cache';
 
 export type PaymentHashRequest = {
     merchantId: string;
@@ -117,3 +44,48 @@ export const getMerchantId = async () => {
     console.log('Merchant ID:', merchantId);
     return merchantId;
 }
+
+export async function getBillingHistory() {
+    // Placeholder: Fetch billing history from your API
+    return [
+      { date: "2023-05-01", amount: "$19.99", status: "Paid" },
+      { date: "2023-04-01", amount: "$19.99", status: "Paid" },
+      { date: "2023-03-01", amount: "$19.99", status: "Paid" },
+    ]
+  }
+  
+  export async function updateCard(formData: FormData) {
+    // Placeholder: Update card info in your payment processor
+    console.log("Updating card:", Object.fromEntries(formData))
+  
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+  
+    // In a real application, you would update the card info here
+    // If successful, revalidate the page to show updated info
+    revalidatePath("/subscription")
+  }
+  
+  export async function cancelSubscription() {
+    // Placeholder: Cancel subscription in your payment processor
+    console.log("Cancelling subscription")
+  
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+  
+    // In a real application, you would cancel the subscription here
+    // If successful, revalidate the page to show updated info
+    revalidatePath("/subscription")
+  }
+  
+  export async function upgradePlan(plan: string) {
+    // Placeholder: Upgrade subscription plan in your payment processor
+    console.log("Upgrading plan to:", plan)
+  
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+  
+    // In a real application, you would upgrade the subscription plan here
+    // If successful, revalidate the page to show updated info
+    revalidatePath("/subscription")
+  }

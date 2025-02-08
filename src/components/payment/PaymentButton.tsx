@@ -1,5 +1,6 @@
 /*global payhere*/
-import React from "react";
+"use client"
+import React, { useEffect } from "react";
 import { generateHash, getMerchantId } from "~/lib/utils/paymentUtils";
 import { Button } from "../ui/button";
 import { or } from "drizzle-orm";
@@ -16,6 +17,27 @@ interface PaymentButtonProps {
 }
 
 const PaymentButton = ({ selectedPackage }: PaymentButtonProps) => {
+
+    useEffect(() => {
+        if (typeof window !== "undefined" && window.payhere) {
+            // Event listener for successful payments
+            window.payhere.onCompleted = function (orderId: string) {
+                console.log(window.payhere)
+                console.log("Payment completed. OrderID:", orderId);
+                window.location.href = "http://localhost:3001/payment/success"; // Redirect manually
+            };
+
+            // Event listener for payment dismissal
+            window.payhere.onDismissed = function () {
+                console.log("Payment window closed by user.");
+            };
+
+            // Event listener for payment errors
+            window.payhere.onError = function (error: string) {
+                console.error("Payment error:", error);
+            };
+        }
+    }, []);
     const handlePayment = async () => {
         const merchantId = await getMerchantId();
         console.log("Merchant ID: ", merchantId);
@@ -32,13 +54,13 @@ const PaymentButton = ({ selectedPackage }: PaymentButtonProps) => {
         const orderDetails = {
             order_id: "ItemNo12346",
             items: "Basic Package",
-            amount: "100",
-            currency: "LKR",
+            amount: "50",
+            currency: "USD",
         }
         const paymentDetails = {
             order_id: "ItemNo12346",
-            amount: "1005.00",
-            currency: "LKR",
+            amount: "50.00",
+            currency: "USD",
             first_name: "Saman",
             last_name: "Perera",
             email: "samanp@gmail.com",
@@ -54,7 +76,7 @@ const PaymentButton = ({ selectedPackage }: PaymentButtonProps) => {
                 merchantId: merchantId,
                 orderId: paymentDetails.order_id,
                 amount: paymentDetails.amount,
-                currency: "LKR",
+                currency: "USD",
             })
 
             if (hash) {
@@ -66,7 +88,7 @@ const PaymentButton = ({ selectedPackage }: PaymentButtonProps) => {
                     return_url: "http://localhost:3001/payment/success", // Replace with your return URL
                     cancel_url: "http://localhost:3001/payment/cancel", // Replace with your cancel URL
                     notify_url:
-                        "https://e1e1-2402-4000-2080-875a-6feb-c94c-a877-54da.ngrok-free.app/api/webhooks/payment-notify", // Replace with your notify URL - This should be public IP (No Localhost)
+                        "https://63dd-2402-4000-2100-480c-dac3-2d39-484a-37d5.ngrok-free.app/api/webhooks/payment-notify", // Replace with your notify URL - This should be public IP (No Localhost)
                     order_id: paymentDetails.order_id,
                     items: "Item Title",
                     amount: paymentDetails.amount,
@@ -79,6 +101,8 @@ const PaymentButton = ({ selectedPackage }: PaymentButtonProps) => {
                     city: paymentDetails.city,
                     country: paymentDetails.country,
                     hash: hash,
+                    recurrence: "1 Month",
+                    duration: "Forever", 
                 };
 
                 // Initialize PayHere payment
@@ -94,7 +118,7 @@ const PaymentButton = ({ selectedPackage }: PaymentButtonProps) => {
     return (
         <div className="w-full">
             <Button id="payhere-payment" onClick={handlePayment} className="w-full py-4 bg-[#287f71] hover:bg-[#287f71]/90 transition-colors duration-200">
-                Purchase {selectedPackage.name} Plan
+                Continue with {selectedPackage.name} Plan
             </Button>
         </div>
     );

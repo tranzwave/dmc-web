@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card"
 import { Button } from "../ui/button"
@@ -11,21 +11,21 @@ import { packages } from '~/lib/constants'
 
 
 export default function EnhancedPaymentPackages() {
-  const [selectedPackage, setSelectedPackage] = useState<Package>(packages[0] ?? {
-    id: 1,
-    name: "Basic",
-    tabValue: "basic",
-    description: "Essential features for individuals",
-    price: 9.99,
-    icon: Zap,
-    features: ["Feature 1", "Feature 2", "Feature 3"],
-  })
+  
+  const [selectedPackage, setSelectedPackage] = useState<Package | null>(packages[0] ?? null)
+
+  useEffect(() => {
+    if(packages.length > 0) {
+      setSelectedPackage(packages[0] ?? null)
+    }
+  }
+  , [packages])
 
   return (
-    <div className="p-8 w-[480px] h-[600px] mx-auto">
+    <div className="p-8 w-[520px] h-[600px] mx-auto">
       <div className="bg-gradient-to-br from-white to-gray-100 rounded-xl shadow-2xl overflow-hidden">
-        <Tabs defaultValue="basic" className="w-full" onValueChange={(value) => setSelectedPackage(packages.find(pkg => pkg.tabValue === value)! ?? packages[0])}>
-          <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-1 gap-1">
+        <Tabs defaultValue={packages[0]?.tabValue} className="w-full" onValueChange={(value) => setSelectedPackage(packages.find(pkg => pkg.tabValue === value)! ?? packages[0])}>
+          <TabsList className="grid rounded-md w-full grid-cols-4 bg-gray-100 p-1 gap-1">
             {packages.map((pkg) => (
               <TabsTrigger
                 key={pkg.id}
@@ -62,7 +62,9 @@ export default function EnhancedPaymentPackages() {
                   </ul>
                 </CardContent>
                 <CardFooter className="pt-4 w-full mt-auto">
+                  {selectedPackage && (
                     <PaymentButton selectedPackage={selectedPackage} />
+                  )}
                 </CardFooter>
               </Card>
             </TabsContent>
