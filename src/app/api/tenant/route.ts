@@ -194,6 +194,7 @@ export async function POST(req: Request, res: NextApiResponse) {
           plan: "Free",
           payhereId: '',
           isTrial: true,
+          isActive:true,
         }
       },
     });

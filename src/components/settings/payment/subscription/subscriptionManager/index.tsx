@@ -1,39 +1,99 @@
-
+"use client"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { cancelSubscription, getBillingHistory, updateCard, upgradePlan } from "~/lib/utils/paymentUtils"
 import { useToast } from "~/hooks/use-toast"
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 import { packages } from "~/lib/constants"
+import { OrganizationResource } from "@clerk/types"
+import { useOrganization } from "@clerk/nextjs"
+import LoadingLayout from "~/components/common/dashboardLoading"
+import { ClerkOrganizationPublicMetadata } from "~/lib/types/payment"
+import PaymentButton from "~/components/payment/PaymentButton"
+import PaymentDialog from "~/components/payment/modal"
+import useSWR from "swr"
+import { getOrganizationSubscriptionData } from "~/server/auth"
 
 type BillingHistoryItem = {
     date: string
     amount: string
-    status: string
+    description: string
 }
 
 interface BillingHistoryProps {
     billingHistory: BillingHistoryItem[]
+    organization: OrganizationResource,
+    isLoading?: boolean
 }
 
-export default async function SubscriptionManager() {
-  const billingHistory = await getBillingHistory()
+interface UpgradePlanProps {
+    organization: OrganizationResource
+}
 
+interface UpdateCardFormProps {
+    organization: OrganizationResource
+}
+
+interface CancelSubscriptionProps {
+    organization: OrganizationResource
+}
+
+
+
+export default function SubscriptionManager() {
+  const [billingHistory, setBillingHistory] = useState<BillingHistoryItem[]>([])
+  const { organization, isLoaded } = useOrganization()
+  const [loadingBillingHistory, setLoadingBillingHistory] = useState(false)
+
+  useEffect(() => {
+    async function fetchBillingHistory() {
+      setLoadingBillingHistory(true)
+      const history = await getBillingHistory(organization?.id ?? "")
+      setLoadingBillingHistory(false)
+      setBillingHistory(history)
+    }
+    fetchBillingHistory()
+  }, [])
+
+  if (!isLoaded || !organization) {
+    return <LoadingLayout />
+  }
   return (
     <div className="space-y-4">
-      <UpgradePlan />
-      <BillingHistory billingHistory={billingHistory} />
-      <UpdateCardForm />
-      <CancelSubscription />
+      <UpgradePlan organization={organization}/>
+      <BillingHistory billingHistory={billingHistory} organization={organization} isLoading={loadingBillingHistory}/>
+      {/* <UpdateCardForm organization={organization}/> */}
+      <CancelSubscription organization={organization}/>
     </div>
   )
 }
 
-function BillingHistory({ billingHistory }:BillingHistoryProps) {
+function BillingHistory({ billingHistory,organization, isLoading }:BillingHistoryProps) {
+  // const [subscriptionId, setSubscriptionId] = useState<string | null>(null)
+  // const [billingHistory, setBillingHistory] = useState<any[]>([])
+
+  // useEffect(() => {
+  //   async function fetchSubscriptionData() {
+  //     const subscriptionData = await getOrganizationSubscriptionData(organization.id)
+  //     setSubscriptionId(subscriptionData.subscription_id)
+  //   }
+  //   fetchSubscriptionData()
+  // }, [organization.id])
+
+  // const fetcher = (url: string) => fetch(url).then((res) => res.json())
+
+  // const { data, error } = useSWR(subscriptionId ? `/api/payhere/subscription/${subscriptionId}` : null, fetcher)
+
+  // if (error) return <div>Failed to load</div>
+  // if (!data) return <div>Loading...</div>
+
+  // setBillingHistory(data.payments as any[])
+  // console.log(data)
+
   return (
     <Card>
       <CardHeader>
@@ -45,18 +105,25 @@ function BillingHistory({ billingHistory }:BillingHistoryProps) {
           <TableHeader>
             <TableRow>
               <TableHead>Date</TableHead>
+              <TableHead>Description</TableHead>
               <TableHead>Amount</TableHead>
-              <TableHead>Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {billingHistory.map((item, index) => (
-              <TableRow key={index}>
-                <TableCell>{item.date}</TableCell>
-                <TableCell>{item.amount}</TableCell>
-                <TableCell>{item.status}</TableCell>
+            {isLoading && (
+              <TableRow>
+                <TableCell colSpan={3}>Loading...</TableCell>
               </TableRow>
-            ))}
+            )}
+            {billingHistory.map((item, index) => {
+              return (
+                <TableRow key={index}>
+                  <TableCell>{item.date}</TableCell>
+                  <TableCell>{item.description}</TableCell>
+                  <TableCell>{item.amount}</TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </CardContent>
@@ -64,7 +131,7 @@ function BillingHistory({ billingHistory }:BillingHistoryProps) {
   )
 }
 
-function UpdateCardForm() {
+function UpdateCardForm({organization}:UpdateCardFormProps) {
   const [isUpdating, setIsUpdating] = useState(false)
   const { toast } = useToast()
 
@@ -120,7 +187,7 @@ function UpdateCardForm() {
   )
 }
 
-function CancelSubscription() {
+function CancelSubscription({organization}:CancelSubscriptionProps) {
   const [isDeleting, setIsDeleting] = useState(false)
   const { toast } = useToast()
 
@@ -128,7 +195,7 @@ function CancelSubscription() {
     if (window.confirm("Are you sure you want to cancel your subscription? This action cannot be undone.")) {
       setIsDeleting(true)
       try {
-        await cancelSubscription()
+        await cancelSubscription(organization.id)
         toast({
           title: "Subscription Cancelled",
           description: "Your subscription has been successfully cancelled.",
@@ -160,7 +227,7 @@ function CancelSubscription() {
   )
 }
 
-function UpgradePlan() {
+function UpgradePlan({organization}:UpgradePlanProps) {
   const [isUpgrading, setIsUpgrading] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState("pro")
   const { toast } = useToast()
@@ -188,11 +255,11 @@ function UpgradePlan() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="card-title">Upgrade Plan</CardTitle>
-        <CardDescription>Choose a plan that suits your needs</CardDescription>
+        <CardTitle className="card-title">Activated Plan</CardTitle>
+        <CardDescription>You can update the subscription plan here</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleUpgrade}>
+        {/* <form onSubmit={handleUpgrade}>
           <RadioGroup value={selectedPlan} onValueChange={setSelectedPlan} className="space-y-4">
             {packages.map((pkg) => (
               <div key={pkg.id} className="flex items-center space-x-2">
@@ -204,7 +271,12 @@ function UpgradePlan() {
           <Button variant={"primaryGreen"} type="submit" className="mt-4" disabled={isUpgrading}>
             {isUpgrading ? "Upgrading..." : "Upgrade Plan"}
           </Button>
-        </form>
+        </form> */}
+        <div className="text-[14px] text-zinc-800">You are on {(organization.publicMetadata as ClerkOrganizationPublicMetadata).subscription.plan} Plan</div>
+        {/* <Button variant={"primaryGreen"} type="submit" className="mt-4" disabled={isUpgrading}>
+            {isUpgrading ? "Upgrading..." : "Upgrade Plan"}
+        </Button> */}
+        <PaymentDialog />
       </CardContent>
     </Card>
   )

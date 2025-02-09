@@ -7,6 +7,7 @@ import { Button } from '~/components/ui/button';
 import { generateHash, startPayment } from '~/lib/utils/paymentUtils';
 import { start } from 'repl';
 import PaymentButton from '~/components/payment/PaymentButton';
+import EnhancedPaymentPackages from '~/components/payment/PaymentForm';
 
 interface UserData {
     firstName: string;
@@ -33,6 +34,8 @@ const PaymentPage = ({ searchParams }: PaymentPageProps) => {
         <div>
             <h1>Payment Page</h1>
             <p>Confirm your subscription details before proceeding with the payment.</p>
+
+            <EnhancedPaymentPackages onClose={()=>{}}/>
             
         </div>
     );

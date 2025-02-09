@@ -34,6 +34,9 @@ export const env = createEnv({
     DB_MIGRATING:stringBoolean,
     PAYHERE_MERCHANT_ID:z.string(),
     PAYHERE_MERCHANT_SECRET:z.string(),
+    PAYHERE_APP_ID:z.string(),
+    PAYHERE_APP_SECRET:z.string(),
+    PAYHERE_AUTHORIZATION:z.string()
   },
 
   /**
@@ -67,6 +70,9 @@ export const env = createEnv({
     NEXT_PUBLIC_CLERK_SIGN_UP_URL:process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL,
     PAYHERE_MERCHANT_ID:process.env.PAYHERE_MERCHANT_ID,
     PAYHERE_MERCHANT_SECRET:process.env.PAYHERE_MERCHANT_SECRET,
+    PAYHERE_APP_ID:process.env.PAYHERE_APP_ID,
+    PAYHERE_APP_SECRET:process.env.PAYHERE_APP_SECRET,
+    PAYHERE_AUTHORIZATION:process.env.PAYHERE_AUTHORIZATION
 
   },
   /**

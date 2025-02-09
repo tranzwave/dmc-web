@@ -80,22 +80,6 @@ export const permissionsList = [
 export const packages: Package[] = [
   {
     id: 0,
-    name: "Free",
-    tabValue: "free",
-    description: "For individuals and small teams",
-    price: 0.0,
-    icon: GiftIcon,
-    users: 1,
-    trialPeriod: "Unlimited",
-    features: [
-      "Basic access",
-      "1 User",
-      "Upto 10 Bookings",
-      "Community support",
-    ],
-  },
-  {
-    id: 1,
     name: "Start",
     tabValue: "start",
     description: "For entrepreneurial businesses",
@@ -104,14 +88,15 @@ export const packages: Package[] = [
     users: 5,
     trialPeriod: "1 month",
     features: [
-      "Start Your Free 1 month Trial",
+      // "Start Your Free 1 month Trial",
       "Up to 5 users",
       "Unlimited Bookings",
       "Everything included in FREE and:",
     ],
+    recuurence: "1 Month"
   },
   {
-    id: 2,
+    id: 1,
     name: "Plus",
     tabValue: "plus",
     description: "For growing businesses",
@@ -120,13 +105,14 @@ export const packages: Package[] = [
     users: 20,
     trialPeriod: "1 month",
     features: [
-      "Start Your Free 1 month Trial",
+      // "Start Your Free 1 month Trial",
       "Up to 20 users",
       "Everything included in START",
     ],
+    recuurence: "1 Month"
   },
   {
-    id: 3,
+    id: 2,
     name: "Premium",
     tabValue: "premium",
     description: "For sophisticated, high volume businesses",
@@ -135,10 +121,11 @@ export const packages: Package[] = [
     users: "Unlimited",
     trialPeriod: "1 month",
     features: [
-      "Start Your Free 1 month Trial",
+      // "Start Your Free 1 month Trial",
       "Unlimited users",
       "Everything included in PLUS",
     ],
+    recuurence: "1 Month"
   },
 ];
 

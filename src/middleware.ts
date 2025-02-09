@@ -8,14 +8,13 @@ const isPublicRoute = createRouteMatcher([
   '/api/webhooks(.*)',
   '/',
   // '/onboarding',
-  '/payment(.*)',
 ]);
 
 // Define protected admin routes
 const isProtectedRoute = createRouteMatcher(['/dashboard/admin(.*)']);
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
-  const { userId, sessionClaims, has, orgRole } = auth();
+  const { userId, sessionClaims, has, orgRole  } = auth();
 
   // Allow access to public routes
   if (isPublicRoute(req)) {
@@ -26,6 +25,15 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   if (!userId) {
     return NextResponse.redirect(new URL('/sign-in', req.url));
   }
+
+  // // Redirect user to the payment page if their organization is not subscribed
+  // if (!organization.publicMetadata || !(organization.publicMetadata as ClerkOrganizationPublicMetadata).subscription?.isActive) {
+  //   if (req.url.includes('/payment')) {
+  //     return NextResponse.next();
+  //   }
+
+  //   return NextResponse.redirect(new URL('/payment', req.url));
+  // }
 
   // Handle protected admin routes
   if (isProtectedRoute(req)) {

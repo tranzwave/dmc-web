@@ -13,7 +13,7 @@ export default function AdminDashboard(params: { searchParams: { search?: string
   useEffect(() => {
     console.log('Organization:', organization);
   }
-  , [organization]);
+  , []);
   if (!isLoaded) {
     return <LoadingLayout />
   }

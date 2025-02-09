@@ -5,14 +5,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card"
 import { Button } from "../ui/button"
 import { Check, Zap, Star, Crown } from 'lucide-react'
-import { Package } from '~/lib/types/payment'
+import { ClerkOrganizationPublicMetadata, Package } from '~/lib/types/payment'
 import PaymentButton from './PaymentButton'
 import { packages } from '~/lib/constants'
+import { useOrganization } from '@clerk/nextjs'
+import LoadingLayout from '../common/dashboardLoading'
 
+interface EnhancedPaymentPackagesProps {
+  onClose: () => void
+}
 
-export default function EnhancedPaymentPackages() {
+export default function EnhancedPaymentPackages({ onClose }: EnhancedPaymentPackagesProps) {
   
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(packages[0] ?? null)
+  const { organization, isLoaded } = useOrganization()
 
   useEffect(() => {
     if(packages.length > 0) {
@@ -21,12 +27,17 @@ export default function EnhancedPaymentPackages() {
   }
   , [packages])
 
+  if (!isLoaded || !organization) {
+    return <LoadingLayout />
+  }
+
   return (
     <div className="p-8 w-[520px] h-[600px] mx-auto">
       <div className="bg-gradient-to-br from-white to-gray-100 rounded-xl shadow-2xl overflow-hidden">
         <Tabs defaultValue={packages[0]?.tabValue} className="w-full" onValueChange={(value) => setSelectedPackage(packages.find(pkg => pkg.tabValue === value)! ?? packages[0])}>
-          <TabsList className="grid rounded-md w-full grid-cols-4 bg-gray-100 p-1 gap-1">
-            {packages.map((pkg) => (
+          <TabsList className="grid rounded-md w-full grid-cols-3 bg-gray-100 p-1 gap-1">
+            {packages.map((pkg) => {
+              return(
               <TabsTrigger
                 key={pkg.id}
                 value={pkg.tabValue}
@@ -35,7 +46,7 @@ export default function EnhancedPaymentPackages() {
               >
                 {pkg.name}
               </TabsTrigger>
-            ))}
+            )})}
           </TabsList>
           {packages.map((pkg) => (
             <TabsContent key={pkg.id} value={pkg.tabValue} className="border-none p-4 h-[450px]">
@@ -62,8 +73,13 @@ export default function EnhancedPaymentPackages() {
                   </ul>
                 </CardContent>
                 <CardFooter className="pt-4 w-full mt-auto">
-                  {selectedPackage && (
-                    <PaymentButton selectedPackage={selectedPackage} />
+                  {selectedPackage && selectedPackage.name !== (organization.publicMetadata as ClerkOrganizationPublicMetadata).subscription.plan ? (
+                    <PaymentButton selectedPackage={selectedPackage} closeDialog={onClose}/>
+                  ): selectedPackage && (
+                    <Button variant="primaryGreen" className="w-full" disabled>
+                      <Crown className="w-4 h-4 mr-2" />
+                      Current Plan
+                    </Button>
                   )}
                 </CardFooter>
               </Card>

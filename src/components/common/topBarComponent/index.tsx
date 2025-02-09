@@ -16,7 +16,7 @@ import {
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "~/components/ui/breadcrumb";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "~/hooks/use-toast";
-import { TopBarFlag } from "./freeTrialFlag";
+import { ClerkOrganizationPublicMetadata } from "~/lib/types/payment";
 
 // TopBar component
 const TopBar = () => {
@@ -74,6 +74,9 @@ const TopBar = () => {
               },
             }}
             afterSelectOrganizationUrl={(org) => {
+              if(!(org.publicMetadata as ClerkOrganizationPublicMetadata).subscription.isActive) {
+                return '/dashboard/admin'
+              }
               return pathname;
             }
             }
