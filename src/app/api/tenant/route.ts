@@ -28,148 +28,6 @@ type CoordError = {
   code: number;
 }
 
-// export async function POST(req: Request, res: NextApiResponse) {
-//   if (req.method !== "POST") {
-//     return res.status(405).json({ message: "Method not allowed" });
-//   }
-
-//   const data: CreateParams = await req.json();
-
-//   let organizationId: string | null = null;
-
-//   const errors:CoordError[] = [
-//     {
-//       message: "Invalid domain name",
-//       code: 100
-//     },
-//     {
-//       message: "Invalid country",
-//       code: 101
-//     },
-//     {
-//       message: "Invalid website",
-//       code: 102
-//     },
-
-//   ]
-
-//   try {
-//     const organizationResponse =
-//       await clerkClient().organizations.createOrganization({
-//         name: data.name,
-//         // slug: data.publicMetadata.domainName.toLowerCase().replace(/\s/g, "-"),
-//         maxAllowedMemberships: 1,
-//         createdBy: data.createdBy,
-//         publicMetadata: {
-//           country: data.publicMetadata.country,
-//           domainName: data.publicMetadata.domainName,
-//           website: data.publicMetadata.website,
-//           contactNumber: data.publicMetadata.contactNumber,
-//           address: data.publicMetadata.address,
-//         },
-//       });
-
-//     if (!organizationResponse) {
-//       throw new Error("Error creating organization");
-//     }
-
-//     organizationId = organizationResponse.id;
-
-//     const userResponse = await clerkClient().users.updateUserMetadata(data.id, {
-//       publicMetadata: {
-//         role: "admin",
-//         permissions: [
-//           "booking_activity:manage",
-//           "booking_agent:manage",
-//           "booking_hotel:manage",
-//           "booking_invoice:manage",
-//           "booking_rest:manage",
-//           "booking_shops:manage",
-//           "booking_transport:manage",
-//           "sys_domains:manage",
-//           "sys_domains:read",
-//           "sys_memberships:manage",
-//           "sys_memberships:read",
-//           "sys_profile:delete",
-//           "sys_profile:manage",
-//         ],
-//         info: {
-//           contact: data.userData.contact,
-//           address: data.userData.address,
-//         },
-//       },
-//     });
-
-//     if (!userResponse) {
-//       await clerkClient().organizations.deleteOrganization(organizationResponse.id);
-//       throw new Error("Error making the user admin");
-//     }
-
-//     const tenantAndSubscription = await db.transaction(async (trx) => {
-//       const dbTenant = await trx.insert(tenant).values({
-//       id: organizationResponse.id,
-//       clerkId: organizationResponse.id,
-//       country: data.publicMetadata.country,
-//       name: data.name,
-//       domain: data.publicMetadata.domainName,
-//       subscriptionPlan: "basic",
-//       }).returning();
-
-//       if (!dbTenant || !dbTenant[0]) {
-//         await clerkClient().organizations.deleteOrganization(organizationResponse.id);
-//         throw new Error("Error creating organization: ");
-//       }
-
-//       const tenantId = dbTenant[0].id;
-//       const clerkOrgId = dbTenant[0].clerkId;
-
-//       const createdDate = new Date(organizationResponse.createdAt);
-
-//       const trialEndDate = new Date(createdDate);
-//       trialEndDate.setDate(trialEndDate.getDate() + 30);
-
-//       const dbSubscription = await trx.insert(subscription).values({
-//       clerkOrgId: clerkOrgId,
-//       tenantId: tenantId,
-//       plan: "none",
-//       startDate: createdDate,
-//       isTrial: true,
-//       trialEndDate: trialEndDate,
-//       clerkUserId: userResponse.id,
-//       nextBillingDate: trialEndDate,
-//       endDate: new Date('2050/12/31'),
-//       }).returning();
-
-//       if (!dbSubscription || !dbSubscription[0]) {
-//         await clerkClient().organizations.deleteOrganization(organizationResponse.id);
-//         throw new Error("Error creating subscription");
-//       }
-
-//       return {dbSubscription: dbSubscription[0], dbTenant: dbTenant[0]}
-//     });
-
-//     // Step 4: Return the newly created organization details
-//     return NextResponse.json(
-//       {
-//         organization: organizationResponse.id,
-//         user: userResponse.id,
-//         clerkResponse: organizationResponse.id,
-//         subscription: tenantAndSubscription.dbSubscription.id,
-//       },
-//       { status: 200 },
-//     );
-//   } catch (error: DrizzleError | Error | ClerkAPIError | any) {
-//     if (organizationId){
-//       await clerkClient().organizations.deleteOrganization(organizationId);
-//     }
-//     console.error("Error:", error)
-//     return NextResponse.json(
-//       { message: "Internal server error", error: error.detail ?? error.message },
-//       { status: 500 },
-//     );
-//   }
-// }
-
 export async function POST(req: Request, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method not allowed" });
@@ -179,6 +37,8 @@ export async function POST(req: Request, res: NextApiResponse) {
   let organizationId: string | null = null;
 
   try {
+    const trialEndDate = new Date();
+    trialEndDate.setDate(trialEndDate.getDate() + 30);
     // Step 1: Create Organization in Clerk
     const organizationResponse = await clerkClient.organizations.createOrganization({
       name: data.name,
@@ -195,6 +55,7 @@ export async function POST(req: Request, res: NextApiResponse) {
           payhereId: '',
           isTrial: true,
           isActive:true,
+          trialEndDate: trialEndDate.toISOString(),
         }
       },
     });

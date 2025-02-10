@@ -14,7 +14,7 @@ const isPublicRoute = createRouteMatcher([
 const isProtectedRoute = createRouteMatcher(['/dashboard/admin(.*)']);
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
-  const { userId, sessionClaims, has, orgRole  } = auth();
+  const { userId, sessionClaims, has, orgRole, redirectToSignIn } = auth();
 
   // Allow access to public routes
   if (isPublicRoute(req)) {
@@ -23,7 +23,38 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 
   // Redirect unauthenticated users to the sign-in page
   if (!userId) {
+    redirectToSignIn();
     return NextResponse.redirect(new URL('/sign-in', req.url));
+  }
+
+  const organizationMetadata = (sessionClaims as CustomJwtSessionClaims).organizationMetadata;
+  const subscription = organizationMetadata?.subscription;
+  const isOnPaymentPage = req.url.includes('/payment');
+  
+  if (!subscription) {
+    return NextResponse.redirect(new URL('/payment', req.url));
+  }
+  
+  const { isTrial, trialEndDate, isActive } = subscription;
+  
+  // Redirect to payment if trial expired
+  if (isTrial && !isOnPaymentPage && Date.now() > new Date(trialEndDate).getTime()) {
+    return NextResponse.redirect(new URL('/payment', req.url));
+  }
+  
+  // Redirect to payment if subscription is inactive
+  if (!isActive && !isOnPaymentPage) {
+    return NextResponse.redirect(new URL('/payment', req.url));
+  }
+
+  //if active and trial expired
+  if (isTrial && isActive && Date.now() > new Date(trialEndDate).getTime() && isOnPaymentPage) {
+    return NextResponse.next();
+  }
+
+  // Redirect away from payment if already active
+  if (isActive && isOnPaymentPage) {
+    return NextResponse.redirect(new URL('/dashboard/overview', req.url));
   }
 
   // // Redirect user to the payment page if their organization is not subscribed

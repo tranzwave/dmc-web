@@ -1,5 +1,8 @@
+"use client"
 import { AlertCircle } from "lucide-react"
 import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect } from "react"
 import { Button } from "~/components/ui/button"
 
 interface TopBarFlagProps {

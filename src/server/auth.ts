@@ -74,7 +74,8 @@ const updateSubscriptionNotificationData = async (organizationId: string, notifi
                     isTrial: false,
                     plan: notificationData.custom_2,
                     payhereId: notificationData.subscription_id ?? "",
-                    isActive: true
+                    isActive: true,
+                    trialEndDate: ""
                 }
             }
         });
@@ -108,6 +109,11 @@ const getOrganizationSubscriptionData = async (organizationId: string) => {
 const removeSubscriptionMetadata = async (organizationId: string):Promise<boolean> => {
     try {
         const organization = await clerkClient.organizations.getOrganization({ organizationId: organizationId });
+        // const membersList = await clerkClient.organizations.getOrganizationMembershipList({ organizationId: organizationId }).then(res => res.data);
+        
+        // if (membersList) {
+            
+        // }
         const response = await clerkClient.organizations.updateOrganization(organizationId, {
             publicMetadata: {
                 ...organization.publicMetadata,
@@ -115,12 +121,14 @@ const removeSubscriptionMetadata = async (organizationId: string):Promise<boolea
                     isTrial: false,
                     plan: 'None',
                     payhereId: '',
-                    isActive: false
+                    isActive: false,
+                    trialEndDate: ''
                 }
             },
             privateMetadata: {
                 subscriptionNotificationData: null
-            }
+            },
+            maxAllowedMemberships: 1
         });
         console.log('Subscription cancelled successfully: \n', response);
         return true;
@@ -129,7 +137,6 @@ const removeSubscriptionMetadata = async (organizationId: string):Promise<boolea
         throw error;
     }
 }
-
 
 
 export {

@@ -186,6 +186,7 @@ function CancelSubscription({ organization }: CancelSubscriptionProps) {
           title: "Subscription Cancelled",
           description: "Your subscription has been successfully cancelled.",
         })
+        window.location.reload()
       } catch (error) {
         toast({
           title: "Error",
@@ -194,7 +195,7 @@ function CancelSubscription({ organization }: CancelSubscriptionProps) {
         })
       } finally {
         setIsDeleting(false)
-        window.location.reload()
+        
       }
     }
   }

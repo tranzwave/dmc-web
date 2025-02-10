@@ -51,5 +51,19 @@ declare global {
         | "sys_profile:manage"
       >;
     };
+    organizationMetadata: {
+      address: string;
+      country: string;
+      website: string;
+      domainName: string;
+      subscription: {
+        plan: string;
+        isTrial: boolean;
+        isActive: boolean;
+        payhereId: string;
+        trialEndDate: string;
+      };
+      contactNumber: string;
+    }
   }
 }

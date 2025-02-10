@@ -45,6 +45,7 @@ export type ClerkOrganizationPublicMetadata =
           payhereId: string,
           isTrial: boolean,
           isActive: boolean,
+          trialEndDate: string,
     }
 };
 

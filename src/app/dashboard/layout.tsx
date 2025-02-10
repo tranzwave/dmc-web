@@ -45,6 +45,7 @@ export default function DashboardLayout({
       //   router.push("/dashboard/admin");
       //   return;
       // }
+      
 
       // Set the first organization as the active organization if available
       const org = memberships?.[0]?.organization;
