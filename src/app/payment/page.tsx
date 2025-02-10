@@ -30,13 +30,12 @@ interface PaymentPageProps {
 
 
 const PaymentPage = ({ searchParams }: PaymentPageProps) => {
-    const [userData, setUserData] = useState<UserData | null>(null);
-    const [loading, setLoading] = useState(false);
 
     const pathname = usePathname();
     const { organization, isLoaded } = useOrganization();
-    const { user, isLoaded: isUserLoaded } = useUser();
+    const { user, isLoaded: isUserLoaded, isSignedIn } = useUser();
     const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+    const router = useRouter();
 
     // Check whether user is an admin of the active organization
     useEffect(() => {
@@ -58,6 +57,11 @@ const PaymentPage = ({ searchParams }: PaymentPageProps) => {
         checkAdminRole();
 
     }, [organization, user])
+
+    if(!isSignedIn) {
+        router.replace('/sign-in');
+        return null;
+    }
 
     if (!isLoaded || !organization || !isUserLoaded || !user || isAdmin === null) {
         return (
