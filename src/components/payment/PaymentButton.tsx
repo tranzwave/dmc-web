@@ -73,13 +73,16 @@ const PaymentButton = ({ selectedPackage, closeDialog }: PaymentButtonProps) => 
                 currency: "USD",
             })
             setHash(hash)
+            const notify_url = process.env.NEXT_PUBLIC_PAYHERE_NOTIFY_URL ? process.env.NEXT_PUBLIC_PAYHERE_NOTIFY_URL : (() => { throw new Error("Notify URL not found") })();
+            const return_url = process.env.NEXT_PUBLIC_PAYHERE_RETURN_URL ? process.env.NEXT_PUBLIC_PAYHERE_RETURN_URL : (() => { throw new Error("Return URL not found") })();
+            const cancel_url = process.env.NEXT_PUBLIC_PAYHERE_CANCEL_URL ? process.env.NEXT_PUBLIC_PAYHERE_CANCEL_URL : (() => { throw new Error("Cancel URL not found") })();
 
             setPaymentDetails({
                 sandbox: true,
                 merchant_id: merchant_id,
-                return_url: "http://localhost:3000/dashboard/admin",
-                cancel_url: "http://sample.com/cancel",
-                notify_url: "https://60b3-2402-4000-2100-8f5d-208d-280b-7c95-8c6d.ngrok-free.app/api/webhooks/payment-notify",
+                return_url: return_url,
+                cancel_url: cancel_url,
+                notify_url: notify_url,
                 order_id: order_id,
                 amount: selectedPackage.price.toFixed(2),
                 currency: "USD",

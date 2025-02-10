@@ -107,7 +107,9 @@ export const packages: Package[] = [
     features: [
       // "Start Your Free 1 month Trial",
       "Up to 20 users",
-      "Everything included in START",
+      "Unlimited Bookings",
+      "Unlimited Hotels",
+      "Unlimited Agents",
     ],
     recuurence: "1 Month"
   },

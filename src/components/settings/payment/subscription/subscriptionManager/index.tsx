@@ -4,7 +4,7 @@ import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table"
-import { useEffect, useState } from "react"
+import { act, useEffect, useState } from "react"
 import { cancelSubscription, getBillingHistory, updateCard, upgradePlan } from "~/lib/utils/paymentUtils"
 import { useToast } from "~/hooks/use-toast"
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
@@ -17,29 +17,32 @@ import PaymentButton from "~/components/payment/PaymentButton"
 import PaymentDialog from "~/components/payment/modal"
 import useSWR from "swr"
 import { getOrganizationSubscriptionData } from "~/server/auth"
+import { Badge } from "~/components/ui/badge"
+import { Check } from "lucide-react"
+import { sub } from "date-fns"
 
 type BillingHistoryItem = {
-    date: string
-    amount: string
-    description: string
+  date: string
+  amount: string
+  description: string
 }
 
 interface BillingHistoryProps {
-    billingHistory: BillingHistoryItem[]
-    organization: OrganizationResource,
-    isLoading?: boolean
+  billingHistory: BillingHistoryItem[]
+  organization: OrganizationResource,
+  isLoading?: boolean
 }
 
 interface UpgradePlanProps {
-    organization: OrganizationResource
+  organization: OrganizationResource
 }
 
 interface UpdateCardFormProps {
-    organization: OrganizationResource
+  organization: OrganizationResource
 }
 
 interface CancelSubscriptionProps {
-    organization: OrganizationResource
+  organization: OrganizationResource
 }
 
 
@@ -63,36 +66,19 @@ export default function SubscriptionManager() {
     return <LoadingLayout />
   }
   return (
-    <div className="space-y-4">
-      <UpgradePlan organization={organization}/>
-      <BillingHistory billingHistory={billingHistory} organization={organization} isLoading={loadingBillingHistory}/>
-      {/* <UpdateCardForm organization={organization}/> */}
-      <CancelSubscription organization={organization}/>
+    <div className="w-full flex flex-row gap-4 h-full">
+      <div className="w-full max-w-lg flex flex-col gap-4 h-full">
+      <UpgradePlan organization={organization} />
+      <CancelSubscription organization={organization} />
+      </div>
+      <div className="w-full h-full">
+      <BillingHistory billingHistory={billingHistory} organization={organization} isLoading={loadingBillingHistory} />
+      </div>
     </div>
   )
 }
 
-function BillingHistory({ billingHistory,organization, isLoading }:BillingHistoryProps) {
-  // const [subscriptionId, setSubscriptionId] = useState<string | null>(null)
-  // const [billingHistory, setBillingHistory] = useState<any[]>([])
-
-  // useEffect(() => {
-  //   async function fetchSubscriptionData() {
-  //     const subscriptionData = await getOrganizationSubscriptionData(organization.id)
-  //     setSubscriptionId(subscriptionData.subscription_id)
-  //   }
-  //   fetchSubscriptionData()
-  // }, [organization.id])
-
-  // const fetcher = (url: string) => fetch(url).then((res) => res.json())
-
-  // const { data, error } = useSWR(subscriptionId ? `/api/payhere/subscription/${subscriptionId}` : null, fetcher)
-
-  // if (error) return <div>Failed to load</div>
-  // if (!data) return <div>Loading...</div>
-
-  // setBillingHistory(data.payments as any[])
-  // console.log(data)
+function BillingHistory({ billingHistory, organization, isLoading }: BillingHistoryProps) {
 
   return (
     <Card>
@@ -131,11 +117,11 @@ function BillingHistory({ billingHistory,organization, isLoading }:BillingHistor
   )
 }
 
-function UpdateCardForm({organization}:UpdateCardFormProps) {
+function UpdateCardForm({ organization }: UpdateCardFormProps) {
   const [isUpdating, setIsUpdating] = useState(false)
   const { toast } = useToast()
 
-  const handleSubmit = async (event:any) => {
+  const handleSubmit = async (event: any) => {
     event.preventDefault()
     setIsUpdating(true)
     try {
@@ -187,7 +173,7 @@ function UpdateCardForm({organization}:UpdateCardFormProps) {
   )
 }
 
-function CancelSubscription({organization}:CancelSubscriptionProps) {
+function CancelSubscription({ organization }: CancelSubscriptionProps) {
   const [isDeleting, setIsDeleting] = useState(false)
   const { toast } = useToast()
 
@@ -208,6 +194,7 @@ function CancelSubscription({organization}:CancelSubscriptionProps) {
         })
       } finally {
         setIsDeleting(false)
+        window.location.reload()
       }
     }
   }
@@ -227,58 +214,113 @@ function CancelSubscription({organization}:CancelSubscriptionProps) {
   )
 }
 
-function UpgradePlan({organization}:UpgradePlanProps) {
+function UpgradePlan({ organization }: UpgradePlanProps) {
   const [isUpgrading, setIsUpgrading] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState("pro")
   const { toast } = useToast()
+  const activeSubscription = (organization.publicMetadata as ClerkOrganizationPublicMetadata).subscription
+  const subscription = packages.find((p) => p.name === activeSubscription.plan)
 
-  const handleUpgrade = async (event:any) => {
-    event.preventDefault()
-    setIsUpgrading(true)
-    try {
-      await upgradePlan(selectedPlan)
-      toast({
-        title: "Plan Upgraded",
-        description: `Your subscription has been upgraded to the ${selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)} plan.`,
-      })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to upgrade plan. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsUpgrading(false)
-    }
+  if(!subscription) {
+    if(activeSubscription.plan.toLowerCase() === "free") {
+      return (
+        <Card>
+                    <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="card-title flex flex-row gap-2 items-center">
+                  <div>
+                    Current Plan
+                  </div>
+                  <div className="flex justify-center items-center text-[10px] h-6 px-2 font-semibold rounded-full border border-zinc-400">
+                    <span>FREE</span>
+                  </div>
+                </CardTitle>
+                <CardDescription>You are currently on free plan</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <PaymentDialog />
+          </CardContent>
+        </Card>
+      )
+  } else if (activeSubscription.plan.toLowerCase() === "none") {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="card-title">Upgrade Plan</CardTitle>
+          <CardDescription>Upgrade your plan to unlock more features</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PaymentDialog />
+        </CardContent>
+      </Card>
+    )
   }
+}
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="card-title">Activated Plan</CardTitle>
-        <CardDescription>You can update the subscription plan here</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {/* <form onSubmit={handleUpgrade}>
-          <RadioGroup value={selectedPlan} onValueChange={setSelectedPlan} className="space-y-4">
-            {packages.map((pkg) => (
-              <div key={pkg.id} className="flex items-center space-x-2">
-                <RadioGroupItem value={pkg.name} id={pkg.id.toString()} />
-                <Label htmlFor={pkg.name}>{pkg.name} - ${pkg.price}/month</Label>
+    <div>
+      {subscription ? (
+        <Card className="w-full max-w-lg">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="card-title flex flex-row gap-2 items-center">
+                  <div>
+                    Current Plan
+                  </div>
+                  <div className="flex justify-center items-center text-[10px] h-6 px-2 font-semibold rounded-full border border-zinc-400">
+                    <span>
+                      {subscription.name.toUpperCase()}
+                    </span>
+                  </div>
+                </CardTitle>
+                <CardDescription>Your active subscription details</CardDescription>
               </div>
-            ))}
-          </RadioGroup>
-          <Button variant={"primaryGreen"} type="submit" className="mt-4" disabled={isUpgrading}>
-            {isUpgrading ? "Upgrading..." : "Upgrade Plan"}
-          </Button>
-        </form> */}
-        <div className="text-[14px] text-zinc-800">You are on {(organization.publicMetadata as ClerkOrganizationPublicMetadata).subscription.plan} Plan</div>
-        {/* <Button variant={"primaryGreen"} type="submit" className="mt-4" disabled={isUpgrading}>
-            {isUpgrading ? "Upgrading..." : "Upgrade Plan"}
-        </Button> */}
-        <PaymentDialog />
-      </CardContent>
-    </Card>
+              <div className="flex flex-col items-end">
+                <span className="text-sm text-muted-foreground">Price</span>
+                <span className="text-sm font-bold">
+                  ${subscription.price}/{subscription.recuurence.toLowerCase().slice(2)}
+                </span>
+              </div>
+
+            </div>
+          </CardHeader>
+          <CardContent className="grid gap-1">
+            <div>
+              {/* <h3 className="mb-2 text-[14px] font-medium">Features</h3> */}
+              <ul className="grid gap-0 text-[13px]">
+                {subscription.features.map((feature, index) => (
+                  <li key={index} className="flex items-center">
+                    <Check className="mr-2 h-4 w-4 text-primary-green" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="flex justify-end space-x-4">
+              <PaymentDialog />
+            </div>
+          </CardContent>
+        </Card>
+
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle className="card-title">Activated Plan</CardTitle>
+            <CardDescription>Uh Oh! We are unable to detect your subscription plan</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div>
+              <p className="text-[14px] text-zinc-800">Please contact support to resolve this issue</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+    </div>
   )
 }
 
