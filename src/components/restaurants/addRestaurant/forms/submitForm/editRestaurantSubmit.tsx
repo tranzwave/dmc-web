@@ -1,4 +1,6 @@
 "use client"
+import { useOrganization } from "@clerk/nextjs";
+import { set } from "date-fns";
 import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -9,43 +11,51 @@ import { useToast } from "~/hooks/use-toast";
 import { updateRestaurantAndRelatedData } from "~/server/db/queries/restaurants";
 import { InsertMeal, InsertRestaurant } from "~/server/db/schemaTypes";
 
-const EditRestaurantSubmitForm = ({id,originalDriverData}:{id:string,originalDriverData:any | null}) => {
+const EditRestaurantSubmitForm = ({id,originalRestaurant}:{id:string,originalRestaurant:any | null}) => {
     const { restaurantDetails } = useAddRestaurant();
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const { toast } = useToast()
     const { general, mealsOffered, } = restaurantDetails;
     const router = useRouter()
+    const {organization, isLoaded} = useOrganization();
 
     const updateRestaurant = async () => {
         console.log({
           general,
           mealsOffered
         });
-        const restaurantData:InsertRestaurant[] = [{
-            name: general.name,
-            contactNumber: general.contactNumber,
-            streetName: general.streetName,
-            province: general.province,
-            tenantId: "",
-            cityId: Number(general.city?.id),
-            createdAt:originalDriverData?.createdAt ?? new Date(),
-            id: originalDriverData?.id ?? ""
-        }]
-        
-        const mealData:InsertMeal[] = mealsOffered.map((m) => {
-            return {
-                mealType: m.mealType,
-                startTime: m.startTime,
-                endTime:m.endTime
-            }
-        })
       
         try {
+            setLoading(true);
+            if(!organization || !isLoaded){
+                throw new Error("Organization not found");
+            }
+
+            const restaurantData:InsertRestaurant = {
+                name: general.name,
+                contactNumber: general.contactNumber,
+                streetName: general.streetName,
+                province: general.province,
+                tenantId: organization.id,
+                cityId: general.city?.id ? Number(general.city?.id) : (() => { throw new Error("City ID not found") })(),
+                createdAt:originalRestaurant?.createdAt ?? new Date(),
+                id: id ?? (() => { throw new Error("Restaurant ID not found") })(),
+                primaryEmail: restaurantDetails.general.primaryEmail,
+            }
+            
+            const mealData:InsertMeal[] = mealsOffered.map((m) => {
+                return {
+                    mealType: m.mealType,
+                    startTime: m.startTime,
+                    endTime:m.endTime,
+                    restaurantId: id ?? (() => { throw new Error("Restaurant ID not found") })()
+                }
+            })
           // Replace insertDriver with your function to handle the insertion of driver details
           const response = await updateRestaurantAndRelatedData(
             id,
-            restaurantData[0] ?? null,
+            restaurantData,
             mealData,
           );
       
@@ -62,6 +72,7 @@ const EditRestaurantSubmitForm = ({id,originalDriverData}:{id:string,originalDri
             description: "Restaurant updated successfully",
           });
           router.push("/dashboard/restaurants")
+          setLoading(false);
         } catch (error) {
           if (error instanceof Error) {
             setError(error.message);
@@ -154,7 +165,7 @@ const EditRestaurantSubmitForm = ({id,originalDriverData}:{id:string,originalDri
             {/* Submit Button */}
             <div className="flex w-full justify-center mt-4">
                 <Button variant="primaryGreen" onClick={updateRestaurant} disabled={loading}>
-                    {loading ? <LoaderCircle className="animate-spin"/> : 'Submit'}
+                    {loading ? <div className="flex flex-row items-center"><LoaderCircle className="animate-spin" size={20}/><div>Saving</div></div> : 'Submit'}
                 </Button>
             </div>
         </div>

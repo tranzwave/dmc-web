@@ -78,6 +78,8 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom }) => {
       count: Number(data.count),
       floor: Number(data.floor),
       bedCount: Number(data.bedCount),
+      id: selectedRoom?.id ?? undefined,
+
     });
     roomsForm.reset();
   };

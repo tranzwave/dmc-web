@@ -1,4 +1,5 @@
 "use client";
+import { useOrganization } from "@clerk/nextjs";
 import { ColumnDef } from "@tanstack/react-table";
 import { Search } from "lucide-react";
 import Link from "next/link";
@@ -24,13 +25,15 @@ const RestaurantHome = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const { organization, isLoaded} = useOrganization();
 
   // Fetch data on mount
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
-        const result = await getAllRestaurantVendors();
+        if (!organization || !isLoaded) return
+        const result = await getAllRestaurantVendors(organization.id);
         setData(result);
       } catch (error) {
         console.error("Failed to fetch restaurant data:", error);
@@ -41,7 +44,7 @@ const RestaurantHome = () => {
     }
 
     fetchData();
-  }, []);
+  }, [organization]);
 
   const filteredData = data.filter((restaurant) => {
     const searchTerm = searchQuery.toLowerCase();

@@ -19,16 +19,6 @@ const MealsOfferedTab = () => {
     endTime: "",
   });
 
-  const updateMealTypes = (mealTypes: MealType) => {
-    console.log(mealTypes);
-    addMeals(mealTypes);
-    setSelectedMealType({
-      mealType: "",
-      startTime: "",
-      endTime: ""
-    });
-  };
-
   const updateMealsOffered = (meal: InsertMeal) => {
     console.log("Adding Meals Offered");
     addMeals(meal);

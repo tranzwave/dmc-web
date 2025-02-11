@@ -44,7 +44,8 @@ const MealsOfferedForm: React.FC<MealsOfferedFormProps> = ({ onAddMeal, selected
   const onSubmit: SubmitHandler<MealType> = (data) => {
     onAddMeal({
         ...data,
-        typeName : data.typeName
+        typeName : data.typeName,
+        id: selectedMealType?.id ?? undefined
     });
     mealsOfferedForm.reset();
   };

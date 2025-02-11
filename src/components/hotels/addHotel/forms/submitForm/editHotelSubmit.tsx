@@ -31,10 +31,10 @@ const EditHotelSubmitView = ({
       ...hotelGeneral,
     };
   
-    const updatedRooms = [...oldRooms, ...hotelRooms];
-    const updatedStaffs = [...oldStaffs, ...hotelStaff];
+    const updatedRooms = [hotelRooms];
+    const updatedStaffs = [hotelStaff];
   
-    console.log([updatedHotelDetails, updatedRooms, updatedStaffs]);
+    console.log([updatedHotelDetails, hotelRooms, hotelStaff]);
   
     try {
       setLoading(true);
@@ -43,8 +43,8 @@ const EditHotelSubmitView = ({
         const response = await updateHotelAndRelatedData(
           originalHotel.hotel.id ?? "not found",  // Hotel ID must be valid
           updatedHotelDetails,
-          updatedRooms,
-          updatedStaffs
+          hotelRooms,
+          hotelStaff
         );
   
         if (!response) {

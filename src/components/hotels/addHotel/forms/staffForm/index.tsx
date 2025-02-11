@@ -8,7 +8,7 @@ import { columns } from "./columns";
 import StaffForm from "./staffForm";
 
 const StaffTab = () => {
-  const [addedStaff, setAddedStaff] = useState<HotelStaffType[]>([]);
+  //const [addedStaff, setAddedStaff] = useState<HotelStaffType[]>([]);
 
   const [selectedStaff, setSelectedStaff] = useState<HotelStaffType>({
     name: "",
@@ -22,7 +22,7 @@ const StaffTab = () => {
     useAddHotel(); // Assuming useAddStaff context
 
   const handleAddStaff = (staff: HotelStaffType) => {
-    setAddedStaff([...addedStaff, staff]);
+    //setAddedStaff([...addedStaff, staff]);
     addHotelStaff(staff); // Call context to add staff
     setSelectedStaff({
       name: "",

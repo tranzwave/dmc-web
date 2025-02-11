@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { ActivityTypeDTO } from "~/app/dashboard/activities/add/context";
+import ActivityAdder from "~/components/common/activityAdder";
+import CityAdder from "~/components/common/cityAdder";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -20,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { toast } from "~/hooks/use-toast";
 import { getAllActivityTypes } from "~/server/db/queries/activities";
 import { SelectActivityType } from "~/server/db/schemaTypes";
 
@@ -52,14 +55,30 @@ const VendorActivityForm: React.FC<ActivityFormProps> = ({ onAddActivity, select
     useState<SelectActivityType>();
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
+  const [activityTypeUpdated, setActivityTypeUpdated] = useState<boolean>(false);
 
   const onSubmit: SubmitHandler<ActivityTypeDTO> = (data) => {
-    onAddActivity({
-      ...data,
-      typeName: data.typeName,
-    });
-    activityForm.reset();
+    try {
+      onAddActivity({
+        ...data,
+        typeName: data.typeName,
+        id: selectedActivity?.id ?? undefined,
+        activityType: activityTypes.find((a) => a.name === data.typeName)?.id ?? (()=>{throw new Error("Activity type not found")})(),
+      });
+      activityForm.reset();
+    } catch (error) {
+      
+    }
+
   };
+
+  const updateActivityType = () => {
+    setActivityTypeUpdated((prev) => !prev);
+    toast({
+      title: "Success",
+      description: "Activity type added successfully",
+  });
+  }
 
   useEffect(()=>{
     reset(selectedActivity)
@@ -95,11 +114,12 @@ const VendorActivityForm: React.FC<ActivityFormProps> = ({ onAddActivity, select
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [activityTypeUpdated]);
 
 
 
   return (
+    <div>
     <Form {...activityForm}>
       <form
         onSubmit={activityForm.handleSubmit(onSubmit)}
@@ -183,6 +203,8 @@ const VendorActivityForm: React.FC<ActivityFormProps> = ({ onAddActivity, select
         </div>
       </form>
     </Form>
+    <ActivityAdder setActivityTypeUpdated={updateActivityType}/>
+    </div>
   );
 };
 

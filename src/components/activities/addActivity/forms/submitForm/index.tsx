@@ -8,6 +8,7 @@ import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
 import { insertActivityVendor } from "~/server/db/queries/activities";
 import { columns } from "../activityForm/columns";
+import { useOrganization } from "@clerk/nextjs";
 
 const SubmitForm = () => {
     const { activityVendorDetails } = useAddActivity();
@@ -16,6 +17,7 @@ const SubmitForm = () => {
     const { toast } = useToast()
     const router = useRouter()
     const pathname = usePathname()
+    const {organization, isLoaded} = useOrganization()
 
     const handleSubmit = async() => {
 
@@ -23,6 +25,9 @@ const SubmitForm = () => {
         console.log('Submitting activity details:', activityVendorDetails);
         setLoading(true)
         try {
+            if(!organization){
+                throw new Error("Organization not found")
+            }
             let response;
             // Replace insertActivity with your function to handle the insertion of activity details
             if(pathname.includes("/edit")){
@@ -30,7 +35,7 @@ const SubmitForm = () => {
                 alert("Updated")
                 return
             } else{
-                response = await insertActivityVendor([activityVendorDetails]);
+                response = await insertActivityVendor([activityVendorDetails], organization.id);
             }
         
             if (!response) {
