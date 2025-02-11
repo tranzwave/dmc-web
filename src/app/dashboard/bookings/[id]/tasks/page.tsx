@@ -32,7 +32,7 @@ const Page = ({ params }: { params: { id: string } }) => {
       if (!bookingLineData) {
         setError("Booking not found");
       }
-      setBookingLine(bookingLineData);
+      setBookingLine(bookingLineData as BookingLineWithAllData);
 
       //Get voucher settings from local storage
       const voucherSettingsLocal = localStorage.getItem("voucherSettings");

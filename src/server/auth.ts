@@ -4,6 +4,7 @@ import { BankDetails, PayherePaymentNotification } from '~/lib/types/payment';
 import dotenv from 'dotenv';
 import { clerkClient } from './db/db.production';
 import { packages } from '~/lib/constants';
+import { auth } from '@clerk/nextjs/server';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -142,10 +143,26 @@ const removeSubscriptionMetadata = async (organizationId: string):Promise<boolea
     }
 }
 
+const getActiveOrganization: () => Promise<string> = async () => {
+    try {
+        const activeOrg = await auth().orgId;
+        if(!activeOrg){
+            console.log('No active organization found');
+            return '';
+        }
+        return activeOrg;
+    }
+    catch(error){
+        console.log('Error getting active organization:', error);
+        throw error;
+    }
+}
+
 
 export {
     updateBankDetails,
     updateSubscriptionNotificationData,
     getOrganizationSubscriptionData,
-    removeSubscriptionMetadata
+    removeSubscriptionMetadata,
+    getActiveOrganization
 }

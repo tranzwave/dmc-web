@@ -14,6 +14,7 @@ import {
   transportVoucher,
   vehicle
 } from "./../../schema";
+import { getActiveOrganization } from "~/server/auth";
 
 export const getAllVehicleTypes = async () => {
   return await db.query.vehicle
@@ -71,6 +72,7 @@ export const getAllDriversByVehicleTypeAndLanguage = async (
   vehicleType: string,
   languageCode: string,
 ) => {
+  const activeOrg = await getActiveOrganization();
   const drivers = await db.query.driver.findMany({
     with: {
       vehicles: {
@@ -102,7 +104,9 @@ export const getAllDriversByVehicleTypeAndLanguage = async (
       (language) => language.language.code === languageCode,
     );
 
-    return hasMatchingVehicle && speaksLanguage;
+    const hasTenant = driver.tenantId === activeOrg;
+
+    return hasMatchingVehicle && speaksLanguage && hasTenant;
   });
 
   return filteredDrivers;
@@ -250,11 +254,14 @@ export const getTransportVouchersForDriver = (id: string) => {
 export const insertDriver = async (
   drivers: InsertDriver[],
   vehicleData: InsertVehicle[],
-  languages: InsertLanguage[]
+  languages: InsertLanguage[],
+  tenantId: string
 ) => {
   try {
     const newDrivers = await db.transaction(async (tx) => {
-      const foundTenant = await tx.query.tenant.findFirst();
+      const foundTenant = await tx.query.tenant.findFirst({
+        where: eq(tenant.id, tenantId),
+      });
 
       if (!foundTenant) {
         throw new Error("Couldn't find any tenant");
@@ -333,11 +340,14 @@ export const insertDriver = async (
 
 export const insertGuide = async (
   drivers: InsertGuide[],
-  languages: InsertLanguage[]
+  languages: InsertLanguage[],
+  tenantId: string
 ) => {
   try {
     const newGuide = await db.transaction(async (tx) => {
-      const foundTenant = await tx.query.tenant.findFirst();
+      const foundTenant = await tx.query.tenant.findFirst({
+        where: eq(tenant.id, tenantId),
+      });
 
       if (!foundTenant) {
         throw new Error("Couldn't find any tenant");

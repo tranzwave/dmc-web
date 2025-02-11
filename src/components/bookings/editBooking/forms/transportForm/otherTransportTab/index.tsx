@@ -23,6 +23,8 @@ import { DialogTitle } from '@radix-ui/react-dialog';
 import { format } from 'date-fns';
 import DeletePopup from '~/components/common/deletePopup';
 import { ColumnDef } from '@tanstack/react-table';
+import { useOrganization } from '@clerk/nextjs';
+import LoadingLayout from '~/components/common/dashboardLoading';
 
 
 
@@ -52,13 +54,17 @@ const OtherTransportTab: React.FC = () => {
     const bookingLineId = pathname.split("/")[3];
     const [otherTransportVoucherLine, setOtherTransportVoucherLine] = useState<InsertOtherTransportVoucherLine>();
     const [selectedOtherTransport, setSelectedOtherTransport] = useState<OtherTransportWithCity>();
+    const {organization, isLoaded} = useOrganization();
 
     const fetchData = async () => {
         try {
             // Run both requests in parallel
             setLoading(true);
+            if(!organization) {
+                throw new Error("Organization not found");
+            };
             //TODO: Dynamic country code
-            const otherTransportsResponse = await getAllOtherTransports();
+            const otherTransportsResponse = await getAllOtherTransports(organization.id);
 
             // Check for errors in the response
             if (!otherTransportsResponse) {
@@ -235,6 +241,10 @@ const OtherTransportTab: React.FC = () => {
           return;
         }
       };
+
+      if(!isLoaded) {
+        return <LoadingLayout/>
+      }
     return (
         <div className="card w-full space-y-6">
             <div className="card-title">Transport Information</div>
