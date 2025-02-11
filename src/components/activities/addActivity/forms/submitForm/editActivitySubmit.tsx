@@ -10,6 +10,7 @@ import { useToast } from "~/hooks/use-toast";
 import { updateRestaurantAndRelatedData as updateActivityAndRelatedData } from "~/server/db/queries/activities";
 import { InsertActivity, InsertActivityVendor } from "~/server/db/schemaTypes";
 import { columns } from "../activityForm/columns";
+import { useOrganization } from "@clerk/nextjs";
 
 const EditActivitySubmitForm = ({id,originalActivityVendorData}:{id:string,originalActivityVendorData:any | null}) => {
     const { activityVendorDetails } = useAddActivity();
@@ -18,39 +19,48 @@ const EditActivitySubmitForm = ({id,originalActivityVendorData}:{id:string,origi
     const { toast } = useToast()
     const { general, activities, } = activityVendorDetails;
     const router = useRouter()
+    const {organization, isLoaded} = useOrganization()
 
     const updateActivityVendor = async () => {
         console.log({
           general,
           activities
         });
-        const activityVendorData:InsertActivityVendor[] = [{
+      
+        try {
+          setLoading(true);
+          if (!organization) {
+            throw new Error("Organization not found");
+          }
+          const activityVendorData:InsertActivityVendor = {
             name: general.name,
             contactNumber: general.contactNumber,
             streetName: general.streetName,
             province: general.province,
-            tenantId: "",
+            tenantId: organization.id,
             cityId: Number(general.city?.id),
             createdAt:originalActivityVendorData?.createdAt ?? new Date(),
-            id: originalActivityVendorData?.id ?? ""
-        }]
-        
-        const activity:InsertActivity[] = activities.map((a) => {
+            id: id
+        }
+
+        const updatedActivities:InsertActivity[] = activities.map((activity) => {
             return {
-                name: a.name,
-                activityType: a.activityType,
-                capacity:a.capacity,
-                tenantId:"",
-                activityVendorId:""
+              activityType: activity.activityType,
+              capacity: activity.capacity,
+              id: activity.id,
+              activityVendorId: id,
+              name: activity.name,
+              tenantId: organization.id,
+              
             }
-        })
-      
-        try {
+          }
+        )
+
           // Replace insertDriver with your function to handle the insertion of driver details
           const response = await updateActivityAndRelatedData(
             id,
-            activityVendorData[0] ?? null,
-            activity,
+            activityVendorData,
+            updatedActivities,
           );
       
           if (!response) {

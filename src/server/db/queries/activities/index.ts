@@ -10,6 +10,7 @@ import {
   activityVendor,
   activityVoucher,
   city,
+  tenant
 } from "./../../schema";
 
 export const getAllCities = (countryCode: string) => {
@@ -18,8 +19,9 @@ export const getAllCities = (countryCode: string) => {
   });
 };
 
-export const getAllActivityVendors = () => {
+export const getAllActivityVendors = (tenantId: string) => {
   return db.query.activityVendor.findMany({
+    where: eq(activityVendor.tenantId, tenantId),
     with: {
       city: true,
     },
@@ -92,16 +94,27 @@ export const getActivitiesByTypeAndCity = async (
   // return db.query.activity.findMany()
 };
 
+
+
 export const getAllActivityTypes = () => {
   return db.query.activityType.findMany();
 };
 
+export const createActivityType = async (typeName: string) => {
+  return db.insert(activityType).values({ name: typeName }).returning();
+}
+
 export const insertActivityVendor = async (
   activityVendorDetails: ActivityVendorDetails[],
+  tenantId: string,
 ) => {
   try {
     const newActivityVendors = await db.transaction(async (tx) => {
-      const foundTenant = await tx.query.tenant.findFirst();
+      const foundTenant = await tx.query.tenant.findFirst(
+        {
+          where: eq(tenant.id, tenantId),
+        },
+      );
 
       if (!foundTenant) {
         throw new Error("Couldn't find any tenant");
@@ -205,8 +218,8 @@ export const insertActivityVendor = async (
 
 export async function updateRestaurantAndRelatedData(
   activityVendorId: string,
-  updatedActivityVendor: InsertActivityVendor | null,
-  updatedActivity: InsertActivity[],
+  updatedActivityVendor: InsertActivityVendor,
+  updatedActivities: InsertActivity[],
 ) {
   console.log(activityVendorId);
   console.log(updatedActivityVendor);
@@ -235,7 +248,7 @@ export async function updateRestaurantAndRelatedData(
     }
 
     // Update related vehicles
-    const updatedActivityData = await updateActivity(trx, activityVendorId, updatedActivity);
+    const updatedActivityData = await updateActivity(trx, activityVendorId, updatedActivities);
 
     return { updatedActivityVendorResult: updatedActivityvendorResult };
   });
@@ -249,10 +262,39 @@ async function updateActivity(
   activityVendorId: string,
   updatedActivities: InsertActivity[]
 ) {
-  // If there are no vehicles to update, return early
-  if (updatedActivities.length === 0) {
-    return [];
+  if (updatedActivities.length === 0) return [];
+
+  const activityIds: string[] = [];
+  const newActivities: InsertActivity[] = []
+
+  for (const updatedActivity of updatedActivities) {
+    if (updatedActivity.id) {
+      await trx.update(activity)
+        .set({
+          name: updatedActivity.name,
+          activityType: updatedActivity.activityType,
+          capacity: updatedActivity.capacity,
+        })
+        .where(eq(activity.id, updatedActivity.id))
+        activityIds.push(updatedActivity.id)
+    } else {
+      newActivities.push(updatedActivity)
+    }
   }
+
+  if (newActivities.length > 0) {
+    const insertedActivities = await trx.insert(activity)
+      .values(newActivities.map((activity) => ({
+        ...activity,
+        activityVendorId,
+      }))
+    ).returning({ id: activity.id });
+
+    activityIds.push(...insertedActivities.map((activity:InsertActivity) => activity.id))
+  }
+
+  return activityIds;
+
 }
 
 

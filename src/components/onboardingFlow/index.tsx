@@ -37,6 +37,7 @@ import { useRouter } from "next/navigation";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import PaymentForm from "../payment/PaymentForm";
 
 // Zod schemas for validation
 const personalDetailsSchema = z.object({
@@ -122,17 +123,76 @@ const OnboardingFlow = () => {
     setStep(2); // Move to the next step
   };
 
-  const handleOrganizationSubmit: SubmitHandler<
-    OrganizationDetailsFormValues
-  > = async (data) => {
+  // const handleOrganizationSubmit: SubmitHandler<
+  //   OrganizationDetailsFormValues
+  // > = async (data) => {
+  //   console.log("Organization details submitted:", data);
+  //   console.log(personalFormMethods.getValues());
+  //   console.log(user);
+  //   console.log(session);
+  //   const token = await session?.getToken();
+  //   console.log(organization);
+
+
+  //   try {
+  //     setIsLoading(true);
+  //     const response = await fetch("/api/tenant", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         id: user?.id ?? "",
+  //         name: data.orgName,
+  //         createdBy: user?.id ?? "",
+  //         publicMetadata: {
+  //           country: data.country,
+  //           domainName: data.domainName,
+  //           website: data.website,
+  //           contactNumber: data.contactNumber,
+  //           address: data.address
+  //         },
+  //         userData: {
+  //           contact: personalFormMethods.getValues("contactNumber"),
+  //           address: personalFormMethods.getValues("address")
+  //         }
+  //       }),
+  //     });
+
+  //     if (!response.ok) {
+  //       const error = await response.json();
+  //       console.error("Error creating organization upper: ", error);
+  //       throw new Error("Error creating organization: ", error);
+  //     }
+
+  //     const createdOrg = await response.json();
+  //     console.log(createdOrg?.clerkResponse);
+  //     toast({
+  //       title: "Success!",
+  //       description: "Your organization has been created successfully",
+  //     });
+  //     setIsLoading(false);
+
+  //     router.push(`/dashboard/overview?orgId=${createdOrg.clerkResponse}`)
+  //   } catch (error) {
+  //     console.error(error);
+  //     setIsLoading(false);
+  //     toast({
+  //       title: "Uh oh!",
+  //       description: "Couldn't create the organization",
+  //     });
+  //   }
+  //   // Call Clerk API or handle final submission here
+  // };
+
+  const handleOrganizationSubmit: SubmitHandler<OrganizationDetailsFormValues> = async (data) => {
     console.log("Organization details submitted:", data);
     console.log(personalFormMethods.getValues());
     console.log(user);
     console.log(session);
     const token = await session?.getToken();
     console.log(organization);
-
-
+  
     try {
       setIsLoading(true);
       const response = await fetch("/api/tenant", {
@@ -149,37 +209,40 @@ const OnboardingFlow = () => {
             domainName: data.domainName,
             website: data.website,
             contactNumber: data.contactNumber,
-            address: data.address
+            address: data.address,
           },
           userData: {
             contact: personalFormMethods.getValues("contactNumber"),
-            address: personalFormMethods.getValues("address")
-          }
+            address: personalFormMethods.getValues("address"),
+          },
         }),
       });
-
+  
+      const responseData = await response.json();
+  
       if (!response.ok) {
-        throw new Error("Error creating organization");
+        console.error("Error creating organization:", responseData);
+        throw new Error(responseData.message || "Unknown error occurred");
       }
-
-      const createdOrg = await response.json();
-      console.log(createdOrg?.clerkResponse);
+  
+      console.log(responseData?.clerkResponse);
       toast({
         title: "Success!",
         description: "Your organization has been created successfully",
       });
       setIsLoading(false);
-      router.push(`/dashboard/overview?orgId=${createdOrg.clerkResponse}`)
-    } catch (error) {
-      console.log(error);
+  
+      router.push(`/dashboard/overview?orgId=${responseData.clerkResponse}`);
+    } catch (error: any) {
+      console.error("Organization creation failed:", error);
       setIsLoading(false);
       toast({
         title: "Uh oh!",
-        description: "Couldn't create the organization",
+        description: error.message || "Couldn't create the organization",
       });
     }
-    // Call Clerk API or handle final submission here
   };
+  
 
   if (!isLoaded) {
     return <LoadingLayout />;
@@ -187,7 +250,7 @@ const OnboardingFlow = () => {
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center p-5 text-[#111729] shadow-2xl">
-      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-md">
+      <div className="w-full max-w-[520px] rounded-lg bg-white p-6 shadow-md">
         {step === 1 ? (
           <Form {...personalFormMethods}>
             <form
@@ -209,7 +272,7 @@ const OnboardingFlow = () => {
               </Button>
             </form>
           </Form>
-        ) : (
+        ) : step === 2 ? (
           <div>
             <div className="my-2 cursor-pointer">
               <ArrowLeft
@@ -254,6 +317,17 @@ const OnboardingFlow = () => {
               </form>
             </Form>
           </div>
+        ) : step === 3 ? (
+          <div>
+            <h2 className="mb-4 text-center text-2xl font-bold text-[#287F71]">
+              Choose Your Perfect Plan
+            </h2>
+            <div>
+              {/* <PaymentForm onCloseDialog={()=>{console.log("Close dialog")}}/> */}
+            </div>
+          </div>
+        ) : (
+          ""
         )}
       </div>
       <div className="text-[13px]">Sign in with a different account</div>

@@ -330,6 +330,48 @@
       "when": 1738170050147,
       "tag": "0044_conscious_puma",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "6",
+      "when": 1738559619943,
+      "tag": "0045_gifted_ink",
+      "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "6",
+      "when": 1738574234674,
+      "tag": "0046_flat_shaman",
+      "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "6",
+      "when": 1739199735508,
+      "tag": "0047_mighty_leo",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "6",
+      "when": 1739200488254,
+      "tag": "0048_mean_xavin",
+      "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "6",
+      "when": 1739200663820,
+      "tag": "0049_striped_lightspeed",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "6",
+      "when": 1739205207501,
+      "tag": "0050_big_meggan",
+      "breakpoints": true
     }
   ]
 }

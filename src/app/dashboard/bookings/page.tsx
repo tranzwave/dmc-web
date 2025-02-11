@@ -199,7 +199,6 @@ export default function Bookings() {
             <div className="w-[40%]">
               <SidePanel
                 booking={selectedBooking ? selectedBooking : null}
-                onClose={handleCloseSidePanel}
               />
             </div>
           </div>

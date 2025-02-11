@@ -153,7 +153,7 @@ const ShopVouchersTasksTab = ({
           setBookingLoading(true)
           const booking = await getBookingLineWithAllData(vouchers[0]?.bookingLineId ?? "")
           if (booking) {
-            setBookingData(booking);
+            setBookingData(booking as BookingLineWithAllData);
           }
           setBookingLoading(false)
         } catch (error) {

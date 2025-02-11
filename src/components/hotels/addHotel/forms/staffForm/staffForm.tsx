@@ -43,7 +43,10 @@ const StaffForm: React.FC<StaffFormProps> = ({ onAddStaff, selectedStaff }) => {
   const {reset} = staffForm;
 
   const onSubmit: SubmitHandler<HotelStaffType> = (data) => {
-    onAddStaff(data);
+    onAddStaff({
+      ...data,
+      id: selectedStaff?.id ?? undefined
+    });
     staffForm.reset();
   };
 

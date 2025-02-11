@@ -1,0 +1,1 @@
+ALTER TABLE "dmc-web_tenants" DROP CONSTRAINT "dmc-web_tenants_name_unique";

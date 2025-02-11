@@ -1,3 +1,5 @@
+import { ClerkOrganizationPublicMetadata } from "./payment";
+
 export {};
 
 export type Roles =
@@ -51,5 +53,6 @@ declare global {
         | "sys_profile:manage"
       >;
     };
+    organizationMetadata: ClerkOrganizationPublicMetadata
   }
 }

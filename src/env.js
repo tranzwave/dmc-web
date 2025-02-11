@@ -12,6 +12,8 @@ export const env = createEnv({
    */
   server: {
     POSTGRES_URL:z.string().url(),
+    PROD_POSTGRES_URL:z.string().url(),
+    DEV_POSTGRES_URL:z.string().url(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("production"),
@@ -31,7 +33,13 @@ export const env = createEnv({
     
     CLERK_SECRET_KEY:z.string(),
     DB_SEEDING:stringBoolean,
-    DB_MIGRATING:stringBoolean
+    DB_MIGRATING:stringBoolean,
+    PAYHERE_MERCHANT_ID:z.string(),
+    PAYHERE_MERCHANT_SECRET:z.string(),
+    PAYHERE_APP_ID:z.string(),
+    PAYHERE_APP_SECRET:z.string(),
+    PAYHERE_AUTHORIZATION:z.string(),
+    PAYHERE_ENDPOINT:z.string(),
   },
 
   /**
@@ -43,6 +51,10 @@ export const env = createEnv({
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:z.string(),
     NEXT_PUBLIC_CLERK_SIGN_IN_URL:z.string(),
     NEXT_PUBLIC_CLERK_SIGN_UP_URL:z.string(),
+    NEXT_PUBLIC_PAYHERE_NOTIFY_URL:z.string(),
+    NEXT_PUBLIC_PAYHERE_RETURN_URL:z.string(),
+    NEXT_PUBLIC_PAYHERE_CANCEL_URL:z.string(),
+    NEXT_PUBLIC_PAYHERE_ENDPOINT:z.string(),
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
   },
 
@@ -59,10 +71,22 @@ export const env = createEnv({
     DB_SEEDING:process.env.DB_SEEDING,
     DB_MIGRATING:process.env.DB_MIGRATING,
     POSTGRES_URL: process.env.POSTGRES_URL,
+    PROD_POSTGRES_URL: process.env.PROD_POSTGRES_URL,
+    DEV_POSTGRES_URL: process.env.DEV_POSTGRES_URL,
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     CLERK_SECRET_KEY:process.env.CLERK_SECRET_KEY,
     NEXT_PUBLIC_CLERK_SIGN_IN_URL:process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL,
-    NEXT_PUBLIC_CLERK_SIGN_UP_URL:process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL
+    NEXT_PUBLIC_CLERK_SIGN_UP_URL:process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL,
+    PAYHERE_MERCHANT_ID:process.env.PAYHERE_MERCHANT_ID,
+    PAYHERE_MERCHANT_SECRET:process.env.PAYHERE_MERCHANT_SECRET,
+    PAYHERE_APP_ID:process.env.PAYHERE_APP_ID,
+    PAYHERE_APP_SECRET:process.env.PAYHERE_APP_SECRET,
+    PAYHERE_AUTHORIZATION:process.env.PAYHERE_AUTHORIZATION,
+    NEXT_PUBLIC_PAYHERE_NOTIFY_URL:process.env.NEXT_PUBLIC_PAYHERE_NOTIFY_URL,
+    NEXT_PUBLIC_PAYHERE_RETURN_URL:process.env.NEXT_PUBLIC_PAYHERE_RETURN_URL,
+    NEXT_PUBLIC_PAYHERE_CANCEL_URL:process.env.NEXT_PUBLIC_PAYHERE_CANCEL_URL,
+    NEXT_PUBLIC_PAYHERE_ENDPOINT:process.env.NEXT_PUBLIC_PAYHERE_ENDPOINT,
+    PAYHERE_ENDPOINT:process.env.PAYHERE_ENDPOINT,
 
   },
   /**

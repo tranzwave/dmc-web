@@ -1,6 +1,6 @@
 import type { Config } from "tailwindcss"
 
-const { fontFamily } = require("tailwindcss/defaultTheme")
+import { fontFamily } from "tailwindcss/defaultTheme"
 
 const config = {
   darkMode: ["class"],
@@ -22,7 +22,7 @@ const config = {
     extend: {
       backgroundImage: {
         'onboarding-bg': "url('/assets/onboarding-bg.jpg')",
-        'login-bg': "url('/assets/login-img.jpg')",
+        'login-bg': "url('/assets/login-img.webp')",
         'welcome-bg':"url('/assets/welcome-hero.png')"
       },
       boxShadow: {

@@ -1,4 +1,5 @@
 "use client";
+import { useOrganization } from "@clerk/nextjs";
 import { Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -29,12 +30,15 @@ const TransportHome = () => {
   const [loading, setLoading] = useState<boolean>(true); // Added loading state
   const [error, setError] = useState<string | null>(null); // Added error state
   const [searchQuery, setSearchQuery] = useState("");
+  const {organization, isLoaded} = useOrganization();
 
   useEffect(() => {
     async function fetchData() {
       try {
+
         setLoading(true);
-        const result = await getAllDrivers();
+        if(!organization) return;
+        const result = await getAllDrivers(organization.id);
         setData(result);
       } catch (error) {
         console.error("Failed to fetch transport data:", error);
@@ -45,13 +49,14 @@ const TransportHome = () => {
     }
 
     fetchData();
-  }, []);
+  }, [organization]);
 
   useEffect(() => {
     async function fetchGuideData() {
       try {
         setLoading(true);
-        const result = await getAllGuides();
+        if(!organization) return;
+        const result = await getAllGuides(organization.id);
         setGuideData(result);
       } catch (error) {
         console.error("Failed to fetch transport data:", error);
@@ -62,14 +67,15 @@ const TransportHome = () => {
     }
 
     fetchGuideData();
-  }, []);
+  }, [organization]);
 
   //Fetch other transport data
   useEffect(() => {
     async function fetchOtherTransportData() {
       try {
         setLoading(true);
-        const result = await getAllOtherTransports();
+        if(!organization) return;
+        const result = await getAllOtherTransports(organization.id);
         setOtherTransportData(result);
       } catch (error) {
         console.error("Failed to fetch transport data:", error);
@@ -80,7 +86,7 @@ const TransportHome = () => {
     }
 
     fetchOtherTransportData();
-  }, []);
+  }, [organization]);
 
   const filteredData = data.filter((driver) => {
     const searchTerm = searchQuery.toLowerCase();
@@ -118,7 +124,7 @@ const TransportHome = () => {
 
   console.log(data);
   console.log(guideData);
-  if (loading) {
+  if (loading || !isLoaded) {
     return (
       <div>
         <div className="flex w-full flex-row justify-between gap-1">

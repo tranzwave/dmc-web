@@ -7,10 +7,11 @@ import { Button } from "~/components/ui/button";
 import { InsertActivity } from "~/server/db/schemaTypes";
 import VendorActivityForm from "./activityForm";
 import { columns } from "./columns";
+import CityAdder from "~/components/common/cityAdder";
+import ActivityAdder from "~/components/common/activityAdder";
 
 
 const ActivityTab = () => {
-    const [addedActivities, setAddedActivities] = useState<InsertActivity[]>([]); // State to handle added activities
     const { addActivity, activityVendorDetails, setActiveTab, deleteActivity, duplicateActivity } = useAddActivity(); // Assuming similar context structure for activities
     const [selectedActivity, setSelectedActivity] = useState<ActivityTypeDTO>({
         name: "",
@@ -23,7 +24,14 @@ const ActivityTab = () => {
     const updateActivities = (activity: InsertActivity) => {
         console.log("Adding Activity");
         addActivity(activity); // Adding the activity to the context
-        setAddedActivities((prevActivities) => [...prevActivities, activity]); // Update local state
+        setSelectedActivity({
+            name: "",
+            activityType: 0,
+            capacity: 1,
+            activityVendorId:"",
+            tenantId:""
+        })
+        // setAddedActivities((prevActivities) => [...prevActivities, activity]); // Update local state
     };
 
     const onRowEdit = (row: ActivityTypeDTO) => {

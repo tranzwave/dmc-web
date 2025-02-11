@@ -11,4 +11,8 @@ export default {
   },
   verbose:true,
   tablesFilter: ["dmc-web_*"],
+  migrations: {
+    table: "__drizzle_migrations__",
+    schema: "public",
+  },
 } satisfies Config;

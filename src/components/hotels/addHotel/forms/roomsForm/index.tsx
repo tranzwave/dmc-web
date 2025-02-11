@@ -25,6 +25,7 @@ const RoomsTab = () => {
 
     const updateRooms = (room: HotelRoomType) => {
         console.log("Hereeee");
+        console.log("Adding Room ", room);
         addHotelRoom(room); // Adding the room to the context
         setSelectedHotelRoom({
             roomType: "",
@@ -49,7 +50,7 @@ const RoomsTab = () => {
     };
 
     const onRowDelete = (row: HotelRoomType) => {
-        alert(row.typeName);
+        alert(`Are you sure you want to delete this ${row.typeName}?`);
         deleteRoom(row.typeName, row.roomType, row.count, row.amenities, row.floor, row.bedCount);
       };
 

@@ -1,4 +1,5 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
+import { toast } from '~/hooks/use-toast';
 import { InsertActivity, InsertActivityVendor, SelectCity } from '~/server/db/schemaTypes'; // Import the activity type definition
 
 export type ActivityVendorDTO = InsertActivityVendor & {
@@ -20,7 +21,7 @@ interface AddActivityContextProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   setGeneralDetails: (details: ActivityVendorDTO) => void;
-  addActivity: (activity: ActivityTypeDTO) => void;
+  addActivity: (activity: InsertActivity) => void;
   deleteActivity: (name: string, activityType:number, capacity:number) => void;
   duplicateActivity: (name: string, activityType:number, capacity:number) => void
 
@@ -57,23 +58,50 @@ export const AddActivityProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   const addActivity = (activity: InsertActivity) => {
-    setActivityVendorDetails((prev) => {
-      const exists = prev.activities.some(
-        (a) =>
-          a.name === activity.name &&
-          a.activityType === activity.activityType &&
-          a.capacity === activity.capacity
-      );
-  
-      if (exists) {
-        return prev;
-      }
-  
-      return {
-        ...prev,
-        activities: [...prev.activities, activity],
-      };
-    });
+    try {
+      console.log("Adding or editing activity:", activity);
+
+      setActivityVendorDetails((prev) => {
+          const activityIndex = prev.activities.findIndex(a => a.id === activity.id && a.id !== undefined && a.id !== "");
+
+          if (activityIndex !== -1) {
+              // Check if changing activity type or name duplicates another existing activity
+              const isDuplicate = prev.activities.some(
+                  (a, index) => index !== activityIndex && a.name === activity.name && a.activityType === activity.activityType && a.capacity === activity.capacity
+              );
+
+              if (isDuplicate) {
+                  throw new Error(`Activity with name "${activity.name}" and type "${activity.activityType}" already exists with the same capacity.`);
+              }
+
+              // Update existing activity
+              const updatedActivities = [...prev.activities];
+              updatedActivities[activityIndex] = { ...prev.activities[activityIndex], ...activity };
+              console.log(`Updated activity with ID: ${activity.id}`);
+              return { ...prev, activities: updatedActivities };
+          }
+
+          // Check if a similar activity already exists (for adding)
+          const activityExists = prev.activities.some(
+              (a) => a.name === activity.name && a.activityType === activity.activityType && a.capacity === activity.capacity
+          );
+
+          if (activityExists) {
+              throw new Error(`Activity with name "${activity.name}" and type "${activity.activityType}" already exists.`);
+          }
+
+          // Add new activity
+          console.log("Adding new activity.");
+          return { ...prev, activities: [...prev.activities, activity] };
+      });
+  } catch (error:any) {
+      console.error("Error in addOrEditActivity:", error);
+      toast({
+          title: 'Error',
+          description: error.message,
+      });
+      throw error;
+  }
   };
 
   // const deleteActivity = (name: string, activityType: number) => {

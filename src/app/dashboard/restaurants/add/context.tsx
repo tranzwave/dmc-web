@@ -1,4 +1,5 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
+import { toast } from '~/hooks/use-toast';
 import { InsertMeal, InsertRestaurant, SelectCity } from '~/server/db/schemaTypes';
 
 export type Restaurant = InsertRestaurant & {
@@ -24,6 +25,7 @@ interface AddRestaurantContextProps {
   addMeals: (meal: InsertMeal) => void;
   deleteMealType: (mealType: string, startTime: string, endTime: string) => void;
   duplicateMealType: (mealType: string, startTime: string, endTime: string) => void;
+  addBulkMeals: (meals: InsertMeal[]) => void;
 
 }
 
@@ -57,26 +59,59 @@ export const AddRestaurantProvider: React.FC<{ children: ReactNode }> = ({ child
 
   const addMeals = (meal: InsertMeal) => {
     setRestaurantDetails((prev) => {
-      // Check if the activity already exists in the array by comparing name, activityType, and capacity
-      const exists = prev.mealsOffered.some(
+      // Check if the activity already exists by ID
+      const mealIndex = prev.mealsOffered.findIndex(
         (m) =>
-          m.mealType === meal.mealType &&
-          m.startTime === meal.startTime &&
-          m.endTime === meal.endTime
+          m.id === meal.id && m.id !== undefined && m.id !== ""
       );
-  
-      if (exists) {
-        // If the activity already exists, return the current state without changes
+
+      if (mealIndex !== -1) {
+        // If the meal already exists, update the meal
+        const isDuplicate = prev.mealsOffered.some(
+          (m, index) =>
+            m.mealType.toLowerCase() === meal.mealType.toLowerCase() && index !== mealIndex
+        );
+
+        if (isDuplicate) {
+          toast({
+            title: "Meal Type already exists",
+            description: `Meal Type ${meal.mealType} already exists.`,
+          });
+          return prev;
+        }
+
+        const updatedMeals = [...prev.mealsOffered];
+        updatedMeals[mealIndex] = meal;
+        console.log("Updated Meals", updatedMeals);
+        return { ...prev, mealsOffered: updatedMeals };
+      }
+
+      const mealExists = prev.mealsOffered.some(
+        (m) =>
+          m.mealType.toLowerCase() === meal.mealType.toLowerCase()
+      );
+
+      if (mealExists) {
+        toast({
+          title: "Meal Type already exists",
+          description: `Meal Type ${meal.mealType} already exists.`,
+        });
         return prev;
       }
-  
-      // Otherwise, add the new activity to the activities array
-      return {
-        ...prev,
-        mealsOffered: [...prev.mealsOffered, meal],
-      };
+
+      return { ...prev, mealsOffered: [...prev.mealsOffered, meal] };
     });
   };
+
+  const addBulkMeals = (meals: InsertMeal[]) => {
+    meals.forEach((meal) => {
+      if(restaurantDetails.mealsOffered.some((m) => m.id === meal.id)){
+        return;
+      }
+      addMeals(meal);
+    }
+    );
+  }
 
   const deleteMealType = (mealType: string, startTime: string, endTime: string) => {
     setRestaurantDetails((prev) => ({
@@ -117,7 +152,8 @@ export const AddRestaurantProvider: React.FC<{ children: ReactNode }> = ({ child
         activeTab,
         setActiveTab,
         deleteMealType,
-        duplicateMealType
+        duplicateMealType,
+        addBulkMeals,
       }}
     >
       {children}
