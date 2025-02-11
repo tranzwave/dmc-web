@@ -4,7 +4,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: NextApiRequest,{ params }: { params: { id: string } }, res: NextApiResponse) {
-    const payhereSubscriptionEndpoint = 'https://sandbox.payhere.lk/merchant/v1/subscription';
+    const payhere = process.env.PAYHERE_ENDPOINT ?? '';
+    const payhereSubscriptionEndpoint = `${payhere}/merchant/v1/subscription`;
 
     const id = params.id;
     const token = process.env.PAYHERE_AUTHORIZATION
@@ -14,7 +15,7 @@ export async function GET(req: NextApiRequest,{ params }: { params: { id: string
 
     try {
         // Make the request to PayHere API from your server
-        const accessTokenResponse = await fetch('https://sandbox.payhere.lk/merchant/v1/oauth/token', {
+        const accessTokenResponse = await fetch(`${payhere}/merchant/v1/oauth/token`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

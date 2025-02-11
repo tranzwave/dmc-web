@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { ClerkOrganizationPublicMetadata } from './lib/types/payment';
 
 // Define public routes
 const isPublicRoute = createRouteMatcher([
@@ -7,14 +8,19 @@ const isPublicRoute = createRouteMatcher([
   '/sign-up(.*)',
   '/api/webhooks(.*)',
   '/',
-  // '/onboarding',
+  '/onboarding',
+  //Allow access to api routes
+  '/api/(.*)',
 ]);
 
 // Define protected admin routes
 const isProtectedRoute = createRouteMatcher(['/dashboard/admin(.*)']);
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
-  const { userId, sessionClaims, has, orgRole, redirectToSignIn } = auth();
+  const { userId, sessionClaims, has, orgRole, redirectToSignIn, orgId} = auth();
+
+  console.log('Session Claims: ', sessionClaims);
+  console.log('Org ID: ', orgId);
 
   // Allow access to public routes
   if (isPublicRoute(req)) {
@@ -25,36 +31,6 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   if (!userId) {
     redirectToSignIn();
     return NextResponse.redirect(new URL('/sign-in', req.url));
-  }
-
-  const organizationMetadata = (sessionClaims as CustomJwtSessionClaims).organizationMetadata;
-  const subscription = organizationMetadata?.subscription;
-  const isOnPaymentPage = req.url.includes('/payment');
-  
-  if (!subscription) {
-    return NextResponse.redirect(new URL('/payment', req.url));
-  }
-  
-  const { isTrial, trialEndDate, isActive } = subscription;
-  
-  // Redirect to payment if trial expired
-  if (isTrial && !isOnPaymentPage && Date.now() > new Date(trialEndDate).getTime()) {
-    return NextResponse.redirect(new URL('/payment', req.url));
-  }
-  
-  // Redirect to payment if subscription is inactive
-  if (!isActive && !isOnPaymentPage) {
-    return NextResponse.redirect(new URL('/payment', req.url));
-  }
-
-  //if active and trial expired
-  if (isTrial && isActive && Date.now() > new Date(trialEndDate).getTime() && isOnPaymentPage) {
-    return NextResponse.next();
-  }
-
-  // Redirect away from payment if already active
-  if (isActive && isOnPaymentPage) {
-    return NextResponse.redirect(new URL('/dashboard/overview', req.url));
   }
 
   // // Redirect user to the payment page if their organization is not subscribed
@@ -81,6 +57,50 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
       redirectUrl.searchParams.set('unauthenticated', 'true'); // Add query param
       return NextResponse.redirect(redirectUrl);
     }
+  }
+
+  if (userId && !orgId ) {
+    if (req.url.includes('/org-selection')) {
+      return NextResponse.next();
+    }
+    
+    const orgSelection = new URL('/org-selection', req.url)
+
+    return NextResponse.redirect(orgSelection)
+  }
+
+  if(userId && orgId && req.url.includes('/org-selection')) {
+    return NextResponse.redirect(new URL('/dashboard/overview', req.url));
+  }
+
+  const organizationMetadata = (sessionClaims as CustomJwtSessionClaims).organizationMetadata as ClerkOrganizationPublicMetadata;
+  const subscription = organizationMetadata.subscription;
+  const isOnPaymentPage = req.url.includes('/payment');
+  
+  if (!subscription && !isOnPaymentPage) {
+    return NextResponse.redirect(new URL('/payment', req.url));
+  }
+  
+  const { isTrial, trialEndDate, isActive } = subscription;
+  
+  // Redirect to payment if trial expired
+  if (isTrial && !isOnPaymentPage && Date.now() > new Date(trialEndDate).getTime()) {
+    return NextResponse.redirect(new URL('/payment', req.url));
+  }
+  
+  // Redirect to payment if subscription is inactive
+  if (!isActive && !isOnPaymentPage) {
+    return NextResponse.redirect(new URL('/payment', req.url));
+  }
+
+  //if active and trial expired
+  if (isTrial && isActive && Date.now() > new Date(trialEndDate).getTime() && isOnPaymentPage) {
+    return NextResponse.next();
+  }
+
+  // Redirect away from payment if already active
+  if (isActive && isOnPaymentPage) {
+    return NextResponse.redirect(new URL('/dashboard/overview', req.url));
   }
 
   // Allow the request to continue for all other routes

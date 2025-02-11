@@ -122,7 +122,7 @@ const PaymentButton = ({ selectedPackage, closeDialog }: PaymentButtonProps) => 
             {hash && organization && paymentDetails ? (
             <div>
 
-                <form method="post" action="https://sandbox.payhere.lk/pay/checkout">
+                <form method="post" action={`${process.env.NEXT_PUBLIC_PAYHERE_ENDPOINT ?? ""}/pay/checkout`}>
                     <input type="hidden" name="merchant_id" value= {paymentDetails.merchant_id} />
                     <input type="hidden" name="return_url" value={paymentDetails.return_url} />
                     <input type="hidden" name="cancel_url" value={paymentDetails.cancel_url} />

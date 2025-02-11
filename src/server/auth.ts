@@ -63,6 +63,10 @@ const updateBankDetails = async (organizationId: string, bankDetails: BankDetail
 const updateSubscriptionNotificationData = async (organizationId: string, notificationData: PayherePaymentNotification) => {
     console.log('Updating subscription notification data:', notificationData);
     try {
+        if(notificationData.status_code !== '2') {
+            console.log('Payment not successful. Skipping update.');
+            return;
+        }
         const organization = await clerkClient.organizations.getOrganization({ organizationId: organizationId });
         const response = await clerkClient.organizations.updateOrganization(organizationId, {
             privateMetadata: {

@@ -4,10 +4,10 @@ import { env } from "~/env";
 
 export default {
   schema: "./src/server/db/schema.ts",
-  out:"./src/server/db/migrations",
+  out:"./src/server/db/migrations/prod",
   dialect: "postgresql",
   dbCredentials: {
-    url: env.POSTGRES_URL!,
+    url: env.PROD_POSTGRES_URL!,
   },
   verbose:true,
   tablesFilter: ["dmc-web_*"],

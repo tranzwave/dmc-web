@@ -4,7 +4,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request, res: NextApiResponse) {
-    const payhereEndpoint = 'https://sandbox.payhere.lk/pay/checkoutJ';
+    const payhere = process.env.PAYHERE_ENDPOINT ?? "";
+    const payhereEndpoint = `${payhere}/pay/checkoutJ`;
 
     const requestBody = await req.json();
 

@@ -51,7 +51,8 @@ export const getMerchantId = async () => {
 };
 
 export const getAccessToken = async () => {
-    const payhereTokenEndpoint = "https://sandbox.payhere.lk/merchant/v1/oauth/token";
+  const payhere = process.env.NEXT_PUBLIC_PAYHERE_ENDPOINT ?? "";
+    const payhereTokenEndpoint = `${payhere}/merchant/v1/oauth/token`;
     const token = process.env.PAYHERE_AUTHORIZATION;
 
     if (!token) {
@@ -90,7 +91,8 @@ export const getAccessToken = async () => {
     }
 
 export async function getBillingHistory(organizationId: string) {
-    const payhereSubscriptionEndpoint = "https://sandbox.payhere.lk/merchant/v1/subscription";
+    const payhere = process.env.PAYHERE_ENDPOINT ?? '';
+    const payhereSubscriptionEndpoint = `${payhere}/merchant/v1/subscription`;
   
     try {
       const subscriptionData = await getOrganizationSubscriptionData(organizationId);
@@ -155,8 +157,8 @@ export async function cancelSubscription(organizationId: string) {
   // Placeholder: Cancel subscription in your payment processor
   
   try {
-
-    const payhereSubscriptionEndpoint = "https://sandbox.payhere.lk/merchant/v1/subscription/cancel";
+    const payhere = process.env.PAYHERE_ENDPOINT ?? '';
+    const payhereSubscriptionEndpoint = `${payhere}/merchant/v1/subscription/cancel`;
     const subscriptionData = await getOrganizationSubscriptionData(organizationId);
     const access_token = await getAccessToken();
 
