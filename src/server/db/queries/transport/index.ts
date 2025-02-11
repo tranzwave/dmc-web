@@ -35,8 +35,9 @@ export const getAllLanguages = () => {
   return db.query.language.findMany();
 };
 
-export const getAllDrivers = () => {
+export const getAllDrivers = (tenantId:string) => {
   return db.query.driver.findMany({
+    where: eq(driver.tenantId, tenantId),
     columns: {
       cityId: false,
     },
@@ -50,8 +51,9 @@ export const getAllDrivers = () => {
   });
 };
 
-export const getAllGuides = () => {
+export const getAllGuides = (tenantId:string) => {
   return db.query.guide.findMany({
+    where: eq(guide.tenantId, tenantId),
     columns: {
       cityId: false,
     },
@@ -708,9 +710,10 @@ export async function deleteGuideCascade(guideId: string) {
 // Other transport related queries
 
 // Get all other transports
-export const getAllOtherTransports = async() => {
+export const getAllOtherTransports = async(tenantId:string) => {
   return db.query.otherTransport.findMany(
     {
+      where: eq(otherTransport.tenantId, tenantId),
       with: {
         city: true,
       },
