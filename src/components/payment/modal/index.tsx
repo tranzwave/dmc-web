@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { Button } from '~/components/ui/button';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '~/components/ui/dialog';
@@ -24,7 +25,7 @@ const PaymentDialog: React.FC = () => {
                         {/* Add your form or payment details here */}
                     </DialogDescription>
                     <div>
-                        <EnhancedPaymentPackages onClose={closeDialog}/>
+                        <EnhancedPaymentPackages onCloseDialog={closeDialog}/>
                     </div>
                     {/* <DialogFooter>
                         <Button onClick={closeDialog}>Close</Button>

@@ -107,7 +107,7 @@ const EditBooking = ({ id }: { id: string }) => {
           const vouchers = restaurantVouchers.map(v => {
             const {restaurant, voucherLines, ...voucher} = v
             return {
-              restaurant:restaurant,
+              restaurant:restaurant ?? (() => {throw new Error("Restaurant is null. Might have been deleted")})(),
               voucher:voucher,
               voucherLines:voucherLines
             }            

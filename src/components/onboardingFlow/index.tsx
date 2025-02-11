@@ -323,7 +323,7 @@ const OnboardingFlow = () => {
               Choose Your Perfect Plan
             </h2>
             <div>
-              <PaymentForm/>
+              {/* <PaymentForm onCloseDialog={()=>{console.log("Close dialog")}}/> */}
             </div>
           </div>
         ) : (

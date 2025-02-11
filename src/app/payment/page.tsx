@@ -37,6 +37,10 @@ const PaymentPage = ({ searchParams }: PaymentPageProps) => {
     const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
     const router = useRouter();
 
+    const onCloseDialog = () => {
+        return
+    }
+
     // Check whether user is an admin of the active organization
     useEffect(() => {
         async function checkAdminRole() {
@@ -121,7 +125,7 @@ const PaymentPage = ({ searchParams }: PaymentPageProps) => {
             {isAdmin ? (
                 <div>
                     <div className='w-full flex justify-center items-center text-sm font-medium'>Please select a package to continue</div>
-                    <EnhancedPaymentPackages onClose={() => { console.log('Close Dialog') }} />
+                    <EnhancedPaymentPackages onCloseDialog={onCloseDialog} />
                 </div>
 
             ) : (

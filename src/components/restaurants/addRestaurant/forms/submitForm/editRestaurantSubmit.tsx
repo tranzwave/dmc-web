@@ -49,7 +49,8 @@ const EditRestaurantSubmitForm = ({id,originalRestaurant}:{id:string,originalRes
                     mealType: m.mealType,
                     startTime: m.startTime,
                     endTime:m.endTime,
-                    restaurantId: id ?? (() => { throw new Error("Restaurant ID not found") })()
+                    restaurantId: id ?? (() => { throw new Error("Restaurant ID not found") })(),
+                    id: m.id !== "" || m.id !== null ? m.id : undefined
                 }
             })
           // Replace insertDriver with your function to handle the insertion of driver details

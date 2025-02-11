@@ -28,26 +28,12 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Payment verification failed' }, { status: 400 });
         }
     } catch (error) {
-        console.error('Error processing request:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        console.error('Error processing payment:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
 
 export async function GET(req: Request) {
     // Optionally, you could implement a GET endpoint if required (e.g., for status checks)
     return NextResponse.json({ message: 'Use POST to verify payment' }, { status: 200 });
-}
-export async function generateHash(merchant_id: string, order_id: string, amount: string, currency: string, merchantSecret: string): Promise<string> {
-    const hash = crypto
-        .createHash('md5')
-        .update(
-            `${merchant_id}${order_id}${amount}${currency}${crypto
-                .createHash('md5')
-                .update(merchantSecret)
-                .digest('hex')
-                .toUpperCase()}`
-        )
-        .digest('hex')
-        .toUpperCase();
-    return hash;
 }

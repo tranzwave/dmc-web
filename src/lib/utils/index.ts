@@ -1,4 +1,5 @@
 import { OrganizationResource } from "@clerk/types";
+import crypto from 'crypto';
 
 export function formatDate(dateString: string) {
   // Convert the date string to a Date object
@@ -78,4 +79,19 @@ export function toTitleCase(str: string): string {
   return str.replace(/\w\S*/g, function(txt) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
   });
+}
+
+export async function generateHash(merchant_id: string, order_id: string, amount: string, currency: string, merchantSecret: string): Promise<string> {
+  const hash = crypto
+      .createHash('md5')
+      .update(
+          `${merchant_id}${order_id}${amount}${currency}${crypto
+              .createHash('md5')
+              .update(merchantSecret)
+              .digest('hex')
+              .toUpperCase()}`
+      )
+      .digest('hex')
+      .toUpperCase();
+  return hash;
 }

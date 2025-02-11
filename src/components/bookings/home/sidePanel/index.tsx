@@ -32,10 +32,9 @@ import TourInvoiceModalTrigger from "./proformaInvoice/tourInvoiceModalTrigger";
 
 interface SidePanelProps {
   booking: BookingDTO | null;
-  onClose: () => void;
 }
 
-const SidePanel: React.FC<SidePanelProps> = ({ booking, onClose }) => {
+const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
   const [loading, setLoading] = useState(false);
   const [errorD, setError] = useState<string>();
   const [hotelVouchers, setHotelVouchers] = useState<HotelVoucherData[]>([]);

@@ -145,12 +145,12 @@ const removeSubscriptionMetadata = async (organizationId: string):Promise<boolea
 
 const getActiveOrganization: () => Promise<string> = async () => {
     try {
-        const activeOrg = await auth().orgId;
-        if(!activeOrg){
+        const {orgId} = auth();
+        if(!orgId){
             console.log('No active organization found');
             return '';
         }
-        return activeOrg;
+        return orgId;
     }
     catch(error){
         console.log('Error getting active organization:', error);

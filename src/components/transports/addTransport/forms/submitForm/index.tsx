@@ -111,7 +111,7 @@ const SubmitForm = () => {
         description: "Driver added successfully",
       });
       router.push("/dashboard/transport");
-    } catch (error) {
+    } catch (error:any) {
       if (error instanceof Error) {
         setError(error.message);
       } else {
@@ -122,7 +122,7 @@ const SubmitForm = () => {
       setLoading(false);
       toast({
         title: "Uh Oh!",
-        description: `Error while adding the driver: ${error}`,
+        description: `Error while adding the driver: ${error || "Unknown error"}`,
       });
     } finally {
       setLoading(false);

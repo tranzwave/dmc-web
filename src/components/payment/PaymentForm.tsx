@@ -12,10 +12,10 @@ import { useOrganization } from '@clerk/nextjs'
 import LoadingLayout from '../common/dashboardLoading'
 
 interface EnhancedPaymentPackagesProps {
-  onClose: () => void
+  onCloseDialog: () => void
 }
 
-export default function EnhancedPaymentPackages({ onClose }: EnhancedPaymentPackagesProps) {
+export default function EnhancedPaymentPackages({ onCloseDialog: onClose }: EnhancedPaymentPackagesProps) {
   
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(packages[0] ?? null)
   const { organization, isLoaded } = useOrganization()
