@@ -60,6 +60,8 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   }
 
   if (userId && !orgId ) {
+    //Add a 3 second delay here to allow the org selection page to load
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     if (req.url.includes('/org-selection')) {
       return NextResponse.next();
     }
