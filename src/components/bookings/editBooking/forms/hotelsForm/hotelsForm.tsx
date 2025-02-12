@@ -162,7 +162,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   function onSubmit(values: z.infer<typeof hotelsSchema>) {
     // setIsModalOpen(true);
     if(selectedHotel){
-      if(bookingDetails.vouchers.find(v => v.hotel.id === selectedHotel.id)){
+      if(bookingDetails.vouchers.find(v => v.hotel.id === selectedHotel.id && v.voucher.status !== 'cancelled')){
         if(triggerEdit){
           handleModalResponse(true)
         } else{
