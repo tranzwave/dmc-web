@@ -139,7 +139,7 @@ const HotelsTab = () => {
         );
       } else {
         // newResponse = await addHotelVoucherLinesToBooking()
-        const existingVoucherId = bookingDetails.vouchers.find(v => v.hotel.id === hotel.id)?.voucher.id
+        const existingVoucherId = bookingDetails.vouchers.find(v => v.hotel.id === hotel.id && v.voucher.status !== 'cancelled')?.voucher.id
         existingVoucherId ? newResponse = await addHotelVoucherLineToExistingVoucher(
           existingVoucherId,
           data

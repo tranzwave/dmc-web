@@ -73,6 +73,12 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   const [specialNote, setSpecialNote] = useState(selectedVoucher?.specialNote ?? "")
   const [billingInstructions, setBillingInstructions] = useState(selectedVoucher?.billingInstructions ?? "")
   const [voucherTitle, setVoucherTitle] = useState("");
+  const [ratesMap, setRatesMap] = useState<Map<string, string>>(new Map(
+    selectedVoucher.voucherLines.map((voucherLine) => [
+      voucherLine.id, 
+      voucherLine.rate ?? "0",
+    ])
+  ));
 
   // const [ratesMap, setRatesMap] = useState<Map<string, string>>(new Map(
   //   selectedVoucher.voucherLines.map((voucherLine) => [
@@ -81,17 +87,32 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   //   ])
   // ));
 
-  const ratesMapRef = useRef<Map<string, string>>(new Map(
-    selectedVoucher.voucherLines.map((voucherLine) => [
-      voucherLine.id, // id of the voucher line
-      voucherLine.rate ?? "0", // rate of the voucher line
-    ])
-  ));
+  // const ratesMapRef = useRef<Map<string, string>>(new Map(
+  //   selectedVoucher.voucherLines.map((voucherLine) => [
+  //     voucherLine.id, // id of the voucher line
+  //     voucherLine.rate ?? "0", // rate of the voucher line
+  //   ])
+  // ));
+
+  // const handleRateChange = (id: string, rate: string) => {
+  //   ratesMapRef.current.set(id, rate); // Update the rate directly in the ref
+  //   console.log(ratesMapRef)
+  // };
 
   const handleRateChange = (id: string, rate: string) => {
-    ratesMapRef.current.set(id, rate); // Update the rate directly in the ref
-    console.log(ratesMapRef)
+    setRatesMap((prev) => {
+      const newMap = new Map(prev);
+      newMap.set(id, rate);
+      return newMap;
+    });
   };
+
+  const updatedVoucherLines = selectedVoucher.voucherLines.map((voucherLine) => ({
+    ...voucherLine,
+    rate: ratesMap.get(voucherLine.id) ?? voucherLine.rate, // Get the latest rate
+  }));
+  
+  
 
   const VoucherLineColumnsWithRate = [...voucherColumns, CreateRateColumn({ handleRateChange: handleRateChange, currency })]
 
@@ -108,8 +129,8 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
     }
 
     try {
-      console.log({ rates: ratesMapRef, confirmedBy: availabilityConfirmedBy, confirmedTo: availabilityConfirmedTo })
-      await updateVoucherLine(ratesMapRef.current, selectedVoucher.id, {
+      console.log({ rates: ratesMap, confirmedBy: availabilityConfirmedBy, confirmedTo: availabilityConfirmedTo })
+      await updateVoucherLine(ratesMap, selectedVoucher.id, {
         availabilityConfirmedBy,
         availabilityConfirmedTo,
         ratesConfirmedBy,
@@ -171,10 +192,14 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
       {!viewCancellationVoucher && (
         <>
           <div className="flex flex-col gap-4 p-4">
-            <DataTable
+            {/* <DataTable
               columns={VoucherLineColumnsWithRate as ColumnDef<object, unknown>[]}
               data={selectedVoucher ? (selectedVoucher.voucherLines ?? [selectedVoucher]) : []}
-            />
+            /> */}
+              <DataTable
+                columns={VoucherLineColumnsWithRate as ColumnDef<object, unknown>[]}
+                data={updatedVoucherLines}
+              />
 
             <div className="grid grid-cols-4 gap-2">
               <InputFields label="Availability confirmed by" value={availabilityConfirmedBy} onChange={setAvailabilityConfirmedBy} />
