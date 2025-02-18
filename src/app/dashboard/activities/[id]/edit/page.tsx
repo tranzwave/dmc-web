@@ -48,7 +48,8 @@ const EditActivityVendor = ({ id }: { id: string }) => {
           activityVendorId:a.activityVendorId,
           name:a.name,
           capacity:a.capacity,
-          id:a.id
+          id:a.id,
+          typeName:a.activityType.name
         });
       });
 

@@ -13,10 +13,11 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { toast } from "~/hooks/use-toast";
 import { getAllActivityVendors } from "~/server/db/queries/activities";
-import { SelectActivityVendor, SelectCity } from "~/server/db/schemaTypes";
+import { SelectActivity, SelectActivityVendor, SelectCity } from "~/server/db/schemaTypes";
 
 export type ActivityVendorData = SelectActivityVendor & {
   city: SelectCity;
+  activity?: SelectActivity[];
 };
 
 const ActivityHome = () => {
@@ -29,18 +30,22 @@ const ActivityHome = () => {
       header: "Contact Number",
       accessorFn: (row) => row.contactNumber,
     },
-    {
-      header: "Street Name",
-      accessorFn: (row) => row.streetName,
-    },
+    // {
+    //   header: "Street Name",
+    //   accessorFn: (row) => row.streetName,
+    // },
     {
       header: "City",
       accessorFn: (row) => row.city.name,
     },
     {
-      header: "Province",
-      accessorFn: (row) => row.province,
+      header: "No. of Activities",
+      accessorFn: (row) => row.activity?.length,
     },
+    // {
+    //   header: "Province",
+    //   accessorFn: (row) => row.province,
+    // },
     {
       accessorKey: "id",
       header: "",

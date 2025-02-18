@@ -43,9 +43,9 @@ export const generalSchema = z.object({
     },
     { message: "Invalid phone number" },
   ),
-  streetName: z.string().min(1, "Street name is required"),
-  cityName: z.string().min(1, "City is required"),
-  province: z.string().min(1, "Province is required"),
+  streetName: z.string().default("N/A").optional(),
+  cityName: z.string().min(1, "City is required").optional(),
+  province: z.string().default("N/A").optional(),
 });
 
 // Define the type of the form values
@@ -77,8 +77,8 @@ const GeneralForm = () => {
       name: data.name,
       contactNumber: data.contactNumber,
       primaryEmail: data.primaryEmail,
-      province: data.province,
-      streetName: data.streetName,
+      province: "N/A",
+      streetName: "N/A",
       tenantId: "",
       city: selectedCity,
     });
@@ -195,7 +195,7 @@ const GeneralForm = () => {
         </div>
 
         <div className="grid grid-cols-3 gap-4">
-          <FormField
+          {/* <FormField
             name="streetName"
             control={form.control}
             render={({ field }) => (
@@ -207,13 +207,13 @@ const GeneralForm = () => {
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
           <FormField
             name="cityName"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>City</FormLabel>
+                <FormLabel>Location City</FormLabel>
                 <FormControl>
                   <Select
                     onValueChange={(valueFromSelection) => {
@@ -241,7 +241,7 @@ const GeneralForm = () => {
               </FormItem>
             )}
           />
-          <FormField
+          {/* <FormField
             name="province"
             control={form.control}
             render={({ field }) => (
@@ -253,7 +253,7 @@ const GeneralForm = () => {
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
           <div className="grid grid-cols-3 gap-4">
             {/* <FormField
                 name="capacity"

@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "~/components/ui/dialog";
 import { useToast } from "~/hooks/use-toast";
-import { deleteActivitytCascade } from "~/server/db/queries/activities";
+import { deleteActivityVendorCascade } from "~/server/db/queries/activities";
 
 export default function DeleteHotelPage({ params }: { params: { id: string } }) {
   const [isDialogOpen, setIsDialogOpen] = useState(true); // Dialog initially open
@@ -24,7 +24,7 @@ export default function DeleteHotelPage({ params }: { params: { id: string } }) 
     setLoading(true); // Start loading
 
     try {
-      const response = await deleteActivitytCascade(params.id)
+      const response = await deleteActivityVendorCascade(params.id)
       if(!response){
         throw new Error("Couldn't delete activity")
       }

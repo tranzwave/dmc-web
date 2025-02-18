@@ -1,5 +1,6 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { toast } from '~/hooks/use-toast';
+import { deleteActivityFromVendor, deleteActivityVendorCascade } from '~/server/db/queries/activities';
 import { InsertActivity, InsertActivityVendor, SelectCity } from '~/server/db/schemaTypes'; // Import the activity type definition
 
 export type ActivityVendorDTO = InsertActivityVendor & {
@@ -21,8 +22,8 @@ interface AddActivityContextProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   setGeneralDetails: (details: ActivityVendorDTO) => void;
-  addActivity: (activity: InsertActivity) => void;
-  deleteActivity: (name: string, activityType:number, capacity:number) => void;
+  addActivity: (activity: ActivityTypeDTO) => void;
+  deleteActivity: (activity: ActivityTypeDTO) => Promise<boolean>;
   duplicateActivity: (name: string, activityType:number, capacity:number) => void
 
 }
@@ -113,13 +114,41 @@ export const AddActivityProvider: React.FC<{ children: ReactNode }> = ({ childre
   //   }));
   // };
 
-  const deleteActivity = (name: string, activityType: number, capacity:number) => {
-    setActivityVendorDetails(prev => ({
-      ...prev,
-      activities: prev.activities.filter(
-        (activity) => !(activity.name === name && activity.activityType === activityType && activity.capacity === capacity)
-      ),
-    }));
+  const deleteActivity = async (activity: ActivityTypeDTO):Promise<boolean> => {
+    try {
+      console.log("Deleting activity:", activity.name, activity.activityType);
+      // if(!activity.id) {
+      //   throw new Error("Activity ID not found");
+      // }
+
+      if(activity.id !== "" || activity.id !== undefined) {
+        const response = await deleteActivityFromVendor(activity.id ?? "");
+  
+        if (!response) {
+          throw new Error("Error deleting activity");
+        }
+      }
+
+      setActivityVendorDetails(prev => ({
+        ...prev,
+        activities: prev.activities.filter(
+          (a) => a.name !== activity.name && a.activityType !== activity.activityType && a.capacity !== activity.capacity
+        ),
+      }));
+      toast({
+        title: 'Success',
+        description: 'Activity deleted successfully',
+      });
+
+      return true;
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Error deleting activity',
+      });
+      return false;
+    }
+
   };
 
   
