@@ -11,6 +11,9 @@ const isPublicRoute = createRouteMatcher([
   '/onboarding',
   //Allow access to api routes
   '/api/(.*)',
+  '/terms-and-conditions',
+  '/privacy-policy',
+  '/refund-policy',
 ]);
 
 // Define protected admin routes

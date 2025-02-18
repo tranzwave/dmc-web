@@ -211,6 +211,11 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="py-8 bg-gray-900 text-white">
         <div className="container mx-auto px-4 text-center">
+          <div className="mt-4 flex justify-center space-x-6 text-[13px]">
+            <a href="/terms-and-conditions" className="hover:underline">Terms & Conditions</a>
+            <a href="/privacy-policy" className="hover:underline">Privacy Policy</a>
+            <a href="/refund-policy" className="hover:underline">Refund Policy</a>
+          </div>
           <p>© 2025 COORD.TRAVEL. All rights reserved.</p>
         </div>
       </footer>
