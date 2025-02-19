@@ -47,6 +47,7 @@ import {
   SelectHotel,
   SelectHotelVoucherLine,
 } from "~/server/db/schemaTypes";
+import { HotelWithRooms } from ".";
 
 interface HotelsFormProps {
   onAddHotel: (
@@ -54,10 +55,10 @@ interface HotelsFormProps {
     isNewVoucher: boolean,
     hotel: any,
   ) => void;
-  hotels: SelectHotel[];
+  hotels: HotelWithRooms[];
   defaultValues:
   | (InsertHotelVoucherLine & {
-    hotel: SelectHotel;
+    hotel: HotelWithRooms;
   })
   | null
   | undefined;
@@ -91,7 +92,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   isSaving,
   triggerEdit
 }) => {
-  const [selectedHotel, setSelectedHotel] = useState<SelectHotel | null>();
+  const [selectedHotel, setSelectedHotel] = useState<HotelWithRooms | null>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { bookingDetails } = useEditBooking();
   const [voucherLineId, setVoucherLineId] = useState(defaultValues?.id ?? "");
@@ -440,11 +441,14 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                           <SelectValue placeholder="Select room category" />
                         </SelectTrigger>
                         <SelectContent>
-                          {hotelRoomCategories.map((room) => (
-                            <SelectItem key={room} value={room}>
-                              {room}
-                            </SelectItem>
-                          ))}
+                          {hotelRoomCategories.map((room) => {
+                            if(selectedHotel?.hotelRoom.find(r => r.roomType === room)){
+                              return(
+                                <SelectItem key={room} value={room}>
+                                  {room}
+                                </SelectItem>
+                              )
+                            }})}
                         </SelectContent>
                       </Select>
                     </FormControl>

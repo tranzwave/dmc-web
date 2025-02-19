@@ -22,6 +22,7 @@ import {
   InsertHotelVoucher,
   InsertHotelVoucherLine,
   SelectHotel,
+  SelectHotelRoom,
   SelectHotelVoucherLine
 } from "~/server/db/schemaTypes";
 import { Hotel, hotelVoucherColumns, hotelVoucherLineColumns } from "./columns";
@@ -30,6 +31,10 @@ import { DataTable } from "~/components/bookings/home/dataTable";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table";
 import { ExpandableDataTableWithActions } from "~/components/common/expnadableDataTable";
 import { useOrganization } from "@clerk/nextjs";
+
+export type HotelWithRooms = SelectHotel & {
+  hotelRoom: SelectHotelRoom[];
+};
 
 const HotelsTab = () => {
   const [addedHotels, setAddedHotels] = useState<Hotel[]>([]);
@@ -42,13 +47,13 @@ const HotelsTab = () => {
     updateTriggerRefetch,
   } = useEditBooking();
   const [loading, setLoading] = useState(false);
-  const [hotels, setHotels] = useState<SelectHotel[]>([]);
+  const [hotels, setHotels] = useState<HotelWithRooms[]>([]);
   const [error, setError] = useState<string | null>();
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
   const [defaultValues, setDefaultValues] = useState<
     | (InsertHotelVoucherLine & {
-      hotel: SelectHotel;
+      hotel: HotelWithRooms;
     })
     | null
   >();

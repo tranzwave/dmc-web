@@ -31,10 +31,10 @@ export const columns: ColumnDef<ShopVoucher>[] = [
     header: "Date",
     accessorFn: row => row.voucher.date
   },
-  {
-    header: "Time",
-    accessorFn: row => row.voucher.time
-  },
+  // {
+  //   header: "Time",
+  //   accessorFn: row => row.voucher.time
+  // },
   {
     header: "Adluts Count",
     accessorFn: row => row.voucher.adultsCount
