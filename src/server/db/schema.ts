@@ -1310,6 +1310,7 @@ export const shopRelations = relations(shop, ({ one, many }) => ({
     fields: [shop.cityId],
     references: [city.id],
   }),
+  shopShopType: many(shopShopType),
 }));
 
 export const shopShopTypeRelations = relations(shopShopType, ({ one }) => ({

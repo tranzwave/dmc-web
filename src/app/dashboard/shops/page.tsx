@@ -12,10 +12,15 @@ import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { getAllShops } from "~/server/db/queries/shops";
-import { SelectCity, SelectShop } from "~/server/db/schemaTypes";
+import { SelectCity, SelectShop, SelectShopShopType, SelectShopType } from "~/server/db/schemaTypes";
 
 export type ShopData = SelectShop & {
   city: SelectCity;
+  shopShopType: {
+    shopId: string;
+    shopTypeId: number;
+    shopType: SelectShopType;
+  }[];
 };
 const ShopHome = () => {
   const shopColumns: ColumnDef<ShopData>[] = [
@@ -27,17 +32,21 @@ const ShopHome = () => {
       header: "Contact Number",
       accessorFn: (row) => row.contactNumber,
     },
-    {
-      header: "Street Name",
-      accessorFn: (row) => row.streetName,
-    },
-    {
-      header: "Province",
-      accessorFn: (row) => row.province,
-    },
+    // {
+    //   header: "Street Name",
+    //   accessorFn: (row) => row.streetName,
+    // },
+    // {
+    //   header: "Province",
+    //   accessorFn: (row) => row.province,
+    // },
     {
       header: "City",
       accessorFn: (row) => row.city.name,
+    },
+    {
+      header: "Shop Type",
+      accessorFn: (row) => row.shopShopType.map((type) => type.shopType.name).join(", "),
     },
     {
       accessorKey: "id",
@@ -70,6 +79,7 @@ const ShopHome = () => {
       try {
         setLoading(true);
         const result = await getAllShops();
+        console.log("result shops", result);
         setData(result);
       } catch (error) {
         console.error("Failed to fetch shop data:", error);
