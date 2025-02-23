@@ -151,6 +151,8 @@ export const booking = createTable("bookings", {
   tenantId: varchar("tenant_id", { length: 255 })
     .references(() => tenant.id, { onDelete: "cascade" })
     .notNull(),
+  marketingTeamId: varchar("marketing_team_id", { length: 255 })
+    .references(() => marketingTeam.id, { onDelete: "set null" }),
   clientId: varchar("client_id", { length: 255 })
     .references(() => client.id, { onDelete: "cascade" })
     .notNull(),
@@ -225,6 +227,7 @@ export const bookingLine = createTable("booking_lines", {
   tourInvoice: jsonb("tour_invoice")
     .$type<TourInvoice>()
     .default(sql`'{"entries": [], "invoiceDetails": {}}'::jsonb`),
+  reasonToCancel: varchar("reason_to_cancel", { length: 255 }),
 
 });
 
@@ -924,11 +927,25 @@ export const shopVoucher = createTable("shop_vouchers", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
+//Marketing teams
+export const marketingTeam = createTable("marketing_teams", {
+  id: varchar("id", { length: 255 })
+  .notNull()
+  .primaryKey()
+  .$defaultFn(() => crypto.randomUUID()),
+  tenantId: varchar("tenant_id", { length: 255 }).references(() => tenant.id, { onDelete: "cascade" }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  country: varchar("country", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
 export const tenantRelations = relations(tenant, ({ one, many }) => ({
   booking: many(booking),
   client: many(client),
   agent: many(agent),
   coordinator: many(user),
+  marketingTeam: many(marketingTeam),
 }));
 
 export const subscriptionRelations = relations(subscription, ({ one }) => ({
@@ -974,6 +991,10 @@ export const bookingsRelations = relations(booking, ({ one }) => ({
   bookingAgent: one(bookingAgent, {
     fields: [booking.id],
     references: [bookingAgent.bookingId],
+  }),
+  marketingTeam: one(marketingTeam, {
+    fields: [booking.marketingTeamId],
+    references: [marketingTeam.id],
   }),
   // coordinator: one(user, {
   //   fields: [booking.coordinatorId],

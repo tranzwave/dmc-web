@@ -1,6 +1,6 @@
 "use client";
 
-import { useOrganization } from "@clerk/nextjs";
+import { useAuth, useOrganization, useUser } from "@clerk/nextjs";
 import { Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
@@ -13,6 +13,7 @@ import Pagination from "~/components/common/pagination";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { ClerkUserPublicMetadata } from "~/lib/types/payment";
 import { getAllBookingLines } from "~/server/db/queries/booking";
 
 export default function Bookings() {
@@ -22,6 +23,8 @@ export default function Bookings() {
   const [error, setError] = useState<string | null>(null);
 
   const { organization, isLoaded } = useOrganization();
+  const { user, isLoaded: isUserLoaded } = useUser();
+  const { orgRole, isLoaded: isAuthLoaded } = useAuth();
 
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
@@ -35,24 +38,33 @@ export default function Bookings() {
   const fetchBookingLines = async () => {
     setLoading(true);
     try {
-      const result = await getAllBookingLines(organization?.id ?? "");
+      if (!organization || !user || !orgRole) {
+        return
+      }
+      const userEnrolledTeams = (user.publicMetadata as ClerkUserPublicMetadata).teams.map((team) => team.teamId);
+      const isSuperAdmin = orgRole === "org:admin";
+      console.log("User Enrolled Teams:", userEnrolledTeams);
+      console.log("Is Super Admin:", isSuperAdmin);
+      const result = await getAllBookingLines(organization.id, userEnrolledTeams, isSuperAdmin);
       if (!result) {
         throw new Error("Couldn't find any bookings");
       }
-      
+
+      console.log("Booking Data:", result);
+
       // Ensure that 'createdAt' is cast as a Date object properly
-    const sortedResult = result.sort((a, b) => {
-      const dateA = new Date(a.createdAt);
-      const dateB = new Date(b.createdAt);
+      const sortedResult = result.sort((a, b) => {
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
 
-      return dateB.getTime() - dateA.getTime(); // Compare the timestamps
-    });
+        return dateB.getTime() - dateA.getTime(); // Compare the timestamps
+      });
 
-    setData(sortedResult);
-    setSelectedBooking(sortedResult[0]);
+      setData(sortedResult);
+      setSelectedBooking(sortedResult[0]);
       setLoading(false);
     } catch (error) {
-      console.error("Failed to fetch booking data:", error);
+      console.error("Failed to fetch booking data here here here:", error);
       setError("Failed to load data.");
       setLoading(false);
     }
@@ -60,7 +72,7 @@ export default function Bookings() {
 
   useEffect(() => {
     fetchBookingLines();
-  }, []);
+  }, [organization, user, orgRole]);
 
   const handleRowClick = (booking: BookingDTO) => {
     setSelectedBooking(booking);
@@ -82,7 +94,7 @@ export default function Bookings() {
     const bookingEndDate = booking.endDate;
 
     const matchesSearch =
-    booking.id.toString().toLowerCase().includes(searchTerm) ||
+      booking.id.toString().toLowerCase().includes(searchTerm) ||
       booking.booking.client.name.toLowerCase().includes(searchTerm);
 
     const matchesStartDate = startDate
@@ -140,7 +152,7 @@ export default function Bookings() {
           </div>
 
           <div className="mb-4 flex flex-row gap-3">
-            <div className="w-[60%]">
+            <div className="w-[65%]">
               <div className="flex gap-5">
                 <div className="relative w-[40%]">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -159,7 +171,7 @@ export default function Bookings() {
                       Start Date
                     </label>
                     <input
-                    title="startDateFilter"
+                      title="startDateFilter"
                       type="date"
                       value={startDate ?? ""}
                       onChange={(e) => setStartDate(e.target.value)}
@@ -172,7 +184,7 @@ export default function Bookings() {
                       End Date
                     </label>
                     <input
-                    title="endDateFilter"
+                      title="endDateFilter"
                       type="date"
                       value={endDate ?? ""}
                       onChange={(e) => setEndDate(e.target.value)}
@@ -181,22 +193,28 @@ export default function Bookings() {
                   </div>
                 </div>
               </div>
-              <div className="mt-2">
-                <DataTable
-                  columns={columns}
-                  data={paginatedData}
-                  onRowClick={handleRowClick}
-                  selectedRow={selectedBooking ?? undefined}
-                />
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                />
-              </div>
+              {user && (
+                <div className="mt-2">
+                  <DataTable
+                    columns={columns}
+                    data={paginatedData.map((booking) => ({
+                      ...booking,
+                      currentUser: user.id,
+                    }
+                    ))}
+                    onRowClick={handleRowClick}
+                    selectedRow={selectedBooking ?? undefined}
+                  />
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
+              )}
             </div>
 
-            <div className="w-[40%]">
+            <div className="w-[35%]">
               <SidePanel
                 booking={selectedBooking ? selectedBooking : null}
               />

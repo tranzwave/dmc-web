@@ -23,7 +23,6 @@ import {
 import { TransportVoucherData } from "..";
 import DriverTransportVoucherPDF from "../driverVoucherTemplate";
 import GuideTransportVoucherPDF from "../guideVoucherTemplate";
-import { getBookingLineWithAllData } from "~/server/db/queries/booking";
 import { BookingLineWithAllData } from "~/lib/types/booking";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import { useOrganization, useUser } from "@clerk/nextjs";

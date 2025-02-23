@@ -41,6 +41,7 @@ const EditBooking = ({ id }: { id: string }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isGeneralDetailsSet, setIsGeneralDetailsSet] = useState<boolean>(false);
+  const [isBookingCancelled, setIsBookingCancelled] = useState<boolean>(false);
   const router = useRouter()
 
   const fetchBookingLine = async ()=>{
@@ -54,6 +55,10 @@ const EditBooking = ({ id }: { id: string }) => {
         }
 
         console.log(selectedBookingLine)
+
+        if(selectedBookingLine.status === "cancelled"){
+          setIsBookingCancelled(true);
+        }
 
         const {booking, hotelVouchers, restaurantVouchers, transportVouchers, activityVouchers, shopsVouchers, ...general} = selectedBookingLine;
         // console.log(booking, hotelVouchers,restaurantVouchers,transportVouchers,activityVouchers, shopsVouchers, general)
@@ -78,6 +83,7 @@ const EditBooking = ({ id }: { id: string }) => {
                 transport:general.includes?.transport ?? false
             },
             marketingManager:booking.managerId,
+            marketingTeam:booking.marketingTeamId ?? null,
             numberOfDays:7,
             tourType:booking.tourType
         })
@@ -212,6 +218,21 @@ const EditBooking = ({ id }: { id: string }) => {
   if(loading){
     return (
       <LoadingLayout/>
+    )
+  }
+
+  if(isBookingCancelled){
+    return (
+      <div>
+        <div className="flex flex-col gap-3">
+          <div className="flex w-full flex-row justify-between gap-1">
+            <TitleBar title="Edit Booking" link="toeditBooking" />
+          </div>
+          <div className="w-full">
+            <div className="text-red-500">This booking has been cancelled. You can't edit a cancelled booking.</div>
+          </div>
+        </div>
+      </div>
     )
   }
 

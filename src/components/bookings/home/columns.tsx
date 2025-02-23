@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDate } from "~/lib/utils/index";
-import { SelectBooking, SelectBookingLine, SelectClient, SelectUser } from "~/server/db/schemaTypes";
+import { SelectBooking, SelectBookingLine, SelectClient, SelectMarketingTeam, SelectUser } from "~/server/db/schemaTypes";
 import {
   Hotel,
   Utensils,
@@ -11,6 +11,9 @@ import {
   ShoppingBag,
 } from "lucide-react"; 
 import { Badge } from "~/components/ui/badge";
+import { useUser } from "@clerk/nextjs";
+import { getUserPublicMetadata } from "~/server/auth";
+import { booking } from "~/server/db/schema";
 
 export type CategoryDetails = {
     title: string;
@@ -45,8 +48,10 @@ export type CategoryDetails = {
 
 export type BookingDTO = SelectBookingLine & {
   booking:SelectBooking & {
-    client:SelectClient
+    client:SelectClient,
+    marketingTeam: SelectMarketingTeam | null,
   },
+  currentUser?: string
 }
 
 export const columns: ColumnDef<BookingDTO>[] = [
@@ -59,10 +64,6 @@ export const columns: ColumnDef<BookingDTO>[] = [
     header: "Booking Name",
     accessorFn: (row) => row.booking.client.name,
   },
-  // {
-  //   header: "Coordinator",
-  //   accessorFn: (row) => row.booking.coordinatorId,
-  // },
   // {
   //   header: "Country",
   //   accessorFn: (row) => row.booking.client.country,
@@ -78,22 +79,12 @@ export const columns: ColumnDef<BookingDTO>[] = [
     accessorFn: (row) => formatDate(row.endDate.toString())
   },
   {
-    header: "Includes",
-    id: "includes-icons",
-    cell: ({ row }) => (
-      <div className="flex flex-row gap-1">
-        {/* Conditionally render the icons based on the includes fields with color applied */}
-        {row.original.includes?.hotels && <Hotel size={16} color="#1E90FF"/>}
-        {row.original.includes?.restaurants && (
-          <Utensils size={16} color="#FF8C00"/>
-        )}
-        {row.original.includes?.transport && <Car size={16} color="#32CD32"  />}
-        {row.original.includes?.activities && (
-          <Activity size={16} color="#8A2BE2"  />
-        )}
-        {row.original.includes?.shops && <ShoppingBag size={16} color="#DC143C" />}
-      </div>
-    ),
+    header: "Team",
+    accessorFn: (row) => row.booking.marketingTeam?.name ?? "N/A",
+  },
+  {
+    header: "Booking Role",
+    accessorFn: (row) => row.booking.managerId === row.currentUser ? "Manager" : row.booking.coordinatorId === row.currentUser ? "Coordinator" : "Team Member",
   },
   {
     accessorKey: "status",
@@ -115,5 +106,24 @@ export const columns: ColumnDef<BookingDTO>[] = [
       );
     },
   },
+  {
+    header: "Includes",
+    id: "includes-icons",
+    cell: ({ row }) => (
+      <div className="flex flex-row gap-1">
+        {/* Conditionally render the icons based on the includes fields with color applied */}
+        {row.original.includes?.hotels && <Hotel size={16} color="#1E90FF"/>}
+        {row.original.includes?.restaurants && (
+          <Utensils size={16} color="#FF8C00"/>
+        )}
+        {row.original.includes?.transport && <Car size={16} color="#32CD32"  />}
+        {row.original.includes?.activities && (
+          <Activity size={16} color="#8A2BE2"  />
+        )}
+        {row.original.includes?.shops && <ShoppingBag size={16} color="#DC143C" />}
+      </div>
+    ),
+  },
+
 
 ];

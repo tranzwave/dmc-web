@@ -61,6 +61,7 @@ const ActivityVouchersTab = ({
   const [isConfirming, setIsConfirming] = useState(false);
   const [bookingName, setBookingName] = useState('');
   const [bookingLoading, setBookingLoading] = useState(false)
+  const [isBookingCancelled, setIsBookingCancelled] = useState(false)
 
 
 
@@ -148,9 +149,10 @@ const ActivityVouchersTab = ({
       if (vouchers) {
         try {
           setBookingLoading(true)
-          const booking = await getBookingLineWithAllData(vouchers[0]?.bookingLineId ?? "")
+          const booking = await getBookingLineWithAllData(bookingLineId)
           if (booking) {
             setBookingName(booking.booking.client.name);
+            setIsBookingCancelled(booking.status === 'cancelled')
           }
           setBookingLoading(false)
         } catch (error) {
@@ -241,11 +243,13 @@ const ActivityVouchersTab = ({
         <div className="card w-full space-y-6">
           <div className="flex justify-between">
             <div className="card-title">Voucher Information</div>
+            {!isBookingCancelled && (
             <Link
               href={`${pathname.replace("/tasks", "")}/edit?tab=activities`}
             >
               <Button variant={"outline"}>Add Vouchers</Button>
             </Link>
+            )}
           </div>
           <div className="text-sm font-normal">
             Click the line to send the voucher
@@ -377,6 +381,7 @@ const ActivityVouchersTab = ({
               ) : (
                 ""
               )}
+              {!isBookingCancelled && (
               <Button
                 variant={"primaryGreen"}
                 onClick={handleConfirm}
@@ -384,6 +389,7 @@ const ActivityVouchersTab = ({
               >
                 Confirm Activity
               </Button>
+              )}
             </div>
           </div>
         </div>

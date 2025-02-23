@@ -58,6 +58,7 @@ const ShopVouchersTasksTab = ({
   const [isConfirming, setIsConfirming] = useState(false)
   const [bookingData, setBookingData] = useState<BookingLineWithAllData>();
   const [bookingLoading, setBookingLoading] = useState(false)
+  const [isBookingCancelled, setIsBookingCancelled] = useState(false);
 
 
   const { toast } = useToast();
@@ -151,9 +152,10 @@ const ShopVouchersTasksTab = ({
       if (vouchers) {
         try {
           setBookingLoading(true)
-          const booking = await getBookingLineWithAllData(vouchers[0]?.bookingLineId ?? "")
+          const booking = await getBookingLineWithAllData(bookingLineId)
           if (booking) {
             setBookingData(booking as BookingLineWithAllData);
+            setIsBookingCancelled((booking as BookingLineWithAllData).status === "cancelled")
           }
           setBookingLoading(false)
         } catch (error) {
@@ -194,17 +196,19 @@ const ShopVouchersTasksTab = ({
         <div className="card w-full space-y-6">
           <div className="flex justify-between">
             <div className="card-title">Voucher Information</div>
+            {!isBookingCancelled && (
             <Link href={`${pathname.replace("/tasks", "")}/edit?tab=shops`}>
               <Button variant={"outline"}>Add Vouchers</Button>
             </Link>
+            )}
           </div>          <div className="text-sm font-normal">Click the line to send the voucher</div>
           <DataTableWithActions
             data={vouchers}
             columns={voucherColumns}
             onRowClick={onVoucherRowClick}
-            onView={() => alert("View action triggered")}
-            onEdit={() => alert("Edit action triggered")}
-            onDelete={() => alert("Delete action triggered")}
+            // onView={() => console.log("View action triggered")}
+            onEdit={() => console.log("Edit action triggered")}
+            // onDelete={() => console.log("Delete action triggered")}
           />
           <div className="flex flex-row items-center justify-between">
             <div className="text-sm font-normal">
@@ -237,9 +241,9 @@ const ShopVouchersTasksTab = ({
             columns={voucherColumns}
             data={selectedVoucher ? [selectedVoucher] : []}
             onRowClick={onVoucherLineRowClick}
-            onView={() => alert("View action triggered")}
-            onEdit={() => alert("Edit action triggered")}
-            onDelete={() => alert("Delete action triggered")}
+            // onView={() => alert("View action triggered")}
+            onEdit={() => console.log("Edit action triggered")}
+            // onDelete={() => alert("Delete action triggered")}
           />
           <div
             className={`flex flex-row items-end justify-end ${!selectedVoucher ? "hidden" : ""}`}

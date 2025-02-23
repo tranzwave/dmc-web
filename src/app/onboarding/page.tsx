@@ -1,47 +1,54 @@
-"use client"
+"use client";
+
 import { CreateOrganization, SignOutButton, useOrganizationList, useUser } from "@clerk/nextjs";
 import { OrganizationResource } from "@clerk/types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import SideHero from "~/components/common/sideHero";
 import OnboardingFlow from "~/components/onboardingFlow";
-import { Button } from "~/components/ui/button";
 
-
-const OnboardingRootPage = ()=>{
+const OnboardingRootPage = () => {
     const { user, isSignedIn, isLoaded } = useUser();
-    const { setActive, userInvitations } = useOrganizationList();
-    const [organization, setOrganization] = useState<OrganizationResource | null>(null); // Use undefined as default
+    const { userInvitations } = useOrganizationList();
+    // const [organization, setOrganization] = useState<OrganizationResource | null>(null);
+    const [isNewlyInvitedMember, setIsNewlyInvitedMember] = useState<boolean | null>(null); // Set null initially
     const router = useRouter();
 
-  
     useEffect(() => {
-      if (isLoaded && isSignedIn) {
-        const memberships = user?.organizationMemberships;
-        console.log(memberships);
-        console.log(userInvitations);
-  
-        if (memberships[0] ?? userInvitations.data?.length != 0) {
-            const org = memberships?.[0]?.organization;
-            if (org) {
-              setOrganization(org);
+        if (!isLoaded || !isSignedIn) return;
+
+        const memberships = user?.organizationMemberships ?? [];
+        const invitations = userInvitations?.data ?? [];
+
+        if (memberships.length > 0) {
+            // User already belongs to an organization
+            // setOrganization(memberships[0]?.organization);
+
+            if (user.publicMetadata && Object.keys(user.publicMetadata).length > 0) {
+                router.push("/dashboard/overview");
+            } else {
+               setIsNewlyInvitedMember(true);
             }
-          router.push("/dashboard/overview");
-          return;
+
+            return;
+        } else {
+            setIsNewlyInvitedMember(false);
         }
-      }
-    }, [isLoaded, isSignedIn, user, setActive, router]);
+    }, [isLoaded, isSignedIn, user, userInvitations, router]);
+
+    // Prevent rendering OnboardingFlow until we determine user type
+    if (isNewlyInvitedMember === null) {
+        return <div className="flex w-screen h-screen items-center justify-center">Loading...</div>;
+    }
+
     return (
-
         <div className="flex flex-row w-screen h-screen">
-            <SideHero/>
+            <SideHero />
             <div className="w-full h-full flex flex-col justify-center items-center">
-                <OnboardingFlow/>
+                <OnboardingFlow isNewlyInvitedMember={isNewlyInvitedMember} />
             </div>
-            
         </div>
-    )
-
-}
+    );
+};
 
 export default OnboardingRootPage;

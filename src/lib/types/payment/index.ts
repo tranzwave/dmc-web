@@ -52,11 +52,15 @@ export type ClerkOrganizationPublicMetadata =
 export type ClerkUserPublicMetadata =
     {
         role: Roles,
-        permissions: Permissions,
+        permissions: Permissions[],
         info: {
             contact: string,
             address: string,
         }
+        teams: {
+            teamId: string,
+            role: 'manager' | 'member'
+        }[]
     };
 
     export type PayherePaymentNotification = {

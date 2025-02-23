@@ -102,6 +102,7 @@ export const defaultGeneral: General = {
   numberOfDays: 1,
   endDate: "",
   marketingManager: "",
+  marketingTeam: "",
   agent: "",
   tourType: "",
   includes: {

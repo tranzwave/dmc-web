@@ -67,9 +67,11 @@ const TransportTaskTabContent: React.FC<VoucherInformationProps> = ({
         <div className="card w-full space-y-6">
             <div className="flex justify-between">
                 <div className="card-title">Voucher Information</div>
+                {bookingData?.status !== "cancelled" && (
                 <Link href={`${pathname.replace("/tasks", "")}/edit?tab=transport`}>
                     <Button variant={"outline"}>Add Vouchers</Button>
                 </Link>
+                )}
             </div>
             <div className="text-sm font-normal">
                 Click the line to send the voucher

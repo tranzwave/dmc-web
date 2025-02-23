@@ -12,6 +12,7 @@ export type General = {
   numberOfDays: number;
   endDate: string;
   marketingManager: string;
+  marketingTeam: string | null;
   
   tourType: string;
   includes: {

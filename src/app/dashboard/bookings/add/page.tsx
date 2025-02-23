@@ -13,17 +13,16 @@ const AddBookingSubmitTab = dynamic(() => import('~/components/bookings/addBooki
 
 
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
-// import ActivitiesTab from "~/components/bookings/addBooking/forms/activitiesForm";
-// import GeneralTab from "~/components/bookings/addBooking/forms/generalForm";
-// import HotelsTab from "~/components/bookings/addBooking/forms/hotelsForm";
-// import RestaurantsTab from "~/components/bookings/addBooking/forms/restaurantsForm";
-// import ShopsTab from "~/components/bookings/addBooking/forms/shopsForm";
-// import TransportTab from "~/components/bookings/addBooking/forms/transportForm";
+import { useEffect, useState } from "react";
 import TitleBar from "~/components/common/titleBar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { AddBookingProvider, useAddBooking } from "./context";
-// import AddBookingSubmitTab from "~/components/bookings/addBooking/forms/submitForm";
+import { PartialClerkUser } from '~/lib/types/marketingTeam';
+import { getAllClerkUsersByOrgId } from '~/server/auth';
+import { useOrganization } from '@clerk/nextjs';
+import LoadingLayout from '~/components/common/dashboardLoading';
+import { SelectMarketingTeam } from '~/server/db/schemaTypes';
+import { getAllMarketingTeams } from '~/server/db/queries/marketingTeams';
 
 const AddBooking = () => {
   const pathname = usePathname();
@@ -40,9 +39,37 @@ const AddBooking = () => {
     statusLabels,
   } = useAddBooking();
 
+  const [allUsers, setAllUsers] = useState<PartialClerkUser[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const {organization, isLoaded } = useOrganization();
+  const [marketingTeams, setMarketingTeams] = useState<SelectMarketingTeam[]>([]);
+
   useEffect(() => {
+    const fetchAllUsers = async () => {
+      setLoading(true);
+      try {
+        // Fetch all users
+        if(!organization){
+          return
+        }
+        const users = await getAllClerkUsersByOrgId(organization.id);
+        setAllUsers(users);
+        const marketingTeamsResponse = await getAllMarketingTeams(organization.id);
+        setMarketingTeams(marketingTeamsResponse);
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        setLoading(false);
+      }
+    }
     console.log("Add Booking Component");
-  }, []);
+    fetchAllUsers();
+  }, [organization]);
+
+  if (!isLoaded || loading) {
+    return <div> <LoadingLayout/></div>
+  }
 
   return (
     <div className="flex">
@@ -71,87 +98,11 @@ const AddBooking = () => {
                 >
                   General
                 </TabsTrigger>
-                {/* <TabsTrigger
-                  value="hotels"
-                  onClick={() => setActiveTab("hotels")}
-                  disabled={bookingDetails.vouchers.length == 0 || !bookingDetails.general.includes.hotels}
-                  statusLabel={statusLabels.hotels}
-                  isCompleted = {bookingDetails.vouchers.length > 0}
-                  inProgress = {activeTab == "hotels"}
-                >
-                  Hotels
-                </TabsTrigger>
-                <TabsTrigger
-                  value="restaurants"
-                  onClick={() => setActiveTab("restaurants")}
-                  disabled={bookingDetails.restaurants.length == 0 || !bookingDetails.general.includes.hotels}
-                  statusLabel={statusLabels.restaurants}
-                  isCompleted = {bookingDetails.restaurants.length > 0}
-                  inProgress = {activeTab == "restaurants"}
-                >
-                  Restaurants
-                </TabsTrigger>
-                <TabsTrigger
-                  value="activities"
-                  onClick={() => setActiveTab("activities")}
-                  disabled={bookingDetails.activities.length == 0 || !bookingDetails.general.includes.activities}
-                  statusLabel={statusLabels.activities}
-                  isCompleted = {bookingDetails.activities.length > 0}
-                  inProgress = {activeTab == "activities"}
-                >
-                  Activities
-                </TabsTrigger>
-                <TabsTrigger
-                  value="transport"
-                  onClick={() => setActiveTab("transport")}
-                  disabled={bookingDetails.transport.length == 0 || !bookingDetails.general.includes.transport}
-                  statusLabel={statusLabels.transport}
-                  isCompleted = {bookingDetails.transport.length > 0}
-                  inProgress = {activeTab == "transport"}
-                >
-                  Transport
-                </TabsTrigger>
-                <TabsTrigger
-                  value="shops"
-                  onClick={() => setActiveTab("shops")}
-                  disabled={bookingDetails.shops.length == 0 || !bookingDetails.general.includes.shops}
-                  statusLabel={statusLabels.shops}
-                  isCompleted = {bookingDetails.shops.length > 0}
-                  inProgress = {activeTab == "shops"}
-                >
-                  Shops
-                </TabsTrigger>
-                <TabsTrigger
-                  value="submit"
-                  onClick={() => setActiveTab("submit")}
-                  disabled={!bookingDetails.general.clientName}
-                  isCompleted = {false}
-                  inProgress = {activeTab == "submit"}
-                >
-                  Submit
-                </TabsTrigger> */}
+                
               </TabsList>
               <TabsContent value="general">
-                <GeneralTab />
+                <GeneralTab allUsers={allUsers} marketingTeams={marketingTeams}/>
               </TabsContent>
-              {/* <TabsContent value="hotels">
-                <HotelsTab />
-              </TabsContent>
-              <TabsContent value="restaurants">
-                <RestaurantsTab />
-              </TabsContent>
-              <TabsContent value="activities">
-                <ActivitiesTab />
-              </TabsContent>
-              <TabsContent value="transport">
-                <TransportTab />
-              </TabsContent>
-              <TabsContent value="shops">
-                <ShopsTab />
-              </TabsContent>
-              <TabsContent value="submit">
-                <AddBookingSubmitTab />
-              </TabsContent> */}
             </Tabs>
           </div>
         </div>
