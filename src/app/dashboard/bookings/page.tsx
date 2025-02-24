@@ -22,7 +22,7 @@ export default function Bookings() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { organization, isLoaded } = useOrganization();
+  const { organization, isLoaded, membership } = useOrganization();
   const { user, isLoaded: isUserLoaded } = useUser();
   const { orgRole, isLoaded: isAuthLoaded } = useAuth();
 
@@ -36,6 +36,7 @@ export default function Bookings() {
   const pathname = usePathname();
 
   const fetchBookingLines = async () => {
+    console.log("Fetching Booking Data");
     setLoading(true);
     try {
       if (!organization || !user || !orgRole) {
@@ -75,11 +76,8 @@ export default function Bookings() {
   }, [organization, user, orgRole]);
 
   const handleRowClick = (booking: BookingDTO) => {
+    console.log("Selected Booking:", booking);
     setSelectedBooking(booking);
-  };
-
-  const handleCloseSidePanel = () => {
-    setSelectedBooking(null);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -104,16 +102,15 @@ export default function Bookings() {
       ? bookingEndDate <= parseDate(endDate)
       : true;
 
-    return matchesSearch && matchesStartDate && matchesEndDate;
-  });
+    if (!user || !membership) {
+      return matchesSearch && matchesStartDate && matchesEndDate;
+    }
+    const isUserEitherManagerOrCoordinator = orgRole ==="org:admin" || booking.booking.managerId === user.id || booking.booking.coordinatorId === user.id;
 
-  // const filteredData = data.filter((booking) => {
-  //   const searchTerm = searchQuery.toLowerCase();
-  //   return (
-  //     booking.booking.client.id.toString().includes(searchTerm) ||
-  //     booking.booking.client.name.toLowerCase().includes(searchTerm)
-  //   );
-  // });
+    const isUserMembershipEitherManagerOrCoordinator = booking.booking.managerId === membership.id || booking.booking.coordinatorId === membership.id;
+
+    return matchesSearch && matchesStartDate && matchesEndDate && (isUserEitherManagerOrCoordinator || isUserMembershipEitherManagerOrCoordinator);
+  });
 
   const startIndex = (currentPage - 1) * rowsPerPage;
   const paginatedData = filteredData.slice(

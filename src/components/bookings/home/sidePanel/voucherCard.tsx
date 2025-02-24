@@ -5,6 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "~/componen
 import { ArrowRightCircleIcon, Lock } from "lucide-react"
 import Link from "next/link"
 import { useEffect } from "react"
+import { Skeleton } from "~/components/ui/skeleton"
 
 interface CategoryDetails {
     title: string
@@ -27,6 +28,7 @@ interface BookingProps {
 interface RenderCardProps {
     category?: CategoryDetails
     booking?: BookingProps
+    loadingTitle?:string
     pathname: string
 }
 
@@ -39,16 +41,18 @@ const StatusBadge = ({ count, label, color }: { count: number; label: string; co
     </div>
 )
 
-export const RenderCard = ({ category, booking, pathname }: RenderCardProps) => {
+export const RenderCard = ({ category, booking, pathname, loadingTitle }: RenderCardProps) => {
 
     useEffect(() => {
         console.log("category", category)
     }
     , [booking])
 
-    
+
     if (!category || !booking) {
-        return null // or return a placeholder/loading state
+        return (
+            <CardSkeleton loadingTitle={loadingTitle}/>
+        )
     }
 
     const totalStatusCount = Object.values(category.statusCount).reduce((a, b) => a + b, 0)
@@ -91,16 +95,6 @@ export const RenderCard = ({ category, booking, pathname }: RenderCardProps) => 
                     </div>
                 </div>
             </CardContent>
-            {/* <CardFooter className="flex justify-end gap-2 px-3 p-3">
-            {booking.status !== "cancelled" && (
-                <Link href={`${pathname}/${booking.id}/edit?tab=${category.title.toLowerCase()}`}>
-                <Button variant="outline">Add Vouchers</Button>
-                </Link>
-            )}
-            <Link href={`${pathname}/${booking.id}/tasks?tab=${category.title.toLowerCase()}`}>
-                <Button variant="outline">Send Vouchers</Button>
-            </Link>
-            </CardFooter> */}
             {category.locked && (
                 <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-gray-700 bg-opacity-50">
                     <Lock className="text-white" size={32} />
@@ -109,6 +103,25 @@ export const RenderCard = ({ category, booking, pathname }: RenderCardProps) => 
         </Card>
     )
 }
+
+const CardSkeleton = ({loadingTitle}:{loadingTitle:string | undefined}) => (
+    <Card className="max-h-[115px] w-full relative p-0 shadow-md m-0">
+      <div className="flex flex-row justify-between gap-3 items-center p-3">
+      <div className="text-[15px] text-zinc-900 font-semibold">{loadingTitle}</div>
+        <Skeleton className="h-4 w-1/4" />
+      </div>
+      <CardContent>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-4">
+          {[...Array(5)].map((_, index) => (
+            <div key={index} className="flex flex-col items-center">
+              <Skeleton className="h-6 w-12 mb-1" />
+              <Skeleton className="h-2 w-16" />
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  )
 
 export default RenderCard
 

@@ -54,6 +54,10 @@ export type BookingDTO = SelectBookingLine & {
   currentUser?: string
 }
 
+const getRole = (row: BookingDTO) => {
+  return row.booking.managerId === row.currentUser ? "Manager" : row.booking.coordinatorId === row.currentUser ? "Coordinator" : "Team Member"
+}
+
 export const columns: ColumnDef<BookingDTO>[] = [
   {
     header: "Booking Id",
@@ -84,7 +88,25 @@ export const columns: ColumnDef<BookingDTO>[] = [
   },
   {
     header: "Booking Role",
-    accessorFn: (row) => row.booking.managerId === row.currentUser ? "Manager" : row.booking.coordinatorId === row.currentUser ? "Coordinator" : "Team Member",
+    accessorFn: (row) => getRole(row),
+  },
+  {
+    header: "Includes",
+    id: "includes-icons",
+    cell: ({ row }) => (
+      <div className="flex flex-row gap-1">
+        {/* Conditionally render the icons based on the includes fields with color applied */}
+        {row.original.includes?.hotels && <Hotel size={16} color="#1E90FF"/>}
+        {row.original.includes?.restaurants && (
+          <Utensils size={16} color="#FF8C00"/>
+        )}
+        {row.original.includes?.transport && <Car size={16} color="#32CD32"  />}
+        {row.original.includes?.activities && (
+          <Activity size={16} color="#8A2BE2"  />
+        )}
+        {row.original.includes?.shops && <ShoppingBag size={16} color="#DC143C" />}
+      </div>
+    ),
   },
   {
     accessorKey: "status",
@@ -105,25 +127,7 @@ export const columns: ColumnDef<BookingDTO>[] = [
         </Badge>
       );
     },
-  },
-  {
-    header: "Includes",
-    id: "includes-icons",
-    cell: ({ row }) => (
-      <div className="flex flex-row gap-1">
-        {/* Conditionally render the icons based on the includes fields with color applied */}
-        {row.original.includes?.hotels && <Hotel size={16} color="#1E90FF"/>}
-        {row.original.includes?.restaurants && (
-          <Utensils size={16} color="#FF8C00"/>
-        )}
-        {row.original.includes?.transport && <Car size={16} color="#32CD32"  />}
-        {row.original.includes?.activities && (
-          <Activity size={16} color="#8A2BE2"  />
-        )}
-        {row.original.includes?.shops && <ShoppingBag size={16} color="#DC143C" />}
-      </div>
-    ),
-  },
+  }
 
 
 ];

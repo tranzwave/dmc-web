@@ -80,7 +80,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
         shopVoucherResponse,
         restaurantVoucherResponse,
         coordinatorAndManagerResponse,
-      ] = await Promise.all([
+      ] = await Promise.allSettled([
         getHotelVouchers(booking?.id),
         getTransportVouchers(booking?.id),
         getActivityVouchers(booking?.id),
@@ -90,42 +90,40 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
       ]);
 
       // Check for errors in the responses
-      if (!hotelVoucherResponse) {
-        console.log("Error fetching hotel vouchers");
-        throw new Error("Error fetching hotel vouchers");
-      }
-      setHotelVouchers(hotelVoucherResponse);
-
-      if (!transportVoucherResponse) {
-        console.log("Error fetching transport vouchers");
-        throw new Error("Error fetching transport vouchers");
-      }
-      setTransportVouchers(transportVoucherResponse);
-
-      if (!activityVoucherResponse) {
-        console.log("Error fetching activity vouchers");
-        throw new Error("Error fetching activity vouchers");
-      }
-      setActivityVouchers(activityVoucherResponse);
-
-      if (!shopVoucherResponse) {
-        console.log("Error fetching shops vouchers");
-        throw new Error("Error fetching shops vouchers");
-      }
-      setShopVouchers(shopVoucherResponse);
-
-      if (!restaurantVoucherResponse) {
-        console.log("Error fetching restaurant vouchers");
-        throw new Error("Error fetching restaurant vouchers");
-      }
-      setRestaurantVouchers(restaurantVoucherResponse);
-
-      if (!coordinatorAndManagerResponse) {
-        throw new Error("Couldn't find the coordinator")
+      if (hotelVoucherResponse.status === "fulfilled") {
+        setHotelVouchers(hotelVoucherResponse.value);
+      } else {
+        console.error("Error fetching hotel vouchers:", hotelVoucherResponse.reason);
       }
 
-      console.log("Fetched Agents:", hotelVoucherResponse);
-      // setLoading(false);
+      if (transportVoucherResponse.status === "fulfilled") {
+        setTransportVouchers(transportVoucherResponse.value);
+      } else {
+        console.error("Error fetching transport vouchers:", transportVoucherResponse.reason);
+      }
+
+      if (activityVoucherResponse.status === "fulfilled") {
+        setActivityVouchers(activityVoucherResponse.value);
+      } else {
+        console.error("Error fetching activity vouchers:", activityVoucherResponse.reason);
+      }
+
+      if (shopVoucherResponse.status === "fulfilled") {
+        setShopVouchers(shopVoucherResponse.value);
+      } else {
+        console.error("Error fetching shop vouchers:", shopVoucherResponse.reason);
+      }
+
+      if (restaurantVoucherResponse.status === "fulfilled") {
+        setRestaurantVouchers(restaurantVoucherResponse.value);
+      } else {
+        console.error("Error fetching restaurant vouchers:", restaurantVoucherResponse.reason);
+      }
+
+      if (coordinatorAndManagerResponse.status !== "fulfilled") {
+        console.error("Error fetching coordinator and manager:", coordinatorAndManagerResponse.reason);
+      }
+      setLoading(false);
 
 
     } catch (error) {
@@ -142,10 +140,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
 
   const onTourPacketClick = () => {
     setShowTourPacket(true);
-  }
-
-  const onTourInvoiceClick = () => {
-    setShowTourInvoice(true);
   }
 
   const onCancelBooking = () => {
@@ -165,8 +159,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
           shopVouchers.map(v => v.id),
           reasonToCancel
         );
-
-        console.log(updatedBooking);
         setIsCancelling(false);
         toast({
           title: "Booking Cancelled",
@@ -189,13 +181,10 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
         setLoading(true);
         const memberships = await organization.getMemberships();
         setMembers(memberships.data); // Set the 'items' array containing memberships
-        console.log(memberships);
         setLoading(false);
-        console.log(memberships)
         if (memberships && booking) {
           const coordinator = memberships?.data?.find(m => m.publicUserData.userId === booking.booking.coordinatorId)
           const manager = memberships?.data?.find(m => m.id === booking.booking.managerId || m.publicUserData.userId === booking.booking.managerId)
-          console.log({ coordinator: coordinator, manager: manager })
 
           const coordinatorFullName = coordinator ? `${coordinator.publicUserData.firstName} ${coordinator.publicUserData.lastName}` : ''
           const managerFullName = manager ? `${manager.publicUserData.firstName} ${manager.publicUserData.lastName}` : ''
@@ -204,8 +193,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
         }
 
         const marketingTeamsResponse = await getAllMarketingTeams(organization.id);
-
-        console.log(marketingTeamsResponse);
 
         if (!marketingTeamsResponse) {
           throw new Error("Couldn't find any marketing teams");
@@ -222,6 +209,14 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
 
   useEffect(() => {
     setLoading(true);
+
+    // Reset vouchers before fetching new data
+    setHotelVouchers(null);
+    setTransportVouchers(null);
+    setActivityVouchers(null);
+    setShopVouchers(null);
+    setRestaurantVouchers(null);
+
     fetchData();
     if (isLoaded && booking) {
       fetchMembers();
@@ -238,7 +233,14 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
       </div>
     );
 
-  if (loading || !isLoaded || !isOrgLoaded || !isAuthLoaded || !hotelVouchers || !restaurantVouchers || !transportVouchers || !activityVouchers || !shopVouchers) return (
+    const allDataMissing =
+    hotelVouchers === null &&
+    restaurantVouchers === null &&
+    transportVouchers === null &&
+    activityVouchers === null &&
+    shopVouchers === null;
+
+  if (loading || !isLoaded || !isOrgLoaded || !isAuthLoaded || allDataMissing) return (
     <div className="card h-auto w-full gap-4 rounded-lg border border-primary-borderGray shadow-md">
       <div className="flex flex-row items-center justify-between">
         <div>
@@ -268,8 +270,37 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
           <Button variant={"primaryGreen"}>Itinerary</Button>
         </Link>
       </div>
-      <div>
-        <LoadingLayout />
+      <div className="flex flex-col gap-2">
+        {/* render empty cards 5 times */}
+        <RenderCard pathname="" loadingTitle="Hotel Vouchers"/>
+        <RenderCard pathname="" loadingTitle="Restaurant Vouchers"/>
+        <RenderCard pathname="" loadingTitle="Transport Vouchers"/>
+        <RenderCard pathname="" loadingTitle="Activity Vouchers"/>
+        <RenderCard pathname="" loadingTitle="Shop Vouchers"/>
+      </div>
+      <div className="flex flex-row justify-stretch gap-2">
+        <Button
+          variant={"primaryGreen"}
+          onClick={onTourPacketClick}
+          className="w-full"
+        >Tour Packet - Check List</Button>
+        {/* <Button
+          variant={"primaryGreen"}
+          onClick={onTourInvoiceClick}
+          className="w-full"
+        >Proforma Invoice</Button> */}
+        <div className="w-full">
+          <TourInvoiceModalTrigger bookingData={booking} />
+        </div>
+
+        {orgRole === 'org:admin' && (
+          <Button
+            variant={"destructive"}
+            onClick={onCancelBooking}
+            className="w-full"
+          >Cancel Booking</Button>
+        )}
+
       </div>
     </div>
   );
@@ -277,7 +308,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
 
 
   const getStatusesCount = (voucherList: any[]) => {
-    console.log("voucherList", voucherList)
     return {
       inprogress: voucherList.filter(v => v.status == 'inprogress').length,
       sentToVendor: voucherList.filter(v => v.status == 'sentToVendor').length,
@@ -289,76 +319,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
 
     }
   }
-  const renderCard = (category: CategoryDetails) => (
-    <div className="card relative gap-3">
-      <div className="flex flex-row justify-between">
-        <div className="text-base font-semibold text-primary-black flex flex-row gap-2">
-          <div>
-            {category.title}
-          </div>
-          <div className="text-sm font-normal text-[#21272A]">
-            {category.totalVouchers > 0 && (
-              <div>
-                <Badge variant="default" className="bg-primary-green bg-opacity-60">{category.totalVouchers} Vouchers</Badge>
-
-              </div>
-            )}
-          </div>
-        </div>
-        {booking.status !== 'cancelled' && (
-          <Link
-            href={`${pathname}/${booking.id}/edit?tab=${category.title.toLowerCase()}`}
-          >
-            <Button variant={"outline"}>Add Vouchers</Button>
-          </Link>
-        )}
-      </div>
-      <div className="flex flex-row gap-3">
-        <div className="w-4/5 flex-grid grid-cols-2 gap-x-2 gap-y-2">
-          {/* <div>
-            <div className="text-sm font-normal text-[#21272A]">
-              {`${category.totalVouchers !== 0 ? `${category.statusCount.inprogress}` : ''} vouchers to be sent to vendor`}
-            </div>
-            <div>
-              <Progress
-                value={category.totalVouchers !== 0 ? (((category.totalVouchers - category.statusCount.inprogress) / category.totalVouchers) * 100) : 0}
-                className="h-2"
-              />
-            </div>
-          </div>
-          <div>
-            <div className="text-sm font-normal text-[#21272A]">
-              {`${category.totalVouchers !== 0 ? `${category.totalVouchers - (category.statusCount.cancelled + category.statusCount.vendorConfirmed) }` : ''} vouchers to be confirmed by vendor`}
-            </div>
-            <div>
-              <Progress
-                value={category.totalVouchers !== 0 ? ((category.statusCount.vendorConfirmed / category.totalVouchers) * 100) : 0}
-                className="h-2"
-              />
-            </div>
-          </div> */}
-          <Badge variant="default" className="bg-yellow-500 bg-opacity-60">{category.statusCount.inprogress + category.statusCount.amended} Inprogress</Badge>
-          <Badge variant="default" className="bg-blue-500 bg-opacity-60">{category.statusCount.sentToClient} Sent to Vendor</Badge>
-          <Badge variant="default" className="bg-green-500 bg-opacity-60">{category.statusCount.vendorConfirmed} Vendor Confirmed</Badge>
-          <Badge variant="default" className="bg-red-500 bg-opacity-60">{category.statusCount.cancelled} Cancelled</Badge>
-        </div>
-        <div className="xl::w-1/5 xs:2/5 ml-2">
-          <div className="flex h-full items-end justify-end">
-            <Link
-              href={`${pathname}/${booking.id}/tasks?tab=${category.title.toLowerCase()}`}
-            >
-              <Button variant={"outline"}>Send Vouchers</Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-      {category.locked && (
-        <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-gray-700 bg-opacity-50">
-          <Lock className="text-white" size={32} />
-        </div>
-      )}
-    </div>
-  );
 
   return (
     <div className="card h-auto w-full gap-4 rounded-lg border border-primary-borderGray shadow-md">
@@ -396,7 +356,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
             title: "Hotel Vouchers",
             totalVouchers: hotelVouchers?.length ?? 0,
             locked: booking.includes?.hotels ? false : true,
-            statusCount: getStatusesCount(hotelVouchers),
+            statusCount: getStatusesCount(hotelVouchers ?? []),
           }}
             pathname={pathname}
             booking={{ id: booking.id, status: booking.status ?? 'inprogress' }}
@@ -406,7 +366,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
             title: "Restaurant Vouchers",
             totalVouchers: restaurantVouchers?.length ?? 0,
             locked: booking.includes?.restaurants ? false : true,
-            statusCount: getStatusesCount(restaurantVouchers),
+            statusCount: getStatusesCount(restaurantVouchers ?? []),
           }}
             pathname={pathname}
             booking={{ id: booking.id, status: booking.status ?? 'inprogress' }}
@@ -416,7 +376,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
             title: "Transport Vouchers",
             totalVouchers: transportVouchers?.length ?? 0,
             locked: booking.includes?.transport ? false : true,
-            statusCount: getStatusesCount(transportVouchers),
+            statusCount: getStatusesCount(transportVouchers ?? []),
           }}
             pathname={pathname}
             booking={{ id: booking.id, status: booking.status ?? 'inprogress' }}
@@ -426,7 +386,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
             title: "Activity Vouchers",
             totalVouchers: activityVouchers?.length ?? 0,
             locked: booking.includes?.activities ? false : true,
-            statusCount: getStatusesCount(activityVouchers),
+            statusCount: getStatusesCount(activityVouchers ?? []),
           }}
             pathname={pathname}
             booking={{ id: booking.id, status: booking.status ?? 'inprogress' }}
@@ -436,41 +396,13 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
             title: "Shop Vouchers",
             totalVouchers: shopVouchers?.length ?? 0,
             locked: booking.includes?.shops ? false : true,
-            statusCount: getStatusesCount(shopVouchers),
+            statusCount: getStatusesCount(shopVouchers ?? []),
           }}
             pathname={pathname}
             booking={{ id: booking.id, status: booking.status ?? 'inprogress' }}
           />
         </div>
       )}
-      {/* {renderCard({
-        title: "Restaurants",
-        totalVouchers: restaurantVouchers?.length ?? 0,
-        done: 0,
-        locked: booking.includes?.restaurants ? false : true,
-        statusCount: getStatusesCount(restaurantVouchers),
-      })}
-      {renderCard({
-        title: "Transport",
-        totalVouchers: transportVouchers?.length ?? 0,
-        done: 0,
-        locked: booking.includes?.transport ? false : true,
-        statusCount: getStatusesCount(transportVouchers),
-      })}
-      {renderCard({
-        title: "Activities",
-        totalVouchers: activityVouchers?.length ?? 0,
-        done: 0,
-        locked: booking.includes?.activities ? false : true,
-        statusCount: getStatusesCount(activityVouchers),
-      })}
-      {renderCard({
-        title: "Shops",
-        totalVouchers: shopVouchers?.length ?? 0,
-        done: 0,
-        locked: booking.includes?.shops ? false : true,
-        statusCount: getStatusesCount(shopVouchers),
-      })} */}
       <div className="flex flex-row justify-stretch gap-2">
         <Button
           variant={"primaryGreen"}
