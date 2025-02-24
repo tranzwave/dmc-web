@@ -87,13 +87,14 @@ const updateVoucherStatus = async(voucher:ActivityVoucherData)=>{
 }
 
 // Use TasksTab for Activities
-const ActivitiesTasksTab = ({ bookingLineId, vouchers }: { bookingLineId: string ; vouchers:ActivityVoucherData[] }) => (
+const ActivitiesTasksTab = ({ bookingLineId, vouchers, currency }: { bookingLineId: string ; vouchers:ActivityVoucherData[], currency:string }) => (
   <ActivityVouchersTasksTab
     bookingLineId={bookingLineId}
     voucherColumns={activityColumns}
     selectedVoucherColumns={activityVoucherLineColumns}
     vouchers={vouchers}
     updateVoucherLine={updateVoucherLine}
+    currency={currency}
     // updateVoucherStatus={updateVoucherStatus}
   />
 );

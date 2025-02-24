@@ -161,6 +161,7 @@ const Page = ({ params }: { params: { id: string } }) => {
                 <ActivitiesTasksTab
                   bookingLineId={params.id}
                   vouchers={bookingLine?.activityVouchers ?? []}
+                  currency={voucherSettings?.activityVoucherCurrency ?? ""}
                 />
               </TabsContent>
               <TabsContent value="transport">

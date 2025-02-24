@@ -271,36 +271,42 @@ const ShopVouchersTasksTab = ({
                     )}
                     size="small"
                   />
-                  <DeletePopup
-                    itemName={`Voucher for ${selectedVoucher?.shop.name}`}
-                    onDelete={() => {
-                      console.log("Deleting");
-                    }}
-                    isOpen={isInprogressVoucherDelete}
-                    setIsOpen={setIsInProgressVoucherDelete}
-                    isDeleting={isDeleting}
-                    description="You haven't sent this to the vendor yet. You can delete the
-                voucher without sending a cancellation voucher"
-                  />
-                  <DeletePopup
-                    itemName={`Voucher for ${selectedVoucher?.shop.name}`}
-                    onDelete={() => {
-                      console.log("Deleting");
-                    }}
-                    isOpen={isProceededVoucherDelete}
-                    setIsOpen={setIsProceededVoucherDelete}
-                    isDeleting={isDeleting}
-                    description={`You have already proceeded with this voucher, and it's in the status of ${selectedVoucher.status} \n
-                Are you sure you want to cancel this voucher? This will give you the cancellation voucher and delete the voucher from this booking`}
-                  />
+
                 </div>
               ) : (
-                ""
+                null
               )}
               <Button variant={"primaryGreen"} onClick={handleConfirm} disabled={isConfirming}>
                 Confirm Shop
               </Button>
             </div>
+            {selectedVoucher && (
+              <div>
+                <DeletePopup
+                itemName={`Voucher for ${selectedVoucher?.shop.name}`}
+                onDelete={() => {
+                  console.log("Deleting");
+                }}
+                isOpen={isInprogressVoucherDelete}
+                setIsOpen={setIsInProgressVoucherDelete}
+                isDeleting={isDeleting}
+                description="You haven't sent this to the vendor yet. You can delete the
+            voucher without sending a cancellation voucher"
+              />
+              <DeletePopup
+                itemName={`Voucher for ${selectedVoucher?.shop.name}`}
+                onDelete={() => {
+                  console.log("Deleting");
+                }}
+                isOpen={isProceededVoucherDelete}
+                setIsOpen={setIsProceededVoucherDelete}
+                isDeleting={isDeleting}
+                description={`You have already proceeded with this voucher, and it's in the status of ${selectedVoucher.status} \n
+            Are you sure you want to cancel this voucher? This will give you the cancellation voucher and delete the voucher from this booking`}
+              />
+              </div>
+            )}
+            
           </div>
         </div>
       </div>

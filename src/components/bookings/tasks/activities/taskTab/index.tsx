@@ -38,6 +38,7 @@ interface TasksTabProps {
     },
   ) => Promise<void>;
   contactDetails?: { phone: string; email: string };
+  currency: string;
   // columns: ColumnDef<ActivityVoucherData>[]; // Ensure to use the correct type
 }
 
@@ -47,6 +48,7 @@ const ActivityVouchersTab = ({
   selectedVoucherColumns,
   vouchers,
   updateVoucherLine,
+  currency
 }: TasksTabProps) => {
   const [selectedVoucher, setSelectedVoucher] = useState<ActivityVoucherData>();
   const [rate, setRate] = useState<string | number>(0);
@@ -244,11 +246,11 @@ const ActivityVouchersTab = ({
           <div className="flex justify-between">
             <div className="card-title">Voucher Information</div>
             {!isBookingCancelled && (
-            <Link
-              href={`${pathname.replace("/tasks", "")}/edit?tab=activities`}
-            >
-              <Button variant={"outline"}>Add Vouchers</Button>
-            </Link>
+              <Link
+                href={`${pathname.replace("/tasks", "")}/edit?tab=activities`}
+              >
+                <Button variant={"outline"}>Add Vouchers</Button>
+              </Link>
             )}
           </div>
           <div className="text-sm font-normal">
@@ -273,25 +275,6 @@ const ActivityVouchersTab = ({
                 ? `${selectedVoucher.activityVendor.name} - Voucher`
                 : "Select a voucher from above table"}
             </div>
-
-            <Popup
-              title={"Activities by Date"}
-              description="Please click on preview button to get the document"
-              trigger={
-                <Button variant={"primaryGreen"}>Activities by Dates</Button>
-              }
-              onConfirm={handleConfirm}
-              onCancel={() => console.log("Cancelled")}
-              dialogContent={
-                <ProceedContent
-                  voucherColumns={voucherColumns}
-                  vouchers={vouchers}
-                  setStatusChanged={setStatusChanged}
-                  bookingName={bookingName}
-                />
-              }
-              size="large"
-            />
           </div>
 
           <DataTable
@@ -299,15 +282,6 @@ const ActivityVouchersTab = ({
             data={selectedVoucher ? [selectedVoucher] : []}
             onRowClick={() => console.log("Row clicked")}
           />
-
-          {/* <DataTableWithActions
-            columns={voucherColumns}
-            data={selectedVoucher ? [selectedVoucher] : []}
-            onRowClick={() => console.log("Row clicked")}
-            onView={() => alert("View action triggered")}
-            onEdit={() => alert("Edit action triggered")}
-            onDelete={() => alert("Delete action triggered")}
-          /> */}
           <div
             className={`flex flex-row items-end justify-end ${!selectedVoucher ? "hidden" : ""}`}
           >
@@ -350,48 +324,72 @@ const ActivityVouchersTab = ({
                     )}
                     size="small"
                   />
-                  <DeletePopup
-                    itemName={`Voucher for ${selectedVoucher?.activityVendor.name}`}
-                    onDelete={handleInProgressVoucherDelete}
-                    isOpen={isInProgressVoucherDelete}
-                    setIsOpen={setIsInProgressVoucherDelete}
-                    isDeleting={isDeleting}
-                    description="You haven't sent this to the vendor yet. You can delete the
-                voucher without sending a cancellation voucher"
-                  />
-                  <DeleteReasonPopup
-                    itemName={`Voucher for ${selectedVoucher?.activityVendor.name}`}
-                    onDelete={handleProceededVoucherDelete}
-                    isOpen={isProceededVoucherDelete}
-                    setIsOpen={setIsProceededVoucherDelete}
-                    isDeleting={isDeleting}
-                    description={`You have already proceeded with this voucher, and it's in the status of ${selectedVoucher.status} \n
-                Are you sure you want to cancel this voucher?`}
-                  />
-
-                  <CancellationReasonPopup
-                    itemName={`Voucher for ${selectedVoucher?.activityVendor.name}`}
-                    cancellationReason={
-                      selectedVoucher?.reasonToDelete ?? "No reason provided. This is cancelled before confirm."
+                  <Popup
+                    title={"Excursion Receipt"}
+                    description="Please click on preview button to get the document"
+                    trigger={
+                      <Button variant={"primaryGreen"}>Excursion Receipt</Button>
                     }
-                    isOpen={isVoucherDelete}
-                    setIsOpen={setIsVoucherDelete}
+                    onConfirm={handleConfirm}
+                    onCancel={() => console.log("Cancelled")}
+                    dialogContent={
+                      <ProceedContent
+                        voucherColumns={voucherColumns}
+                        vouchers={vouchers.filter(v => v.id === selectedVoucher.id)}
+                        setStatusChanged={setStatusChanged}
+                        bookingName={bookingName}
+                        currency={currency}
+                        bookingLineId={bookingLineId}
+                      />
+                    }
+                    size="large"
                   />
                 </div>
               ) : (
-                ""
+                null
               )}
-              {!isBookingCancelled && (
-              <Button
-                variant={"primaryGreen"}
-                onClick={handleConfirm}
-                disabled={isConfirming}
-              >
-                Confirm Activity
-              </Button>
+              {!isBookingCancelled && selectedVoucher?.status !== "cancelled" && (
+                <Button
+                  variant={"primaryGreen"}
+                  onClick={handleConfirm}
+                  disabled={isConfirming}
+                >
+                  Confirm Activity
+                </Button>
               )}
+
             </div>
           </div>
+          {selectedVoucher && (
+            <div>
+              <CancellationReasonPopup
+                itemName={`Voucher for ${selectedVoucher?.activityVendor.name}`}
+                cancellationReason={
+                  selectedVoucher?.reasonToDelete ?? "No reason provided. This is cancelled before confirm."
+                }
+                isOpen={isVoucherDelete}
+                setIsOpen={setIsVoucherDelete}
+              />
+              <DeletePopup
+                itemName={`Voucher for ${selectedVoucher?.activityVendor.name}`}
+                onDelete={handleInProgressVoucherDelete}
+                isOpen={isInProgressVoucherDelete}
+                setIsOpen={setIsInProgressVoucherDelete}
+                isDeleting={isDeleting}
+                description="You haven't sent this to the vendor yet. You can delete the
+                voucher without sending a cancellation voucher"
+              />
+              <DeleteReasonPopup
+                itemName={`Voucher for ${selectedVoucher?.activityVendor.name}`}
+                onDelete={handleProceededVoucherDelete}
+                isOpen={isProceededVoucherDelete}
+                setIsOpen={setIsProceededVoucherDelete}
+                isDeleting={isDeleting}
+                description={`You have already proceeded with this voucher, and it's in the status of ${selectedVoucher.status} \n
+                Are you sure you want to cancel this voucher?`}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -405,13 +403,17 @@ interface ProceedContentProps {
   vouchers: ActivityVoucherData[];
   setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
   bookingName: string;
+  currency: string;
+  bookingLineId: string;
 }
 
 const ProceedContent: React.FC<ProceedContentProps> = ({
   voucherColumns,
   vouchers,
   setStatusChanged,
-  bookingName
+  bookingName,
+  currency,
+  bookingLineId
 }) => {
   const componentRef = useRef<HTMLDivElement>(null);
 
@@ -427,18 +429,20 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   return (
     <div className="mb-9 space-y-6">
       <div className="flex flex-row justify-end">
-        {organization && user && (
+        {organization && user && vouchers[0] && (
           <VoucherButton voucherComponent={
             <div>
-              <ActivityVoucherPDF vouchers={vouchers} bookingName={bookingName} organization={organization} user={user as UserResource} />
+              <ActivityVoucherPDF vouchers={vouchers} bookingName={bookingName} organization={organization} user={user as UserResource} currency={currency}/>
             </div>
-          } />
+          } 
+          title={`${bookingLineId}-Excursion Receipt-${vouchers[0].activityVendor.name}-${vouchers[0].status === 'cancelled' ? 'Cancelled' : ''}`}
+          />
 
         )}
       </div>
       <div ref={componentRef}>
         {organization && user && (
-          <ActivityVoucherPDF vouchers={vouchers} bookingName={bookingName} organization={organization} user={user as UserResource} />
+          <ActivityVoucherPDF vouchers={vouchers} bookingName={bookingName} organization={organization} user={user as UserResource} currency={currency}/>
         )}
       </div>
       <div className="flex w-full flex-row justify-end gap-2"></div>

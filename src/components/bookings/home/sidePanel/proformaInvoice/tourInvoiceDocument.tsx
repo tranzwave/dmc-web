@@ -22,6 +22,9 @@ const TourInvoicePDF = ({ organization, user, bookingData }: TourInvoiceDocument
   console.log(bookingData.tourPacket)
 
   const invoiceTotal = bookingData.tourInvoice?.entries.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
+  const depositPayment = Number(bookingData.tourInvoice?.invoiceDetails.depositPayment ?? 0);
+  const bankCharges = Number(bookingData.tourInvoice?.invoiceDetails.bankCharges ?? 0);
+
 
   const [bankDetails, setBankDetails] = useState<BankDetails | null>(organization.publicMetadata.bankDetails as BankDetails);
 
@@ -72,8 +75,8 @@ const TourInvoicePDF = ({ organization, user, bookingData }: TourInvoiceDocument
             </div>
             <div>
                 <div>Invoice Total: {`${bookingData.tourInvoice?.invoiceDetails.currency} ${invoiceTotal.toFixed(2)}`} </div>
-                <div>Total Amount Due: {`${bookingData.tourInvoice?.invoiceDetails.currency} ${(invoiceTotal - (Number(bookingData.tourInvoice?.invoiceDetails.depositPayment) ?? 0)).toFixed(2)}`} </div>
                 <div>Bank Charges: {`${bookingData.tourInvoice?.invoiceDetails.currency} ${Number(bookingData.tourInvoice?.invoiceDetails.bankCharges ?? 0).toFixed(2)}`}</div>
+                <div>Total Amount Due: {`${bookingData.tourInvoice?.invoiceDetails.currency} ${((invoiceTotal + bankCharges) - depositPayment).toFixed(2)}`} </div>
             </div>
         </div>
         <div className="mt-4 text-[13px]">

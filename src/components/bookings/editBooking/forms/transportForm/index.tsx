@@ -37,6 +37,9 @@ import { columns, Transport } from "./columns";
 import TransportForm from "./transportsForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import OtherTransportTab from "./otherTransportTab";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "~/components/ui/dialog";
+import { set } from "date-fns";
+
 
 type DriverWithoutVehiclesAndLanguages = Omit<
   DriverData,
@@ -83,6 +86,8 @@ const TransportTab = () => {
   const { deleteTransportVouchers, updateTriggerRefetch } = useEditBooking();
   const pathname = usePathname();
   const bookingLineId = pathname.split("/")[3];
+  const [showAddTypeModal, setShowAddTypeModal] = useState(false);
+  const [selectedTransportToAdd, setSelectedTransportToAdd] = useState<DriverData | GuideData | null>(null);
 
   const fetchData = async () => {
     try {
@@ -130,14 +135,26 @@ const TransportTab = () => {
       };
     }
     fetchData();
-  }, []);
+  }, [bookingDetails]);
 
   const handleRowClick = (type: DriverData | GuideData) => {
+    setSelectedTransportToAdd(type);
+    setShowAddTypeModal(true);
+  };
+
+  const handleAddTransport = () => {
+    if(!selectedTransportToAdd) {
+      console.error("No transport selected to add");
+      return;
+    }
+    const type = selectedTransportToAdd;
+
+    console.log("Selected Transport to Add: ", type);
     const {
       vehicles,
       languages,
       ...driverOrGuideWithoutExtraFields
-    }: DriverWithoutVehiclesAndLanguages | GuideWithoutLanguages | any = type;
+    }: DriverWithoutVehiclesAndLanguages | GuideWithoutLanguages | any = selectedTransportToAdd;
 
     if (searchDetails) {
       const isDriver = "vehicles" in type; // Check if the type is a driver
@@ -176,8 +193,13 @@ const TransportTab = () => {
           }
           : undefined,
       });
+
     }
-  };
+
+
+    setShowAddTypeModal(false);
+
+  }
 
   const updateSearchData = (transport: Transport) => {
     setSearchDetails(transport);
@@ -455,7 +477,7 @@ const TransportTab = () => {
               <div className="w-full">
                 <DataTableWithActions
                   columns={columns}
-                  data={bookingDetails.transport.filter(t => t.otherTransport === null && t.voucher.status !== "cancelled")}
+                  data={bookingDetails.transport.filter(t => (t.otherTransport === null || t.otherTransport === undefined) && t.voucher.status !== "cancelled")}
                   onEdit={() => {
                     console.log("edit");
                   }}
@@ -490,10 +512,12 @@ const TransportTab = () => {
           </TabsContent>
           <TabsContent value="otherTransport" className="px-0">
             <div>
-            <OtherTransportTab />
+              <OtherTransportTab />
             </div>
           </TabsContent>
         </Tabs>
+
+
       </div>
 
       {selectedVoucher && (selectedVoucher.driver ?? selectedVoucher?.guide) && (
@@ -513,10 +537,31 @@ const TransportTab = () => {
             setIsOpen={setIsExistingVoucherDelete}
             isDeleting={isDeleting}
           />
-        
+
         </>
-          )
-        }
+      )
+      }
+
+
+      <Dialog open={showAddTypeModal} onOpenChange={setShowAddTypeModal} >
+        <DialogContent className="max-w-fit max-h-[90%] overflow-y-scroll">
+          <DialogHeader>
+            <DialogTitle>Add Driver/Guide</DialogTitle>
+            <DialogDescription>
+              This action will select this driver or this booking
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="text-[14px]">
+              Are you sure you want to add this driver/guide to this booking?
+            </div>
+            <div className="flex flex-row justify-end gap-2">
+              <Button variant="primaryGreen" onClick={handleAddTransport}>Add</Button>
+              <Button variant="destructive" onClick={() => setShowAddTypeModal(false)}>Close</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );

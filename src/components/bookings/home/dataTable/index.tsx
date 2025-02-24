@@ -49,8 +49,8 @@ export function DataTable<TData, TValue>({
       setExpandedRow((prevExpandedRow) =>
         prevExpandedRow === row ? null : row
       );
-      onRowClick?.(row); // Trigger the onRowClick handler if provided
     }
+    onRowClick?.(row); // Trigger the onRowClick handler if provided
     setInternalSelectedRow(row);
 
   };
@@ -88,10 +88,10 @@ export function DataTable<TData, TValue>({
                     // Remove background color from other rows
                     const rows = e.currentTarget.parentElement?.children;
                     if (rows) {
-                    for (let i = 0; i < rows.length; i++) {
-                      if (rows[i] && rows[i] !== e.currentTarget) {
-                      rows[i]?.classList.remove(highlightBgColor);
-                      rows[i]?.classList.remove(highlightHoverBgColor);
+                    for (const rowElement of rows) {
+                      if (rowElement && rowElement !== e.currentTarget) {
+                        rowElement.classList.remove(highlightBgColor);
+                        rowElement.classList.remove(highlightHoverBgColor);
                       }
                     }
                     }
