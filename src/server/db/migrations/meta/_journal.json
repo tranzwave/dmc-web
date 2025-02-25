@@ -393,6 +393,13 @@
       "when": 1740327476388,
       "tag": "0053_tan_scream",
       "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "6",
+      "when": 1740420131476,
+      "tag": "0054_dapper_gorilla_man",
+      "breakpoints": true
     }
   ]
 }

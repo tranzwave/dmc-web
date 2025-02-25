@@ -1,4 +1,4 @@
-import { activity, activityType, activityVendor, activityVoucher, agent, booking, bookingAgent, bookingLine, city, client, country, driver, driverLanguage, driverVehicle, driverVoucherLine, guide, guideLanguage, guideVoucherLine, hotel, hotelRoom, hotelStaff, hotelVoucher, hotelVoucherLine, language, marketingTeam, otherTransport, otherTransportVoucherLine, restaurant, restaurantMeal, restaurantVoucher, restaurantVoucherLine, shop, shopShopType, shopType, shopVoucher, tenant, transportVoucher, user, vehicle } from './schema';
+import { activity, activityType, activityVendor, activityVoucher, agent, booking, bookingAgent, bookingLine, city, client, country, driver, driverLanguage, driverVehicle, driverVoucherLine, guide, guideLanguage, guideVoucherLine, hotel, hotelRoom, hotelStaff, hotelVoucher, hotelVoucherLine, language, marketingTeam, notification, otherTransport, otherTransportVoucherLine, restaurant, restaurantMeal, restaurantVoucher, restaurantVoucherLine, shop, shopShopType, shopType, shopVoucher, tenant, transportVoucher, user, vehicle } from './schema';
 
 //Country Types
 export type InsertCountry = typeof country.$inferInsert;
@@ -155,5 +155,9 @@ export type SelectActivityVoucher = typeof activityVoucher.$inferSelect;
 // Marketing Team
 export type InsertMarketingTeam = typeof marketingTeam.$inferInsert;
 export type SelectMarketingTeam = typeof marketingTeam.$inferSelect;
+
+//Notification
+export type InsertNotification = typeof notification.$inferInsert;
+export type SelectNotification = typeof notification.$inferSelect;
 
 

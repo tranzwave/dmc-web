@@ -940,12 +940,46 @@ export const marketingTeam = createTable("marketing_teams", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
+//Notifications
+export const notification = createTable("notifications", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  tenantId: varchar("tenant_id", { length: 255 })
+    .references(() => tenant.id, { onDelete: "cascade" })
+    .notNull(),
+    targetUser: varchar("target_user", { length: 255 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  pathname: varchar("pathname", { length: 255 }).notNull(),
+  isRead: boolean("is_read").default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
 export const tenantRelations = relations(tenant, ({ one, many }) => ({
   booking: many(booking),
   client: many(client),
   agent: many(agent),
   coordinator: many(user),
   marketingTeam: many(marketingTeam),
+  notification: many(notification),
+}));
+
+export const notificationRelations = relations(notification, ({ one }) => ({
+  tenant: one(tenant, {
+    fields: [notification.tenantId],
+    references: [tenant.id],
+  }),
+}));
+
+export const marketingTeamRelations = relations(marketingTeam, ({ one, many }) => ({
+  tenant: one(tenant, {
+    fields: [marketingTeam.tenantId],
+    references: [tenant.id],
+  }),
+  booking: many(booking),
 }));
 
 export const subscriptionRelations = relations(subscription, ({ one }) => ({

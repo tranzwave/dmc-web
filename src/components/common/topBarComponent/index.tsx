@@ -21,6 +21,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { toast } from "~/hooks/use-toast";
 import { ClerkOrganizationPublicMetadata } from "~/lib/types/payment";
 import CustomPage from "./customInfoPage";
+import NotificationModalTrigger from "./notifications/modalTrigger";
 
 // TopBar component
 const TopBar = () => {
@@ -40,8 +41,6 @@ const TopBar = () => {
       })
     }
   }
-
-  console.log("User profile page", UserButton.UserProfilePage)
   return (
     <div className="w-full h-full flex items-center">
       <div className="flex w-full flex-row items-center justify-between p-4">
@@ -66,7 +65,7 @@ const TopBar = () => {
           <div className="flex flex-row items-center gap-3">
             <Info size={20} color="#697077" className="cursor-pointer" />
             <Settings size={20} color="#697077" className="cursor-pointer" onClick={handleSettingsOnClick} />
-            <Bell size={20} color="#697077" className="cursor-pointer" />
+            <NotificationModalTrigger />
           </div>
           <SignedIn>
             <div className="flex flex-row gap-3">
