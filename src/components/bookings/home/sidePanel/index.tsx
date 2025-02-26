@@ -281,8 +281,9 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
       <div className="flex flex-row justify-stretch gap-2">
         <Button
           variant={"primaryGreen"}
-          onClick={onTourPacketClick}
+          // onClick={onTourPacketClick}
           className="w-full"
+          disabled
         >Tour Packet - Check List</Button>
         {/* <Button
           variant={"primaryGreen"}
@@ -290,14 +291,20 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
           className="w-full"
         >Proforma Invoice</Button> */}
         <div className="w-full">
-          <TourInvoiceModalTrigger bookingData={booking} />
+        <Button
+          variant={"primaryGreen"}
+          // onClick={onTourPacketClick}
+          className="w-full"
+          disabled
+        >Tout Invoice</Button>
         </div>
 
         {orgRole === 'org:admin' && (
           <Button
             variant={"destructive"}
-            onClick={onCancelBooking}
+            // onClick={onCancelBooking}
             className="w-full"
+            disabled
           >Cancel Booking</Button>
         )}
 
@@ -329,7 +336,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
             <div>
               {booking.booking.marketingTeam ? (
                 <Badge variant="default" className={`bg-primary-orange ${orgRole === 'org:admin' ? 'hover:cursor-pointer' : ''} text-[10px] 2xl:text-[13px]`}
-                  onClick={orgRole === 'org:admin' ? () => setIsAssignTeamModalOpen(true) : () => { console.log("") }}
+                  // onClick={orgRole === 'org:admin' ? () => setIsAssignTeamModalOpen(true) : () => { console.log("") }}
                 >{booking.booking.marketingTeam.name}</Badge>
               ) : (
                 <>
@@ -360,6 +367,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
           }}
             pathname={pathname}
             booking={{ id: booking.id, status: booking.status ?? 'inprogress' }}
+            tab="hotels"
           />
 
           <RenderCard category={{
@@ -370,6 +378,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
           }}
             pathname={pathname}
             booking={{ id: booking.id, status: booking.status ?? 'inprogress' }}
+            tab="restaurants"
           />
 
           <RenderCard category={{
@@ -380,6 +389,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
           }}
             pathname={pathname}
             booking={{ id: booking.id, status: booking.status ?? 'inprogress' }}
+            tab="transport"
           />
 
           <RenderCard category={{
@@ -390,6 +400,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
           }}
             pathname={pathname}
             booking={{ id: booking.id, status: booking.status ?? 'inprogress' }}
+            tab="activities"
           />
 
           <RenderCard category={{
@@ -400,6 +411,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
           }}
             pathname={pathname}
             booking={{ id: booking.id, status: booking.status ?? 'inprogress' }}
+            tab="shops"
           />
         </div>
       )}
@@ -418,7 +430,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
           <TourInvoiceModalTrigger bookingData={booking} />
         </div>
 
-        {orgRole === 'org:admin' && (
+        {orgRole === 'org:admin' && booking.status !== "cancelled" && (
           <Button
             variant={"destructive"}
             onClick={onCancelBooking}

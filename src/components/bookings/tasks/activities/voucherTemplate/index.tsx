@@ -40,7 +40,7 @@ const ActivityVoucherPDF = ({ vouchers, cancellation, bookingName, organization,
               Nationality : {Country.getCountryByCode(vouchers[0]?.bookingLineId.split("-")[1]?.split("-")[0] ?? "")?.name}
             </div>
             <div>Pax : {`Adults - ${vouchers[0].adultsCount ?? "N/A"} | Kids - ${vouchers[0].kidsCount ?? "N/A"}`}</div>
-            <div>Date : {vouchers[0].date} </div>
+            <div>Date : {formatDate(vouchers[0].date)} </div>
             <div>Currency: {currency} </div>
           </div>
         </div>
@@ -71,6 +71,15 @@ const ActivityVoucherPDF = ({ vouchers, cancellation, bookingName, organization,
               })}
             </tbody>
           </table>
+        </div>
+
+        <div className="mt-10 text-[13px]">
+          <div>
+            Billing Instructions : {vouchers[0]?.billingInstructions ?? "N/A"}
+          </div>
+          <div>
+          Other Instructions : {vouchers[0]?.otherInstructions ?? "N/A"}
+          </div>
         </div>
 
         <div className="mt-10 text-[13px]">

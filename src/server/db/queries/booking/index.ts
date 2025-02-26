@@ -19,6 +19,8 @@ import {
   guideVoucherLine,
   hotelVoucher,
   hotelVoucherLine,
+  marketingTeam,
+  notification,
   otherTransportVoucherLine,
   restaurantVoucher,
   restaurantVoucherLine,
@@ -39,34 +41,11 @@ import {
 } from "../../schemaTypes";
 import { TourExpense, TourPacket } from "~/lib/types/booking";
 import { TransportVoucher } from "~/app/dashboard/bookings/[id]/edit/context";
+import { getUserById } from "~/server/auth";
 
 export const getAllBookings = () => {
   return db.query.booking.findMany();
 };
-
-//TODO: Add tenant validation
-// export const getAllBookingLines = async (orgId: string, enrolledTeams:string[]) => {
-//   return await db.query.bookingLine.findMany({
-//     where: and(
-//       inArray(
-//         bookingLine.bookingId, // Assuming bookingLine has a foreign key bookingId
-//         db
-//           .select({ id: booking.id })
-//           .from(booking)
-//           .where(eq(booking.tenantId, orgId)),
-//       ),
-//       inArray(booking.marketingTeamId, enrolledTeams)
-//     ),
-//     with: {
-//       booking: {
-//         with: {
-//           client: true,
-//           marketingTeam: true,
-//         },
-//       },
-//     },
-//   });
-// };
 
 export const getAllBookingLines = async (orgId: string, enrolledTeams: string[], isSuperAdmin: boolean) => {
   // If the user is a super admin, return all bookings without filtering
@@ -344,10 +323,32 @@ export const createNewBooking = async (
         },
       };
 
-      const lineId = await createBookingLineTx(tx, newBookingLineGeneral);
+      const newBookingLine = await createBookingLineTx(tx, newBookingLineGeneral);
 
-      if (!lineId) {
+      if(!newBookingLine) {
         throw new Error("Couldn't add new booking line");
+      }
+
+      const lineId = newBookingLine.id
+
+      if(bookingDetails.general.marketingTeam){
+
+        const marketingTeamExist = await tx.query.marketingTeam.findFirst({
+          where: eq(marketingTeam.id, bookingDetails.general.marketingTeam),
+        });
+
+        if (marketingTeamExist && coordinator !== bookingDetails.general.marketingManager) {
+          const clerkUser = await getUserById(coordinator);
+
+          await createNewBookingLineNotification(
+            tx,
+            tenantId,
+            `New Booking : ${lineId}`,
+            `A new booking has been created by ${clerkUser.fullName} for ${marketingTeamExist.name} (Marketing Team)`,
+            bookingDetails.general.marketingManager,
+            `/dashboard/bookings?id=${lineId}`,
+          );
+      }
       }
 
       // Handle hotel vouchers within the transaction
@@ -412,6 +413,32 @@ export const createNewBooking = async (
     throw error;
   }
 };
+
+export const createNewBookingLineNotification = async (
+  tx: any,
+  tenantId: string,
+  title: string,
+  message: string,
+  targetUser: string,
+  pathname: string,
+) => {
+  const newNotification = await tx
+    .insert(notification)
+    .values({
+      tenantId: tenantId,
+      title: title,
+      message: message,
+      targetUser: targetUser,
+      pathname: pathname,
+    })
+    .returning();
+
+  if (!newNotification || !newNotification[0]?.id) {
+    throw new Error("Couldn't add new notification");
+  }
+
+  return newNotification[0];
+}
 
 // Transactional functions for handling each operation
 export const createClientTx = async (tx: any, data: InsertClient) => {
@@ -483,13 +510,13 @@ export const updateClient = async (
 export const createBookingLineTx = async (
   tx: any,
   data: InsertBookingLine,
-): Promise<string> => {
+): Promise<SelectBookingLine> => {
   const newBookingLine = await tx.insert(bookingLine).values(data).returning();
 
   if (!newBookingLine || !newBookingLine[0]?.id) {
     throw new Error("Couldn't add booking line");
   }
-  return newBookingLine[0].id;
+  return newBookingLine[0];
 };
 
 export const addHotelVoucherLinesToBooking = async (
@@ -1273,54 +1300,6 @@ export const insertShopVouchersTx = async (
   );
   return shopVouchers;
 };
-
-// export const addTransportVouchersToBooking = async (
-//   vouchers: TransportVoucher[],
-//   newBookingLineId: string,
-//   coordinatorId: string,
-// ) => {
-//   const result = await db.transaction(async (trx) => {
-//     try {
-//       const insertedVouchers = await insertTransportVoucherTx(trx, vouchers, newBookingLineId, coordinatorId);
-//       return insertedVouchers;
-//     } catch (error) {
-//       console.error('Error while inserting transport vouchers:', error);
-//       throw error;
-//     }
-//   });
-
-//   return result;
-// };
-
-// export const insertTransportVoucherTx = async (
-//   trx: any,
-//   vouchers: TransportVoucher[],
-//   newBookingLineId: string,
-//   coordinatorId: string,
-// ) => {
-//   const transportVouchers = await Promise.all(
-//     vouchers.map(async (currentVoucher) => {
-//       const newVoucher = await trx
-//         .insert(transportVoucher)
-//         .values({
-//           ...currentVoucher.voucher,
-//           coordinatorId: coordinatorId,
-//           bookingLineId: newBookingLineId,
-//         })
-//         .returning();
-
-//       if (!newVoucher || !newVoucher[0]?.id) {
-//         throw new Error("Couldn't add transport voucher");
-//       }
-
-//       const voucherId = newVoucher[0]?.id;
-
-//       return voucherId;
-//     }),
-//   );
-//   return transportVouchers;
-// };
-
 export const addTransportVouchersToBooking = async (
   vouchers: TransportVoucher[], // TransportVoucher should have a field to indicate type (e.g., 'guide' or 'driver')
   newBookingLineId: string,

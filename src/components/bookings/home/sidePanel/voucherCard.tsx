@@ -29,6 +29,7 @@ interface RenderCardProps {
     category?: CategoryDetails
     booking?: BookingProps
     loadingTitle?:string
+    tab?:string
     pathname: string
 }
 
@@ -41,7 +42,7 @@ const StatusBadge = ({ count, label, color }: { count: number; label: string; co
     </div>
 )
 
-export const RenderCard = ({ category, booking, pathname, loadingTitle }: RenderCardProps) => {
+export const RenderCard = ({ category, booking, pathname, loadingTitle, tab }: RenderCardProps) => {
 
     useEffect(() => {
         console.log("category", category)
@@ -84,11 +85,11 @@ export const RenderCard = ({ category, booking, pathname, loadingTitle }: Render
                     </div>
                     <div className="-mt-4 transform transition-transform duration-200 hover:scale-[1.05]">
                         {booking.status !== "cancelled" ? (
-                            <Link href={`${pathname}/${booking.id}/edit?tab=${category.title.toLowerCase().split(' ')[0]}s`}>
+                            <Link href={`${pathname}/${booking.id}/edit?tab=${tab ?? 'general'}`}>
                                 <ArrowRightCircleIcon size={28} className="text-gray-400 font-thin hover:bg-slate-200 rounded-full shadow-lg" />
                             </Link>
                         ) : (
-                            <Link href={`${pathname}/${booking.id}/tasks?tab=${category.title.toLowerCase().split(' ')[0]}s`}>
+                            <Link href={`${pathname}/${booking.id}/tasks?tab=${tab ?? 'general'}`}>
                                 <ArrowRightCircleIcon size={28} className="text-gray-400 font-thin hover:bg-slate-200 rounded-full shadow-lg" />
                             </Link>
                         )}

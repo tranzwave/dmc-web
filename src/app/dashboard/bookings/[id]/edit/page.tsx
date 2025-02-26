@@ -14,6 +14,11 @@ import TitleBar from "~/components/common/titleBar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { getBookingLineWithAllData } from "~/server/db/queries/booking";
 import { EditBookingProvider, TransportVoucher, useEditBooking } from "./context";
+import { PartialClerkUser } from '~/lib/types/marketingTeam';
+import { useOrganization } from '@clerk/nextjs';
+import { SelectMarketingTeam } from '~/server/db/schemaTypes';
+import { getAllClerkUsersByOrgId } from '~/server/auth';
+import { getAllMarketingTeams } from '~/server/db/queries/marketingTeams';
 
 const EditBooking = ({ id }: { id: string }) => {
   const pathname = usePathname();
@@ -42,6 +47,10 @@ const EditBooking = ({ id }: { id: string }) => {
   const [error, setError] = useState<string | null>(null);
   const [isGeneralDetailsSet, setIsGeneralDetailsSet] = useState<boolean>(false);
   const [isBookingCancelled, setIsBookingCancelled] = useState<boolean>(false);
+  const [allUsers, setAllUsers] = useState<PartialClerkUser[]>([]);
+  const {organization, isLoaded } = useOrganization();
+  const [marketingTeams, setMarketingTeams] = useState<SelectMarketingTeam[]>([]);
+  
   const router = useRouter()
 
   const fetchBookingLine = async ()=>{
@@ -83,7 +92,7 @@ const EditBooking = ({ id }: { id: string }) => {
                 transport:general.includes?.transport ?? false
             },
             marketingManager:booking.managerId,
-            marketingTeam:booking.marketingTeamId ?? null,
+            marketingTeam:booking.marketingTeamId ?? undefined,
             numberOfDays:7,
             tourType:booking.tourType
         })
@@ -208,6 +217,29 @@ const EditBooking = ({ id }: { id: string }) => {
   }
 
   useEffect(() => {
+    const fetchAllUsers = async () => {
+      setLoading(true);
+      try {
+        // Fetch all users
+        if(!organization){
+          return
+        }
+        const users = await getAllClerkUsersByOrgId(organization.id);
+        setAllUsers(users);
+        const marketingTeamsResponse = await getAllMarketingTeams(organization.id);
+        setMarketingTeams(marketingTeamsResponse);
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        setLoading(false);
+      }
+    }
+    console.log("Add Booking Component");
+    fetchAllUsers();
+  }, [organization]);
+
+  useEffect(() => {
     const tab = searchParams.get("tab")
     console.log("Add Booking Component");
     fetchBookingLine()
@@ -215,10 +247,8 @@ const EditBooking = ({ id }: { id: string }) => {
     setActiveTab(tab ?? "general")
   }, [id, triggerRefetch]);
 
-  if(loading){
-    return (
-      <LoadingLayout/>
-    )
+  if (!isLoaded || loading) {
+    return <div> <LoadingLayout/></div>
   }
 
   if(isBookingCancelled){
@@ -347,7 +377,7 @@ const EditBooking = ({ id }: { id: string }) => {
               </TabsList>
               <TabsContent value="general">
                 {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
-                {isGeneralDetailsSet ? <GeneralTab /> : <div>Loading General Details...</div>}
+                {isGeneralDetailsSet ? <GeneralTab allUsers={allUsers} marketingTeams={marketingTeams}/> : <div>Loading General Details...</div>}
               </TabsContent>
               <TabsContent value="hotels">
                 {/* <HotelsTab onAddHotel={addHotel} /> */}

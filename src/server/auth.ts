@@ -320,6 +320,16 @@ const getAllClerkUsersByOrgId = async (organizationId:string) => {
     }
 }
 
+const getUserById = async (userId: string) => {
+    try {
+        const user = await clerkClient.users.getUser(userId);
+        return user;
+    } catch (error) {
+        console.log('Error getting user:', error);
+        throw error;
+    }
+}
+
 
 export {
     updateBankDetails,
@@ -332,5 +342,6 @@ export {
     updateBulkUsersTeams,
     getUserPublicMetadata,
     getAllClerkUsersByOrgId,
-    deleteTeamFromAllUsers
+    deleteTeamFromAllUsers,
+    getUserById
 }

@@ -22,8 +22,8 @@ const isProtectedRoute = createRouteMatcher(['/dashboard/admin(.*)']);
 export default clerkMiddleware(async (auth, req: NextRequest) => {
   const { userId, sessionClaims, has, orgRole, redirectToSignIn, orgId} = auth();
 
-  console.log('Session Claims: ', sessionClaims);
-  console.log('Org ID: ', orgId);
+  // console.log('Session Claims: ', sessionClaims);
+  // console.log('Org ID: ', orgId);
 
   // Allow access to public routes
   if (isPublicRoute(req)) {
@@ -49,8 +49,8 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   if (isProtectedRoute(req)) {
     const canManage = has({ role:'org:admin' })
     const userRole = sessionClaims?.metadata?.role;
-    console.log('Role:------------------------------------------------------------------- ' , orgRole)
-    console.log('Can Manage:------------------------------------------------------------------- ' , canManage)
+    // console.log('Role:------------------------------------------------------------------- ' , orgRole)
+    // console.log('Can Manage:------------------------------------------------------------------- ' , canManage)
 
 
 

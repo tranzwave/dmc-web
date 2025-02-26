@@ -851,6 +851,9 @@ export const activityVoucher = createTable("activity_vouchers", {
   status: statusEnum("status").default("inprogress"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+
+  billingInstructions: varchar("billing_instructions", { length: 255 }),
+  otherInstructions: varchar("other_instructions", { length: 255 })
 });
 
 // Shops table
@@ -952,7 +955,7 @@ export const notification = createTable("notifications", {
     targetUser: varchar("target_user", { length: 255 }).notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   message: text("message").notNull(),
-  pathname: varchar("pathname", { length: 255 }).notNull(),
+  pathname: varchar("pathname", { length: 255 }),
   isRead: boolean("is_read").default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),

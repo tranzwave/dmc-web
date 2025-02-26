@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react";
-import { getLatestNotifications, readAllNotifications } from "~/server/db/queries/notifications";
+import { getLatestNotifications, readAllNotifications, readNotification } from "~/server/db/queries/notifications";
 import { SelectNotification } from "~/server/db/schemaTypes";
 import { useAuth } from "@clerk/nextjs";
 
@@ -28,7 +28,7 @@ export const useNotificationPolling = () => {
         };
 
         fetchNotifications(); // Fetch immediately
-        const interval = setInterval(fetchNotifications, 5000); // Poll every 5s
+        const interval = setInterval(fetchNotifications, 10000); // Poll every 5s
 
         return () => {
             isMounted = false;
@@ -47,5 +47,16 @@ export const useNotificationPolling = () => {
         }
     }
 
-    return { notifications, unreadCount, setNotifications, setUnreadCount, markAllAsRead };
+    const markAsRead = async (notificationId: string) => {
+        try {
+            if (!orgRole || !orgId || !userId) return;
+            setNotifications(prev => prev.map(n => n.id === notificationId ? { ...n, isRead: true } : n));
+            setUnreadCount(prev => prev - 1);
+            await readNotification(notificationId);
+        } catch (error) {
+            console.error("Error marking notification as read:", error);
+        }
+    }
+
+    return { notifications, unreadCount, setNotifications, setUnreadCount, markAllAsRead, markAsRead };
 };

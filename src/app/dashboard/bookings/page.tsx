@@ -3,7 +3,7 @@
 import { useAuth, useOrganization, useUser } from "@clerk/nextjs";
 import { Search } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from "react";
 import { BookingDTO, columns } from "~/components/bookings/home/columns";
 import { DataTable } from "~/components/bookings/home/dataTable";
@@ -34,6 +34,9 @@ export default function Bookings() {
   const [endDate, setEndDate] = useState<string | null>(null);
 
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  
+  
 
   const fetchBookingLines = async () => {
     console.log("Fetching Booking Data");
@@ -74,6 +77,14 @@ export default function Bookings() {
   useEffect(() => {
     fetchBookingLines();
   }, [organization, user, orgRole]);
+
+  useEffect(() => {
+    const id = searchParams.get('id');
+    if (id && id.length > 0) {
+      setSearchQuery(id);
+    }
+  }
+  , [searchParams]);
 
   const handleRowClick = (booking: BookingDTO) => {
     console.log("Selected Booking:", booking);

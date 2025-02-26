@@ -13,15 +13,16 @@ import Popup from "~/components/common/popup";
 import ContactContent from "~/components/common/tasksTab/contactContent";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
-import { useToast } from "~/hooks/use-toast";
+import { toast, useToast } from "~/hooks/use-toast";
 import { deleteActivitiesVoucher, getBookingLineWithAllData } from "~/server/db/queries/booking";
-import { updateActivityVoucherStatus } from "~/server/db/queries/booking/activityVouchers";
+import { updateActivityVoucher, updateActivityVoucherStatus } from "~/server/db/queries/booking/activityVouchers";
 import { ActivityVoucherData } from "..";
 import ActivityVoucherPDF from "../voucherTemplate";
 import { useOrganization, useUser } from "@clerk/nextjs";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import { UserResource } from "@clerk/types";
 import VoucherButton from "../../hotelsTaskTab/taskTab/VoucherButton";
+import { set } from "date-fns";
 
 interface TasksTabProps {
   bookingLineId: string;
@@ -46,7 +47,7 @@ const ActivityVouchersTab = ({
   bookingLineId,
   voucherColumns,
   selectedVoucherColumns,
-  vouchers,
+  vouchers: vouchersData,
   updateVoucherLine,
   currency
 }: TasksTabProps) => {
@@ -64,6 +65,8 @@ const ActivityVouchersTab = ({
   const [bookingName, setBookingName] = useState('');
   const [bookingLoading, setBookingLoading] = useState(false)
   const [isBookingCancelled, setIsBookingCancelled] = useState(false)
+  const [triggerRefetch, setTriggerRefetch] = useState(false);
+  const [vouchers, setVouchers] = useState<ActivityVoucherData[]>(vouchersData);
 
 
 
@@ -155,6 +158,9 @@ const ActivityVouchersTab = ({
           if (booking) {
             setBookingName(booking.booking.client.name);
             setIsBookingCancelled(booking.status === 'cancelled')
+            const selectedVoucherId = selectedVoucher?.id ?? vouchers[0]?.id
+            setVouchers(booking.activityVouchers)
+            setSelectedVoucher(booking.activityVouchers.find(v => v.id === selectedVoucherId))
           }
           setBookingLoading(false)
         } catch (error) {
@@ -165,7 +171,7 @@ const ActivityVouchersTab = ({
 
     }
     fetchBooking()
-  }, [statusChanged, vouchers]);
+  }, [statusChanged, triggerRefetch]);
 
   const getContactDetails = () => {
     if (!selectedVoucher) {
@@ -340,6 +346,7 @@ const ActivityVouchersTab = ({
                         bookingName={bookingName}
                         currency={currency}
                         bookingLineId={bookingLineId}
+                        setTriggerRefetch={()=>setTriggerRefetch(!triggerRefetch)}
                       />
                     }
                     size="large"
@@ -405,6 +412,7 @@ interface ProceedContentProps {
   bookingName: string;
   currency: string;
   bookingLineId: string;
+  setTriggerRefetch?: ()=>void;
 }
 
 const ProceedContent: React.FC<ProceedContentProps> = ({
@@ -413,12 +421,16 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   setStatusChanged,
   bookingName,
   currency,
-  bookingLineId
+  bookingLineId,
+  setTriggerRefetch
 }) => {
   const componentRef = useRef<HTMLDivElement>(null);
 
   const { organization, isLoaded: isOrgLoaded } = useOrganization();
   const { isLoaded, user } = useUser();
+  const [billingInstructions, setBillingInstructions] = useState<string>(vouchers[0]?.billingInstructions ?? "");
+  const [otherInstructions, setOtherInstructions] = useState<string>(vouchers[0]?.otherInstructions ?? "");
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   if (!isLoaded || !isOrgLoaded) {
     return (
@@ -426,8 +438,86 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
     )
   }
 
+  const handleSaveBillingInstructions = async() => {
+    // Save the billing instructions
+    try {
+      setIsSaving(true);
+      if(!vouchers[0]) {
+        throw new Error("No vouchers found")
+      }
+
+      const response = await updateActivityVoucher(vouchers[0].id, { billingInstructions, otherInstructions });
+
+      if(!response) {
+        throw new Error("Couldn't save the billing instructions");
+      }
+
+      setIsSaving(false);
+
+      toast({
+        title: "Success",
+        description: "Billing instructions saved successfully"
+      });
+      if(setTriggerRefetch){
+        setTriggerRefetch();
+      }
+
+    }
+    catch(error) {
+      console.error("Couldn't save the billing instructions", error);
+      setIsSaving(false);
+      toast({
+        title: "Uh Oh",
+        description: "Couldn't save the billing instructions"
+      });
+    }
+  }
+
   return (
     <div className="mb-9 space-y-6">
+        <div className="flex flex-col gap-3">
+          <div className="text-sm font-base">
+            Billing Instructions
+          </div>
+          <div>
+            <textarea
+              title="billing-instructions"
+              className="border rounded-md p-2 w-full text-sm"
+              value={billingInstructions}
+              onChange={(e) => setBillingInstructions(e.target.value)}
+            />
+          </div>
+
+          <div className="text-sm font-base">
+            Other Instructions
+          </div>
+          <div>
+            <textarea
+              title="billing-instructions"
+              className="border rounded-md p-2 w-full text-sm"
+              value={otherInstructions}
+              onChange={(e) => setOtherInstructions(e.target.value)}
+            />
+          </div>
+
+
+          <div className="flex flex-row justify-end items-center">
+            <Button variant={"primaryGreen"} onClick={handleSaveBillingInstructions} disabled={isSaving}>
+              {isSaving ? (
+                <div className="flex flex-row gap-2 justify-center items-center">
+                  <LoaderCircle size={16} />
+                  <div>Saving</div>
+                </div>
+              ) : "Save"}
+            </Button>
+          </div>
+        </div>
+
+      <div ref={componentRef}>
+        {organization && user && (
+          <ActivityVoucherPDF vouchers={vouchers} bookingName={bookingName} organization={organization} user={user as UserResource} currency={currency}/>
+        )}
+      </div>
       <div className="flex flex-row justify-end">
         {organization && user && vouchers[0] && (
           <VoucherButton voucherComponent={
@@ -438,11 +528,6 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
           title={`${bookingLineId}-Excursion Receipt-${vouchers[0].activityVendor.name}-${vouchers[0].status === 'cancelled' ? 'Cancelled' : ''}`}
           />
 
-        )}
-      </div>
-      <div ref={componentRef}>
-        {organization && user && (
-          <ActivityVoucherPDF vouchers={vouchers} bookingName={bookingName} organization={organization} user={user as UserResource} currency={currency}/>
         )}
       </div>
       <div className="flex w-full flex-row justify-end gap-2"></div>
