@@ -14,7 +14,7 @@ interface DataTableWithActionsProps<T> {
   data: T[];
   columns: ColumnDef<T>[];
   onRowClick: (row: T) => void;
-  onEdit: (row:T) => void;
+  onEdit?: (row:T) => void;
   onDelete?: (row:T) => void;
   onView?: () => void;
   onDuplicate?: (row:T) => void;
@@ -57,8 +57,9 @@ export const DataTableWithActions = <T extends object>({
                   </div>
                 )}
                 
-                
-                <DropdownMenuItem onSelect={() => onEdit(row.original)}>Edit</DropdownMenuItem>
+                {onEdit && (
+                  <DropdownMenuItem onSelect={() => onEdit(row.original)}>Edit</DropdownMenuItem>
+                )}
                 {onDelete && (
                   <div>
                     <DropdownMenuSeparator />

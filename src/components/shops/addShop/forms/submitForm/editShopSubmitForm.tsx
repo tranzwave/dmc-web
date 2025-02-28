@@ -2,6 +2,7 @@
 import { LoaderCircle } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { FetchedShopData } from "~/app/dashboard/shops/[id]/page";
 import { useAddShop } from "~/app/dashboard/shops/add/context";
 import { ShopData } from "~/app/dashboard/shops/page";
 import { Button } from "~/components/ui/button";
@@ -14,7 +15,7 @@ const EditShopSubmitForm = ({
   originalShopData,
 }: {
   id: string;
-  originalShopData: ShopData | null;
+  originalShopData?: FetchedShopData | null;
 }) => {
   const { shopDetails } = useAddShop();
   const [error, setError] = useState<string | null>(null);

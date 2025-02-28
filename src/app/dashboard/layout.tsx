@@ -9,7 +9,7 @@ import { OrganizationProvider } from "./context";
 import type { OrganizationResource } from "@clerk/types"; // Import OrganizationResource type
 import { CustomOrganizationSwitcher } from "~/components/orgSwitcher";
 import { TopBarFlag } from "~/components/common/topBarComponent/freeTrialFlag";
-import { ClerkOrganizationPublicMetadata } from "~/lib/types/payment";
+import { ClerkOrganizationPublicMetadata, ClerkUserPublicMetadata } from "~/lib/types/payment";
 
 export default function DashboardLayout({
   children,
@@ -33,11 +33,19 @@ export default function DashboardLayout({
       console.log(memberships);
       console.log(userInvitations);
 
+      console.log("Users public metadata is: ", user.publicMetadata);
+
       
 
       // If no memberships or multiple memberships, redirect to onboarding
-      if (memberships && memberships.length === 0 && userInvitations.data?.length === 0) {
-        router.push("/onboarding");
+      if (
+        (memberships && memberships.length === 0 && userInvitations.data?.length === 0) || 
+        (user.publicMetadata && Object.keys(user.publicMetadata).length === 0)
+      ) {
+        alert("Redirecting to onboarding");
+        if(!orgId){
+          router.push("/onboarding");
+        }
         return;
       }
 

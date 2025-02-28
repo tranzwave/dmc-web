@@ -89,18 +89,18 @@ const SubmitForm = () => {
                             <td className="border px-4 py-2 font-bold">Contact Number:</td>
                             <td className="border px-4 py-2">{activityVendorDetails.general.contactNumber}</td>
                         </tr>
-                        <tr>
+                        {/* <tr>
                             <td className="border px-4 py-2 font-bold">Street Name:</td>
                             <td className="border px-4 py-2">{activityVendorDetails.general.streetName}</td>
-                        </tr>
+                        </tr> */}
                         <tr>
-                            <td className="border px-4 py-2 font-bold">City:</td>
+                            <td className="border px-4 py-2 font-bold">Located City:</td>
                             <td className="border px-4 py-2">{activityVendorDetails.general.city?.name}</td>
                         </tr>
-                        <tr>
+                        {/* <tr>
                             <td className="border px-4 py-2 font-bold">Province:</td>
                             <td className="border px-4 py-2">{activityVendorDetails.general.province}</td>
-                        </tr>
+                        </tr> */}
                     </tbody>
                 </table>
             </div>

@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDate } from "~/lib/utils/index";
-import { SelectBooking, SelectBookingLine, SelectClient, SelectUser } from "~/server/db/schemaTypes";
+import { SelectAgent, SelectBooking, SelectBookingAgent, SelectBookingLine, SelectClient, SelectMarketingTeam, SelectUser } from "~/server/db/schemaTypes";
 import {
   Hotel,
   Utensils,
@@ -11,6 +11,9 @@ import {
   ShoppingBag,
 } from "lucide-react"; 
 import { Badge } from "~/components/ui/badge";
+import { useUser } from "@clerk/nextjs";
+import { getUserPublicMetadata } from "~/server/auth";
+import { booking } from "~/server/db/schema";
 
 export type CategoryDetails = {
     title: string;
@@ -45,8 +48,17 @@ export type CategoryDetails = {
 
 export type BookingDTO = SelectBookingLine & {
   booking:SelectBooking & {
-    client:SelectClient
+    client:SelectClient,
+    marketingTeam: SelectMarketingTeam | null,
+    bookingAgent: SelectBookingAgent & {
+      agent: SelectAgent;
+    } | null;
   },
+  currentUser?: string
+}
+
+const getRole = (row: BookingDTO) => {
+  return row.booking.managerId === row.currentUser ? "Manager" : row.booking.coordinatorId === row.currentUser ? "Coordinator" : "Team Member"
 }
 
 export const columns: ColumnDef<BookingDTO>[] = [
@@ -60,10 +72,6 @@ export const columns: ColumnDef<BookingDTO>[] = [
     accessorFn: (row) => row.booking.client.name,
   },
   // {
-  //   header: "Coordinator",
-  //   accessorFn: (row) => row.booking.coordinatorId,
-  // },
-  // {
   //   header: "Country",
   //   accessorFn: (row) => row.booking.client.country,
   // },
@@ -76,6 +84,14 @@ export const columns: ColumnDef<BookingDTO>[] = [
     accessorKey: "endDate",
     header: "End Date",
     accessorFn: (row) => formatDate(row.endDate.toString())
+  },
+  {
+    header: "Team",
+    accessorFn: (row) => row.booking.marketingTeam?.name ?? "N/A",
+  },
+  {
+    header: "Booking Role",
+    accessorFn: (row) => getRole(row),
   },
   {
     header: "Includes",
@@ -114,6 +130,7 @@ export const columns: ColumnDef<BookingDTO>[] = [
         </Badge>
       );
     },
-  },
+  }
+
 
 ];

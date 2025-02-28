@@ -1,6 +1,7 @@
 import { TransportVoucher } from "~/app/dashboard/bookings/[id]/edit/context";
+import { HotelWithRooms } from "~/components/bookings/editBooking/forms/hotelsForm";
 import { OtherTransportWithCity } from "~/components/transports/addTransport/forms/generalForm/other-transport/columns";
-import { SelectActivity, SelectActivityVendor, SelectActivityVoucher, SelectAgent, SelectBooking, SelectBookingAgent, SelectBookingLine, SelectClient, SelectDriver, SelectDriverVoucherLine, SelectGuide, SelectGuideVoucherLine, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectOtherTransport, SelectOtherTransportVoucherLine, SelectRestaurant, SelectRestaurantVoucher, SelectRestaurantVoucherLine, SelectShop, SelectShopVoucher, SelectTenant, SelectTransportVoucher } from "~/server/db/schemaTypes";
+import { SelectActivity, SelectActivityVendor, SelectActivityVoucher, SelectAgent, SelectBooking, SelectBookingAgent, SelectBookingLine, SelectClient, SelectDriver, SelectDriverVoucherLine, SelectGuide, SelectGuideVoucherLine, SelectHotel, SelectHotelVoucher, SelectHotelVoucherLine, SelectMarketingTeam, SelectOtherTransport, SelectOtherTransportVoucherLine, SelectRestaurant, SelectRestaurantVoucher, SelectRestaurantVoucherLine, SelectShop, SelectShopVoucher, SelectTenant, SelectTransportVoucher } from "~/server/db/schemaTypes";
 
 export type BookingLineWithAllData = SelectBookingLine & {
   booking: SelectBooking & {
@@ -9,9 +10,10 @@ export type BookingLineWithAllData = SelectBookingLine & {
     bookingAgent: SelectBookingAgent & {
       agent: SelectAgent;
     };
+    marketingTeam: SelectMarketingTeam | null;
   };
   hotelVouchers: Array<SelectHotelVoucher & {
-    hotel: SelectHotel;
+    hotel: HotelWithRooms;
     voucherLines: SelectHotelVoucherLine[];
   }>;
   restaurantVouchers: Array<SelectRestaurantVoucher & {

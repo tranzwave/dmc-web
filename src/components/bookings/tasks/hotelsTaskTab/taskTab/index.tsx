@@ -28,6 +28,8 @@ import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { VoucherConfirmationDetails } from "~/lib/types/booking";
 import { useOrganization } from "@clerk/nextjs";
+import { set } from "date-fns";
+import { HotelWithRooms } from "~/components/bookings/editBooking/forms/hotelsForm";
 
 
 interface TasksTabProps<T, L> {
@@ -84,7 +86,7 @@ const HotelVouchersTasksTab = <
     useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [hotels, setHotels] = useState<SelectHotel[]>([]);
+  const [hotels, setHotels] = useState<HotelWithRooms[]>([]);
   const [error, setError] = useState<string | null>();
   const deleteVoucherRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -93,6 +95,7 @@ const HotelVouchersTasksTab = <
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const {organization, isLoaded:isOrgLoaded} = useOrganization();
+  const [isBookingCancelled, setIsBookingCancelled] = useState(false);
 
   const { toast } = useToast();
 
@@ -221,9 +224,10 @@ const HotelVouchersTasksTab = <
       if (vouchers) {
         try {
           setBookingLoading(true)
-          const booking = await getBookingLineWithAllData(vouchers[0]?.bookingLineId ?? "")
+          const booking = await getBookingLineWithAllData(bookingLineId)
           if (booking) {
             setBookingName(booking.booking.client.name);
+            setIsBookingCancelled(booking.status === 'cancelled')
           }
           setBookingLoading(false)
         } catch (error) {
@@ -242,35 +246,6 @@ const HotelVouchersTasksTab = <
   if (loading || bookingLoading || !isOrgLoaded) {
     return <LoadingLayout />;
   }
-
-  // const downloadPDF = () => {
-  //   const tempContainer = deleteVoucherRef.current;
-
-  //   if (tempContainer && selectedVoucher) {
-  //     // Make the container visible
-  //     tempContainer.style.display = "block";
-
-  //     // Create a root and render the CancellationVoucher component into tempContainer
-  //     const root = createRoot(tempContainer);
-  //     root.render(<HotelVoucherView voucher={selectedVoucher} bookingName={bookingName} />);
-
-  //     const options = {
-  //       filename: `cancellation_voucher_${selectedVoucher.hotel.name}.pdf`,
-  //       jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
-  //     };
-
-  //     // Generate the PDF and then clean up
-  //     html2pdf()
-  //       .set(options)
-  //       .from(tempContainer)
-  //       .save()
-  //       .then(() => {
-  //         // Hide the container and unmount the component after PDF is generated
-  //         tempContainer.style.display = "none";
-  //         root.unmount(); // Unmount the component
-  //       });
-  //   }
-  // };
 
 
 
@@ -351,9 +326,11 @@ const HotelVouchersTasksTab = <
         <div className="card w-full space-y-6">
           <div className="flex justify-between">
             <div className="card-title">Voucher Information</div>
+            {!isBookingCancelled && (
             <Link href={`${pathname.replace("/tasks", "")}/edit?tab=hotels`}>
               <Button variant={"outline"}>Add Vouchers</Button>
             </Link>
+            )}
           </div>
           <div className="text-sm font-normal">
             Click the line to send the voucher
@@ -375,7 +352,12 @@ const HotelVouchersTasksTab = <
             columns={voucherColumns}
             data={selectedVoucher?.voucherLines ?? []}
             onRowClick={onVoucherLineRowClick}
-            onEdit={(line) => {
+            onEdit={isBookingCancelled ? (line) => {
+              toast({
+                title: "Whole Booking is cancelled",
+                description: "You can't edit this voucher",
+              });
+            } : (line) => {
               setSelectedVoucherLine(line)
               setIsEditDialogOpen(true)
             }}

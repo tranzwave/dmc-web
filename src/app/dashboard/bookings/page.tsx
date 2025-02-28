@@ -1,9 +1,9 @@
 "use client";
 
-import { useOrganization } from "@clerk/nextjs";
+import { useAuth, useOrganization, useUser } from "@clerk/nextjs";
 import { Search } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from "react";
 import { BookingDTO, columns } from "~/components/bookings/home/columns";
 import { DataTable } from "~/components/bookings/home/dataTable";
@@ -13,6 +13,7 @@ import Pagination from "~/components/common/pagination";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { ClerkUserPublicMetadata } from "~/lib/types/payment";
 import { getAllBookingLines } from "~/server/db/queries/booking";
 
 export default function Bookings() {
@@ -21,7 +22,9 @@ export default function Bookings() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { organization, isLoaded } = useOrganization();
+  const { organization, isLoaded, membership } = useOrganization();
+  const { user, isLoaded: isUserLoaded } = useUser();
+  const { orgRole, isLoaded: isAuthLoaded } = useAuth();
 
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
@@ -31,28 +34,41 @@ export default function Bookings() {
   const [endDate, setEndDate] = useState<string | null>(null);
 
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  
+  
 
   const fetchBookingLines = async () => {
+    console.log("Fetching Booking Data");
     setLoading(true);
     try {
-      const result = await getAllBookingLines(organization?.id ?? "");
+      if (!organization || !user || !orgRole) {
+        return
+      }
+      const userEnrolledTeams = (user.publicMetadata as ClerkUserPublicMetadata).teams.map((team) => team.teamId);
+      const isSuperAdmin = orgRole === "org:admin";
+      console.log("User Enrolled Teams:", userEnrolledTeams);
+      console.log("Is Super Admin:", isSuperAdmin);
+      const result = await getAllBookingLines(organization.id, userEnrolledTeams, isSuperAdmin);
       if (!result) {
         throw new Error("Couldn't find any bookings");
       }
-      
+
+      console.log("Booking Data:", result);
+
       // Ensure that 'createdAt' is cast as a Date object properly
-    const sortedResult = result.sort((a, b) => {
-      const dateA = new Date(a.createdAt);
-      const dateB = new Date(b.createdAt);
+      const sortedResult = result.sort((a, b) => {
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
 
-      return dateB.getTime() - dateA.getTime(); // Compare the timestamps
-    });
+        return dateB.getTime() - dateA.getTime(); // Compare the timestamps
+      });
 
-    setData(sortedResult);
-    setSelectedBooking(sortedResult[0]);
+      setData(sortedResult);
+      setSelectedBooking(sortedResult[0]);
       setLoading(false);
     } catch (error) {
-      console.error("Failed to fetch booking data:", error);
+      console.error("Failed to fetch booking data here here here:", error);
       setError("Failed to load data.");
       setLoading(false);
     }
@@ -60,14 +76,19 @@ export default function Bookings() {
 
   useEffect(() => {
     fetchBookingLines();
-  }, []);
+  }, [organization, user, orgRole]);
+
+  useEffect(() => {
+    const id = searchParams.get('id');
+    if (id && id.length > 0) {
+      setSearchQuery(id);
+    }
+  }
+  , [searchParams]);
 
   const handleRowClick = (booking: BookingDTO) => {
+    console.log("Selected Booking:", booking);
     setSelectedBooking(booking);
-  };
-
-  const handleCloseSidePanel = () => {
-    setSelectedBooking(null);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -82,7 +103,7 @@ export default function Bookings() {
     const bookingEndDate = booking.endDate;
 
     const matchesSearch =
-    booking.id.toString().toLowerCase().includes(searchTerm) ||
+      booking.id.toString().toLowerCase().includes(searchTerm) ||
       booking.booking.client.name.toLowerCase().includes(searchTerm);
 
     const matchesStartDate = startDate
@@ -92,16 +113,15 @@ export default function Bookings() {
       ? bookingEndDate <= parseDate(endDate)
       : true;
 
-    return matchesSearch && matchesStartDate && matchesEndDate;
-  });
+    if (!user || !membership) {
+      return matchesSearch && matchesStartDate && matchesEndDate;
+    }
+    const isUserEitherManagerOrCoordinator = orgRole ==="org:admin" || booking.booking.managerId === user.id || booking.booking.coordinatorId === user.id;
 
-  // const filteredData = data.filter((booking) => {
-  //   const searchTerm = searchQuery.toLowerCase();
-  //   return (
-  //     booking.booking.client.id.toString().includes(searchTerm) ||
-  //     booking.booking.client.name.toLowerCase().includes(searchTerm)
-  //   );
-  // });
+    const isUserMembershipEitherManagerOrCoordinator = booking.booking.managerId === membership.id || booking.booking.coordinatorId === membership.id;
+
+    return matchesSearch && matchesStartDate && matchesEndDate && (isUserEitherManagerOrCoordinator || isUserMembershipEitherManagerOrCoordinator);
+  });
 
   const startIndex = (currentPage - 1) * rowsPerPage;
   const paginatedData = filteredData.slice(
@@ -140,7 +160,7 @@ export default function Bookings() {
           </div>
 
           <div className="mb-4 flex flex-row gap-3">
-            <div className="w-[60%]">
+            <div className="w-[65%]">
               <div className="flex gap-5">
                 <div className="relative w-[40%]">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -159,7 +179,7 @@ export default function Bookings() {
                       Start Date
                     </label>
                     <input
-                    title="startDateFilter"
+                      title="startDateFilter"
                       type="date"
                       value={startDate ?? ""}
                       onChange={(e) => setStartDate(e.target.value)}
@@ -172,7 +192,7 @@ export default function Bookings() {
                       End Date
                     </label>
                     <input
-                    title="endDateFilter"
+                      title="endDateFilter"
                       type="date"
                       value={endDate ?? ""}
                       onChange={(e) => setEndDate(e.target.value)}
@@ -181,22 +201,28 @@ export default function Bookings() {
                   </div>
                 </div>
               </div>
-              <div className="mt-2">
-                <DataTable
-                  columns={columns}
-                  data={paginatedData}
-                  onRowClick={handleRowClick}
-                  selectedRow={selectedBooking ?? undefined}
-                />
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                />
-              </div>
+              {user && (
+                <div className="mt-2">
+                  <DataTable
+                    columns={columns}
+                    data={paginatedData.map((booking) => ({
+                      ...booking,
+                      currentUser: user.id,
+                    }
+                    ))}
+                    onRowClick={handleRowClick}
+                    selectedRow={selectedBooking ?? undefined}
+                  />
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
+              )}
             </div>
 
-            <div className="w-[40%]">
+            <div className="w-[35%]">
               <SidePanel
                 booking={selectedBooking ? selectedBooking : null}
               />

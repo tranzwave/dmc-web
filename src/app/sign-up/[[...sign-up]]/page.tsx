@@ -11,7 +11,7 @@ export default function SignUpPage() {
     <div className="flex h-full w-full flex-row">
       <SideHero />
       <div className="flex w-[60%] items-center bg-zinc-100 px-4 sm:justify-center">
-        <SignUp forceRedirectUrl={"/dashboard/overview"}/>
+        <SignUp forceRedirectUrl={"/onboarding"}/>
       </div>
     </div>
   );

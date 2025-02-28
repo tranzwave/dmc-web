@@ -2,8 +2,15 @@
 import { Calendar } from "~/components/ui/calendar";
 import GeneralForm from "./generalForm";
 import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
+import { PartialClerkUser } from "~/lib/types/marketingTeam";
+import { SelectMarketingTeam } from "~/server/db/schemaTypes";
 
-const GeneralTab = () => {
+interface GeneralTabProps {
+  allUsers: PartialClerkUser[];
+  marketingTeams: SelectMarketingTeam[];
+}
+
+const GeneralTab = ({allUsers, marketingTeams}: GeneralTabProps) => {
   const {bookingDetails} = useEditBooking()
   return (
     <div className="mx-4 flex flex-row justify-center gap-3">
@@ -14,7 +21,7 @@ const GeneralTab = () => {
           />
       <div className="card w-full space-y-6">
         <div className="card-title">General Information</div>
-        <GeneralForm />
+        <GeneralForm allUsers={allUsers} marketingTeams={marketingTeams} />
       </div>
     </div>
   );

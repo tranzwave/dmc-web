@@ -65,10 +65,10 @@ const shopVoucherLineColumns: ColumnDef<ShopVoucherData>[] = [
     header: "Date",
     accessorFn: (row) => formatDate(row.date),
   },
-  {
-    header: "Time",
-    accessorFn: (row) => row.time,
-  },
+  // {
+  //   header: "Time",
+  //   accessorFn: (row) => row.time,
+  // },
   {
     header: "Remarks",
     accessorFn: (row) => `${row.remarks}`,

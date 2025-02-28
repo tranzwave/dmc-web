@@ -239,8 +239,8 @@ const ActivitiesTab = () => {
       </div>
       <div className=" flex flex-row justify-center gap-2">
         <div className="w-full">
-          <DataTableWithActions columns={columns} data={bookingDetails.activities} 
-         onEdit={()=>{console.log("edit")}}
+          <DataTableWithActions columns={columns} data={bookingDetails.activities.filter(v => v.voucher?.status !== "cancelled")} 
+        //  onEdit={()=>{console.log("edit")}}
          onDelete={onDelete}
          onRowClick={() => {console.log("row");}} 
          />

@@ -1,10 +1,12 @@
 "use server"
-import { createClerkClient } from '@clerk/backend'
-import { BankDetails, PayherePaymentNotification } from '~/lib/types/payment';
+import { createClerkClient, Organization } from '@clerk/backend'
+import { BankDetails, ClerkUserPublicMetadata, PayherePaymentNotification } from '~/lib/types/payment';
 import dotenv from 'dotenv';
 import { clerkClient } from './db/db.production';
 import { packages } from '~/lib/constants';
 import { auth } from '@clerk/nextjs/server';
+import { Permissions } from '~/lib/types/global';
+import { MembersWithRoleToCheck, UserMetadataTeam } from '~/lib/types/marketingTeam';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -158,11 +160,188 @@ const getActiveOrganization: () => Promise<string> = async () => {
     }
 }
 
+const updateUserPermissions = async (userId: string, permissions: Permissions[]) => {
+    try {
+        const existingPermissions = await clerkClient.users.getUser(userId).then(res => res.publicMetadata);
+        const response = await clerkClient.users.updateUser(userId, {
+            publicMetadata: {
+                ...existingPermissions,
+                permissions: permissions
+            }
+        });
+        console.log('User permissions updated successfully: \n', response);
+        if(response){
+            return true;
+        }
+    } catch (error) {
+        console.log('Error updating user permissions:', error);
+        throw error;
+    }
+}
+
+const updateUserPublicMetadata = async (userId: string, metadata: ClerkUserPublicMetadata) => {
+    try {
+        const response = await clerkClient.users.updateUser(userId, {
+            publicMetadata: metadata
+        });
+        console.log('User public metadata updated successfully: \n', response);
+        if(response){
+            return true;
+        }
+    } catch (error) {
+        console.log('Error updating user public metadata:', error);
+        throw error;
+    }
+}
+
+const updateUsersTeams = async (userId: string, teams: UserMetadataTeam[]) => {
+    try {
+        const existingMetadata = await clerkClient.users.getUser(userId).then(res => res.publicMetadata) as ClerkUserPublicMetadata;
+        const existingTeams = existingMetadata.teams;
+        const response = await clerkClient.users.updateUser(userId, {
+            publicMetadata: {
+                ...existingMetadata,
+                teams: [...existingTeams, ...teams]
+            }
+        });
+        console.log('User teams updated successfully: \n', response);
+        if(response){
+            return true;
+        }
+    } catch (error) {
+        console.log('Error updating user teams:', error);
+        throw error;
+    }
+}
+
+const deleteTeamFromAllUsers = async (teamId: string, organizationId:string) => {
+    try {
+        const members = await clerkClient.organizations.getOrganizationMembershipList({ organizationId: organizationId }).then(res => res.data);
+        
+        for (const member of members) {
+            const clerkUser = await clerkClient.users.getUser(member.publicUserData?.userId ?? '');
+            if (!clerkUser) {
+                console.log('User not found:', member.publicUserData?.userId);
+                throw new Error('User not found');
+            }
+            const userId = member.publicUserData?.userId ?? "";
+            const existingMetadata = clerkUser.publicMetadata as ClerkUserPublicMetadata;
+            const existingTeams = existingMetadata.teams;
+            const updatedTeams = existingTeams.filter(t => t.teamId !== teamId);
+
+            const response = await clerkClient.users.updateUser(userId, {
+                publicMetadata: {
+                    ...existingMetadata,
+                    teams: updatedTeams
+                }
+            });
+            console.log('User teams updated successfully: \n', response);
+        }
+
+        return true;
+    } catch (error) {
+        console.log('Error deleting team from all users:', error);
+        throw error;
+    }
+}
+
+const updateBulkUsersTeams = async (organizationId:string, teamId:string, MembersWithRoleToCheck: MembersWithRoleToCheck) => {
+    try {
+        const members = await clerkClient.organizations.getOrganizationMembershipList({ organizationId: organizationId }).then(res => res.data);
+        
+        for (const member of members) {
+            const clerkUser = await clerkClient.users.getUser(member.publicUserData?.userId ?? '');
+            if (!clerkUser) {
+                console.log('User not found:', member.publicUserData?.userId);
+                throw new Error('User not found');
+            }
+            const userId = member.publicUserData?.userId ?? "";
+            const existingMetadata = clerkUser.publicMetadata as ClerkUserPublicMetadata;
+            const existingTeams = existingMetadata.teams;
+            const userAlreadyInTeam = existingTeams.length > 0 ? existingTeams.find(t => t.teamId === teamId) : false;
+
+            if (MembersWithRoleToCheck.members.includes(userId) && !userAlreadyInTeam) {
+                const response = await clerkClient.users.updateUser(userId, {
+                    publicMetadata: {
+                        ...existingMetadata,
+                        teams: [...existingTeams, { teamId: teamId, role: MembersWithRoleToCheck.role }]
+                    }
+                });
+                console.log('User teams updated successfully: \n', response);
+            } else if (!MembersWithRoleToCheck.members.includes(userId) && userAlreadyInTeam && userAlreadyInTeam.role === MembersWithRoleToCheck.role) {
+                const response = await clerkClient.users.updateUser(userId, {
+                    publicMetadata: {
+                        ...existingMetadata,
+                        teams: existingTeams.filter(t => t.teamId !== teamId)
+                    }
+                });
+                console.log('User teams updated successfully: \n', response);
+            } else if (MembersWithRoleToCheck.members.includes(userId) && userAlreadyInTeam && userAlreadyInTeam.role !== MembersWithRoleToCheck.role) {
+                const response = await clerkClient.users.updateUser(userId, {
+                    publicMetadata: {
+                        ...existingMetadata,
+                        teams: existingTeams.map(t => t.teamId === teamId ? { teamId: teamId, role: MembersWithRoleToCheck.role } : t)
+                    }
+                });
+                console.log('User teams updated successfully: \n', response);
+            }
+        }
+
+        return true;
+    } catch (error) {
+        console.log('Error updating bulk users teams:', error);
+        throw error;
+    }
+}
+
+const getUserPublicMetadata = async (userId: string) => {
+    try {
+        const user = await clerkClient.users.getUser(userId);
+        return user.publicMetadata as ClerkUserPublicMetadata;
+    } catch (error) {
+        console.log('Error getting user public metadata:', error);
+        throw error;
+    }
+}
+
+const getAllClerkUsersByOrgId = async (organizationId:string) => {
+    try {
+        const users = await clerkClient.users.getUserList({organizationId: [organizationId]}).then(res => res.data);
+
+        return users.map(user => ({
+            id: user.id,
+            fullName: user.firstName + ' ' + user.lastName,
+            email: user.primaryEmailAddress?.emailAddress ?? '',
+            publicMetadata: user.publicMetadata as ClerkUserPublicMetadata, // Extracting public metadata if needed
+        }));
+    } catch (error) {
+        console.log('Error getting all users:', error);
+        throw error;
+    }
+}
+
+const getUserById = async (userId: string) => {
+    try {
+        const user = await clerkClient.users.getUser(userId);
+        return user;
+    } catch (error) {
+        console.log('Error getting user:', error);
+        throw error;
+    }
+}
+
 
 export {
     updateBankDetails,
     updateSubscriptionNotificationData,
     getOrganizationSubscriptionData,
     removeSubscriptionMetadata,
-    getActiveOrganization
+    getActiveOrganization,
+    updateUserPermissions,
+    updateUserPublicMetadata,
+    updateBulkUsersTeams,
+    getUserPublicMetadata,
+    getAllClerkUsersByOrgId,
+    deleteTeamFromAllUsers,
+    getUserById
 }

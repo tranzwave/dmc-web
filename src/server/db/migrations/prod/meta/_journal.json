@@ -8,6 +8,13 @@
       "when": 1739206142597,
       "tag": "0000_funny_vampiro",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1740723471454,
+      "tag": "0001_daily_chronomancer",
+      "breakpoints": true
     }
   ]
 }

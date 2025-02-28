@@ -112,6 +112,7 @@ export const defaultGeneral: General = {
   numberOfDays: 1,
   endDate: "",
   marketingManager: "",
+  marketingTeam: "",
   agent: "",
   tourType: "",
   includes: {
@@ -243,6 +244,9 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   const addTransport = (transport: TransportVoucher) => {
     setBookingDetails(prev => ({ ...prev, transport: [...prev.transport, transport] }));
+    console.log(transport)
+    console.log("Transport added")
+    console.log(bookingDetails.transport)
   };
 
   const addTransportVouchers = (vouchers: TransportVoucher[]) => {

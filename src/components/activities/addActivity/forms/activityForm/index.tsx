@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { ActivityTypeDTO, useAddActivity } from "~/app/dashboard/activities/add/context"; // Context for adding activities
 import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 import { Button } from "~/components/ui/button";
@@ -9,6 +9,7 @@ import VendorActivityForm from "./activityForm";
 import { columns } from "./columns";
 import CityAdder from "~/components/common/cityAdder";
 import ActivityAdder from "~/components/common/activityAdder";
+import { set } from "date-fns";
 
 
 const ActivityTab = () => {
@@ -20,6 +21,7 @@ const ActivityTab = () => {
         activityVendorId:"",
         tenantId:""
       });
+      const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
     const updateActivities = (activity: InsertActivity) => {
         console.log("Adding Activity");
@@ -46,8 +48,31 @@ const ActivityTab = () => {
     
       const onRowDelete = (row: ActivityTypeDTO) => {
         alert(row.name);
-        deleteActivity(row.name, row.activityType, row.capacity);
+        setIsDeleting(true);
+        const deleted = deleteActivity(row).then((deleted) => {
+            if (deleted) {
+                console.log("Deleted");
+                // window.location.reload();
+            } else {
+                console.log("Failed to delete");
+            }
+            setIsDeleting(false);
+            setSelectedActivity({
+                name: "",
+                activityType: 0,
+                capacity: 1,
+                activityVendorId:"",
+                tenantId:""
+            })
+            
+        }
+        );
       };
+
+      useEffect(() => {
+        console.log("Activities:", activityVendorDetails.activities);
+      }
+        , [activityVendorDetails.activities]);
 
     return (
         <div className="flex flex-col gap-3 justify-center items-center">
@@ -59,16 +84,44 @@ const ActivityTab = () => {
             </div>
             <div className='flex flex-col gap-2 items-center justify-center w-[90%]'>
                 <div className='w-full'>
-                    <DataTableWithActions columns={columns} data={activityVendorDetails.activities}
-                                onDelete={onRowDelete}
-                                onEdit={onRowEdit}
-                                onRowClick={onRowEdit}
-                                onDuplicate={onRowDuplicate} /> {/* Displaying activities */}
+                    {isDeleting ? (<Suspense>
+                        <DataTableWithActions columns={columns} data={activityVendorDetails.activities.map((activity) => {
+                            if (activity.id === selectedActivity.id) {
+                                return {
+                                    ...activity,
+                                    id: activity.id,
+                                    activityType: 0,
+                                    name: "Deleting...",
+                                    capacity: 0,
+                                    activityVendorId: "",
+                                    tenantId: "",
+                                    typeName: "",
+                                }
+                            } else {
+                                return activity;
+                            }
+
+                        }
+                        )}
+                            onEdit={()=> {console.log("Edit Clicked")}}
+                            onRowClick={()=> {console.log("Row Clicked")}}
+                        />
+                    </Suspense> ): (
+                        <DataTableWithActions columns={columns} data={activityVendorDetails.activities}
+                            onDelete={onRowDelete}
+                            onEdit={onRowEdit}
+                            onRowClick={onRowEdit}
+                            onDuplicate={onRowDuplicate} 
+                        />
+                    )}
+
                 </div>
                 <div className="w-full flex justify-end">
                     <Button variant={"primaryGreen"} onClick={()=> {setActiveTab("submit")}}>Next</Button>
                 </div>
             </div>
+            {/* Delete modal */}
+
         </div>
     );
 };

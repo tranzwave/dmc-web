@@ -47,6 +47,9 @@ export const getAllHotels = (tenantId:string) => {
 export const getAllHotelsV2 = (tenantId:string) => {
   return db.query.hotel.findMany({
     where:eq(hotel.tenantId, tenantId),
+    with: {
+      hotelRoom: true,
+    }
   });
 };
 

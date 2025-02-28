@@ -24,6 +24,7 @@ export const getAllActivityVendors = (tenantId: string) => {
     where: eq(activityVendor.tenantId, tenantId),
     with: {
       city: true,
+      activity: true,
     },
   });
 };
@@ -298,7 +299,7 @@ async function updateActivity(
 }
 
 
-export async function deleteActivitytCascade(activityVendorId: string) {
+export async function deleteActivityVendorCascade(activityVendorId: string) {
   try {
     // Start the transaction
     const deletedActivityVendorId = await db.transaction(async (trx) => {
@@ -320,5 +321,35 @@ export async function deleteActivitytCascade(activityVendorId: string) {
   } catch (error) {
     console.error("Error deleting activity and related data:", error);
     throw error; // Re-throw the error to handle it elsewhere if needed
+  }
+}
+
+//Delete activity from vendor
+export async function deleteActivityFromVendor(activityId: string) {
+  try {
+    //Check whether the activity is used in any activity voucher
+    const activityVoucherExist = await db.query.activityVoucher.findFirst({
+      where: eq(activityVoucher.activityId, activityId),
+    });
+
+    if (activityVoucherExist) {
+      throw new Error("Activity is used in activity voucher");
+    }
+
+    // Start the transaction
+    const deletedActivity = await db.transaction(async (trx) => {
+      const deletedActivity = await trx
+        .delete(activity)
+        .where(eq(activity.id, activityId))
+        .returning({ id: activity.id });
+
+      return deletedActivity;
+    });
+
+    console.log("Activity deleted successfully");
+    return deletedActivity;
+  } catch (error) {
+    console.error("Error deleting activity:", error);
+    throw error;
   }
 }

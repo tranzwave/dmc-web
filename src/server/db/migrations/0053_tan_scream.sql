@@ -1,0 +1,1 @@
+ALTER TABLE "dmc-web_booking_lines" ADD COLUMN "reason_to_cancel" varchar(255);

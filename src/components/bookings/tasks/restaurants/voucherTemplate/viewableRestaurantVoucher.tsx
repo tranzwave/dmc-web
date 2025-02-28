@@ -99,7 +99,7 @@ const RestaurantVoucherView = ({ voucher, cancellation, bookingName, organizatio
             <div>Reference(s) : {voucher.reasonToAmend}</div>
           )}
           {voucher.status === 'cancelled' && (
-            <div>Reason for cancellation : {voucher.id}</div>
+            <div>Reason for cancellation : {voucher.reasonToCancel}</div>
           )}
         </div>
         <div className="mt-10 text-[13px]">

@@ -96,6 +96,7 @@ const RestaurantVouchersTasksTab = <
   const pathname = usePathname();
   const [bookingName, setBookingName] = useState('');
   const [bookingLoading, setBookingLoading] = useState(false)
+  const [isBookingCancelled, setIsBookingCancelled] = useState(false)
 
   const { toast } = useToast();
 
@@ -215,9 +216,10 @@ const RestaurantVouchersTasksTab = <
       if (vouchers) {
         try {
           setBookingLoading(true)
-          const booking = await getBookingLineWithAllData(vouchers[0]?.bookingLineId ?? "")
+          const booking = await getBookingLineWithAllData(bookingLineId)
           if (booking) {
             setBookingName(booking.booking.client.name);
+            setIsBookingCancelled(booking.status === 'cancelled')
           }
           setBookingLoading(false)
         } catch (error) {
@@ -348,23 +350,17 @@ const RestaurantVouchersTasksTab = <
         <div className="card w-full space-y-6">
           <div className="flex justify-between">
             <div className="card-title">Voucher Information</div>
+            { !isBookingCancelled && (
             <Link
               href={`${pathname.replace("/tasks", "")}/edit?tab=restaurants`}
             >
               <Button variant={"outline"}>Add Vouchers</Button>
             </Link>
+            )}
           </div>
           <div className="text-sm font-normal">
             Click the line to send the voucher
           </div>
-          {/* <DataTableWithActions
-            data={vouchers}
-            columns={columns}
-            onRowClick={onVoucherRowClick}
-            onView={() => alert("View action triggered")}
-            onEdit={() => alert("Edit action triggered")}
-            onDelete={() => alert("Delete action triggered")}
-          /> */}
           <DataTable
             data={vouchers}
             columns={columns}

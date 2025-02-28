@@ -139,7 +139,7 @@ body {
 }
 
 .card-title {
-  @apply text-lg font-semibold text-primary-black;
+  @apply text-sm 2xl:text-lg font-semibold text-primary-black;
 }
 
 /* Customize Scrollbar for Webkit Browsers */
@@ -168,4 +168,15 @@ body {
 
 .icon-size {
   @apply w-5 md:w-6 lg:w-7 2xl:w-8;
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

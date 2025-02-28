@@ -372,6 +372,55 @@
       "when": 1739205207501,
       "tag": "0050_big_meggan",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "6",
+      "when": 1740200640765,
+      "tag": "0051_icy_gargoyle",
+      "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "6",
+      "when": 1740304586941,
+      "tag": "0052_mean_zeigeist",
+      "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "6",
+      "when": 1740327476388,
+      "tag": "0053_tan_scream",
+      "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "6",
+      "when": 1740420131476,
+      "tag": "0054_dapper_gorilla_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "6",
+      "when": 1740508222854,
+      "tag": "0055_burly_lady_vermin",
+      "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "6",
+      "when": 1740509608577,
+      "tag": "0056_sharp_raider",
+      "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "6",
+      "when": 1740547726391,
+      "tag": "0057_exotic_lord_tyger",
+      "breakpoints": true
     }
   ]
 }

@@ -21,9 +21,10 @@ const OrgSelectionPage: React.FC = () => {
         return <div>You must be signed in to access this page</div>;
     }
 
-    if(user.organizationMemberships.length === 0){
-        router.replace('/onboarding');
-        return <div>You must be a member of an organization to access this page</div>;
+    if (user.organizationMemberships.length === 0) {
+        // router.push('/onboarding');
+        // return <div>You must be a member of an organization to access this page</div>;
+        router.refresh();
     }
 
     return (

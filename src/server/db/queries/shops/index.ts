@@ -10,8 +10,12 @@ export const getAllShops = () => {
   return db.query.shop.findMany({
     with: {
       city: true,
+      shopShopType:{
+        with:{
+          shopType: true
+      }
     },
-  })
+  }})
 }
 
 export const getShopsByTypeAndCity = async (typeId: number, cityId: number) => {
