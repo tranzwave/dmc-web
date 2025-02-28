@@ -8,8 +8,9 @@ import VoucherHeader from "~/components/common/voucher/VoucherHeader";
 import { calculateNights, formatDate } from "~/lib/utils/index";
 import { OrganizationResource, UserResource } from "@clerk/types";
 import { BookingDTO } from "../../columns";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BankDetails } from "~/lib/types/payment";
+import { Country } from "country-state-city";
 
 type TourInvoiceDocumentProps = {
   organization: OrganizationResource;
@@ -24,9 +25,21 @@ const TourInvoicePDF = ({ organization, user, bookingData }: TourInvoiceDocument
   const invoiceTotal = bookingData.tourInvoice?.entries.reduce((acc, curr) => acc + curr.total, 0) ?? 0;
   const depositPayment = Number(bookingData.tourInvoice?.invoiceDetails.depositPayment ?? 0);
   const bankCharges = Number(bookingData.tourInvoice?.invoiceDetails.bankCharges ?? 0);
-
+  const country = Country.getCountryByCode(bookingData.booking.client.country)?.name ?? bookingData.booking.client.country;
+  const agent = bookingData.booking.bookingAgent?.agent ?? {
+    name: "",
+    email: "",
+    agency: "",
+    countryCode: "",
+    primaryContactNumber: "",
+  };
 
   const [bankDetails, setBankDetails] = useState<BankDetails | null>(organization.publicMetadata.bankDetails as BankDetails);
+
+  useEffect(() => {
+    console.log("refetching tour invoice");
+  }
+  , [bookingData]);
 
   return (
     <div className="flex flex-col justify-center">
@@ -43,15 +56,25 @@ const TourInvoicePDF = ({ organization, user, bookingData }: TourInvoiceDocument
             {/* <div>Booking Name: {vouchers[0]?.client?.name ?? "N/A"}</div> */}
             {/* <div>Tour ID: {bookingData.id ?? "N/A"}</div> */}
             <div>Booking Name: {bookingData.booking.client.name}</div>
-            <div>Country : {bookingData.booking.client.country}</div>
-            <div>Company:</div>
-            <div>Address:</div>
-            <div>Email: {bookingData.booking.client.primaryEmail}</div>
-            <div>Phone: {bookingData.booking.client.primaryContactNumber}</div>
+            <div>Country : {country}</div>
+            {!bookingData.booking.directCustomer ? (
+              <div className="mt-2">
+                <div>Agent: {agent.name}</div>
+                <div>Agency: {agent.agency}</div>
+                <div>Agency Country: {Country.getCountryByCode(agent.countryCode)?.name ?? "N/A"}</div>
+                <div>Agency Email: {agent.email}</div>
+                <div>Agency Phone: {agent.primaryContactNumber}</div>
+              </div>
+            ): (
+              <div>
+                <div>Email: {bookingData.booking.client.primaryEmail}</div>
+                <div>Phone: {bookingData.booking.client.primaryContactNumber}</div>
+              </div>
+            )}
           </div>
           <div className="text-[13px]">
-            <div>Arrival: {bookingData.flightDetails?.arrivalDate ?? bookingData.startDate.toDateString()}</div>
-            <div>Departure: {bookingData.flightDetails?.departureDate ?? bookingData.endDate.toDateString()}</div>
+            <div>Arrival: {bookingData.startDate.toDateString()}</div>
+            <div>Departure: {bookingData.endDate.toDateString()}</div>
             <div>Invoice Date: {new Date().toLocaleDateString(
                 "en-GB",
                 {
@@ -66,16 +89,16 @@ const TourInvoicePDF = ({ organization, user, bookingData }: TourInvoiceDocument
             <div>No. of travellers: {`${bookingData.adultsCount} Adults | ${bookingData.kidsCount} Kids`}</div>
           </div>
         </div>
-        <div>Payment Information</div>
+        <div className="font-semibold mt-2">Payment Information</div>
         <div className="flex flex-row justify-between">
             <div>
                 <div>Date of Due: {bookingData.tourInvoice?.invoiceDetails.dueDate}</div>
-                <div>Deposit Payment: {bookingData.tourInvoice?.invoiceDetails.depositPayment}</div>
-                <div>Currency: {bookingData.tourInvoice?.invoiceDetails.currency}</div>
+                <div>Deposit Payment: {depositPayment}</div>
+                <div>Currency: {bookingData.tourInvoice?.invoiceDetails.currency ?? ""}</div>
             </div>
             <div>
                 <div>Invoice Total: {`${bookingData.tourInvoice?.invoiceDetails.currency} ${invoiceTotal.toFixed(2)}`} </div>
-                <div>Bank Charges: {`${bookingData.tourInvoice?.invoiceDetails.currency} ${Number(bookingData.tourInvoice?.invoiceDetails.bankCharges ?? 0).toFixed(2)}`}</div>
+                <div>Bank Charges: {`${bookingData.tourInvoice?.invoiceDetails.currency} ${bankCharges}`}</div>
                 <div>Total Amount Due: {`${bookingData.tourInvoice?.invoiceDetails.currency} ${((invoiceTotal + bankCharges) - depositPayment).toFixed(2)}`} </div>
             </div>
         </div>
@@ -108,17 +131,17 @@ const TourInvoicePDF = ({ organization, user, bookingData }: TourInvoiceDocument
               <tr className="border-b">
                 <td className="px-4 py-2"></td>
                 <td colSpan={2} className="px-4 py-2 text-right font-semibold">Deposit Paid</td>
-                <td className="px-4 py-2 font-semibold">{`${bookingData.tourInvoice?.invoiceDetails.currency} ${Number(bookingData.tourInvoice?.invoiceDetails.depositPayment ?? 0).toFixed(2)}`}</td>
+                <td className="px-4 py-2 font-semibold">{`${bookingData.tourInvoice?.invoiceDetails.currency} ${depositPayment}`}</td>
               </tr>
               <tr className="border-b">
                 <td className="px-4 py-2"></td>
                 <td colSpan={2} className="px-4 py-2 text-right font-semibold">Bank Charges</td>
-                <td className="px-4 py-2 font-semibold">{`${bookingData.tourInvoice?.invoiceDetails.currency} ${Number(bookingData.tourInvoice?.invoiceDetails.bankCharges ?? 0).toFixed(2)}`}</td>
+                <td className="px-4 py-2 font-semibold">{`${bookingData.tourInvoice?.invoiceDetails.currency} ${bankCharges}`}</td>
               </tr>
               <tr className="border-b">
                 <td className="px-4 py-2"></td>
                 <td colSpan={2} className="px-4 py-2 text-right font-bold">Total Amount Due</td>
-                <td className="px-4 py-2 font-semibold">{`${bookingData.tourInvoice?.invoiceDetails.currency} ${((invoiceTotal - (Number(bookingData.tourInvoice?.invoiceDetails.depositPayment) ?? 0)) + (Number(bookingData.tourInvoice?.invoiceDetails.bankCharges) ?? 0)).toFixed(2)}`}</td>
+                <td className="px-4 py-2 font-semibold">{`${bookingData.tourInvoice?.invoiceDetails.currency} ${((invoiceTotal - (depositPayment)) + (bankCharges))}`}</td>
               </tr>
             </tbody>
           </table>

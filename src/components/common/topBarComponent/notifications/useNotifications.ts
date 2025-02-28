@@ -19,8 +19,8 @@ export const useNotificationPolling = () => {
                 const latestNotifications = await getLatestNotifications(userId, orgRole, orgId);
                 
                 if (isMounted) {
-                    setNotifications(latestNotifications);
-                    setUnreadCount(latestNotifications.filter(n => !n.isRead).length);
+                    setNotifications(latestNotifications ?? []);
+                    setUnreadCount(latestNotifications?.filter(n => !n.isRead)?.length ?? 0);
                 }
             } catch (error) {
                 console.error("Error fetching notifications:", error);

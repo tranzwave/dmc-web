@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '~/components/ui/button';
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose } from "~/components/ui/dialog";
 import { BookingLineWithAllData, TourExpense } from '~/lib/types/booking';
@@ -15,10 +15,12 @@ import { FileTextIcon, FolderCheckIcon } from 'lucide-react';
 
 interface TourInvoiceModalTriggerProps {
     bookingData: BookingDTO;
+    triggerRefetch?: () => void;
+    parentLoading?: boolean;
     isInTable?: boolean;
 }
 
-const TourInvoiceModalTrigger: React.FC<TourInvoiceModalTriggerProps> = ({ bookingData, isInTable }) => {
+const TourInvoiceModalTrigger: React.FC<TourInvoiceModalTriggerProps> = ({ bookingData, isInTable, parentLoading, triggerRefetch }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const { organization, isLoaded: isOrgLoaded } = useOrganization();
@@ -55,16 +57,9 @@ const TourInvoiceModalTrigger: React.FC<TourInvoiceModalTriggerProps> = ({ booki
                         Here you can manage your entries for the invoice.
                     </DialogDescription>
                     <div className='space-y-4'>
-                        {organization && user &&
-                            <div className='w-full flex flex-row justify-end'>
-                                <VoucherButton buttonText='Download Tour Proforma Invoice as PDF' voucherComponent={
-                                    <div>
-                                        <TourInvoicePDF organization={organization} user={user as UserResource} bookingData={bookingData} />
-                                    </div>
-                                } title={`${bookingData.id}-${bookingData.booking.client.name}-Tour-Invoice`} />
-                            </div>
-                        }
-                        <TourInvoiceModal bookingData={bookingData} />
+                        {organization && user && (
+                            <TourInvoiceModal bookingData={bookingData} triggerRefetch={triggerRefetch} parentLoading={parentLoading} organization={organization} user={user as UserResource}/>
+                        )}
                     </div>
                 </DialogContent>
             </Dialog>

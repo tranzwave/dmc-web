@@ -47,6 +47,12 @@ export const getAllBookings = () => {
   return db.query.booking.findMany();
 };
 
+export const getBookingLine = (bookingLineID: string) => {
+  return db.query.bookingLine.findFirst({
+    where: eq(bookingLine.bookingId, bookingLineID),
+  });
+}
+
 export const getAllBookingLines = async (orgId: string, enrolledTeams: string[], isSuperAdmin: boolean) => {
   // If the user is a super admin, return all bookings without filtering
   if (isSuperAdmin) {
@@ -56,6 +62,11 @@ export const getAllBookingLines = async (orgId: string, enrolledTeams: string[],
           with: {
             client: true,
             marketingTeam: true,
+            bookingAgent: {
+              with: {
+                agent: true,
+              },
+            },
           },
         },
       },
@@ -83,6 +94,11 @@ export const getAllBookingLines = async (orgId: string, enrolledTeams: string[],
         with: {
           client: true,
           marketingTeam: true,
+          bookingAgent: {
+            with: {
+              agent: true,
+            },
+          },
         },
       },
     },

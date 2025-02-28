@@ -1,15 +1,26 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '~/components/ui/button';
 import { toast } from '~/hooks/use-toast';
 import { InvoiceDetails, TourInvoiceEntry } from '~/lib/types/booking';
-import { updateTourInvoice } from '~/server/db/queries/booking';
+import { getAllBookingLines, getBookingLine, updateTourInvoice } from '~/server/db/queries/booking';
 import { BookingDTO } from '../../columns';
+import { SelectBookingLine } from '~/server/db/schemaTypes';
+import { set } from 'date-fns';
+import LoadingLayout from '~/components/common/dashboardLoading';
+import VoucherButton from '~/components/bookings/tasks/hotelsTaskTab/taskTab/VoucherButton';
+import TourInvoicePDF from './tourInvoiceDocument';
+import { OrganizationResource, UserResource } from '@clerk/types';
 
 interface TourInvoiceModalProps {
   bookingData: BookingDTO;
+  organization: OrganizationResource;
+  user: UserResource;
+
+  triggerRefetch?: () => void;
+  parentLoading?: boolean;
 }
 
-const TourInvoiceModal: React.FC<TourInvoiceModalProps> = ({ bookingData }) => {
+const TourInvoiceModal: React.FC<TourInvoiceModalProps> = ({ bookingData, triggerRefetch, parentLoading, organization, user }) => {
   const [invoiceEntries, setInvoiceEntries] = useState<TourInvoiceEntry[]>(bookingData.tourInvoice?.entries ?? []);
   const [newEntry, setNewEntry] = useState<TourInvoiceEntry>({
     service: '',
@@ -29,6 +40,8 @@ const TourInvoiceModal: React.FC<TourInvoiceModalProps> = ({ bookingData }) => {
     issuedFor: '',
     issuedBy: '',
   });
+  const [bookingLineDetails, setBookingLineDetails] = useState<BookingDTO>(bookingData);
+  const [refetching, setRefetching] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -56,6 +69,25 @@ const TourInvoiceModal: React.FC<TourInvoiceModalProps> = ({ bookingData }) => {
     setInvoiceEntries(updatedEntries);
   };
 
+  const fetchBookingLineDetails = async () => {
+    setRefetching(true);
+    try {
+      const result = await getBookingLine(bookingData.id)
+      if (!result) {
+        throw new Error('Failed to fetch booking line details');
+      }
+
+      bookingData.tourInvoice = result.tourInvoice
+      setBookingLineDetails((prevState) => ({ ...prevState, tourInvoice: result.tourInvoice }));
+      setRefetching(false);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      setRefetching(false);
+      setLoading(false);
+    }
+  }
+
   const handleSave = async () => {
     setLoading(true);
     try {
@@ -76,16 +108,40 @@ const TourInvoiceModal: React.FC<TourInvoiceModalProps> = ({ bookingData }) => {
         title: 'Invoice entries saved successfully.',
         description: 'You can now download the invoice.',
       });
-      setLoading(false);
+      fetchBookingLineDetails();
     } catch (error) {
       console.error(error);
       setLoading(false);
     }
   };
 
+
+
+  useEffect(() => {
+    console.log('fetching booking line details');
+  }
+    , [bookingData]);
+
+  if(refetching) {
+    return (
+      <div>
+        <LoadingLayout />
+      </div>
+    )
+  }
+
   return (
     <>
       <div className='w-full flex flex-col gap-3'>
+        {organization && user &&
+          <div className='w-full flex flex-row justify-end'>
+            <VoucherButton buttonText='Download Tour Proforma Invoice as PDF' voucherComponent={
+              <div>
+                <TourInvoicePDF organization={organization} user={user as UserResource} bookingData={bookingLineDetails} />
+              </div>
+            } title={`${bookingData.id}-${bookingData.booking.client.name}-Tour-Invoice`} />
+          </div>
+        }
         <div className='grid grid-cols-4 text-[13px] gap-3'>
           <div className="flex flex-col gap-1">
             <label className="mr-2">Due Date</label>

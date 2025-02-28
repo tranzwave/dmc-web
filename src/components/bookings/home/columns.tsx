@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDate } from "~/lib/utils/index";
-import { SelectBooking, SelectBookingLine, SelectClient, SelectMarketingTeam, SelectUser } from "~/server/db/schemaTypes";
+import { SelectAgent, SelectBooking, SelectBookingAgent, SelectBookingLine, SelectClient, SelectMarketingTeam, SelectUser } from "~/server/db/schemaTypes";
 import {
   Hotel,
   Utensils,
@@ -50,6 +50,9 @@ export type BookingDTO = SelectBookingLine & {
   booking:SelectBooking & {
     client:SelectClient,
     marketingTeam: SelectMarketingTeam | null,
+    bookingAgent: SelectBookingAgent & {
+      agent: SelectAgent;
+    } | null;
   },
   currentUser?: string
 }

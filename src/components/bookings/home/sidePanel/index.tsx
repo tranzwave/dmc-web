@@ -61,6 +61,8 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
   const { isLoaded, user } = useUser();
   const { orgRole, isLoaded: isAuthLoaded } = useAuth();
   const [reasonToCancel, setReasonToCancel] = useState<string>('Whole booking cancelled');
+  const [triggerRefetch, setTriggerRefetch] = useState(false);
+  const [refetching, setRefetching] = useState(false);
 
 
 
@@ -225,6 +227,12 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
     setLoading(false);
 
   }, [booking]);
+
+  useEffect(() => {
+    setRefetching(true);
+
+    setRefetching(false);
+  }, [triggerRefetch]);
 
   if (!booking)
     return (
@@ -427,7 +435,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
           className="w-full"
         >Proforma Invoice</Button> */}
         <div className="w-full">
-          <TourInvoiceModalTrigger bookingData={booking} />
+          <TourInvoiceModalTrigger bookingData={booking} triggerRefetch={()=>setTriggerRefetch(!triggerRefetch)} parentLoading={loading}/>
         </div>
 
         {orgRole === 'org:admin' && booking.status !== "cancelled" && (
