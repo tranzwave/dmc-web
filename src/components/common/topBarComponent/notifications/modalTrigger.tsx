@@ -18,7 +18,9 @@ const NotificationModalTrigger: React.FC = () => {
         setUnreadCount(prev => prev - 1);
         setOpen(false);
         markAsRead(notification.id);
-        router.push(notification.pathname)
+        if(notification.pathname){
+            router.push(notification.pathname)
+        }
     }
 
     return (

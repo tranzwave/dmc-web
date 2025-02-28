@@ -27,7 +27,11 @@ export const getHotelVouchers = (bookingLineId: string) => {
     where: eq(hotelVoucher.bookingLineId, bookingLineId),
     with: {
       voucherLines: true,
-      hotel: true,
+      hotel: {
+        with: {
+          hotelRoom: true,
+        }
+      },
     },
   });
 };

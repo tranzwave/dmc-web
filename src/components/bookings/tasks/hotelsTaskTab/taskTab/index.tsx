@@ -29,6 +29,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { VoucherConfirmationDetails } from "~/lib/types/booking";
 import { useOrganization } from "@clerk/nextjs";
 import { set } from "date-fns";
+import { HotelWithRooms } from "~/components/bookings/editBooking/forms/hotelsForm";
 
 
 interface TasksTabProps<T, L> {
@@ -85,7 +86,7 @@ const HotelVouchersTasksTab = <
     useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [hotels, setHotels] = useState<SelectHotel[]>([]);
+  const [hotels, setHotels] = useState<HotelWithRooms[]>([]);
   const [error, setError] = useState<string | null>();
   const deleteVoucherRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();

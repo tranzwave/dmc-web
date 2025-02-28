@@ -14,9 +14,10 @@ import {
 } from "~/server/db/schemaTypes";
 import HotelVouchersTasksTab from "./taskTab";
 import { VoucherConfirmationDetails } from "~/lib/types/booking";
+import { HotelWithRooms } from "../../editBooking/forms/hotelsForm";
 
 export type HotelVoucherData = SelectHotelVoucher & {
-  hotel: SelectHotel;
+  hotel: HotelWithRooms;
   voucherLines: SelectHotelVoucherLine[];
 };
 // Define specific columns for hotels
