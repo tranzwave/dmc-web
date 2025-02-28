@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
-import { ClerkOrganizationPublicMetadata } from './lib/types/payment';
+import { ClerkOrganizationPublicMetadata, ClerkUserPublicMetadata } from './lib/types/payment';
 
 // Define public routes
 const isPublicRoute = createRouteMatcher([
@@ -22,39 +22,20 @@ const isProtectedRoute = createRouteMatcher(['/dashboard/admin(.*)']);
 export default clerkMiddleware(async (auth, req: NextRequest) => {
   const { userId, sessionClaims, has, orgRole, redirectToSignIn, orgId} = auth();
 
-  // console.log('Session Claims: ', sessionClaims);
-  // console.log('Org ID: ', orgId);
 
   // Allow access to public routes
   if (isPublicRoute(req)) {
     return NextResponse.next();
   }
 
-  // Redirect unauthenticated users to the sign-in page
   if (!userId) {
     redirectToSignIn();
     return NextResponse.redirect(new URL('/sign-in', req.url));
   }
 
-  // // Redirect user to the payment page if their organization is not subscribed
-  // if (!organization.publicMetadata || !(organization.publicMetadata as ClerkOrganizationPublicMetadata).subscription?.isActive) {
-  //   if (req.url.includes('/payment')) {
-  //     return NextResponse.next();
-  //   }
-
-  //   return NextResponse.redirect(new URL('/payment', req.url));
-  // }
-
-  // Handle protected admin routes
   if (isProtectedRoute(req)) {
     const canManage = has({ role:'org:admin' })
     const userRole = sessionClaims?.metadata?.role;
-    // console.log('Role:------------------------------------------------------------------- ' , orgRole)
-    // console.log('Can Manage:------------------------------------------------------------------- ' , canManage)
-
-
-
-    // If the user is not an admin, redirect to the overview dashboard with a query parameter
     if (!canManage) {
       const redirectUrl = new URL('/dashboard/overview', req.url);
       redirectUrl.searchParams.set('unauthenticated', 'true'); // Add query param
@@ -107,8 +88,6 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   if (isActive && isOnPaymentPage) {
     return NextResponse.redirect(new URL('/dashboard/overview', req.url));
   }
-
-  // Allow the request to continue for all other routes
   return NextResponse.next();
 });
 

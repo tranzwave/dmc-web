@@ -127,7 +127,7 @@ const OnboardingFlow = ({isNewlyInvitedMember} : OnboardingFlowProps) => {
   const handlePersonalSubmit: SubmitHandler<PersonalDetailsFormValues> = async (
     data,
   ) => {
-    if(!organization || !user){
+    if(!user){
       return;
     
     }
@@ -137,9 +137,9 @@ const OnboardingFlow = ({isNewlyInvitedMember} : OnboardingFlowProps) => {
     } else {
       try {
         setIsPersonalDetailsSaving(true);
-        const memberships = await organization.getMemberships()
+        const memberships = await organization?.getMemberships()
         console.log(memberships);
-        const usersRole = memberships.data.find((member) => member.publicUserData.userId === user.id)?.role;
+        const usersRole = memberships?.data.find((member) => member.publicUserData.userId === user.id)?.role;
 
         if(!usersRole){
           throw new Error("User role not found")
@@ -232,9 +232,9 @@ const OnboardingFlow = ({isNewlyInvitedMember} : OnboardingFlowProps) => {
         title: "Success!",
         description: "Your organization has been created successfully",
       });
+      
+      router.push(`/org-selection?orgId=${responseData.clerkResponse}`);
       setIsLoading(false);
-  
-      router.push(`/dashboard/overview?orgId=${responseData.clerkResponse}`);
     } catch (error: any) {
       console.error("Organization creation failed:", error);
       setIsLoading(false);
