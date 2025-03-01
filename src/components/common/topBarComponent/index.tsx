@@ -22,6 +22,7 @@ import { toast } from "~/hooks/use-toast";
 import { ClerkOrganizationPublicMetadata } from "~/lib/types/payment";
 import CustomPage from "./customInfoPage";
 import NotificationModalTrigger from "./notifications/modalTrigger";
+import { GuideSheet } from "./faq";
 
 // TopBar component
 const TopBar = () => {
@@ -63,7 +64,7 @@ const TopBar = () => {
         </div>
         <div className="flex flex-row items-center gap-8">
           <div className="flex flex-row items-center gap-3">
-            <Info size={20} color="#697077" className="cursor-pointer" />
+            <GuideSheet/>
             <Settings size={20} color="#697077" className="cursor-pointer" onClick={handleSettingsOnClick} />
             <NotificationModalTrigger />
           </div>

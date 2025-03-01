@@ -9,12 +9,12 @@ type Service = {
 };
 
 const services: Service[] = [
-  { icon: <Book size={50} color='#636363' />, title: 'Bookings' },
-  { icon: <Home size={50} color='#636363' />, title: 'Hotels' },
-  { icon: <Car size={50} color='#636363' />, title: 'Transport' },
-  { icon: <Activity size={50} color='#636363' />, title: 'Activities' },
-  { icon: <Notebook size={50} color='#636363' />, title: 'Reports' },
-  { icon: <Users size={50} color='#636363' />, title: 'Agents' },
+  { icon: <Book size={45} color='#636363' />, title: 'Bookings' },
+  { icon: <Home size={45} color='#636363' />, title: 'Hotels' },
+  { icon: <Car size={45} color='#636363' />, title: 'Transport' },
+  { icon: <Activity size={45} color='#636363' />, title: 'Activities' },
+  { icon: <Notebook size={45} color='#636363' />, title: 'Reports' },
+  { icon: <Users size={45} color='#636363' />, title: 'Agents' },
 ];
 
 const Services = () => {
@@ -38,7 +38,7 @@ type CardProps = {
 
 const Card: React.FC<CardProps> = ({ icon, title }) => {
   return (
-    <div className="border flex flex-col justify-center items-center p-4 rounded-lg aspect-square cursor-pointer hover:bg-[#d1ffe1] hover:border-[#287f71] shadow-md">
+    <div className="border flex flex-col justify-center items-center p-0 rounded-lg aspect-square cursor-pointer hover:bg-[#d1ffe1] hover:border-[#287f71] shadow-md">
       <div>{icon}</div>
       <div className="mt-2 text-center text-lg font-medium text-[#636363]">{title}</div>
     </div>

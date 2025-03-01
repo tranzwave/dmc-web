@@ -132,14 +132,14 @@ const Overview = () => {
       <div className="h-[3%]">
         <TitleBar title="Overview" link="toReadMe"/>
       </div>
-      <div className="flex w-full h-[20%] py-3 flex-col gap-2 justify-center items-center rounded-lg bg-welcome-bg bg-cover">
+      <div className="flex w-full h-[18%] 2xl:h-[20%] py-3 flex-col gap-2 justify-center items-center rounded-lg bg-welcome-bg bg-cover">
         <div className="text-3xl font-semibold text-[#235026]">WELCOME</div>
         <div className="text-3xl font-semibold text-[#235026]">{user ? user.fullName?.toUpperCase() : "To COORD.TRAVEL"}</div>
       </div>
       <div className="">
         <StatCards stats={data.stats ?? []}/>
       </div>
-      <div className="flex w-full flex-row gap-3">
+      <div className="flex w-full flex-row gap-3 h-[46%] 2xl:h-[55%] max-h-[46%] 2xl:max-h-[55%]">
         <div className="card w-1/2 gap-3 h-full">
           <div>
             <div className="card-title">Services</div>
@@ -147,18 +147,18 @@ const Overview = () => {
               Services you can interact with
             </div>
           </div>
-          <div>
+          <div className="h-full max-h-full overflow-y-auto">
             <Services />
           </div>
         </div>
-        <div className="card w-1/2 gap-3">
+        <div className="card w-1/2 gap-3 ">
           <div>
             <div className="card-title">Tourists By Country</div>
             <div className="text-sm text-primary-gray">
               Countries with highest number of tourists
             </div>
           </div>
-          <div>
+          <div className="h-full max-h-full overflow-y-auto">
             <TouristsByCountry data={data.tourists ?? []}/>
           </div>
         </div>
