@@ -13,23 +13,7 @@ import {
   SheetClose,
 } from "~/components/ui/sheet"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "~/components/ui/accordion"
-
-type Guide = { question: string; answer: string };
-type Guides = Record<string, Guide[]>;
-
-const guides: Guides = {
-  "/dashboard": [
-    { question: "How to navigate the dashboard?", answer: "Use the sidebar to access different sections." },
-    { question: "Where can I see my notifications?", answer: "Notifications are available in the top-right bell icon." },
-  ],
-  "/settings": [
-    { question: "How to update my profile?", answer: "Go to the 'Profile' section and edit your details." },
-    { question: "Can I change my password?", answer: "Yes, under 'Security' settings, you can update your password." },
-  ],
-  "default": [
-    { question: "How to use this system?", answer: "Navigate through the sections using the sidebar menu." },
-  ]
-}
+import { guides } from "~/lib/constants/guides"
 
 export function GuideSheet() {
   const pathname = usePathname()
