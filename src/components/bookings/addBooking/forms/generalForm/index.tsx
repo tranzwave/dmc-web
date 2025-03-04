@@ -4,6 +4,7 @@ import GeneralForm from "./generalForm";
 import { useAddBooking } from "~/app/dashboard/bookings/add/context";
 import { PartialClerkUser } from "~/lib/types/marketingTeam";
 import { SelectMarketingTeam } from "~/server/db/schemaTypes";
+import { Button } from "~/components/ui/button";
 
 interface GeneralTabProps {
   allUsers: PartialClerkUser[];
@@ -21,7 +22,13 @@ const GeneralTab = ({allUsers, marketingTeams}: GeneralTabProps) => {
           />
       <div className="card w-full space-y-6">
         <div className="card-title">General Information</div>
-        {allUsers.length > 0 && marketingTeams.length > 0 && <GeneralForm allUsers={allUsers} marketingTeams={marketingTeams}/>}
+        {allUsers.length > 0 && <GeneralForm allUsers={allUsers} marketingTeams={marketingTeams}/>}
+        {/* {marketingTeams.length === 0 && <div className="text-center text-gray-500">
+          No marketing teams found. Please create a marketing team first.
+          <div>
+            <Button variant={"primaryGreen"}>Create Marketing Team</Button>
+          </div>
+          </div>} */}
       </div>
     </div>
   );

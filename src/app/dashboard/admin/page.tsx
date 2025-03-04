@@ -1,5 +1,6 @@
 "use client"
 import { useOrganization } from '@clerk/nextjs';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import LoadingLayout from '~/components/common/dashboardLoading';
 import { OrganizationRolesAndPermissions } from '~/components/organization/managePermissions'
@@ -10,12 +11,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { getAllCountries } from '~/server/db/queries/countries';
 import { SelectCountry } from '~/server/db/schemaTypes';
 
-export default function AdminDashboard(params: { searchParams: { search?: string } }) {
+export default function AdminDashboard(params: { searchParams: { tab?: string } }) {
   const { organization, isLoaded } = useOrganization();
   const [ countries, setCountries ] = useState<SelectCountry[]>([])
+  // const searchParams = useSearchParams();
 
   useEffect(() => {
+    // const activeTab = searchParams.get('tab') ?? 'rolesAndPermissions';
     console.log('Organization:', organization);
+    
 
     if (organization) {
       const countriesResponse = getAllCountries().then((response) => {
@@ -25,6 +29,8 @@ export default function AdminDashboard(params: { searchParams: { search?: string
         return response;
       });
     }
+
+    
   }, [organization]);
 
 
@@ -34,7 +40,7 @@ export default function AdminDashboard(params: { searchParams: { search?: string
 
   return (
     <div className='w-full h-full'>
-      <Tabs defaultValue={'rolesAndPermissions'} className='w-full h-[97%] pb-4'>
+      <Tabs defaultValue={params.searchParams.tab ?? 'rolesAndPermissions'} className='w-full h-[97%] pb-4'>
         <TabsList className='flex w-full justify-evenly'>
           <TabsTrigger value='rolesAndPermissions'>Roles and Permissions</TabsTrigger>
           <TabsTrigger value='marketingTeams'>Marketing Teams</TabsTrigger>
