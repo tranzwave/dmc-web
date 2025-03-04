@@ -69,9 +69,9 @@ const AssignTeamModal: React.FC<AssignTeamModalProps> = ({ isOpen, onClose, onSe
         <Dialog open={isOpen} onOpenChange={onClose} >
             <DialogContent className="max-w-fit max-h-[90%] overflow-y-scroll">
                 <DialogHeader>
-                    <DialogTitle>Tour Packet - Check List | {booking.id}</DialogTitle>
+                    <DialogTitle>Assign a Marketing Team | {booking.id}</DialogTitle>
                     <DialogDescription>
-                        You can add or remove documents and accessories from the tour packet
+                        You can assign this booking to a marketing team
                     </DialogDescription>
                 </DialogHeader>
                 <div>
@@ -82,7 +82,7 @@ const AssignTeamModal: React.FC<AssignTeamModalProps> = ({ isOpen, onClose, onSe
                         value={selectedTeamId ?? ''}
                     >
                         <SelectTrigger className="bg-slate-100 shadow-md">
-                            <SelectValue placeholder="Select country" />
+                            <SelectValue placeholder="Select a team" />
                         </SelectTrigger>
                         <SelectContent>
                             {marketingTeams.map((team) => (

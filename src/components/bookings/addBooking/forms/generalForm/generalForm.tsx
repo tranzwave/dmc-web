@@ -91,7 +91,7 @@ export const addBookingGeneralSchema = z
     numberOfDays: z.number().min(1, "Number of days must be at least 1"),
     endDate: z.string().min(1, "End date is required"),
     marketingManager: z.string().min(1, "Manager is required"),
-    marketingTeam: z.string().min(1, "Marketing team is required"),
+    marketingTeam: z.string().min(1, "Marketing team is required").optional().or(z.literal('')),
     agent: z.string().min(1, "Agent is required").optional().or(z.literal("")),
     tourType: z.string().min(1, "Tour type is required"),
     includes: z.object({
@@ -149,6 +149,7 @@ const GeneralForm = ({ allUsers, marketingTeams }: GeneralFormProps) => {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [selectedMarketingTeam, setSelectedMarketingTeam] = useState<string | null>();
   const [selectedMarketingTeamManagers, setSelectedMarketingTeamManagers] = useState<PartialClerkUser[]>([]);
+  const isUserMemberOfMarketingTeam = marketingTeams.some((team) => (user?.publicMetadata as ClerkUserPublicMetadata).teams.some(t => t.teamId === team.id));
 
   const fetchMembers = async () => {
     if (organization) {
@@ -217,7 +218,6 @@ const GeneralForm = ({ allUsers, marketingTeams }: GeneralFormProps) => {
   };
 
   useEffect(() => {
-    console.log(Country.getAllCountries())
 
     fetchData();
     fetchMembers();
@@ -240,6 +240,7 @@ const GeneralForm = ({ allUsers, marketingTeams }: GeneralFormProps) => {
     const diffInDays = Math.ceil(diffInMilliseconds / (1000 * 60 * 60 * 24));
 
     data.numberOfDays = diffInDays;
+    data.marketingTeam = selectedMarketingTeam ?? undefined;
     console.log(data);
     if(data.marketingManager === 'super-admin') {
       const superAdmin = members.find((member) => member.role === "org:admin");
@@ -364,6 +365,22 @@ const GeneralForm = ({ allUsers, marketingTeams }: GeneralFormProps) => {
 
   return (
     <div>
+      {marketingTeams.length === 0 && (<div className=" text-gray-500 text-[10px] flex flex-row gap-1">
+        <div>
+          No marketing teams found. This booking will be created in organization level.
+        </div>
+        <div>
+          <div onClick={() => router.push('/dashboard/admin?tab=marketingTeams')} className="underline hover:cursor-pointer">Click here to add a new team</div>
+        </div>
+      </div>)
+      }
+      {marketingTeams.length > 0 && !marketingTeams.some((team) => (user?.publicMetadata as ClerkUserPublicMetadata).teams.some(t => t.teamId === team.id)) && (
+        <div className=" text-gray-500 text-[10px] flex flex-row gap-1">
+          <div>
+            You are a not a member of any marketing team. This booking will be created in organization level.
+          </div>
+        </div>
+      )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-3 gap-4">
@@ -720,6 +737,7 @@ const GeneralForm = ({ allUsers, marketingTeams }: GeneralFormProps) => {
                         setSelectedMarketingTeamManagers(teamManagers);
                       }}
                       value={field.value}
+                      disabled={marketingTeams.length === 0 || !isUserMemberOfMarketingTeam}
                     >
                       <SelectTrigger className="bg-slate-100 shadow-md">
                         <SelectValue placeholder="Select Marketing Team" />
@@ -756,7 +774,7 @@ const GeneralForm = ({ allUsers, marketingTeams }: GeneralFormProps) => {
                           field.onChange(value);
                         }}
                         value={field.value}
-                        disabled={selectedMarketingTeamManagers.length === 0}
+                        disabled={selectedMarketingTeamManagers.length === 0 || marketingTeams.length === 0}
                         defaultValue="super-admin"
                       >
                         <SelectTrigger className="bg-slate-100 shadow-md">
