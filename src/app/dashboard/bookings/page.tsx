@@ -45,7 +45,7 @@ export default function Bookings() {
       if (!organization || !user || !orgRole) {
         return
       }
-      const userEnrolledTeams = (user.publicMetadata as ClerkUserPublicMetadata).teams.map((team) => team.teamId);
+      const userEnrolledTeams = (user.publicMetadata as ClerkUserPublicMetadata)?.teams?.map((team) => team.teamId);
       const isSuperAdmin = orgRole === "org:admin";
       console.log("User Enrolled Teams:", userEnrolledTeams);
       console.log("Is Super Admin:", isSuperAdmin);

@@ -23,7 +23,7 @@ const TourInvoicesTable = ({organization, userMetadata, isSuperAdmin}: TourInvoi
       try {
         setLoading(true);
         // const result: HotelsBooking[] = await getHotelBookingStats();
-        const result = await getAllBookingLines(organization.id, userMetadata.teams.map((team) => team.teamId), isSuperAdmin);
+        const result = await getAllBookingLines(organization.id, userMetadata?.teams?.map((team) => team.teamId), isSuperAdmin);
 
         setData(result);
       } catch (error) {

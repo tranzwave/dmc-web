@@ -149,7 +149,7 @@ const GeneralForm = ({ allUsers, marketingTeams }: GeneralFormProps) => {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [selectedMarketingTeam, setSelectedMarketingTeam] = useState<string | null>();
   const [selectedMarketingTeamManagers, setSelectedMarketingTeamManagers] = useState<PartialClerkUser[]>([]);
-  const isUserMemberOfMarketingTeam = marketingTeams.some((team) => (user?.publicMetadata as ClerkUserPublicMetadata).teams.some(t => t.teamId === team.id));
+  const isUserMemberOfMarketingTeam = marketingTeams.some((team) => (user?.publicMetadata as ClerkUserPublicMetadata)?.teams?.some(t => t.teamId === team.id));
 
   const fetchMembers = async () => {
     if (organization) {
@@ -374,7 +374,7 @@ const GeneralForm = ({ allUsers, marketingTeams }: GeneralFormProps) => {
         </div>
       </div>)
       }
-      {marketingTeams.length > 0 && !marketingTeams.some((team) => (user?.publicMetadata as ClerkUserPublicMetadata).teams.some(t => t.teamId === team.id)) && (
+      {marketingTeams.length > 0 && !marketingTeams.some((team) => (user?.publicMetadata as ClerkUserPublicMetadata)?.teams?.some(t => t.teamId === team.id)) && (
         <div className=" text-gray-500 text-[10px] flex flex-row gap-1">
           <div>
             You are a not a member of any marketing team. This booking will be created in organization level.
@@ -729,7 +729,7 @@ const GeneralForm = ({ allUsers, marketingTeams }: GeneralFormProps) => {
                       onValueChange={(value) => {
                         field.onChange(value);
                         setSelectedMarketingTeam(value);
-                        const teamManagers = allUsers.filter((user) => (user.publicMetadata as ClerkUserPublicMetadata).teams.some(t => t.teamId === value && t.role === "manager"));
+                        const teamManagers = allUsers.filter((user) => (user.publicMetadata as ClerkUserPublicMetadata)?.teams?.some(t => t.teamId === value && t.role === "manager"));
                         if (teamManagers.length === 0) {
                           form.setValue('marketingManager', 'super-admin');
                         }
@@ -744,7 +744,7 @@ const GeneralForm = ({ allUsers, marketingTeams }: GeneralFormProps) => {
                       </SelectTrigger>
                       <SelectContent>
                         {marketingTeams.map((team) => {
-                          if ((user?.publicMetadata as ClerkUserPublicMetadata).teams.some(t => t.teamId === team.id)) {
+                          if ((user?.publicMetadata as ClerkUserPublicMetadata)?.teams?.some(t => t.teamId === team.id)) {
                             return <SelectItem key={team.id} value={team.id}>
                               {team.name + ' - ' + team.country}
                             </SelectItem>
