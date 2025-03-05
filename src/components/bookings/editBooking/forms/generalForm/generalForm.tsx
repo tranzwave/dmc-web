@@ -153,11 +153,14 @@ const GeneralForm = ({ allUsers, marketingTeams }:GeneralFormProps) => {
   const numberOfDays = form.watch("numberOfDays");
 
   const fetchData = async () => {
+    if(!isLoaded || !organization){
+      return
+    }
     try {
       // Run both requests in parallel
       setLoading(true);
       const [agentsResponse, usersResponse, countriesResponse] =
-        await Promise.all([getAllAgents(), getAllUsers(), getAllCountries()]);
+        await Promise.all([getAllAgents(organization.id), getAllUsers(), getAllCountries()]);
 
       // Check for errors in the responses
       if (!agentsResponse) {
@@ -212,7 +215,7 @@ const GeneralForm = ({ allUsers, marketingTeams }:GeneralFormProps) => {
     fetchMembers();
     setSelectedMarketingTeam(bookingDetails.general.marketingTeam);
     setSelectedMarketingTeamManagers(allUsers.filter((user) => (user.publicMetadata as ClerkUserPublicMetadata)?.teams?.some(t => t.teamId === bookingDetails.general.marketingTeam && t.role === "manager")));
-  }, []);
+  }, [organization]);
 
   const onSubmit: SubmitHandler<GeneralFormValues> = async (data) => {
     setSaving(true);

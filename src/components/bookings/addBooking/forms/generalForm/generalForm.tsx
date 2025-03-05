@@ -178,11 +178,14 @@ const GeneralForm = ({ allUsers, marketingTeams }: GeneralFormProps) => {
   const numberOfDays = form.watch("numberOfDays");
 
   const fetchData = async () => {
+    if(!organization){
+      return
+    }
     try {
       // Run both requests in parallel
       setLoading(true);
       const [agentsResponse, usersResponse, countriesResponse] =
-        await Promise.all([getAllAgents(), getAllUsers(), getAllCountries()]);
+        await Promise.all([getAllAgents(organization.id), getAllUsers(), getAllCountries()]);
 
       // Check for errors in the responses
       if (!agentsResponse) {
