@@ -73,7 +73,7 @@ export const MarketingTeamTable = ({ teams, countries, members, organization, tr
                 {team.country}
               </td>
               <td className="px-4 py-3 text-gray-700">
-                {members.filter((member) => member.publicMetadata.teams.some(t => t.teamId === team.id)).length}
+                {members.filter((member) => member.publicMetadata?.teams?.some(t => t.teamId === team.id)).length}
               </td>
               <td className="px-4 py-3 text-gray-700 flex flex-row gap-2">
                 <div
