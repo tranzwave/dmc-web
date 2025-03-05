@@ -19,10 +19,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { AddBookingProvider, useAddBooking } from "./context";
 import { PartialClerkUser } from '~/lib/types/marketingTeam';
 import { getAllClerkUsersByOrgId } from '~/server/auth';
-import { useOrganization } from '@clerk/nextjs';
+import { useOrganization, useUser } from '@clerk/nextjs';
 import LoadingLayout from '~/components/common/dashboardLoading';
 import { SelectMarketingTeam } from '~/server/db/schemaTypes';
 import { getAllMarketingTeams } from '~/server/db/queries/marketingTeams';
+import { ClerkUserPublicMetadata } from '~/lib/types/payment';
 
 const AddBooking = () => {
   const pathname = usePathname();
@@ -43,6 +44,7 @@ const AddBooking = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const {organization, isLoaded } = useOrganization();
   const [marketingTeams, setMarketingTeams] = useState<SelectMarketingTeam[]>([]);
+  const { user, isLoaded: isUserLoaded } = useUser();
 
   useEffect(() => {
     const fetchAllUsers = async () => {
@@ -67,8 +69,19 @@ const AddBooking = () => {
     fetchAllUsers();
   }, [organization]);
 
-  if (!isLoaded || loading) {
+  if (!isLoaded || loading || !isUserLoaded) {
     return <div> <LoadingLayout/></div>
+  }
+
+  const usersTeams = (user?.publicMetadata as ClerkUserPublicMetadata)?.teams;
+
+  if(!usersTeams || usersTeams.length == 0){
+    return (
+      <div className='flex flex-col justify-center items-center'> 
+        <h1>You are not a part of any marketing team</h1>
+        <h2>Please contact your admin to add you to a team</h2>
+      </div>
+    )
   }
 
   return (

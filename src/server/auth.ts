@@ -257,7 +257,7 @@ const updateBulkUsersTeams = async (organizationId:string, teamId:string, Member
             }
             const userId = member.publicUserData?.userId ?? "";
             const existingMetadata = clerkUser.publicMetadata as ClerkUserPublicMetadata;
-            const existingTeams = existingMetadata.teams;
+            const existingTeams = existingMetadata?.teams ?? [];
             const userAlreadyInTeam = existingTeams.length > 0 ? existingTeams.find(t => t.teamId === teamId) : false;
 
             if (MembersWithRoleToCheck.members.includes(userId) && !userAlreadyInTeam) {
