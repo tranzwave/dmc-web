@@ -89,6 +89,7 @@ export async function POST(req: Request, res: NextApiResponse) {
           contact: data.userData.contact,
           address: data.userData.address,
         },
+        teams: [],
       },
     });
 
