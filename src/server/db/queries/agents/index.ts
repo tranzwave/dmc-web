@@ -10,8 +10,9 @@ export const getAllCountries = () => {
     });
 };
 
-export const getAllAgents = () => {
+export const getAllAgents = (tenantId: string) => {
     return db.query.agent.findMany({
+        where: eq(agent.tenantId, tenantId),
     })
 }
 

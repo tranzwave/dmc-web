@@ -1,4 +1,5 @@
 "use client";
+import { useOrganization } from "@clerk/nextjs";
 import { ColumnDef } from "@tanstack/react-table";
 import { Search } from "lucide-react";
 import Link from "next/link";
@@ -66,13 +67,17 @@ const AgentHome = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const { organization, isLoaded, membership} = useOrganization();
 
   // Fetch data on mount
   useEffect(() => {
     async function fetchData() {
+      if(!isLoaded || !organization){
+        return
+      }
       try {
         setLoading(true);
-        const result = await getAllAgents();
+        const result = await getAllAgents(organization.id);
         setData(result);
       } catch (error) {
         console.error("Failed to fetch activity data:", error);
@@ -83,7 +88,7 @@ const AgentHome = () => {
     }
 
     fetchData();
-  }, []);
+  }, [organization]);
 
   const filteredData = data.filter((agent) => {
     const searchTerm = searchQuery.toLowerCase();
@@ -96,7 +101,7 @@ const AgentHome = () => {
     return matchesSearch;
   });
 
-  if (loading) {
+  if (loading || !isLoaded) {
     return (
       <div>
         <div className="flex w-full flex-row justify-between gap-1">
