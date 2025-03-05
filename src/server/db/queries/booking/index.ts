@@ -54,9 +54,20 @@ export const getBookingLine = (bookingLineID: string) => {
 }
 
 export const getAllBookingLines = async (orgId: string, enrolledTeams: string[], isSuperAdmin: boolean) => {
-  // If the user is a super admin, return all bookings without filtering
+  // If the user is a super admin, return all bookings belong to tenant without filtering
+  console.log("ORG ID", orgId);
+  const tenantBookingIds = await db
+  .select({ id: booking.id })
+  .from(booking)
+  .where(eq(booking.tenantId, orgId))
+  .then((rows) => rows.map((row) => row.id)); // Extracts IDs as an array
+
+  if (tenantBookingIds.length === 0) return [];
+
   if (isSuperAdmin) {
+
     return await db.query.bookingLine.findMany({
+      where: inArray(bookingLine.bookingId, tenantBookingIds), // Filter bookingLines by valid booking IDs
       with: {
         booking: {
           with: {
@@ -72,19 +83,6 @@ export const getAllBookingLines = async (orgId: string, enrolledTeams: string[],
       },
     });
   }
-
-  // Ensure enrolledTeams doesn't contain null values
-  const validEnrolledTeams = enrolledTeams.filter((team) => team !== null);
-
-  // Fetch booking IDs that belong to the given orgId and have a marketingTeamId in enrolledTeams
-  const tenantBookingIds = await db
-    .select({ id: booking.id })
-    .from(booking)
-    .where(and(eq(booking.tenantId, orgId), inArray(booking.marketingTeamId, validEnrolledTeams)))
-    .then((rows) => rows.map((row) => row.id)); // Extracts IDs as an array
-
-  // If no booking IDs found, return an empty array early
-  if (tenantBookingIds.length === 0) return [];
 
   // Fetch booking lines where the booking is in the valid bookings list
   return await db.query.bookingLine.findMany({

@@ -1,7 +1,8 @@
 "use client";
 
 import { useAuth, useOrganization, useUser } from "@clerk/nextjs";
-import { Search } from "lucide-react";
+import { Action } from "@radix-ui/react-alert-dialog";
+import { LoaderCircle, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from "react";
@@ -12,9 +13,13 @@ import LoadingLayout from "~/components/common/dashboardLoading";
 import Pagination from "~/components/common/pagination";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
+import { toast } from "~/hooks/use-toast";
 import { ClerkUserPublicMetadata } from "~/lib/types/payment";
 import { getAllBookingLines } from "~/server/db/queries/booking";
+import { createNotification } from "~/server/db/queries/notifications";
+import { InsertNotification } from "~/server/db/schemaTypes";
 
 export default function Bookings() {
   const [data, setData] = useState<BookingDTO[]>([]);
@@ -22,7 +27,7 @@ export default function Bookings() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { organization, isLoaded, membership } = useOrganization();
+  const { organization, isLoaded, membership, memberships } = useOrganization();
   const { user, isLoaded: isUserLoaded } = useUser();
   const { orgRole, isLoaded: isAuthLoaded } = useAuth();
 
@@ -32,11 +37,12 @@ export default function Bookings() {
   const [searchQuery, setSearchQuery] = useState("");
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
+  const [sending, setIsSending] = useState<boolean>(false);
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  
-  
+
+
 
   const fetchBookingLines = async () => {
     console.log("Fetching Booking Data");
@@ -45,7 +51,7 @@ export default function Bookings() {
       if (!organization || !user || !orgRole) {
         return
       }
-      const userEnrolledTeams = (user.publicMetadata as ClerkUserPublicMetadata)?.teams?.map((team) => team.teamId);
+      const userEnrolledTeams = (user?.publicMetadata as ClerkUserPublicMetadata)?.teams?.map((team) => team.teamId);
       const isSuperAdmin = orgRole === "org:admin";
       console.log("User Enrolled Teams:", userEnrolledTeams);
       console.log("Is Super Admin:", isSuperAdmin);
@@ -84,7 +90,7 @@ export default function Bookings() {
       setSearchQuery(id);
     }
   }
-  , [searchParams]);
+    , [searchParams]);
 
   const handleRowClick = (booking: BookingDTO) => {
     console.log("Selected Booking:", booking);
@@ -116,7 +122,7 @@ export default function Bookings() {
     if (!user || !membership) {
       return matchesSearch && matchesStartDate && matchesEndDate;
     }
-    const isUserEitherManagerOrCoordinator = orgRole ==="org:admin" || booking.booking.managerId === user.id || booking.booking.coordinatorId === user.id;
+    const isUserEitherManagerOrCoordinator = orgRole === "org:admin" || booking.booking.managerId === user.id || booking.booking.coordinatorId === user.id;
 
     const isUserMembershipEitherManagerOrCoordinator = booking.booking.managerId === membership.id || booking.booking.coordinatorId === membership.id;
 
@@ -146,6 +152,61 @@ export default function Bookings() {
     );
   }
 
+  const sendAddToTeamRequestNotification = async () => {
+    try {
+      setIsSending(true);
+      
+      if(!organization || !user){
+        toast({
+          title: "Organization or User not found",
+          description: "Please try again later",
+        });
+        setIsSending(false);
+        return
+      }
+      console.log(memberships)
+      const orgMembers = await organization.getMemberships({role: ["org:admin"]});
+
+      const orgAdmin = orgMembers.data[0];
+      if(!orgAdmin || !orgAdmin.publicUserData.userId){
+        toast({
+          title: "Organization Admin not found",
+          description: "Please try again later",
+        });
+        setIsSending(false);
+        return
+      }
+      const notificationToSend:InsertNotification = {
+        title: "Request Access",
+        pathname: "/dashboard/admin?tab=marketingTeams",
+        tenantId: organization.id,
+        targetUser: orgAdmin.publicUserData.userId,
+        message: `${user?.firstName} ${user?.lastName} has requested access to a marketing team.`,
+      }
+      const response = await createNotification(notificationToSend);
+
+      if (!response) {
+        throw new Error("Failed to send notification");
+      }
+
+      toast({
+        title: "Request Sent",
+        description: `Your request has been sent to ${orgAdmin.publicUserData.firstName} ${orgAdmin.publicUserData.lastName}`,
+      })
+
+      console.log("Notification sent successfully");
+      setIsSending(false);
+
+    } catch (error) {
+      console.error("Failed to send notification:", error);
+      toast({
+        title: "Failed to send request",
+        description: "Please try again later",
+      });
+      setIsSending(false);
+    }
+  }
+
   return (
     <div className="flex">
       <div className="flex-1">
@@ -153,9 +214,77 @@ export default function Bookings() {
           <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title="Bookings" link="toAddBooking" />
             <div>
-              <Link href={`${pathname}/add`}>
-                <Button variant="primaryGreen">Add Booking</Button>
-              </Link>
+              {user && (
+                <div>
+                  {(user?.publicMetadata as ClerkUserPublicMetadata)?.teams?.map((team) => team.teamId).length > 0 ? (
+                    <Link href={`${pathname}/add`}>
+                      <Button variant="primaryGreen">Add Booking</Button>
+                    </Link>
+                  ) : (
+                    <div>
+                      <Dialog>
+                        <DialogTrigger>
+                          <Button variant="primaryGreen">Add Booking</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogTitle>
+                            <div className="text-xl font-semibold">Unauthorized</div>
+                          </DialogTitle>
+                          <DialogDescription>
+                            <div className="text-sm">
+                              You are not a part of any marketing team.
+                            </div>
+
+                          </DialogDescription>
+                          <div>
+                            {orgRole === "org:admin" ? (
+                              <div>
+                                <div className="text-sm">
+                                  Please add yourself to a team to create a booking.
+                                </div>
+                                <div className="flex flex-row gap-2 w-full justify-end">
+                                  <Link href={`dashboard/admin?tab=marketingTeams`}>
+                                    <Button variant="primaryGreen">Self Assign</Button>
+                                  </Link>
+                                  <DialogClose>
+                                    <Button variant="default">Close</Button>
+                                  </DialogClose>
+                                </div>
+                              </div>
+
+                            ) : (
+                              <div className="flex flex-col gap-5">
+                                <div className="text-sm">
+                                  Please ask your admin to add you to a team to create a booking.
+                                </div>
+                                <div className="flex flex-row gap-2 w-full justify-end">
+                                  <Button 
+                                    variant="primaryGreen" 
+                                    onClick={sendAddToTeamRequestNotification}
+                                    disabled={sending}>
+                                    {sending ? (
+                                      <div className="flex flex-row items-center gap-2">
+                                        <LoaderCircle size={20} className="animate-spin"/>
+                                        <span>Sending Request</span>
+                                      </div>
+                                    ) : "Request Access"}
+                                    </Button>
+                                  <DialogClose>
+                                    <Button variant="default">Close</Button>
+                                  </DialogClose>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          <DialogFooter>
+
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
