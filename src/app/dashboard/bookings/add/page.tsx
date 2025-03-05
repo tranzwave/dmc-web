@@ -69,11 +69,11 @@ const AddBooking = () => {
     fetchAllUsers();
   }, [organization]);
 
-  if (!isLoaded || loading || !isUserLoaded) {
+  if (!isLoaded || loading || !isUserLoaded || !user || !organization) {
     return <div> <LoadingLayout/></div>
   }
 
-  const usersTeams = (user?.publicMetadata as ClerkUserPublicMetadata)?.teams;
+  const usersTeams = (user?.publicMetadata as ClerkUserPublicMetadata)?.teams.filter(team => team.orgId == organization.id);
 
   if(!usersTeams || usersTeams.length == 0){
     return (

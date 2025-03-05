@@ -59,6 +59,7 @@ export type ClerkUserPublicMetadata =
         }
         teams: {
             teamId: string,
+            orgId: string,
             role: 'manager' | 'member'
         }[]
     };

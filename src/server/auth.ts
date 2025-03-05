@@ -7,6 +7,7 @@ import { packages } from '~/lib/constants';
 import { auth } from '@clerk/nextjs/server';
 import { Permissions } from '~/lib/types/global';
 import { MembersWithRoleToCheck, UserMetadataTeam } from '~/lib/types/marketingTeam';
+import { or } from 'drizzle-orm';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -264,7 +265,7 @@ const updateBulkUsersTeams = async (organizationId:string, teamId:string, Member
                 const response = await clerkClient.users.updateUser(userId, {
                     publicMetadata: {
                         ...existingMetadata,
-                        teams: [...existingTeams, { teamId: teamId, role: MembersWithRoleToCheck.role }]
+                        teams: [...existingTeams, { teamId: teamId, role: MembersWithRoleToCheck.role, orgId: organizationId }]
                     }
                 });
                 console.log('User teams updated successfully: \n', response);
@@ -280,7 +281,7 @@ const updateBulkUsersTeams = async (organizationId:string, teamId:string, Member
                 const response = await clerkClient.users.updateUser(userId, {
                     publicMetadata: {
                         ...existingMetadata,
-                        teams: existingTeams.map(t => t.teamId === teamId ? { teamId: teamId, role: MembersWithRoleToCheck.role } : t)
+                        teams: existingTeams.map(t => t.teamId === teamId ? { teamId: teamId, role: MembersWithRoleToCheck.role, orgId: organizationId } : t)
                     }
                 });
                 console.log('User teams updated successfully: \n', response);
