@@ -214,9 +214,9 @@ export default function Bookings() {
           <div className="flex w-full flex-row justify-between gap-1">
             <TitleBar title="Bookings" link="toAddBooking" />
             <div>
-              {user && (
+              {user && organization && (
                 <div>
-                  {(user?.publicMetadata as ClerkUserPublicMetadata)?.teams?.map((team) => team.teamId).length > 0 ? (
+                  {(user?.publicMetadata as ClerkUserPublicMetadata)?.teams?.filter(t => t.orgId === organization.id).map((team) => team.teamId ).length > 0 ? (
                     <Link href={`${pathname}/add`}>
                       <Button variant="primaryGreen">Add Booking</Button>
                     </Link>
@@ -243,7 +243,7 @@ export default function Bookings() {
                                   Please add yourself to a team to create a booking.
                                 </div>
                                 <div className="flex flex-row gap-2 w-full justify-end">
-                                  <Link href={`dashboard/admin?tab=marketingTeams`}>
+                                  <Link href={`/dashboard/admin?tab=marketingTeams`}>
                                     <Button variant="primaryGreen">Self Assign</Button>
                                   </Link>
                                   <DialogClose>
