@@ -96,7 +96,7 @@ const MembersListWithCheckboxes = ({ members, roleToCheck, marketingTeam, organi
     
         const fetchMembersWithRole = async () => {
             setIsLoading(true);
-            const filteredMembers = members.filter((member) => member.publicMetadata.teams.some((team) => team.teamId === marketingTeam.id && team.role === roleToCheck));
+            const filteredMembers = members.filter((member) => member.publicMetadata?.teams?.some((team) => team.teamId === marketingTeam.id && team.role === roleToCheck));
             setMembersWithRoleToCheck((prev) => ({
                 ...prev,
                 members: filteredMembers.map((member) => member.id),
