@@ -17,12 +17,13 @@ import {
 import { Hotel, voucherColumns } from "./columns";
 import HotelsForm from "./hotelsForm";
 import { useOrganization } from "@clerk/nextjs";
+import { HotelWithRooms } from "~/components/bookings/editBooking/forms/hotelsForm";
 
 const HotelsTab = () => {
   const [addedHotels, setAddedHotels] = useState<Hotel[]>([]);
   const { addHotelVoucher, bookingDetails, setActiveTab, deleteHotel } = useAddBooking();
   const [loading, setLoading] = useState(false);
-  const [hotels, setHotels] = useState<SelectHotel[]>([]);
+  const [hotels, setHotels] = useState<HotelWithRooms[]>([]);
   const [error, setError] = useState<string | null>();
   const { toast } = useToast();
   const {organization, isLoaded:isOrgLoaded} = useOrganization();
@@ -30,7 +31,7 @@ const HotelsTab = () => {
   const updateHotels = (
     data: InsertHotelVoucherLine,
     isNewVoucher: boolean,
-    hotel: SelectHotel,
+    hotel: HotelWithRooms,
   ) => {
     console.log(data);
     const voucher: InsertHotelVoucher = {
