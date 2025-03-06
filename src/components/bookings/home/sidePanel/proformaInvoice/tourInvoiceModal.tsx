@@ -16,11 +16,11 @@ interface TourInvoiceModalProps {
   organization: OrganizationResource;
   user: UserResource;
 
-  triggerRefetch?: () => void;
-  parentLoading?: boolean;
+  // triggerRefetch?: () => void;
+  // parentLoading?: boolean;
 }
 
-const TourInvoiceModal: React.FC<TourInvoiceModalProps> = ({ bookingData, triggerRefetch, parentLoading, organization, user }) => {
+const TourInvoiceModal: React.FC<TourInvoiceModalProps> = ({ bookingData, organization, user }) => {
   const [invoiceEntries, setInvoiceEntries] = useState<TourInvoiceEntry[]>(bookingData.tourInvoice?.entries ?? []);
   const [newEntry, setNewEntry] = useState<TourInvoiceEntry>({
     service: '',
@@ -69,24 +69,24 @@ const TourInvoiceModal: React.FC<TourInvoiceModalProps> = ({ bookingData, trigge
     setInvoiceEntries(updatedEntries);
   };
 
-  const fetchBookingLineDetails = async () => {
-    setRefetching(true);
-    try {
-      const result = await getBookingLine(bookingData.id)
-      if (!result) {
-        throw new Error('Failed to fetch booking line details');
-      }
+  // const fetchBookingLineDetails = async () => {
+  //   setRefetching(true);
+  //   try {
+  //     const result = await getBookingLine(bookingData.id)
+  //     if (!result) {
+  //       throw new Error('Failed to fetch booking line details');
+  //     }
 
-      bookingData.tourInvoice = result.tourInvoice
-      setBookingLineDetails((prevState) => ({ ...prevState, tourInvoice: result.tourInvoice }));
-      setRefetching(false);
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-      setRefetching(false);
-      setLoading(false);
-    }
-  }
+  //     bookingData.tourInvoice = result.tourInvoice
+  //     setBookingLineDetails((prevState) => ({ ...prevState, tourInvoice: result.tourInvoice }));
+  //     setRefetching(false);
+  //     setLoading(false);
+  //   } catch (error) {
+  //     console.error(error);
+  //     setRefetching(false);
+  //     setLoading(false);
+  //   }
+  // }
 
   const handleSave = async () => {
     setLoading(true);
@@ -108,7 +108,9 @@ const TourInvoiceModal: React.FC<TourInvoiceModalProps> = ({ bookingData, trigge
         title: 'Invoice entries saved successfully.',
         description: 'You can now download the invoice.',
       });
-      fetchBookingLineDetails();
+      // fetchBookingLineDetails();
+      setBookingLineDetails((prevState) => ({ ...prevState, tourInvoice: { entries: invoiceEntries, invoiceDetails: invoiceDetails } }));
+      setLoading(false);
     } catch (error) {
       console.error(error);
       setLoading(false);
