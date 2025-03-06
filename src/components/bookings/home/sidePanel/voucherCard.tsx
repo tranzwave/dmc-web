@@ -13,8 +13,9 @@ interface CategoryDetails {
     statusCount: {
         inprogress: number
         amended: number
-        sentToClient: number
+        sentToVendor: number
         vendorConfirmed: number
+        sentToClient: number
         cancelled: number
     }
     locked: boolean
@@ -79,7 +80,7 @@ export const RenderCard = ({ category, booking, pathname, loadingTitle, tab }: R
                             label="In Progress"
                             color="text-yellow-500"
                         />
-                        <StatusBadge count={category.statusCount.sentToClient} label="Sent to Vendor" color="text-blue-500" />
+                        <StatusBadge count={category.statusCount.sentToVendor} label="Sent to Vendor" color="text-blue-500" />
                         <StatusBadge count={category.statusCount.vendorConfirmed} label="Vendor Confirmed" color="text-green-500" />
                         <StatusBadge count={category.statusCount.cancelled} label="Cancelled" color="text-red-500" />
                     </div>

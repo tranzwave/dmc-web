@@ -15,12 +15,10 @@ import { FileTextIcon, FolderCheckIcon } from 'lucide-react';
 
 interface TourInvoiceModalTriggerProps {
     bookingData: BookingDTO;
-    triggerRefetch?: () => void;
-    parentLoading?: boolean;
     isInTable?: boolean;
 }
 
-const TourInvoiceModalTrigger: React.FC<TourInvoiceModalTriggerProps> = ({ bookingData, isInTable, parentLoading, triggerRefetch }) => {
+const TourInvoiceModalTrigger: React.FC<TourInvoiceModalTriggerProps> = ({ bookingData, isInTable }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const { organization, isLoaded: isOrgLoaded } = useOrganization();
@@ -58,7 +56,7 @@ const TourInvoiceModalTrigger: React.FC<TourInvoiceModalTriggerProps> = ({ booki
                     </DialogDescription>
                     <div className='space-y-4'>
                         {organization && user && (
-                            <TourInvoiceModal bookingData={bookingData} triggerRefetch={triggerRefetch} parentLoading={parentLoading} organization={organization} user={user as UserResource}/>
+                            <TourInvoiceModal bookingData={bookingData} organization={organization} user={user as UserResource}/>
                         )}
                     </div>
                 </DialogContent>

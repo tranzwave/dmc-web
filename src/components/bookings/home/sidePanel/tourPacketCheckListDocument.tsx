@@ -8,6 +8,7 @@ import VoucherHeader from "~/components/common/voucher/VoucherHeader";
 import { formatDate } from "~/lib/utils/index";
 import { OrganizationResource, UserResource } from "@clerk/types";
 import { BookingDTO } from "../columns";
+import { useEffect } from "react";
 
 type TourPacketChecklistDocumentProps = {
   organization: OrganizationResource;
@@ -19,8 +20,13 @@ const TourPacketCheckListPDF = ({ organization, user, bookingData }: TourPacketC
 
   console.log(bookingData.tourPacket)
 
+  useEffect(() => {
+    console.log("refetching tour packet checklist");
+  }
+  , [bookingData]);
+
   return (
-    <div className="flex flex-col border text-lg">
+    <div className="flex flex-col text-sm">
       <VoucherHeader organization={organization}/>
       <div className="p-4">
         <div className="card-title w-full text-center text-[15px] font-bold">
@@ -35,7 +41,7 @@ const TourPacketCheckListPDF = ({ organization, user, bookingData }: TourPacketC
             <div>Participants: {`Adults - ${bookingData.adultsCount ?? "N/A"} | Kids - ${bookingData.kidsCount ?? "N/A"}`}</div>
           </div>
         </div>
-        <div>Documents</div>
+        <div className="mt-2 font-semibold">Documents</div>
         <div className="mt-4 text-[13px]">
           <table className="min-w-full rounded-md border bg-white">
             <thead>
@@ -59,7 +65,7 @@ const TourPacketCheckListPDF = ({ organization, user, bookingData }: TourPacketC
           </table>
         </div>
 
-        <div>Tour Accessories</div>
+        <div className="mt-2 font-semibold">Tour Accessories</div>
         <div className="mt-4 text-[13px]">
           <table className="min-w-full rounded-md border bg-white">
             <thead>
