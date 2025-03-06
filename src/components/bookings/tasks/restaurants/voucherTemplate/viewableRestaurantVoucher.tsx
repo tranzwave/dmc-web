@@ -37,7 +37,7 @@ const RestaurantVoucherView = ({ voucher, cancellation, bookingName, organizatio
       <VoucherHeader organization={organization} />
       <div className="p-4">
         <div className="w-full text-center" style={{ fontWeight: 'bold', fontSize: '20px' }}>
-          {cancellation ? (<div className="text-red-500">Cancellation Voucher</div>) : `Restaurant Reservation Voucher${voucher.status === 'amended' ? ' - Amendment' : ''}`}
+          {voucher.status === "cancelled" || cancellation ? (<div className="text-red-500">Cancellation Voucher</div>) : `Restaurant Reservation Voucher${voucher.status === 'amended' ? ' - Amendment' : ''}`}
 
         </div>
         <div className="flex w-full flex-row justify-between">

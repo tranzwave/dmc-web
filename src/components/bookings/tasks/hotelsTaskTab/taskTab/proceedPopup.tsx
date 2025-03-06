@@ -52,7 +52,7 @@ interface ProceedContentProps {
 
 const ProceedContent: React.FC<ProceedContentProps> = ({
   voucherColumns,
-  selectedVoucher:voucher,
+  selectedVoucher: voucher,
   onVoucherLineRowClick,
   updateVoucherLine,
   updateVoucherStatus,
@@ -144,6 +144,16 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
           voucherLines: updatedVoucherLines as any
         }
       ));
+      voucher = {
+        ...selectedVoucher,
+        ratesConfirmedBy,
+        ratesConfirmedTo,
+        availabilityConfirmedBy,
+        availabilityConfirmedTo,
+        specialNote,
+        billingInstructions,
+        voucherLines: updatedVoucherLines as any
+      }
       setIsRateUpdating(false);
 
       toast({
@@ -167,7 +177,18 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         title: "Voucher already sent",
         description: "The voucher has already been sent to the vendor.",
       })
-    } else {
+    } else if(selectedVoucher?.status === "amended") {
+      toast({
+        title: "Voucher already amended",
+        description: "The voucher has been amended.",
+      })
+    } else if (selectedVoucher?.status === "cancelled") {
+      toast({
+        title: "Voucher already cancelled",
+        description: "The voucher has been cancelled.",
+      })
+    }
+     else if(selectedVoucher?.status === "inprogress"){
       try {
         selectedVoucher.status = "sentToVendor";
         setStatusChanged(true);
@@ -249,7 +270,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
           </AccordionTrigger>
           <AccordionContent className="space-y-2">
             <div className="flex flex-row justify-end" onClick={handleSendVoucher}>
-              {type === 'hotel' && selectedVoucher.status !== "cancelled" && user && (
+              {type === 'hotel' && user && (
                 <VoucherButton voucherComponent={
                   <div>
                     <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} bookingName={bookingName} organization={organization} user={user as UserResource} currency={currency}/>
@@ -257,7 +278,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
                 } title={voucherTitle} />
               )}
 
-              {type === 'restaurant' && selectedVoucher.status !== "amended" && selectedVoucher.status !== "cancelled" && (
+              {type === 'restaurant' && (
                 <VoucherButton voucherComponent={
                   <div>
                     <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} bookingName={bookingName} organization={organization} user={user as UserResource} currency={currency} />
