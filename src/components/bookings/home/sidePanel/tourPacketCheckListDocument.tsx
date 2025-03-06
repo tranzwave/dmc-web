@@ -8,6 +8,7 @@ import VoucherHeader from "~/components/common/voucher/VoucherHeader";
 import { formatDate } from "~/lib/utils/index";
 import { OrganizationResource, UserResource } from "@clerk/types";
 import { BookingDTO } from "../columns";
+import { useEffect } from "react";
 
 type TourPacketChecklistDocumentProps = {
   organization: OrganizationResource;
@@ -18,6 +19,11 @@ type TourPacketChecklistDocumentProps = {
 const TourPacketCheckListPDF = ({ organization, user, bookingData }: TourPacketChecklistDocumentProps) => {
 
   console.log(bookingData.tourPacket)
+
+  useEffect(() => {
+    console.log("refetching tour packet checklist");
+  }
+  , [bookingData]);
 
   return (
     <div className="flex flex-col border text-lg">

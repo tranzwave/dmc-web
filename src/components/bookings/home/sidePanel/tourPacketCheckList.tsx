@@ -41,6 +41,7 @@ interface TourPacketCheckListProps {
 }
 
 const TourPacketCheckList: React.FC<TourPacketCheckListProps> = ({ bookingData, organization, user }) => {
+    const [localBookingData, setLocalBookingData] = useState<BookingDTO>(bookingData);
     const [documents, setDocuments] = useState<Document[]>(bookingData.tourPacket?.documents.map((d, i) => ({ ...d, no: i + 1 })) ?? []);
     const [newDocument, setNewDocument] = useState<NewDocument>({ no: '', item: '', count: '' });
 
@@ -96,6 +97,8 @@ const TourPacketCheckList: React.FC<TourPacketCheckListProps> = ({ bookingData, 
                 description: "Tour packet list updated successfully.",
                 duration: 5000,
             });
+            setLocalBookingData((prev) => ({ ...prev, tourPacket }));
+            setLoading(false);
         } catch (error) {
             console.error("Error updating tour packet list:", error);
             toast({
@@ -113,7 +116,7 @@ const TourPacketCheckList: React.FC<TourPacketCheckListProps> = ({ bookingData, 
             <div className='my-2 flex flex-row justify-end'>
                 <VoucherButton buttonText='Download Checklist as PDF' voucherComponent={
                     <div>
-                        <TourPacketCheckListPDF organization={organization} user={user as UserResource} bookingData={bookingData} />
+                        <TourPacketCheckListPDF organization={organization} user={user as UserResource} bookingData={localBookingData} />
                     </div>
                 } />
             </div>
