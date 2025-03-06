@@ -6,7 +6,7 @@ import { useOrganization } from "~/app/dashboard/context";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import { HotelVoucherData } from "..";
 import { SelectBooking } from "~/server/db/schemaTypes";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { getBookingById, getBookingLineWithAllData } from "~/server/db/queries/booking";
 import { Country } from "country-state-city";
 import { calculateNights, formatDate, getLetterByIndex } from "~/lib/utils/index";
@@ -37,6 +37,11 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName, organization, us
     })
     return sum ? sum.toFixed(2) : "-";
   }
+
+  useEffect(() => {
+    console.log('voucher', voucher)
+  }
+  , [voucher])
 
 
   return (

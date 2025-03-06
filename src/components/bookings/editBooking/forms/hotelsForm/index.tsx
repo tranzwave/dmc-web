@@ -57,7 +57,7 @@ const HotelsTab = () => {
     })
     | null
   >();
-  const [defaultHotel, setDefaultHotel] = useState<SelectHotel>();
+  const [defaultHotel, setDefaultHotel] = useState<HotelWithRooms>();
   const [voucherLineIdToEdit, setVoucherLineIdToEdit] = useState<string>("none");
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isExistingVoucherDelete, setIsExistingVoucherDelete] = useState(false);
@@ -75,7 +75,7 @@ const HotelsTab = () => {
   const updateHotels = async (
     data: InsertHotelVoucherLine,
     isNewVoucher: boolean,
-    hotel: SelectHotel,
+    hotel: HotelWithRooms,
   ) => {
     console.log(data);
     const voucher: InsertHotelVoucher = {
@@ -249,9 +249,8 @@ const HotelsTab = () => {
     // const lineIdToEdit = bookingDetails.vouchers.find((v) => v.voucher.id === selectedVoucher?.voucher.id)?.voucherLines.find(v=> v.id === data.id)?.id;
     setVoucherLineIdToEdit(data.id);
 
-    setDefaultValues({ ...data, hotel: selectedVoucher.hotel, id: data.id, hotelVoucherId: data.hotelVoucherId });
+    setDefaultValues({ ...data, hotel: selectedVoucher.hotel, id: data.id, hotelVoucherId: data.hotelVoucherId, roomCategory: data.roomCategory });
     setDefaultHotel(selectedVoucher.hotel);
-
   };
 
   const onDelete = async (data: any) => {

@@ -21,6 +21,8 @@ import { useOrganization, useUser } from "@clerk/nextjs";
 import RestaurantVoucherDownloadablePDF from "../../restaurants/voucherTemplate/downloadableRestaurantVoucher";
 import VoucherButton from "./VoucherButton";
 import { UserResource } from "@clerk/types";
+import { set } from "date-fns";
+import { toast } from "~/hooks/use-toast";
 
 interface ProceedContentProps {
   voucherColumns: ColumnDef<SelectHotelVoucherLine>[] | ColumnDef<SelectRestaurantVoucherLine>[];
@@ -50,7 +52,7 @@ interface ProceedContentProps {
 
 const ProceedContent: React.FC<ProceedContentProps> = ({
   voucherColumns,
-  selectedVoucher,
+  selectedVoucher:voucher,
   onVoucherLineRowClick,
   updateVoucherLine,
   updateVoucherStatus,
@@ -66,6 +68,8 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   const router = useRouter();
   const componentRef = useRef<HTMLDivElement>(null);
 
+  const [selectedVoucher, setSelectedVoucher] = useState<HotelVoucherData | RestaurantVoucherData>(voucher);
+
   const [ratesConfirmedBy, setRatesConfirmedBy] = useState(selectedVoucher?.ratesConfirmedBy ?? "");
   const [ratesConfirmedTo, setRatesConfirmedTo] = useState(selectedVoucher?.ratesConfirmedTo ?? "");
   const [availabilityConfirmedBy, setAvailabilityConfirmedBy] = useState(selectedVoucher?.availabilityConfirmedBy ?? "");
@@ -79,25 +83,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
       voucherLine.rate ?? "0",
     ])
   ));
-
-  // const [ratesMap, setRatesMap] = useState<Map<string, string>>(new Map(
-  //   selectedVoucher.voucherLines.map((voucherLine) => [
-  //     voucherLine.id, // id of the voucher line
-  //     voucherLine.rate ?? "0", // rate of the voucher line
-  //   ])
-  // ));
-
-  // const ratesMapRef = useRef<Map<string, string>>(new Map(
-  //   selectedVoucher.voucherLines.map((voucherLine) => [
-  //     voucherLine.id, // id of the voucher line
-  //     voucherLine.rate ?? "0", // rate of the voucher line
-  //   ])
-  // ));
-
-  // const handleRateChange = (id: string, rate: string) => {
-  //   ratesMapRef.current.set(id, rate); // Update the rate directly in the ref
-  //   console.log(ratesMapRef)
-  // };
+  const [isRateUpdating, setIsRateUpdating] = useState(false);
 
   const handleRateChange = (id: string, rate: string) => {
     setRatesMap((prev) => {
@@ -127,8 +113,8 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
       alert("Please fill all the required fields.");
       return;
     }
-
     try {
+      setIsRateUpdating(true);
       console.log({ rates: ratesMap, confirmedBy: availabilityConfirmedBy, confirmedTo: availabilityConfirmedTo })
       await updateVoucherLine(ratesMap, selectedVoucher.id, {
         availabilityConfirmedBy,
@@ -138,24 +124,64 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         specialNote,
         billingInstructions
       });
-      alert("Voucher line updated successfully!");
+
+
+
+      const updatedVoucherLines = selectedVoucher.voucherLines.map((voucherLine) => ({
+        ...voucherLine,
+        rate: ratesMap.get(voucherLine.id) ?? voucherLine.rate, // Get the latest rate
+      }));
+
+      setSelectedVoucher((prev) => (
+        {
+          ...prev,
+          ratesConfirmedBy,
+          ratesConfirmedTo,
+          availabilityConfirmedBy,
+          availabilityConfirmedTo,
+          specialNote,
+          billingInstructions,
+          voucherLines: updatedVoucherLines as any
+        }
+      ));
+      setIsRateUpdating(false);
+
+      toast({
+        title: "Voucher rates updated successfully",
+        description: "The voucher rates have been updated successfully.",
+      })
+
     } catch (error) {
       console.error("Failed to update voucher line:", error);
-      alert("An error occurred while updating the voucher line.");
+      toast({
+        title: "Failed to update voucher rates",
+        description: "An error occurred while updating the voucher rates.",
+      })
+      setIsRateUpdating(false);
     }
   };
 
   const handleSendVoucher = async () => {
     if (selectedVoucher?.status === "sentToVendor") {
-      alert("You've already downloaded the voucher.");
+      toast({
+        title: "Voucher already sent",
+        description: "The voucher has already been sent to the vendor.",
+      })
     } else {
       try {
         selectedVoucher.status = "sentToVendor";
         setStatusChanged(true);
         await updateVoucherStatus(selectedVoucher);
-        alert("Voucher status updated successfully");
+        toast({
+          title: "Voucher status updated",
+          description: "The voucher status has been updated successfully as sentToVendor.",
+        })
       } catch (error) {
         console.error("Failed to update voucher status:", error);
+        toast({
+          title: "Failed to update voucher status",
+          description: "An error occurred while updating the voucher status.",
+        })
       }
     }
 
@@ -224,21 +250,6 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
           <AccordionContent className="space-y-2">
             <div className="flex flex-row justify-end" onClick={handleSendVoucher}>
               {type === 'hotel' && selectedVoucher.status !== "cancelled" && user && (
-                // <PDFDownloadLink
-                //   document={<HotelVoucherDownloadablePDF voucher={selectedVoucher as HotelVoucherData} organization={orgData} user={user} />}
-                //   fileName={`${selectedVoucher.id}-${(selectedVoucher as HotelVoucherData).hotel.name}-Voucher.pdf`}
-                //   style={{
-                //     textDecoration: "none",
-                //     padding: "10px 20px",
-                //     backgroundColor: "#287F71",
-                //     color: "#fff",
-                //     border: "none",
-                //     borderRadius: "5px",
-                //     cursor: "pointer",
-                //   }}
-                // >
-                //   Download Voucher as PDF
-                // </PDFDownloadLink>
                 <VoucherButton voucherComponent={
                   <div>
                     <HotelVoucherView voucher={selectedVoucher as HotelVoucherData} bookingName={bookingName} organization={organization} user={user as UserResource} currency={currency}/>
@@ -247,21 +258,6 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
               )}
 
               {type === 'restaurant' && selectedVoucher.status !== "amended" && selectedVoucher.status !== "cancelled" && (
-                // <PDFDownloadLink
-                //   document={<RestaurantVoucherDownloadablePDF voucher={selectedVoucher as RestaurantVoucherData} organization={orgData} user={user} />}
-                //   fileName={`${selectedVoucher.voucherLines[0]?.id}-${(selectedVoucher as RestaurantVoucherData).restaurant.name}-Voucher.pdf`}
-                //   style={{
-                //     textDecoration: "none",
-                //     padding: "10px 20px",
-                //     backgroundColor: "#287F71",
-                //     color: "#fff",
-                //     border: "none",
-                //     borderRadius: "5px",
-                //     cursor: "pointer",
-                //   }}
-                // >
-                //   Download Voucher as PDF
-                // </PDFDownloadLink>
                 <VoucherButton voucherComponent={
                   <div>
                     <RestaurantVoucherView voucher={selectedVoucher as RestaurantVoucherData} bookingName={bookingName} organization={organization} user={user as UserResource} currency={currency} />

@@ -14,6 +14,7 @@ import VoucherHeader from "~/components/common/voucher/VoucherHeader";
 import { getLetterByIndex } from "~/lib/utils/index";
 import { Country } from "country-state-city";
 import { OrganizationResource, UserResource } from "@clerk/types";
+import { useEffect } from "react";
 
 type RestaurantVoucherPDFProps = {
   voucher: RestaurantVoucherData;
@@ -25,6 +26,11 @@ type RestaurantVoucherPDFProps = {
 };
 
 const RestaurantVoucherView = ({ voucher, cancellation, bookingName, organization, user, currency }: RestaurantVoucherPDFProps) => {
+
+  useEffect(() => {
+    console.log('voucher', voucher)
+  }
+  , [voucher])
 
   return (
     <div className="flex flex-col border">

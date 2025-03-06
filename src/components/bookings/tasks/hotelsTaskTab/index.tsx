@@ -108,7 +108,7 @@ const HotelsTasksTab = ({
     if (!confirmationDetails) {
       throw new Error("Failed");
     }
-    alert("Updating voucher line:");
+    // alert("Updating voucher line:");
     try {
       const bulkUpdateResponse = bulkUpdateHotelVoucherRates(ratesMap,voucherId, {
         availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
@@ -122,14 +122,22 @@ const HotelsTasksTab = ({
       if (!bulkUpdateResponse) {
         throw new Error("Failed");
       }
-      window.location.reload();
+      toast({
+        title: "Success",
+        description: "Voucher line updated successfully",
+      });
+      // window.location.reload();
     } catch (error) {
       console.error("Error updating voucher line:", error);
-      alert("Failed to update voucher line. Please try again.");
+      toast({
+        title: "Error",
+        description: "Error while updating the voucher line",
+      });
+      // alert("Failed to update voucher line. Please try again.");
     }
   };
   const updateVoucherStatus = async (voucher: SelectHotelVoucher, confirmationDetails?:VoucherConfirmationDetails) => {
-    alert("Updating voucher status:");
+    // alert("Updating voucher status:");
     try {
       const voucherUpdateResponse = confirmationDetails ? await updateHotelVoucherStatusWithConfirmationDetails(voucher, confirmationDetails) :  await updateHotelVoucherStatus(voucher);
 
