@@ -29,7 +29,7 @@ const RateInput = React.memo(({
         // Check if the value is a valid number
         if (!isNaN(Number(newRate))) {
             setRate(newRate); // Update local rate state on change if it's a valid number
-            handleRateChange(row.original.id, newRate); // Call handleRateChange only with a valid number
+            // handleRateChange(row.original.id, newRate); // Call handleRateChange only with a valid number
         } else {
             // Optionally handle invalid input
             console.warn('Invalid rate value');
@@ -37,22 +37,22 @@ const RateInput = React.memo(({
     };
 
     // Optionally, handle blur to trigger final save
-    const handleBlur = useCallback(() => {
-        handleRateChange(row.original.id, rate);
-        table.options.meta?.updateData(row.index, column.id, rate)
-        console.log("Final value saved:", rate); // Log the final saved rate
-    }, [rate, row.original.id, handleRateChange,column.id, row.index, table.options.meta]);
+    // const handleBlur = useCallback(() => {
+    //     handleRateChange(row.original.id, rate);
+    //     table.options.meta?.updateData(row.index, column.id, rate)
+    //     console.log("Final value saved:", rate); // Log the final saved rate
+    // }, [rate, row.original.id, handleRateChange,column.id, row.index, table.options.meta]);
 
     return (
         <Input
             type="number"
             value={rate} // Controlled value based on state
             onChange={handleInputChange}
-            onBlur={handleBlur}
+            onBlur={() => handleRateChange(row.original.id, rate)}
             className="rounded border border-gray-300 p-1"
             style={{ width: "80px" }}
             placeholder="0.00"
-            onClick={(e) => e.stopPropagation()}
+            // onClick={(e) => e.stopPropagation()}
             key={`${row.original.id}`}
             min={0}
         />

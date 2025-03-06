@@ -141,7 +141,11 @@ export const getBookingLineWithAllData = (id: string) => {
       },
       hotelVouchers: {
         with: {
-          hotel: true,
+          hotel: {
+            with: {
+              hotelRoom: true,
+            }
+          },
           voucherLines: true,
         },
       },

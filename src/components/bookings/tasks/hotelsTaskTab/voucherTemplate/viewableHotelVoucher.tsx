@@ -6,7 +6,7 @@ import { useOrganization } from "~/app/dashboard/context";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import { HotelVoucherData } from "..";
 import { SelectBooking } from "~/server/db/schemaTypes";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { getBookingById, getBookingLineWithAllData } from "~/server/db/queries/booking";
 import { Country } from "country-state-city";
 import { calculateNights, formatDate, getLetterByIndex } from "~/lib/utils/index";
@@ -38,13 +38,18 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName, organization, us
     return sum ? sum.toFixed(2) : "-";
   }
 
+  useEffect(() => {
+    console.log('voucher', voucher)
+  }
+  , [voucher])
+
 
   return (
     <div className="flex flex-col justify-center">
       <VoucherHeader organization={organization}/>
       <div className="p-4">
         <div className="w-full text-center" style={{ fontWeight: 'bold', fontSize: '20px' }}>
-          {cancellation ? (<div className="text-red-500">Cancellation Voucher</div>) : `Hotel Reservation Voucher${voucher.status === 'amended' ? ' - Amendment' : ''}`}
+          {voucher.status === "cancelled" || cancellation ? (<div className="text-red-500">Cancellation Voucher</div>) : `Hotel Reservation Voucher${voucher.status === 'amended' ? ' - Amendment' : ''}`}
         </div>
         <div className="flex w-full flex-row justify-between">
           <div className="text-[13px]">

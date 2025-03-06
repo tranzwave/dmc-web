@@ -282,13 +282,11 @@ const HotelVouchersTasksTab = <
         const voucher = selectedVoucher
         voucher.status = "cancelled"
         setStatusChanged(true);
-        await updateVoucherStatus(voucher);
-        // const deletedData = await deleteHotelVoucherLine(
-        //   selectedVoucher.voucherLines[0]?.id ?? "",
-        // );
-        // if (!deletedData) {
-        //   throw new Error("Couldn't delete voucher");
-        // }
+        const response = await updateVoucherStatus(voucher);
+
+        if (!response) {
+          throw new Error("Couldn't cancel voucher");
+        }
 
         // deleteVoucherLineFromLocalContext();
         toast({

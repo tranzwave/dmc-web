@@ -296,21 +296,19 @@ const RestaurantVouchersTasksTab = <
         // downloadPDF();
 
         setIsDeleting(true);
-        const voucher = selectedVoucher
-        voucher.status = "cancelled"
+        const voucher:RestaurantVoucherData = {
+          ...selectedVoucher,
+          status: "cancelled",
+          reasonToCancel: selectedVoucher.reasonToCancel ?? `Cancelled by ${selectedVoucher.restaurant.name}`,
+        }
         await updateVoucherStatus(voucher)
         setStatusChanged(true)
-        // const deletedData = await deleteRestaurantVoucherLine(
-        //   selectedVoucher.voucherLines[0]?.id ?? "",
-        // );
-        // if (!deletedData) {
-        //   throw new Error("Couldn't delete voucher");
-        // }
 
         toast({
           title: "Success",
           description: `Successfully cancelled the voucher! Pleas refresh!`,
         });
+        selectedVoucher.status = "cancelled";
         // deleteVoucherLineFromLocalContext();
         setIsDeleting(false);
       } catch (error) {

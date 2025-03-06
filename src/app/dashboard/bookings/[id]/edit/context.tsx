@@ -2,6 +2,7 @@ import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { General } from '~/components/bookings/addBooking/forms/generalForm/columns';
 import { Hotel } from '~/components/bookings/addBooking/forms/hotelsForm/columns';
 import { Transport } from '~/components/bookings/addBooking/forms/transportForm/columns';
+import { HotelWithRooms } from '~/components/bookings/editBooking/forms/hotelsForm';
 import { OtherTransportWithCity } from '~/components/transports/addTransport/forms/generalForm/other-transport/columns';
 import { Driver } from '~/lib/types/driver/type';
 import { calculateDaysBetween } from '~/lib/utils/index';
@@ -13,7 +14,7 @@ export interface TransportWithDriver {
 }
 
 export type HotelVoucher = {
-  hotel: SelectHotel;
+  hotel: HotelWithRooms;
   voucher: InsertHotelVoucher;
   voucherLines: InsertHotelVoucherLine[];
 }

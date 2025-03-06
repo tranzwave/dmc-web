@@ -5,6 +5,7 @@ import { Transport } from '~/components/bookings/addBooking/forms/transportForm/
 import { Driver } from '~/lib/types/driver/type';
 import { InsertActivityVoucher, InsertDriverVoucherLine, InsertGuideVoucherLine, InsertHotelVoucher, InsertHotelVoucherLine, InsertOtherTransportVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectDriver, SelectGuide, SelectHotel, SelectOtherTransport, SelectRestaurant, SelectShop } from '~/server/db/schemaTypes';
 import { TransportVoucher } from '../[id]/edit/context';
+import { HotelWithRooms } from '~/components/bookings/editBooking/forms/hotelsForm';
 
 export interface TransportWithDriver {
   transport: Transport;
@@ -12,7 +13,7 @@ export interface TransportWithDriver {
 }
 
 export type HotelVoucher = {
-  hotel: SelectHotel;
+  hotel: HotelWithRooms;
   voucher: InsertHotelVoucher;
   voucherLines: InsertHotelVoucherLine[];
 }

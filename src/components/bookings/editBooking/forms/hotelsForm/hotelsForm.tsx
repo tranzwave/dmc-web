@@ -92,7 +92,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   isSaving,
   triggerEdit
 }) => {
-  const [selectedHotel, setSelectedHotel] = useState<HotelWithRooms | null>();
+  const [selectedHotel, setSelectedHotel] = useState<HotelWithRooms | null>(defaultValues?.hotel ?? null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { bookingDetails } = useEditBooking();
   const [voucherLineId, setVoucherLineId] = useState(defaultValues?.id ?? "");
@@ -103,6 +103,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       ...defaultValues,
       remarks: defaultValues?.remarks ?? "No Remarks",
       name: defaultValues?.hotel.name,
+      roomCategory: defaultValues?.roomCategory ?? "",
     },
     values: {
       adultsCount:
@@ -178,15 +179,13 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   function getHotelId(name: string) {
     const hotel = hotels.find((hotel) => hotel.name === name);
     const id = hotel?.id;
-    setSelectedHotel(hotel);
+    setSelectedHotel(hotel ?? null);
   }
 
   useEffect(() => {
-    // form.reset();
-    console.log(defaultValues);
-    if (defaultValues?.hotel) {
-      setSelectedHotel(defaultValues?.hotel);
-    }
+    form.reset();
+    console.log('defaultValues', defaultValues);
+    setSelectedHotel(defaultValues?.hotel ?? null);
   }, [defaultValues]);
 
   return (
@@ -436,19 +435,21 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                           field.onChange(value);
                         }}
                         value={field.value}
+                        defaultValue = {defaultValues?.roomCategory}
                       >
                         <SelectTrigger className="bg-slate-100 shadow-md">
                           <SelectValue placeholder="Select room category" />
                         </SelectTrigger>
                         <SelectContent>
-                          {hotelRoomCategories.map((room) => {
-                            if(selectedHotel?.hotelRoom.find(r => r.roomType === room)){
+                          {selectedHotel?.hotelRoom && selectedHotel?.hotelRoom.length > 0 && (
+                            selectedHotel.hotelRoom.map((room) => {
                               return(
-                                <SelectItem key={room} value={room}>
-                                  {room}
+                                <SelectItem key={room.id} value={room.roomType}>
+                                  {room.roomType}
                                 </SelectItem>
                               )
-                            }})}
+                            })
+                          )}
                         </SelectContent>
                       </Select>
                     </FormControl>
