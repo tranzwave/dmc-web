@@ -17,7 +17,7 @@ interface AddGuideTransportContextProps {
 
 const defaultGeneral: General = {
   name: "",
-  language: "",
+  languages: [""],
   primaryEmail: "",
   primaryContactNumber: "",
   streetName: "",

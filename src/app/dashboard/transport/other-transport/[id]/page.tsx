@@ -3,15 +3,19 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
+import { toast } from "~/hooks/use-toast";
 import { GuideDTO } from "~/lib/types/guide/type";
 import { formatDate } from "~/lib/utils/index";
 import {
-  getGuideByIdQuery
+  getGuideByIdQuery,
+  getOtherTransportById
 } from "~/server/db/queries/transport";
-import { SelectTransportVoucher } from "~/server/db/schemaTypes";
+import { SelectCity, SelectOtherTransport, SelectTransportVoucher } from "~/server/db/schemaTypes";
+
+export type OtherTransportDTO = Awaited<ReturnType<typeof getOtherTransportById>>;
 
 const Page = ({ params }: { params: { id: string } }) => {
-  const [driver, setDriver] = useState<GuideDTO | null>(null);
+  const [otherTransport, setOtherTransport] = useState<OtherTransportDTO | null>(null);
   const [data, setData] = useState<SelectTransportVoucher[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,27 +29,24 @@ const Page = ({ params }: { params: { id: string } }) => {
 
   const fetchGuideDetails = async () => {
     try {
-      const selectedGuide = await getGuideByIdQuery(params.id);
-      setDriver(selectedGuide ?? null);
-    } catch (error) {
+      setLoading(true);
+      const response = await getOtherTransportById(params.id)
+      if(!response) {
+        throw new Error("No guide found with the given ID.");
+      }
+      console.log("response", response);
+      setOtherTransport(response ?? null);
+    } catch (error:any) {
       console.error("Failed to fetch guide details:", error);
-      setError("Failed to load guide details.");
+      // setError("Failed to load guide details.");
+      toast({
+        title: "Failed to fetch guide details",
+        description: error?.message ?? "Failed to load guide details.",
+      })
     } finally {
       setLoading(false);
     }
   };
-
-  // const fetchData = async () => {
-  //   try {
-  //     const result = await getTransportVouchersForDriver(params.id);
-  //     setData(result);
-  //   } catch (error) {
-  //     console.error("Failed to fetch activity data:", error);
-  //     setError("Failed to load data.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   useEffect(() => {
     setLoading(true);
@@ -54,8 +55,8 @@ const Page = ({ params }: { params: { id: string } }) => {
   }, [params.id]);
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!driver) return <div>No guide found with the given ID.</div>;
+  // if (error) return <div>Error: {error}</div>;
+  if (!otherTransport) return <div>No guide found with the given ID.</div>;
 
   const driverVoucherColumns: ColumnDef<SelectTransportVoucher>[] = [
     {
@@ -112,16 +113,16 @@ const Page = ({ params }: { params: { id: string } }) => {
 
   return (
     <div className="flex w-full flex-col justify-between gap-3">
-      <TitleBar title={`Guide - ${driver.name}`} link="toAddTransport" />
+      <TitleBar title={`Guide - ${otherTransport.name}`} link="toAddTransport" />
       <div className="mx-9 flex flex-row justify-between">
         <div className="w-[30%]">
           <ContactBox
-            title={driver.name}
+            title={otherTransport.name}
             description="Egestas elit dui scelerisque ut eu purus aliquam vitae habitasse."
-            location={driver.city.name}
-            address={`${driver.streetName}, ${driver.city.name}`}
-            phone={driver.primaryContactNumber}
-            email={driver.primaryEmail}
+            location={otherTransport.city.name}
+            address={`${otherTransport.streetName}, ${otherTransport.city.name}`}
+            phone={otherTransport.primaryContactNumber}
+            email={otherTransport.primaryEmail}
           />
         </div>
         {/* <div className="card w-[70%] space-y-6">

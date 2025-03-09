@@ -78,12 +78,14 @@ const SubmitForm = () => {
             };
           });
       
-          const driversLanguages: InsertLanguage[] = [
-            {
-              name:languages.find(lang => lang.id.toString() === general.language)?.name ?? (()=>{throw new Error("Language name not found")})(),
-              code: languages.find(lang => lang.id.toString() === general.language)?.code ?? (()=>{throw new Error("Language code not found")})()
-            },
-          ];
+          const driversLanguages: SelectLanguage[] = general.languages.map((l) => {
+            const language = languages.find((lang) => lang.name === l);
+            if (!language) {
+              throw new Error("Language not found");
+            }
+            return language;
+          }
+          );
 
       setLoading(true);
 
@@ -171,7 +173,7 @@ const SubmitForm = () => {
             </tr>
             <tr>
               <td className="border px-4 py-2 font-bold">Language:</td>
-              <td className="border px-4 py-2">{general.language}</td>
+              <td className="border px-4 py-2">{general.languages.join(", ")}</td>
             </tr>
             <tr>
               <td className="border px-4 py-2 font-bold">Email:</td>

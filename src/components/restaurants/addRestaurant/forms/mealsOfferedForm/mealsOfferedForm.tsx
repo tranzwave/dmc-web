@@ -18,7 +18,8 @@ import { Input } from "~/components/ui/input";
 
 interface MealsOfferedFormProps {
   onAddMeal: (meal: MealType) => void;
-  selectedMealType: MealType
+  selectedMealType: MealType;
+  isEditing?: boolean;
 }
 
 // Define the schema for form validation
@@ -28,7 +29,7 @@ export const mealsOfferedSchema = z.object({
   endTime: z.string().min(1, "Contact number is required"),
 });
 
-const MealsOfferedForm: React.FC<MealsOfferedFormProps> = ({ onAddMeal, selectedMealType }) => {
+const MealsOfferedForm: React.FC<MealsOfferedFormProps> = ({ onAddMeal, selectedMealType, isEditing }) => {
   const mealsOfferedForm = useForm<MealType>({
     resolver: zodResolver(mealsOfferedSchema),
     defaultValues: {
@@ -104,7 +105,7 @@ const MealsOfferedForm: React.FC<MealsOfferedFormProps> = ({ onAddMeal, selected
 
         <div className="flex w-full flex-row justify-end">
           <Button type="submit" variant={"primaryGreen"}>
-            Add Meal
+            {isEditing ? "Update Meal" : "Add Meal"}
           </Button>
         </div>
       </form>

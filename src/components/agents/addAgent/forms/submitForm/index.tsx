@@ -1,3 +1,4 @@
+import { useOrganization } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAddAgent } from "~/app/dashboard/agents/add/context";
@@ -13,8 +14,12 @@ const SubmitForm = () => {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const router = useRouter();
+  const { organization, isLoaded } = useOrganization();
 
   const handleSubmit = async () => {
+    if(!organization) {
+      return;
+    }
     console.log("Submitting agent details:", agentDetails);
 
     const agentData: InsertAgent[] = [
@@ -22,14 +27,15 @@ const SubmitForm = () => {
         name: general.name,
         countryCode: general.countryCode,
         email: general.email,
-        tenantId: "",
+        tenantId: organization.id,
         agency: general.agency,
         primaryContactNumber: general.primaryContactNumber,
       },
     ];
 
     try {
-      await insertAgent(agentData); // No need to store response since it returns void
+      setLoading(true);
+      await insertAgent(agentData, organization.id); // No need to store response since it returns void
 
       console.log("Success");
       setLoading(false);

@@ -7,9 +7,9 @@ import { useAddGuideTransport } from "~/app/dashboard/transport/guide/add/contex
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
 import { updateGuideAndRelatedData } from "~/server/db/queries/transport";
-import { InsertGuide, InsertLanguage } from "~/server/db/schemaTypes";
+import { InsertGuide, InsertLanguage, SelectLanguage } from "~/server/db/schemaTypes";
 
-const EditTransportSubmitForm = ({id,originalGuideData: originalGuideData}:{id:string,originalGuideData:GuideData | null}) => {
+const EditTransportSubmitForm = ({id,originalGuideData: originalGuideData, existingLanguages}:{id:string,originalGuideData:GuideData | null, existingLanguages:SelectLanguage[]}) => {
     const { transportDetails } = useAddGuideTransport();
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -36,17 +36,22 @@ const EditTransportSubmitForm = ({id,originalGuideData: originalGuideData}:{id:s
             id: originalGuideData?.id ?? ""
         }]
 
-        const languages:InsertLanguage[] = [{
-            name:"English",
-            code: "en"
-        }]
+        const newLanguages:InsertLanguage[] = general.languages.map((l) => {
+            const language = existingLanguages.find((lang) => lang.name === l);
+            if (!language) {
+              throw new Error("Language not found");
+            }
+            return language;
+          }
+          );
       
         try {
           // Replace insertDriver with your function to handle the insertion of driver details
+          setLoading(true);
           const response = await updateGuideAndRelatedData(
             id,
             guideData[0] ?? null,
-            languages
+            newLanguages
           );
       
           if (!response) {
@@ -96,7 +101,7 @@ const EditTransportSubmitForm = ({id,originalGuideData: originalGuideData}:{id:s
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">Language:</td>
-                            <td className="border px-4 py-2">{general.language}</td>
+                            <td className="border px-4 py-2">{general.languages.join(", ")}</td>
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">Email:</td>

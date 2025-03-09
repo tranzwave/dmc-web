@@ -55,6 +55,7 @@ const VehiclesForm: React.FC<VehiclesFormProps> = ({ onAddVehicles,selectedVehic
     onAddVehicles({
       ...values,
       seats: Number(values.seats),
+      id: selectedVehicle.id ?? undefined
     });
     form.reset();
   }

@@ -7,7 +7,7 @@ import DocumentsTab from "~/components/transports/guide/addTransport/forms/docum
 import GeneralTab from "~/components/transports/guide/addTransport/forms/generalForm";
 import EditTransportSubmitForm from "~/components/transports/guide/addTransport/forms/submitForm/editTransportSubmit";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { getGuideDataById } from "~/server/db/queries/transport";
+import { getGuideDataById, getOtherTransportById } from "~/server/db/queries/transport";
 import {
   SelectCity,
   SelectGuide,
@@ -15,77 +15,35 @@ import {
   SelectLanguage
 } from "~/server/db/schemaTypes";
 import { AddGuideTransportProvider, useAddGuideTransport } from "../../add/context";
+import { OtherTransportDTO } from "../page";
+import { EditOtherTransportProvider, useEditOtherTransport } from "./context";
+import AddOtherTransportGeneralTab from "~/components/transports/addTransport/forms/generalForm/other-transport";
+import AddOtherTransportGeneralForm from "~/components/transports/addTransport/forms/generalForm/other-transport/generalForm";
+import CityAdder from "~/components/common/cityAdder";
+import { is } from "drizzle-orm";
 
-export type GuideData = SelectGuide & {
-  city: SelectCity;
-  languages: (SelectGuideLanguage & {
-    language: SelectLanguage;
-  })[];
-};
-
-// const SubmitForm = () => {
-//   const { transportDetails } = useAddTransport();
-
-//   const handleSubmit = () => {
-//     // Handle the submission of activityDetails
-//     console.log('Submitting booking details:', transportDetails);
-//   };
-
-//   return (
-//     <div className='flex flex-col gap-3'>
-//       <div className='card w-full h-10'>
-//         <p>Review all the details and submit your activity.</p>
-//       </div>
-//       <div className='flex w-full justify-center'>
-//         <Button variant="primaryGreen" onClick={handleSubmit}>
-//           Submit
-//         </Button>
-//       </div>
-
-//     </div>
-//   );
-// };
-
-const EditTransport = ({ id }: { id: string }) => {
+const EditOtherTransport = ({ id }: { id: string }) => {
   const pathname = usePathname();
   const {
     setGeneralDetails,
-    setDocumetsDetails,
-    transportDetails,
-    setActiveTab,
-    activeTab,
-  } = useAddGuideTransport();
+    otherTransportDetails
+  } = useEditOtherTransport();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [guideData, setGuideData] = useState<GuideData>();
+  const [otherTransportData, setOtherTransportData] = useState<OtherTransportDTO>();
 
   useEffect(() => {
-    async function fetchGuideDetails() {
+    async function fetchOtherTransportDetails() {
       try {
         setLoading(true);
-        const selectedGuide = await getGuideDataById(id);
-        if (!selectedGuide) {
+        const response = await getOtherTransportById(id);
+        if (!response) {
           throw new Error("Couldn't find guide");
         }
 
-        setGuideData(selectedGuide);
-        setGeneralDetails({
-          name: selectedGuide.name,
-          city: selectedGuide.cityId.toString(),
-          type: selectedGuide.type,
-          includes: {
-            documents: true,
-          },
-          language: selectedGuide.languages[0]?.language.id.toString() ?? "",
-          primaryContactNumber: selectedGuide.primaryContactNumber,
-          primaryEmail: selectedGuide.primaryEmail,
-          province: selectedGuide.province,
-          streetName: selectedGuide.streetName,
-        });
+        setOtherTransportData(response);
+        setGeneralDetails(response);
 
-        setDocumetsDetails({
-          guideLicense: selectedGuide.guideLicense ?? "",
-        });
       } catch (error) {
         console.error("Failed to fetch guide details:", error);
         setError("Failed to load guide details.");
@@ -94,7 +52,7 @@ const EditTransport = ({ id }: { id: string }) => {
       }
     }
 
-    fetchGuideDetails();
+    fetchOtherTransportDetails();
   }, [id]);
 
   if (loading) {
@@ -113,70 +71,41 @@ const EditTransport = ({ id }: { id: string }) => {
       <div className="flex-1">
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
-            <TitleBar title="Add Driver" link="toAddTransport" />
+            <TitleBar title="Edit Other Transport" link="toAddTransport" />
             {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
             </div> */}
           </div>
-          <div className="w-full">
-            <Tabs
-              defaultValue="general"
-              className="w-full border"
-              value={activeTab}
-            >
-              <TabsList className="flex w-full justify-evenly">
-                <TabsTrigger
-                  value="general"
-                  isCompleted={false}
-                  onClick={() => setActiveTab("general")}
-                  inProgress={activeTab == "general"}
-                >
-                  General
-                </TabsTrigger>
-        
-                    <TabsTrigger
-                      value="documents"
-                      statusLabel="Mandatory"
-                      isCompleted={
-                        transportDetails.documents.guideLicense.length >
-                        1
-                      }
-                      inProgress={activeTab == "documents"}
-                      disabled={
-                        transportDetails.general.name.length! > 0 
-                      }
-                    >
-                      Documents
-                    </TabsTrigger>
-                <TabsTrigger
-                  value="submit"
-                  isCompleted={transportDetails.general.name.length > 0}
-                  inProgress={activeTab == "general"}
-                  disabled={
-                    !transportDetails.documents.guideLicense 
+          <div className="w-full flex justify-center">
+            <div className="flex flex-col w-[90%] mt-2 border rounded-md p-3">
+              <div className="w-full">
+                <AddOtherTransportGeneralForm 
+                defaultValues={
+                  {
+                    name: otherTransportData?.name ?? "",
+                    primaryEmail: otherTransportData?.primaryEmail ?? "",
+                    primaryContactNumber: otherTransportData?.primaryContactNumber ?? "",
+                    streetName: otherTransportData?.streetName ?? "",
+                    cityId: otherTransportData?.cityId.toString() ?? "",
+                    province: otherTransportData?.province ?? "",
+                    transportMethod: otherTransportData?.transportMethod as "Sea" | "Land" | "Air" ?? "Land",
+                    vehicleType: otherTransportData?.vehicleType ?? "",
+                    startLocation: otherTransportData?.startLocation ?? "",
+                    destination: otherTransportData?.destination ?? "",
+                    capacity: otherTransportData?.capacity ?? 1,
+                    price: Number(otherTransportData?.price) ?? 0,
+                    notes: otherTransportData?.notes ?? "",
                   }
-                >
-                  Submit
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="general">
-                {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
-                <GeneralTab />
-              </TabsContent>
-        
-              <TabsContent value="documents">
-                <DocumentsTab />
-              </TabsContent>
-          
-              <TabsContent value="submit">
-                <EditTransportSubmitForm
-                  id={id}
-                  originalGuideData={guideData ?? null}
+                }
+                isEdit={true}
+                idToEdit={id}
                 />
-              </TabsContent>
-            </Tabs>
+
+              </div>
+              <CityAdder />
+            </div>
           </div>
         </div>
       </div>
@@ -184,15 +113,15 @@ const EditTransport = ({ id }: { id: string }) => {
   );
 };
 
-export default function WrappedEditTransport() {
+export default function WrappedEditOtherTransport() {
   const { id } = useParams();
   return (
-    <AddGuideTransportProvider>
+    <EditOtherTransportProvider>
       {id ? (
-        <EditTransport id={id as string} />
+        <EditOtherTransport id={id as string} />
       ) : (
         <div>No transport ID provided.</div>
       )}
-    </AddGuideTransportProvider>
+    </EditOtherTransportProvider>
   );
 }

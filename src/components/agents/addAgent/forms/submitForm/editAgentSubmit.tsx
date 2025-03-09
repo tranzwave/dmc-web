@@ -32,6 +32,7 @@ const EditAgentSubmitForm = ({ id, originalAgentData }: { id: string; originalAg
     }];
 
     try {
+      setLoading(true);
       const response = await updateAgent(id, agentData[0] ?? null);
 
       if (!response) {

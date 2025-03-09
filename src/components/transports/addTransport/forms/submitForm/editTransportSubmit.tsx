@@ -1,23 +1,30 @@
 "use client"
+import { useOrganization } from "@clerk/nextjs";
 import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { DriverData } from "~/app/dashboard/transport/[id]/edit/page";
 import { useAddTransport } from "~/app/dashboard/transport/add/context";
+import LoadingLayout from "~/components/common/dashboardLoading";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
-import { updateDriverAndRelatedData } from "~/server/db/queries/transport";
-import { InsertDriver, InsertLanguage, InsertVehicle } from "~/server/db/schemaTypes";
+import { updateDriverAndRelatedData, updateDriverVehicles } from "~/server/db/queries/transport";
+import { InsertDriver, InsertLanguage, InsertVehicle, SelectLanguage } from "~/server/db/schemaTypes";
 
-const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriverData:DriverData | null}) => {
+const EditTransportSubmitForm = ({id,originalDriverData, languages}:{id:string,originalDriverData:DriverData | null, languages:SelectLanguage[]}) => {
     const { transportDetails } = useAddTransport();
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const { toast } = useToast()
     const { general, vehicles, charges, documents } = transportDetails;
     const router = useRouter()
+    const { organization, isLoaded } = useOrganization();
+    // const [isUpdating, setIsUpdating] = useState(false);
 
     const updateDriver = async () => {
+        if(!organization) {
+            throw new Error("Organization not found")
+        }
         console.log({
           general,
           vehicles,
@@ -56,37 +63,58 @@ const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriv
                 tenantId:"",
                 year:Number(v.year),
                 revenueLicense: v.vrl,
+                id:v.id ?? undefined
             }
         })
 
-        const languages:InsertLanguage[] = [{
-            name:"English",
-            code: "en"
-        }]
+        const driversLanguages: SelectLanguage[] = general.languages.map((l) => {
+            const language = languages.find((lang) => lang.name === l);
+            if (!language) {
+              throw new Error("Language not found");
+            }
+            return language;
+          }
+          );
+
+          console.log("update driver data",{
+            driverData,
+            vehicleData,
+            driversLanguages,
+          })
       
         try {
           // Replace insertDriver with your function to handle the insertion of driver details
+          setLoading(true);
           const response = await updateDriverAndRelatedData(
             id,
             driverData[0] ?? null,
             vehicleData,
-            languages
+            driversLanguages,
+            organization.id,
             // charges,
             // documents,
           );
-      
           if (!response) {
             throw new Error(`Error: Failed to insert driver`);
           }
+
+          const newVehicleResponse = await updateDriverVehicles(id, vehicleData, organization.id);
+
+            if (!newVehicleResponse) {
+                throw new Error(`Error: Failed to insert driver vehicles`);
+            }
+      
       
           console.log("Success:", response);
       
           setLoading(false);
+
           // Handle successful response (e.g., show a success message)
           toast({
             title: "Success",
             description: "Driver updated successfully",
           });
+
           router.push("/dashboard/transport")
         } catch (error) {
           if (error instanceof Error) {
@@ -105,7 +133,10 @@ const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriv
           setLoading(false);
         }
       };
-      
+    
+    if(!isLoaded){
+        return <LoadingLayout/>
+    }
 
     return (
         <div>
@@ -121,8 +152,8 @@ const EditTransportSubmitForm = ({id,originalDriverData}:{id:string,originalDriv
                             <td className="border px-4 py-2 w-1/2 ">{general.name}</td>
                         </tr>
                         <tr>
-                            <td className="border px-4 py-2 font-bold">Language:</td>
-                            <td className="border px-4 py-2">{general.language}</td>
+                            <td className="border px-4 py-2 font-bold">Languages:</td>
+                            <td className="border px-4 py-2">{general.languages.join(", ")}</td>
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">Email:</td>

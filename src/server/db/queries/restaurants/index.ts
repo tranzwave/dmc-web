@@ -245,6 +245,19 @@ async function updateRestaurantMeals(
     return mealIds;
 }
 
+export async function deleteRestaurantMeal(mealId: string) {
+    try {
+        await db.delete(restaurantMeal)
+            .where(eq(restaurantMeal.id, mealId));
+
+        console.log("Meal deleted successfully");
+        return true
+    } catch (error) {
+        console.error("Error deleting meal:", error);
+        throw error; // Re-throw the error to handle it elsewhere if needed
+    }
+}
+
 
 export async function deleteRestaurantCascade(restaurantId: string) {
     try {
