@@ -16,13 +16,14 @@ const VehiclesTab = () => {
     year: "",
     vrl: "",
   });
+  const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const { addVehicles, transportDetails, setActiveTab, deleteVehicle, duplicateVehicle } =
     useAddTransport();
 
   const updateVehicles = (vehicles: Vehicles) => {
     console.log(vehicles);
-    addVehicles(vehicles);
+    addVehicles(vehicles, isEditing, selectedVehicle.id);
     setSelectedVehicle({
       vehicle: "",
       numberPlate: "",
@@ -32,11 +33,13 @@ const VehiclesTab = () => {
       year: "",
       vrl: "",
     });
+    setIsEditing(false);
   };
 
   const onRowEdit = (row: Vehicles) => {
     console.log(row);
     setSelectedVehicle(row);
+    setIsEditing(true);
   };
 
   const onRowDuplicate = (row: Vehicles) => {

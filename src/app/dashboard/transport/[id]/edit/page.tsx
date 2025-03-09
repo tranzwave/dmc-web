@@ -12,7 +12,7 @@ import VehiclesTab from "~/components/transports/addTransport/forms/vehiclesForm
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Driver } from "~/lib/api";
-import { getDriverDataById } from "~/server/db/queries/transport";
+import { getAllLanguages, getDriverDataById } from "~/server/db/queries/transport";
 import {
   SelectCity,
   SelectDriver,
@@ -33,29 +33,6 @@ export type DriverData = SelectDriver & {
   })[];
 };
 
-// const SubmitForm = () => {
-//   const { transportDetails } = useAddTransport();
-
-//   const handleSubmit = () => {
-//     // Handle the submission of activityDetails
-//     console.log('Submitting booking details:', transportDetails);
-//   };
-
-//   return (
-//     <div className='flex flex-col gap-3'>
-//       <div className='card w-full h-10'>
-//         <p>Review all the details and submit your activity.</p>
-//       </div>
-//       <div className='flex w-full justify-center'>
-//         <Button variant="primaryGreen" onClick={handleSubmit}>
-//           Submit
-//         </Button>
-//       </div>
-
-//     </div>
-//   );
-// };
-
 const EditTransport = ({ id }: { id: string }) => {
   const pathname = usePathname();
   const [transport, setTransport] = useState<Driver | null>(null);
@@ -73,6 +50,8 @@ const EditTransport = ({ id }: { id: string }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [driverData, setDriverData] = useState<DriverData>();
+  const [isFetchingLanguages, setIsFetchingLanguages] = useState<boolean>(false);
+  const [languages, setLanguages] = useState<SelectLanguage[]>([]);
 
   useEffect(() => {
     async function fetchDriverDetails() {
@@ -82,6 +61,8 @@ const EditTransport = ({ id }: { id: string }) => {
         if (!selectedDriver) {
           throw new Error("Couldn't find driver");
         }
+
+        console.log("Selected driver:", selectedDriver);
 
         setDriverData(selectedDriver);
         setGeneralDetails({
@@ -93,7 +74,7 @@ const EditTransport = ({ id }: { id: string }) => {
             documents: true,
             vehicles: true,
           },
-          language: selectedDriver.languages[0]?.language.id.toString() ?? "",
+          languages: selectedDriver.languages.map(l => l.language.name),
           primaryContactNumber: selectedDriver.primaryContactNumber,
           primaryEmail: selectedDriver.primaryEmail,
           province: selectedDriver.province,
@@ -109,6 +90,7 @@ const EditTransport = ({ id }: { id: string }) => {
             seats: v.vehicle.seats,
             vrl: v.vehicle.revenueLicense,
             year: v.vehicle.year.toString(),
+            id: v.vehicleId,
           });
         });
 
@@ -133,11 +115,29 @@ const EditTransport = ({ id }: { id: string }) => {
         setLoading(false);
       }
     }
+    async function fetchLanguages() {
+      try {
+        setIsFetchingLanguages(true);
+        const response = await getAllLanguages();
+        
+        if (!response) {
+          throw new Error("No languages found");
+        }
+
+
+        setLanguages(response);
+        setIsFetchingLanguages(false);
+      } catch (error) {
+        console.error("Error fetching languages:", error);
+        setIsFetchingLanguages(false);
+      }
+    }
 
     fetchDriverDetails();
+    fetchLanguages();
   }, [id]);
 
-  if (loading) {
+  if (loading || isFetchingLanguages) {
     return (
       <div>
         <LoadingLayout />
@@ -156,7 +156,7 @@ const EditTransport = ({ id }: { id: string }) => {
       <div className="flex-1">
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
-            <TitleBar title="Add Driver" link="toAddTransport" />
+            <TitleBar title={isGuide ? 'Edit Guide' : 'Edit Driver'} link="toAddTransport" />
             <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
@@ -252,6 +252,7 @@ const EditTransport = ({ id }: { id: string }) => {
                 <EditTransportSubmitForm
                   id={id}
                   originalDriverData={driverData ?? null}
+                  languages={languages}
                 />
               </TabsContent>
             </Tabs>

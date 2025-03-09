@@ -3,6 +3,7 @@ import { Charges } from "~/components/transports/addTransport/forms/chargesForm/
 import { Documents } from "~/components/transports/addTransport/forms/documentsForm/columns";
 import { General } from "~/components/transports/addTransport/forms/generalForm/columns";
 import { Vehicles } from "~/components/transports/addTransport/forms/vehiclesForm/columns";
+import { SelectLanguage } from "~/server/db/schemaTypes";
 
 interface TransportDetails {
   general: General;
@@ -16,7 +17,7 @@ interface AddTransportContextProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   setGeneralDetails: (details: General) => void;
-  addVehicles: (vehicles: Vehicles) => void;
+  addVehicles: (vehicles: Vehicles, isEditing?:boolean, vehicleId?:string) => void;
   deleteVehicle: (numberPlate: string) => void;
   setChargesDetails: (charges: Charges) => void;
   setDocumetsDetails: (documents: Documents) => void;
@@ -25,7 +26,7 @@ interface AddTransportContextProps {
 
 const defaultGeneral: General = {
   name: "",
-  language: "",
+  languages: ["en"],
   primaryEmail: "",
   primaryContactNumber: "",
   streetName: "",
@@ -77,24 +78,64 @@ export const AddTransportProvider: React.FC<{ children: ReactNode }> = ({
     setTransportDetails((prev) => ({ ...prev, general: details }));
   };
 
-  const addVehicles = (vehicles: Vehicles) => {
-    const foundVehicle = transportDetails.vehicles.find(
-      (v) => v.numberPlate === vehicles.numberPlate,
-    );
-    if (foundVehicle) {
-      const prevVehicles = transportDetails.vehicles.filter(
-        (v) => v.numberPlate !== vehicles.numberPlate,
-      );
-      prevVehicles.push(vehicles);
-      setTransportDetails((prev) => ({ ...prev, vehicles: prevVehicles }));
-      return;
-    }
-    setTransportDetails((prev) => ({
-      ...prev,
-      vehicles: [...prev.vehicles, vehicles],
-    }));
-  };
+  // const addVehicles = (vehicles: Vehicles) => {
+  //   const foundVehicle = transportDetails.vehicles.find(
+  //     (v) => v.numberPlate === vehicles.numberPlate,
+  //   );
+  //   if (foundVehicle) {
+  //     const prevVehicles = transportDetails.vehicles.filter(
+  //       (v) => v.numberPlate !== vehicles.numberPlate,
+  //     );
+  //     prevVehicles.push(vehicles);
+  //     setTransportDetails((prev) => ({ ...prev, vehicles: prevVehicles }));
+  //     return;
+  //   }
+  //   setTransportDetails((prev) => ({
+  //     ...prev,
+  //     vehicles: [...prev.vehicles, vehicles],
+  //   }));
 
+  //   // Filter out same vehicles
+  //   setTransportDetails((prev) => ({
+  //     ...prev,
+  //     vehicles: prev.vehicles.filter(
+  //       (vehicle, index, self) =>
+  //         index ===
+  //         self.findIndex(
+  //           (v) => v.numberPlate === vehicle.numberPlate,
+  //         ),
+  //     ),
+  //   }));
+  // };
+
+  const addVehicles = (vehicle: Vehicles, isEditing?:boolean, vehicleId?:string) => {
+    if(isEditing && vehicleId){
+      const updatedVehicles = transportDetails.vehicles.map((v) =>
+        v.id === vehicleId ? vehicle : v
+      );
+      setTransportDetails((prev) => ({ ...prev, vehicles: updatedVehicles }));
+      return
+    }
+    setTransportDetails((prev) => {
+      const existingVehicleIndex = prev.vehicles.findIndex(
+        (v) => v.numberPlate === vehicle.numberPlate
+      );
+  
+      let updatedVehicles;
+      if (existingVehicleIndex !== -1) {
+        // Replace the existing vehicle with the new one
+        updatedVehicles = prev.vehicles.map((v, index) =>
+          index === existingVehicleIndex ? vehicle : v
+        );
+      } else {
+        // Add new vehicle
+        updatedVehicles = [...prev.vehicles, vehicle];
+      }
+  
+      return { ...prev, vehicles: updatedVehicles };
+    });
+  };
+  
   const duplicateVehicle = (numberPlate: string) => {
     const vehicleToDuplicate = transportDetails.vehicles.find(
       (vehicle) => vehicle.numberPlate === numberPlate

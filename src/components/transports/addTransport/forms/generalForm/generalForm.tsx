@@ -19,6 +19,7 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { MultiSelect } from "~/components/ui/multi-select";
 import {
   Select,
   SelectContent,
@@ -33,7 +34,8 @@ import { SelectCity, SelectLanguage } from "~/server/db/schemaTypes";
 // Define the schema for form validation
 export const generalSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  language: z.string().min(1, "Language is required"),
+  // language: z.string().min(1, "Language is required"),
+  languages: z.array(z.string().min(1, "Language is required")),
   primaryEmail: z.string().email("Invalid email address"),
   primaryContactNumber: z.string().refine(
     (value) => {
@@ -74,7 +76,7 @@ const GeneralForm = () => {
     resolver: zodResolver(generalSchema),
     defaultValues: transportDetails.general,
   });
-  const {memberships, organization, isLoaded} = useOrganization();
+  const { memberships, organization, isLoaded } = useOrganization();
 
 
   const onSubmit: SubmitHandler<GeneralFormValues> = (data) => {
@@ -146,14 +148,26 @@ const GeneralForm = () => {
           />
 
           <FormField
-            name="language"
+            name="languages"
             control={form.control}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Language</FormLabel>
                 <FormControl>
                   {/* <Input placeholder="Enter language" {...field} /> */}
-                  <Select
+                  <MultiSelect
+                    options={languages.map((lang) => ({
+                      value: lang.name,
+                      label: lang.name,
+                    }))}
+                    onValueChange={(values) => field.onChange(values)} // Ensure form state updates
+                    value={field.value} // Ensure form state updates
+                    defaultValue={form.getValues("languages")}
+                    placeholder="Select Languages"
+                    variant="inverted"
+                    maxCount={3}
+                  />
+                  {/* <Select
                     onValueChange={(value) => {
                       field.onChange(value);
                     }}
@@ -173,7 +187,7 @@ const GeneralForm = () => {
                         </SelectItem>
                       ))}
                     </SelectContent>
-                  </Select>
+                  </Select> */}
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -205,7 +219,7 @@ const GeneralForm = () => {
               <FormItem>
                 <FormLabel>Contact Number</FormLabel>
                 <FormControl>
-                <PhoneInput
+                  <PhoneInput
                     country={"us"}
                     value={field.value}
                     onChange={(phone) => field.onChange(`+${phone}`)}
@@ -302,7 +316,7 @@ const GeneralForm = () => {
                         }
                       >
                         <SelectTrigger className="bg-slate-100 shadow-md">
-                          <SelectValue placeholder="Select type"/>
+                          <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="Driver">Driver</SelectItem>
