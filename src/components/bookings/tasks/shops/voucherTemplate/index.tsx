@@ -69,6 +69,7 @@ const ShopVoucherPDF = ({ vouchers, cancellation, organization, user, bookingDat
             </thead>
             <tbody>
               {vouchers.map((v,index) => {
+                if(v.status === "cancelled") return null;
                 return (
                   <tr className="border-b hover:bg-gray-50 h-36 text-[12px]" key={index}>
                     <td className="px-4 py-2">{v.shop.name ?? "N/A"}</td>

@@ -29,4 +29,15 @@ export const updateShopVoucherStatus = async (shopVoucherId: string, status: | "
       throw new Error("Failed to update shop voucher status.");
     }
   };
+
+export const deleteShopVoucher = async (shopVoucherId: string) => {
+    try {
+      await db.delete(shopVoucher).where(eq(shopVoucher.id, shopVoucherId));
+      return true
+    } catch (error) {
+      console.error("Error deleting shop voucher:", error);
+      throw new Error("Failed to delete shop voucher.");
+    }
+  }
+
   
