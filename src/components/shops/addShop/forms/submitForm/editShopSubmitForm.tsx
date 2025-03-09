@@ -44,17 +44,22 @@ const EditShopSubmitForm = ({
       cityId: cityId,
     };
 
-    const shopType: InsertShopType[] = [
-      {
-        name: "Bookstore",
-      },
-    ];
+    // const shopType: InsertShopType[] = [
+    //   {
+    //     name: "Bookstore",
+    //   },
+    // ];
+
+    const updatedShopTypes = general.shopTypes
 
     try {
+      if(!updatedShopTypes) {
+        throw new Error("Shop types are missing");
+      }
       const response = await updateShopAndRelatedData(
         id,
         shopData,
-        shopType,
+        updatedShopTypes,
       );
 
       if (!response) {

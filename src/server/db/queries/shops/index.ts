@@ -212,6 +212,14 @@ export async function updateShopAndRelatedData(
 
     // Update related shop types
     // const updatedShopTypesData = await updatedShopShopTypes(trx, shopId, updatedShopTypes);
+    if(updatedShopTypes.length > 0 && updatedShopTypes?.[0]?.id) {
+      const updatedShopTypesData = await trx
+      .update(shopShopType)
+      .set({
+        shopTypeId: updatedShopTypes[0].id,
+      })
+      .where(eq(shopShopType.shopId, shopId))
+    }
 
     return { updatedShopResult }; // Return both results
   });
@@ -220,54 +228,7 @@ export async function updateShopAndRelatedData(
   return updated;
 }
 
-async function updatedShopShopTypes(
-  trx: any,
-  name: string,
-  updatedShopTypes: InsertShopType[]
-) {
-  if (updatedShopTypes.length === 0) {
-    return [];
-  }
 
-  const shopTypeSqlChunks: SQL[] = [];
-  const shopIds: string[] = [];
-
-  shopTypeSqlChunks.push(sql`(case`);
-
-  for (const shopType of updatedShopTypes) {
-    shopTypeSqlChunks.push(
-      sql`when ${shopShopType.shopId} = ${shopType.name} then ${shopType}`
-    );
-    shopIds.push(shopType.name);
-  }
-
-  shopTypeSqlChunks.push(sql`end)`);
-  const finalShopTypeSql: SQL = sql.join(shopTypeSqlChunks, sql.raw(' '));
-
-  // Remove existing language relationships
-  await trx.delete(shopShopType).where(eq(shopShopType.shopId, name));
-
-  // Update language records
-  await trx
-    .update(shopShopType)
-    .set({
-      // Assuming language data can be updated as a JSON object
-      shopTypeDetails: finalShopTypeSql,
-    })
-    .where(inArray(shopShopType.shopId, shopIds));
-
-  // Reinsert driver-language relationships
-  const addedShopTypeLinks = await trx
-    .insert(shopShopType)
-    .values(
-      shopIds.map((shopTypeId) => ({
-        driverId: name,
-        shopId: shopTypeId,
-      }))
-    );
-
-  return addedShopTypeLinks;
-}
 
 export async function deleteShopCascade(shopId: string) {
   try {
@@ -287,6 +248,17 @@ export async function deleteShopCascade(shopId: string) {
     return deletedShopId;
   } catch (error) {
     console.error("Error deleting shop and related data:", error);
+    throw error;
+  }
+}
+
+export async function createShopType(newShopType: InsertShopType) {
+  try {
+    const addedShopType = await db.insert(shopType).values(newShopType).returning();
+
+    return addedShopType;
+  } catch (error) {
+    console.error("Error creating shop type:", error);
     throw error;
   }
 }
