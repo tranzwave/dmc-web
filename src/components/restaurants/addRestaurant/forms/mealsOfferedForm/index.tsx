@@ -8,6 +8,8 @@ import { Button } from "~/components/ui/button";
 import { InsertMeal } from "~/server/db/schemaTypes";
 import { columns } from "./columns";
 import MealsOfferedForm from "./mealsOfferedForm";
+import { deleteRestaurantMeal } from "~/server/db/queries/restaurants";
+import { toast } from "~/hooks/use-toast";
 
 const MealsOfferedTab = () => {
   const [addedMealsOffered, setAddedMealsOffered] = useState<InsertMeal[]>([]); // State to handle added activities
@@ -18,24 +20,61 @@ const MealsOfferedTab = () => {
     startTime: "",
     endTime: "",
   });
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const updateMealsOffered = (meal: InsertMeal) => {
     console.log("Adding Meals Offered");
     addMeals(meal);
     setAddedMealsOffered((prevMealsOffered) => [...prevMealsOffered, meal]); // Update local state
+    setSelectedMealType({
+      mealType: "",
+      startTime: "",
+      endTime: "",
+      id: undefined
+    })
   };
 
   const onRowEdit = (row: MealType) => {
     console.log(row);
-    setSelectedMealType(row);
+    if(row.id){
+      setSelectedMealType(row);
+    } else {
+      toast({
+        title: "This meal has not been saved",
+        description: "Please save the meal before editing or delete the meal and add a new one with correct details",
+      })
+    }
   };
 
-  const onRowDuplicate = (row: MealType) => {
-    duplicateMealType(row.mealType, row.startTime, row.endTime);
-  };
-
-  const onRowDelete = (row: MealType) => {
-    deleteMealType(row.mealType, row.startTime, row.endTime);
+  const onRowDelete = async (row: MealType) => {
+    try {
+      if(row.id){
+        setIsDeleting(true);
+        const response = await deleteRestaurantMeal(row.id);
+        if (!response) {
+          throw new Error(`Error: Failed to delete meal`);
+        }
+      }
+      deleteMealType(row.mealType, row.startTime, row.endTime);
+      setIsDeleting(false);
+      toast({
+        title: "success",
+        description: "Meal deleted successfully",
+      })
+      setSelectedMealType({
+        mealType: "",
+        startTime: "",
+        endTime: "",
+        id: undefined
+      })
+    } catch (error) {
+      console.log(error);
+      setIsDeleting(false);
+      toast({
+        title: "error",
+        description: "Failed to delete meal",
+      });
+    }
   };
 
   return (
@@ -54,8 +93,12 @@ const MealsOfferedTab = () => {
             data={restaurantDetails.mealsOffered}
             onDelete={onRowDelete}
             onEdit={onRowEdit}
-            onRowClick={onRowEdit}
-            onDuplicate={onRowDuplicate}
+            onRowClick={(row) => {
+              // setSelectedMealType(row)
+              console.log(row)
+            }}
+            isDeleting={isDeleting}
+            // onDuplicate={onRowDuplicate}
           />
         </div>
         <div className="flex w-full justify-end">

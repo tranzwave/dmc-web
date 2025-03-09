@@ -588,6 +588,23 @@ async function updateHotelRooms(trx: any, hotelId: string, updatedRooms: InsertH
   return roomIds;
 }
 
+export async function deleteHotelRoom(roomId: string) {
+  try {
+    const deletedRoomId = await db.transaction(async (trx) => {
+      const deletedRoom = await trx
+        .delete(hotelRoom)
+        .where(eq(hotelRoom.id, roomId)).returning({id:hotelRoom.id});
+      return deletedRoom;
+    });
+
+    console.log("Room deleted successfully");
+    return deletedRoomId;
+  } catch (error) {
+    console.error("Error deleting room:", error);
+    throw error; // Re-throw the error to handle it elsewhere if needed
+  }
+}
+
 
 // Function to update hotel staff
 async function updateHotelStaff(trx: any, hotelId: string, updatedStaff: InsertHotelStaff[]) {
@@ -616,6 +633,23 @@ async function updateHotelStaff(trx: any, hotelId: string, updatedStaff: InsertH
   }
 
   return staffIds;
+}
+
+export async function deleteHotelStaff(staffId: string) {
+  try {
+    const deletedStaffId = await db.transaction(async (trx) => {
+      const deletedStaff = await trx
+        .delete(hotelStaff)
+        .where(eq(hotelStaff.id, staffId)).returning({id:hotelStaff.id});
+      return deletedStaff;
+    });
+
+    console.log("Staff deleted successfully");
+    return deletedStaffId;
+  } catch (error) {
+    console.error("Error deleting staff:", error);
+    throw error; // Re-throw the error to handle it elsewhere if needed
+  }
 }
 
 
