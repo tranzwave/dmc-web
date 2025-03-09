@@ -8,6 +8,8 @@ import { StatsCard } from "~/components/ui/stats-card";
 import { getRestaurantVendorById, getRestaurantVouchersForVendor } from "~/server/db/queries/restaurants";
 import { SelectRestaurant, SelectRestaurantVoucher } from "~/server/db/schemaTypes";
 import { RestaurantData } from "../page";
+import LoadingLayout from "~/components/common/dashboardLoading";
+import { formatDate } from "date-fns";
 
 export type FetchedRestaurantVendorData = Awaited<ReturnType<typeof getRestaurantVendorById>>;
 
@@ -44,7 +46,10 @@ const Page = ({ params }: { params: { id: string } }) => {
       try {
         setLoading(true);
         const result = await getRestaurantVendorById(params.id);
-        setRestaurant(result ?? null);
+        if(!result) {
+          throw new Error("Couldn't find restaurant vendor");
+        }
+        setRestaurant(result);
       } catch (error) {
         console.error("Failed to fetch activity data:", error);
         setError("Failed to load data.");
@@ -57,7 +62,9 @@ const Page = ({ params }: { params: { id: string } }) => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>
+      <LoadingLayout/>
+    </div>;
   }
 
   if (error) {
@@ -68,7 +75,7 @@ const Page = ({ params }: { params: { id: string } }) => {
   //   return <div>No activity found with the given ID.</div>;
   // }
   if (!restaurant) {
-    return <div>No vendor found with the given ID.</div>;
+    return <div></div>;
   }
   return (
     <div className="flex flex-col gap-3 w-full justify-between">
@@ -79,7 +86,7 @@ const Page = ({ params }: { params: { id: string } }) => {
           <div className="w-full">
             <ContactBox
               title={restaurant.name }
-              description="Egestas elit dui scelerisque ut eu purus aliquam vitae habitasse."
+              description="This is the overview page of the selected restaurant."
               location={restaurant.city.name}
               address={
                 restaurant.streetName +
@@ -92,18 +99,18 @@ const Page = ({ params }: { params: { id: string } }) => {
           </div>
         </div>
         <div className="card w-[70%] space-y-6">
-          <div>Current Booking</div>
+          <div>Bookings</div>
           <DataTable columns={RestaurantVoucherColumns} data={data} />
 
-          <div>Booking History</div>
+          <div>Booking Stats</div>
           <div className="col-span-3 flex justify-between gap-6">
-            <StatsCard label="5 Star ratings" value="10" />
-            <StatsCard label="Bookings Completed" value="20" />
-            <StatsCard label="Upcoming Bookings" value="5" />
+            <StatsCard label="Inprogress Vouchers" value={data.filter(v => v.status === "inprogress").length} />
+            <StatsCard label="Confirmed Vouchers" value={data.filter(v => v.status === "vendorConfirmed").length} />
+            <StatsCard label="Cancelled Vouchers" value={data.filter(v => v.status === "cancelled").length} />
           </div>
 
-          <div>Trip History</div>
-          <DataTable columns={RestaurantVoucherColumns} data={data} />
+          {/* <div>Trip History</div>
+          <DataTable columns={RestaurantVoucherColumns} data={data} /> */}
         </div>
       </div>
     </div>
@@ -115,7 +122,15 @@ export default Page;
 
 const RestaurantVoucherColumns: ColumnDef<SelectRestaurantVoucher>[] = [
   {
-    header: "Restaurant",
+    header: "Booking ID",
+    accessorFn: (row) => row.bookingLineId,
+  },
+  {
+    header: "Created At",
+    accessorFn: (row) => formatDate(row.createdAt?.toDateString() ?? "", "dd/MM/yyyy"),
+  },
+  { 
+    header: "Status",
     accessorFn: (row) => row.status,
   }
 
