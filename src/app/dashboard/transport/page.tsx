@@ -2,7 +2,7 @@
 import { useOrganization } from "@clerk/nextjs";
 import { Search } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { use, useEffect, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import LoadingLayout from "~/components/common/dashboardLoading";
@@ -31,6 +31,8 @@ const TransportHome = () => {
   const [error, setError] = useState<string | null>(null); // Added error state
   const [searchQuery, setSearchQuery] = useState("");
   const {organization, isLoaded} = useOrganization();
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") ?? "driver");
 
   useEffect(() => {
     async function fetchData() {
@@ -174,7 +176,7 @@ const TransportHome = () => {
             />
           </div>
           <div className="w-full flex items-center justify-center">
-              <Tabs defaultValue="driver" className="w-full justify-center">
+              <Tabs defaultValue={activeTab} className="w-full justify-center">
               <TabsList>
                 <TabsTrigger value="driver">Driver and Chauffeur</TabsTrigger>
                 <TabsTrigger value="guide">Guide</TabsTrigger>

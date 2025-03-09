@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { set } from "date-fns";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { LoaderCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import PhoneInput from "react-phone-input-2";
@@ -29,7 +30,7 @@ import {
 } from "~/components/ui/select";
 import { toast } from "~/hooks/use-toast";
 import { getAllCities } from "~/server/db/queries/activities";
-import { getAllLanguages, insertOtherTransport } from "~/server/db/queries/transport";
+import { getAllLanguages, insertOtherTransport, updateOtherTransport } from "~/server/db/queries/transport";
 import { tenant } from "~/server/db/schema";
 import { SelectCity, SelectLanguage } from "~/server/db/schemaTypes";
 
@@ -64,10 +65,12 @@ type GeneralFormValues = z.infer<typeof generalSchema>;
 //Prop type
 type AddOtherTransportGeneralFormProps = {
   defaultValues?: GeneralFormValues;
+  isEdit?: boolean;
+  idToEdit?:string;
 };
 
 
-const AddOtherTransportGeneralForm = ({ defaultValues }: AddOtherTransportGeneralFormProps) => {
+const AddOtherTransportGeneralForm = ({ defaultValues, isEdit, idToEdit }: AddOtherTransportGeneralFormProps) => {
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState<SelectCity[]>([]);
@@ -80,6 +83,7 @@ const AddOtherTransportGeneralForm = ({ defaultValues }: AddOtherTransportGenera
   });
   const { memberships, organization, isLoaded } = useOrganization();
   const [saving, setSaving] = useState(false);
+  const router = useRouter();
 
 
   const onSubmit: SubmitHandler<GeneralFormValues> = async(data) => {
@@ -103,16 +107,27 @@ const AddOtherTransportGeneralForm = ({ defaultValues }: AddOtherTransportGenera
         throw new Error("Organization ID not found");
       }
 
-      const result = await insertOtherTransport(otherTransport, organization.id);
+      const result = isEdit ? await updateOtherTransport(idToEdit ?? "", otherTransport) : await insertOtherTransport(otherTransport, organization.id);
+
       console.log("Added other transport:", result);
       if (!result) {
         throw new Error("Failed to add other transport");
       }
       setSaving(false);
-      toast({
-        title: "Successfuly Added",
-        description: `${data.vehicleType} has been added successfully`,
-      })
+      if(isEdit){
+        toast({
+          title: "Successfuly Updated",
+          description: `${data.vehicleType} has been updated successfully`,
+        })
+        router.replace("/dashboard/transport?tab=other");
+      } else {
+        toast({
+          title: "Successfuly Added",
+          description: `${data.vehicleType} has been added successfully`,
+        })
+        router.replace("/dashboard/transport?tab=other");
+      }
+      return
     }
     catch (error:any) {
       console.error("Failed to add other transport:", error);

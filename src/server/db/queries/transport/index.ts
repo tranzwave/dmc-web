@@ -961,6 +961,9 @@ export const getAllOtherTransports = async(tenantId:string) => {
 export const getOtherTransportById = async(id: string) => {
   return db.query.otherTransport.findFirst({
     where: eq(otherTransport.id, id),
+    with: {
+      city: true,
+    }
   });
 };
 
