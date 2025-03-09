@@ -3,7 +3,7 @@
 
 export type General = {
   name: string;
-  language: string;
+  languages: string[];
   primaryEmail: string;
   primaryContactNumber: string;
   streetName: string;

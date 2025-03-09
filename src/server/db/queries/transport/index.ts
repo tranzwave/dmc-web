@@ -854,7 +854,7 @@ export async function updateGuideAndRelatedData(
     }
 
     // Update related languages
-    // const updatedLanguagesData = await updateGuideLanguages(trx, guideId, updatedLanguages);
+    const updatedLanguagesData = await updateGuideLanguages(trx, guideId, updatedLanguages);
 
     return { updatedGuideResult: updatedGuideResult };
   });
@@ -866,51 +866,27 @@ export async function updateGuideAndRelatedData(
 async function updateGuideLanguages(
   trx: any,
   guideId: string,
-  updatedLanguages: InsertLanguage[]
+  newLanguagesList: InsertLanguage[]
 ) {
-  // If there are no languages to update, return early
-  if (updatedLanguages.length === 0) {
-    return [];
+  if (newLanguagesList.length === 0) {
+    return []; // Return empty array to avoid transaction failure
   }
-
-  const languageSqlChunks: SQL[] = [];
-  const languageCodes: string[] = [];
-
-  languageSqlChunks.push(sql`(case`);
-
-  for (const language of updatedLanguages) {
-    languageSqlChunks.push(
-      sql`when ${guideLanguage.languageCode} = ${language.code} then ${language}`
-    );
-    languageCodes.push(language.code);
-  }
-
-  languageSqlChunks.push(sql`end)`);
-  const finalLanguageSql: SQL = sql.join(languageSqlChunks, sql.raw(' '));
 
   // Remove existing language relationships
-  await trx.delete(guideLanguage).where(eq(guideLanguage.guideId, guideId));
+  await trx.delete(guideLanguage).where(eq(guideLanguage.guideId, guideId)).execute();
 
-  // Update language records
-  await trx
-    .update(guideLanguage)
-    .set({
-      // Assuming language data can be updated as a JSON object
-      languageDetails: finalLanguageSql,
-    })
-    .where(inArray(guideLanguage.languageCode, languageCodes));
-
-  // Reinsert driver-language relationships
-  const addedLanguageLinks = await trx
+  // Insert new languages
+  const updatedLanguages = await trx
     .insert(guideLanguage)
     .values(
-      languageCodes.map((code) => ({
+      newLanguagesList.map((language) => ({
         guideId,
-        languageCode: code,
+        languageCode: language.code,
       }))
-    );
+    )
+    .returning({ id: guideLanguage.languageCode });
 
-  return addedLanguageLinks;
+  return updatedLanguages;
 }
 
 export async function deleteDriverCascade(driverId: string) {

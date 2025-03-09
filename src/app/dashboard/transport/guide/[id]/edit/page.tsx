@@ -7,7 +7,7 @@ import DocumentsTab from "~/components/transports/guide/addTransport/forms/docum
 import GeneralTab from "~/components/transports/guide/addTransport/forms/generalForm";
 import EditTransportSubmitForm from "~/components/transports/guide/addTransport/forms/submitForm/editTransportSubmit";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { getGuideDataById } from "~/server/db/queries/transport";
+import { getAllLanguages, getGuideDataById } from "~/server/db/queries/transport";
 import {
   SelectCity,
   SelectGuide,
@@ -58,6 +58,9 @@ const EditTransport = ({ id }: { id: string }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [guideData, setGuideData] = useState<GuideData>();
+  const [isFetchingLanguages, setIsFetchingLanguages] = useState<boolean>(false);
+  const [languages, setLanguages] = useState<SelectLanguage[]>([]);
+
 
   useEffect(() => {
     async function fetchGuideDetails() {
@@ -76,7 +79,7 @@ const EditTransport = ({ id }: { id: string }) => {
           includes: {
             documents: true,
           },
-          language: selectedGuide.languages[0]?.language.id.toString() ?? "",
+          languages: selectedGuide.languages.map((language) => language.language.name),
           primaryContactNumber: selectedGuide.primaryContactNumber,
           primaryEmail: selectedGuide.primaryEmail,
           province: selectedGuide.province,
@@ -93,11 +96,29 @@ const EditTransport = ({ id }: { id: string }) => {
         setLoading(false);
       }
     }
+    async function fetchLanguages() {
+      try {
+        setIsFetchingLanguages(true);
+        const response = await getAllLanguages();
+        
+        if (!response) {
+          throw new Error("No languages found");
+        }
+
+
+        setLanguages(response);
+        setIsFetchingLanguages(false);
+      } catch (error) {
+        console.error("Error fetching languages:", error);
+        setIsFetchingLanguages(false);
+      }
+    }
 
     fetchGuideDetails();
+    fetchLanguages();
   }, [id]);
 
-  if (loading) {
+  if (loading || isFetchingLanguages) {
     return (
       <div>
         <LoadingLayout />
@@ -174,6 +195,7 @@ const EditTransport = ({ id }: { id: string }) => {
                 <EditTransportSubmitForm
                   id={id}
                   originalGuideData={guideData ?? null}
+                  existingLanguages={languages}
                 />
               </TabsContent>
             </Tabs>

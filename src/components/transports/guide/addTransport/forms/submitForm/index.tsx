@@ -40,10 +40,14 @@ const SubmitForm = () => {
                 guideLicense: documents.guideLicense
             }]
     
-            const guidesLanguage:InsertLanguage[] = [{
-                name:languages.find(lang => lang.id.toString() === general.language)?.name ?? (()=>{throw new Error("Language not found")})(),
-                code: languages.find(lang => lang.id.toString() === general.language)?.code ?? (()=>{throw new Error("Language not found")})()
-            }]
+            const guidesLanguage:InsertLanguage[] = general.languages.map((l) => {
+                const language = languages.find((lang) => lang.name === l);
+                if (!language) {
+                  throw new Error("Language not found");
+                }
+                return language;
+              }
+              );
 
           // Replace insertDriver with your function to handle the insertion of driver details
           const response = await insertGuide(
@@ -121,7 +125,7 @@ const SubmitForm = () => {
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">Language:</td>
-                            <td className="border px-4 py-2">{general.language}</td>
+                            <td className="border px-4 py-2">{general.languages.join(", ")}</td>
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">Email:</td>
