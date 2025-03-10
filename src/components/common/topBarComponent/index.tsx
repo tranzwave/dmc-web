@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   OrganizationSwitcher,
   SignedIn,
@@ -22,7 +22,8 @@ import { toast } from "~/hooks/use-toast";
 import { ClerkOrganizationPublicMetadata } from "~/lib/types/payment";
 import CustomPage from "./customInfoPage";
 import NotificationModalTrigger from "./notifications/modalTrigger";
-import { GuideSheet } from "./faq";
+import GuideSheet from "./faq";
+import { Screen, screens } from "~/lib/constants/guides";
 
 // TopBar component
 const TopBar = () => {
