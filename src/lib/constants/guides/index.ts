@@ -1,5 +1,3 @@
-import { dashboardOverviewGuide } from "~/app/dashboard/overview/guide";
-
 export type Screen = {
   id: string;
   title: string;
