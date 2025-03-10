@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "~/components/ui/dialog";
 import { useToast } from "~/hooks/use-toast";
-import { deleteGuideCascade } from "~/server/db/queries/transport";
+import { deleteOtherTransportCascade } from "~/server/db/queries/transport";
 
 export default function DeleteTransportPage({ params }: { params: { id: string } }) {
   const [isDialogOpen, setIsDialogOpen] = useState(true); // Dialog initially open
@@ -24,21 +24,25 @@ export default function DeleteTransportPage({ params }: { params: { id: string }
     setLoading(true); // Start loading
 
     try {
-      const response = await deleteGuideCascade(params.id)
+      const response = await deleteOtherTransportCascade(params.id)
       if(!response){
-        throw new Error("Couldn't delete driver")
+        throw new Error("Couldn't delete vendor")
       }
       setLoading(false);
-      router.push("/dashboard/transport");
-    } catch (error) {
-      console.error("Error deleting guide:", error);
-      alert("This driver has ongoing vouchers")
       toast({
-        title: "Uh oh! You can't delete this hotel",
-        description:"This guide has ongoing voucher lines"
+        title: "Vendor deleted successfully",
+        description:"Vendor has been deleted successfully"
+      })
+      router.push("/dashboard/transport?tab=other");
+    } catch (error) {
+      console.error("Error deleting vendor:", error);
+      alert("This vendor has ongoing vouchers")
+      toast({
+        title: "Uh oh! You can't delete this vendor",
+        description:"This vendor has ongoing voucher lines"
       })
       setLoading(false);
-      router.push("/dashboard/transport");
+      router.push("/dashboard/transport?tab=other");
     }
   };
   return (
@@ -47,11 +51,11 @@ export default function DeleteTransportPage({ params }: { params: { id: string }
         <DialogHeader>
           <DialogTitle>Confirm Delete</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete this guide?
+            Are you sure you want to delete this vendor?
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="secondary" onClick={() => router.push("/dashboard/transport")}>
+          <Button variant="secondary" onClick={() => router.push("/dashboard/transport?tab=other")}>
             No
           </Button>
           <Button
