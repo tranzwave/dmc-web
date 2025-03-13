@@ -92,7 +92,7 @@ const AddMarketingTeamModal = ({ tenantId, onClose, isOpen, countries, triggerRe
                                 className="w-full"
                             />
                         </div>
-                        <div className="flex flex-col items-start space-y-2">
+                        {/* <div className="flex flex-col items-start space-y-2">
                             <div className="text-base font-medium leading-none">
                                 Country
                             </div>
@@ -119,7 +119,7 @@ const AddMarketingTeamModal = ({ tenantId, onClose, isOpen, countries, triggerRe
                                     ))}
                                 </SelectContent>
                             </Select>
-                        </div>
+                        </div> */}
                     </div>
 
                     {/* Save Button */}

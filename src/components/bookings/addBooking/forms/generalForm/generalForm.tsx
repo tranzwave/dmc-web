@@ -749,7 +749,7 @@ const GeneralForm = ({ allUsers, marketingTeams }: GeneralFormProps) => {
                         {marketingTeams.map((team) => {
                           if ((user?.publicMetadata as ClerkUserPublicMetadata)?.teams?.some(t => t.teamId === team.id)) {
                             return <SelectItem key={team.id} value={team.id}>
-                              {team.name + ' - ' + team.country}
+                              {team.name}
                             </SelectItem>
                           }
                         }

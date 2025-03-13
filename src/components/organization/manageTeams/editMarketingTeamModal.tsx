@@ -105,7 +105,7 @@ interface EditMarketingTeamModalProps {
                                 className="w-full"
                             />
                         </div>
-                        <div className="flex flex-col items-start space-y-2">
+                        {/* <div className="flex flex-col items-start space-y-2">
                             <div className="text-base font-medium leading-none">
                                 Country
                             </div>
@@ -132,7 +132,7 @@ interface EditMarketingTeamModalProps {
                                     ))}
                                 </SelectContent>
                             </Select>
-                        </div>
+                        </div> */}
                     </div>
 
                     {/* Save Button */}
