@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import {
+  OrganizationProfile,
   OrganizationSwitcher,
   SignedIn,
   SignedOut,
@@ -24,6 +25,7 @@ import CustomPage from "./customInfoPage";
 import NotificationModalTrigger from "./notifications/modalTrigger";
 import GuideSheet from "./faq";
 import { Screen, screens } from "~/lib/constants/guides";
+import OrgCustomPage from "./orgCustomInfoPage";
 
 // TopBar component
 const TopBar = () => {
@@ -65,7 +67,7 @@ const TopBar = () => {
         </div>
         <div className="flex flex-row items-center gap-8">
           <div className="flex flex-row items-center gap-3">
-            <GuideSheet/>
+            <GuideSheet />
             <Settings size={20} color="#697077" className="cursor-pointer" onClick={handleSettingsOnClick} />
             <NotificationModalTrigger />
           </div>
@@ -87,7 +89,15 @@ const TopBar = () => {
                   return pathname;
                 }
                 }
-              />
+              >
+                <OrganizationSwitcher.OrganizationProfilePage
+                  label="Other Info"
+                  url="other-info"
+                  labelIcon={<FileText size={15} />}
+                >
+                  <OrgCustomPage />
+                </OrganizationSwitcher.OrganizationProfilePage>
+              </OrganizationSwitcher>
               <div>
                 {/* <UserButton>
                   <UserButton.UserProfilePage label="Custom Page" url="custom" labelIcon={<DotIcon />}>

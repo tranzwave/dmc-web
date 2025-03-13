@@ -44,7 +44,7 @@ export const addMarketingTeam = async (marketingTeamData: InsertMarketingTeam) =
         const insertedMarketingTeams = await db.insert(marketingTeam).values({
             name: marketingTeamData.name,
             tenantId: marketingTeamData.tenantId,
-            country: marketingTeamData.country
+            // country: marketingTeamData.country
         }).returning();
     
         const newMarketingTeam = insertedMarketingTeams[0];
@@ -64,12 +64,12 @@ export const addMarketingTeam = async (marketingTeamData: InsertMarketingTeam) =
 export const updateMarketingTeam = async (marketingTeamData: {
     id: string,
     name: string,
-    country: string
+    // country: string
 }) => {
     try {
         const updatedMarketingTeams = await db.update(marketingTeam).set({
             name: marketingTeamData.name,
-            country: marketingTeamData.country
+            // country: marketingTeamData.country
         }).where(
             eq(marketingTeam.id, marketingTeamData.id)
         ).returning();

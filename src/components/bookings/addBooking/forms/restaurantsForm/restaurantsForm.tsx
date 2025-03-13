@@ -32,6 +32,7 @@ import { cn } from "~/lib/utils";
 import { format, parse } from "date-fns";
 import { Calendar } from "~/components/ui/calendar";
 import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
+import { SingleSelect } from "~/components/ui/single-select";
 
 interface RestaurantFormProps {
   onAddRestaurant: (
@@ -39,12 +40,12 @@ interface RestaurantFormProps {
     restaurant: RestaurantData,
   ) => void;
   restaurants: RestaurantData[];
-  defaultValues: 
+  defaultValues:
   | (InsertRestaurantVoucherLine & {
     restaurant: SelectRestaurant;
   })
-| null
-| undefined;
+  | null
+  | undefined;
   lockedVendorId?: string;
   amendment?: boolean;  // Add this to include 'amendment'
   isUpdating?: boolean
@@ -114,7 +115,7 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
       throw new Error("Can't fetch selected restaurant");
     }
 
-    if(amendment) {
+    if (amendment) {
       onAddRestaurant(voucherLine, selectedRestaurant)
       form.reset()
       return
@@ -165,7 +166,7 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
                 <FormLabel>Name</FormLabel>
                 <FormControl>
                   {/* <Input placeholder="Enter name" {...field} /> */}
-                  <Select
+                  {/* <Select
                     onValueChange={(value) => {
                       field.onChange(value);
                       getRestaurantId(value);
@@ -183,7 +184,29 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
                         </SelectItem>
                       ))}
                     </SelectContent>
-                  </Select>
+                  </Select> */}
+                  {amendment ? (
+                      <Input
+                      type="text"
+                      defaultValue={restaurants.find(r => r.id === defaultValues?.restaurant?.id)?.name ?? ""}
+                      disabled
+                    />
+                  ) : (
+                    <SingleSelect
+                    options={restaurants.map((restaurant) => ({
+                      label: restaurant.name,
+                      value: restaurant.id,
+                    }))}
+                    onValueChange={(value) => {
+                      if (value) {
+                        field.onChange(value);
+                        getRestaurantId(value);
+                      }
+                    }}
+                    defaultValue={defaultValues?.restaurant?.id ?? ""}
+                    placeholder="Select restaurant"
+                  />
+                  )}
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -230,61 +253,61 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
             control={form.control}
             render={({ field }) => (
               <FormItem>
-              <FormLabel>Check-in Date</FormLabel>
-              <FormControl>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !field.value && "text-muted-foreground",
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {field.value ? (
-                      format(new Date(field.value), "LLL dd, y")
-                    ) : (
-                      <span>Pick the check-in date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    initialFocus
-                    selected={
-                      field.value
-                        ? parse(field.value, "MM/dd/yyyy", new Date())
-                        : new Date()
-                    }
-                    onSelect={(date: Date | undefined) => {
-                      const dateString = format(
-                        date ?? new Date(),
-                        "MM/dd/yyyy",
-                      );
-                      field.onChange(dateString);
-                    }}
-                    disabled={(date) => {
-                      const min = new Date(bookingDetails.general.startDate);
-                      const max = new Date(bookingDetails.general.endDate)
-                      min.setHours(0, 0, 0, 0);
-                      max.setHours(0, 0, 0, 0)
-                      return date < min || date > max;
-                    }}
-                    numberOfMonths={1}
-                  />
-                </PopoverContent>
-              </Popover>
-                {/* <Input
+                <FormLabel>Check-in Date</FormLabel>
+                <FormControl>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !field.value && "text-muted-foreground",
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {field.value ? (
+                          format(new Date(field.value), "LLL dd, y")
+                        ) : (
+                          <span>Pick the check-in date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        initialFocus
+                        selected={
+                          field.value
+                            ? parse(field.value, "MM/dd/yyyy", new Date())
+                            : new Date()
+                        }
+                        onSelect={(date: Date | undefined) => {
+                          const dateString = format(
+                            date ?? new Date(),
+                            "MM/dd/yyyy",
+                          );
+                          field.onChange(dateString);
+                        }}
+                        disabled={(date) => {
+                          const min = new Date(bookingDetails.general.startDate);
+                          const max = new Date(bookingDetails.general.endDate)
+                          min.setHours(0, 0, 0, 0);
+                          max.setHours(0, 0, 0, 0)
+                          return date < min || date > max;
+                        }}
+                        numberOfMonths={1}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  {/* <Input
                   type="date"
                   {...field}
                   min={bookingDetails.general.startDate ?? ""}
                   max={bookingDetails.general.endDate ?? ""}
                 /> */}
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
           <FormField
@@ -342,41 +365,41 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
               <FormControl>
                 {/* <Input placeholder="Enter any special note" {...field} /> */}
                 <textarea
-                      placeholder="Enter any special notes"
-                      {...field}
-                      className="h-20 w-full rounded-md border border-gray-300 p-2 text-sm"
-                    />
+                  placeholder="Enter any special notes"
+                  {...field}
+                  className="h-20 w-full rounded-md border border-gray-300 p-2 text-sm"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-          <div className="flex w-full flex-row justify-end">
-            <Button
-              variant={"primaryGreen"}
-              type="submit"
-              className="px-5"
-              disabled={isUpdating ? isUpdating : isSaving ? isSaving : false}
-            >
-              {amendment ? (
-                isUpdating ? (
-                  <div className="flex flex-row items-center gap-1">
-                    <LoaderCircle size={16} className="animate-spin" />
-                    <div>Updating</div>
-                  </div>
-                ) : (
-                  "Amend"
-                )
-              ) : isSaving ? (
+        <div className="flex w-full flex-row justify-end">
+          <Button
+            variant={"primaryGreen"}
+            type="submit"
+            className="px-5"
+            disabled={isUpdating ? isUpdating : isSaving ? isSaving : false}
+          >
+            {amendment ? (
+              isUpdating ? (
                 <div className="flex flex-row items-center gap-1">
                   <LoaderCircle size={16} className="animate-spin" />
-                  <div>Adding</div>
+                  <div>Updating</div>
                 </div>
               ) : (
-                "Add"
-              )}
-            </Button>
-          </div>
+                "Amend"
+              )
+            ) : isSaving ? (
+              <div className="flex flex-row items-center gap-1">
+                <LoaderCircle size={16} className="animate-spin" />
+                <div>Adding</div>
+              </div>
+            ) : (
+              "Add"
+            )}
+          </Button>
+        </div>
       </form>
     </Form>
   );

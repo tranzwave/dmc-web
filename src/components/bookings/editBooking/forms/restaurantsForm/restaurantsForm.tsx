@@ -32,6 +32,7 @@ import {
   SelectRestaurant
 } from "~/server/db/schemaTypes";
 import { RestaurantData } from ".";
+import { SingleSelect } from "~/components/ui/single-select";
 
 interface RestaurantFormProps {
   onAddRestaurant: (
@@ -41,8 +42,8 @@ interface RestaurantFormProps {
   restaurants: RestaurantData[];
   defaultValues:
   | (InsertRestaurantVoucherLine & {
-      restaurant: SelectRestaurant;
-    })
+    restaurant: SelectRestaurant;
+  })
   | null
   | undefined;
   lockedVendorId?: string;
@@ -73,17 +74,17 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
   const [selectedMeal, setSelectedMeal] = useState<SelectMeal>();
   const [rests, setRests] = useState<RestaurantData[]>([]);
   const [showTimeField, setShowTimeField] = useState(false);
-  const {bookingDetails} = useEditBooking()
+  const { bookingDetails } = useEditBooking()
 
   // const fetchMeals = async (restaurantId: string) => {
   //   const response = await getMeals;
   // };
   const form = useForm<z.infer<typeof restaurantSchema>>({
     resolver: zodResolver(restaurantSchema),
-    defaultValues:{
+    defaultValues: {
       ...defaultValues,
-      remarks:defaultValues?.remarks ?? "No",
-      name:defaultValues?.restaurant.name,
+      remarks: defaultValues?.remarks ?? "No",
+      name: defaultValues?.restaurant.name,
     },
     values: {
       date: defaultValues?.date ?? "",
@@ -115,11 +116,11 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
     form.reset();
   }
 
-  function getRestaurantId(restaurantName: string) {
+  function getRestaurantId(restaurantId: string) {
     const restaurant = restaurants.find(
-      (restaurant) => restaurant.name === restaurantName,
+      (restaurant) => restaurant.id === restaurantId,
     );
-    const id = restaurant?.id;
+    // const id = restaurant?.id;
     setSelectedRestaurant(restaurant);
   }
 
@@ -156,7 +157,7 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
               <FormItem className="col-span-3">
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  {/* <Input placeholder="Enter name" {...field} /> */}
+                  {/* <Input placeholder="Enter name" {...field} />
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value);
@@ -174,7 +175,21 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
                         </SelectItem>
                       ))}
                     </SelectContent>
-                  </Select>
+                  </Select> */}
+                  <SingleSelect
+                    options={restaurants.map((restaurant) => ({
+                      label: restaurant.name,
+                      value: restaurant.id,
+                    }))}
+                    onValueChange={(value) => {
+                      if (value) {
+                        field.onChange(value);
+                        getRestaurantId(value);
+                      }
+                    }}
+                    defaultValue={defaultValues?.restaurant?.id ?? ""}
+                    placeholder="Select restaurant"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -225,50 +240,50 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
               <FormItem>
                 <FormLabel>Date</FormLabel>
                 <FormControl>
-                <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !field.value && "text-muted-foreground",
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value ? (
-                            format(new Date(field.value), "LLL dd, y")
-                          ) : (
-                            <span>Pick the date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          initialFocus
-                          selected={
-                            field.value
-                              ? parse(field.value, "MM/dd/yyyy", new Date())
-                              : new Date()
-                          }
-                          onSelect={(date: Date | undefined) => {
-                            const dateString = format(
-                              date ?? new Date(),
-                              "MM/dd/yyyy",
-                            );
-                            field.onChange(dateString);
-                          }}
-                          disabled={(date) => {
-                            const min = new Date(bookingDetails.general.startDate);
-                            const max = new Date(bookingDetails.general.endDate)
-                            min.setHours(0, 0, 0, 0);
-                            max.setHours(0, 0, 0, 0)
-                            return date < min || date > max;
-                          }}
-                          numberOfMonths={1}
-                        />
-                      </PopoverContent>
-                    </Popover>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !field.value && "text-muted-foreground",
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {field.value ? (
+                          format(new Date(field.value), "LLL dd, y")
+                        ) : (
+                          <span>Pick the date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        initialFocus
+                        selected={
+                          field.value
+                            ? parse(field.value, "MM/dd/yyyy", new Date())
+                            : new Date()
+                        }
+                        onSelect={(date: Date | undefined) => {
+                          const dateString = format(
+                            date ?? new Date(),
+                            "MM/dd/yyyy",
+                          );
+                          field.onChange(dateString);
+                        }}
+                        disabled={(date) => {
+                          const min = new Date(bookingDetails.general.startDate);
+                          const max = new Date(bookingDetails.general.endDate)
+                          min.setHours(0, 0, 0, 0);
+                          max.setHours(0, 0, 0, 0)
+                          return date < min || date > max;
+                        }}
+                        numberOfMonths={1}
+                      />
+                    </PopoverContent>
+                  </Popover>
                   {/* <Input type="date" {...field} 
                   min={bookingDetails.general.startDate ?? ""}
                   max={bookingDetails.general.endDate ?? ""}/> */}
@@ -373,10 +388,10 @@ const RestaurantForm: React.FC<RestaurantFormProps> = ({
               <FormControl>
                 {/* <Input placeholder="Enter any special note" {...field} /> */}
                 <textarea
-                      placeholder="Enter any special notes"
-                      {...field}
-                      className="h-20 w-full rounded-md border border-gray-300 p-2 text-sm"
-                    />
+                  placeholder="Enter any special notes"
+                  {...field}
+                  className="h-20 w-full rounded-md border border-gray-300 p-2 text-sm"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

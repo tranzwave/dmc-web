@@ -938,7 +938,7 @@ export const marketingTeam = createTable("marketing_teams", {
   .$defaultFn(() => crypto.randomUUID()),
   tenantId: varchar("tenant_id", { length: 255 }).references(() => tenant.id, { onDelete: "cascade" }).notNull(),
   name: varchar("name", { length: 255 }).notNull(),
-  country: varchar("country", { length: 255 }).notNull(),
+  country: varchar("country", { length: 255 }).default("N/A"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });

@@ -48,6 +48,7 @@ import {
   SelectHotelVoucherLine,
 } from "~/server/db/schemaTypes";
 import { HotelWithRooms } from ".";
+import { SingleSelect } from "~/components/ui/single-select";
 
 interface HotelsFormProps {
   onAddHotel: (
@@ -65,7 +66,7 @@ interface HotelsFormProps {
   amendment?: boolean;
   isUpdating?: boolean;
   isSaving?: boolean;
-  triggerEdit?:boolean
+  triggerEdit?: boolean
 }
 
 export const hotelsSchema = z.object({
@@ -163,11 +164,11 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
 
   function onSubmit(values: z.infer<typeof hotelsSchema>) {
     // setIsModalOpen(true);
-    if(selectedHotel){
-      if(bookingDetails.vouchers.find(v => v.hotel.id === selectedHotel.id && v.voucher.status !== 'cancelled')){
-        if(triggerEdit){
+    if (selectedHotel) {
+      if (bookingDetails.vouchers.find(v => v.hotel.id === selectedHotel.id && v.voucher.status !== 'cancelled')) {
+        if (triggerEdit) {
           handleModalResponse(true)
-        } else{
+        } else {
           setIsModalOpen(true)
         }
       } else {
@@ -176,9 +177,9 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
     }
   }
 
-  function getHotelId(name: string) {
-    const hotel = hotels.find((hotel) => hotel.name === name);
-    const id = hotel?.id;
+  function getHotelId(id: string) {
+    const hotel = hotels.find((hotel) => hotel.id === id);
+    // const id = hotel?.id;
     setSelectedHotel(hotel ?? null);
   }
 
@@ -193,7 +194,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-3 gap-3">
-            <FormField
+            {/* <FormField
               name="name"
               control={form.control}
               render={({ field }) => (
@@ -224,7 +225,42 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                   <FormMessage />
                 </FormItem>
               )}
+            /> */}
+            <FormField
+              name="name"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem className="w-full max-w-full">
+                  <FormLabel>Hotel Name</FormLabel>
+                  <FormControl>
+                    {amendment ? (
+                      <Input
+                        type="text"
+                        defaultValue={hotels.find(h => h.id === defaultValues?.hotel?.id)?.name ?? ""}
+                        disabled
+                      />
+                    ) : (
+                      <SingleSelect
+                        options={hotels.map((hotel) => ({
+                          label: hotel.name,
+                          value: hotel.id,
+                        }))}
+                        onValueChange={(value) => {
+                          if (value) {
+                            field.onChange(value);
+                            getHotelId(value);
+                          }
+                        }}
+                        defaultValue={defaultValues?.hotel?.id ?? ""}
+                        placeholder="Select hotel"
+                      />
+                    )}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
+
             <div className="flex flex-row gap-3">
               <div className="w-full">
                 <FormField
@@ -435,7 +471,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                           field.onChange(value);
                         }}
                         value={field.value}
-                        defaultValue = {defaultValues?.roomCategory}
+                        defaultValue={defaultValues?.roomCategory}
                       >
                         <SelectTrigger className="bg-slate-100 shadow-md">
                           <SelectValue placeholder="Select room category" />
@@ -443,7 +479,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                         <SelectContent>
                           {selectedHotel?.hotelRoom && selectedHotel?.hotelRoom.length > 0 && (
                             selectedHotel.hotelRoom.map((room) => {
-                              return(
+                              return (
                                 <SelectItem key={room.id} value={room.roomType}>
                                   {room.roomType}
                                 </SelectItem>

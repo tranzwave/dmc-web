@@ -52,9 +52,9 @@ export const MarketingTeamTable = ({ teams, countries, members, organization, tr
             <th className="px-4 py-3 text-left font-semibold text-gray-600">
               Name
             </th>
-            <th className="px-4 py-3 text-left font-semibold text-gray-600">
+            {/* <th className="px-4 py-3 text-left font-semibold text-gray-600">
               Country
-            </th>
+            </th> */}
             <th className="px-4 py-3 text-left font-semibold text-gray-600">
               Members
             </th>
@@ -69,9 +69,9 @@ export const MarketingTeamTable = ({ teams, countries, members, organization, tr
               <td className="px-4 py-3 text-gray-700">
                 {team.name}
               </td>
-              <td className="px-4 py-3 text-gray-700">
+              {/* <td className="px-4 py-3 text-gray-700">
                 {team.country}
-              </td>
+              </td> */}
               <td className="px-4 py-3 text-gray-700">
                 {members.filter((member) => member.publicMetadata?.teams?.some(t => t.teamId === team.id)).length}
               </td>

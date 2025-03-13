@@ -1,6 +1,6 @@
 "use server"
 import { createClerkClient, Organization } from '@clerk/backend'
-import { BankDetails, ClerkUserPublicMetadata, PayherePaymentNotification } from '~/lib/types/payment';
+import { BankDetails, ClerkOrganizationPublicMetadata, ClerkUserPublicMetadata, PayherePaymentNotification } from '~/lib/types/payment';
 import dotenv from 'dotenv';
 import { clerkClient } from './db/db.production';
 import { packages } from '~/lib/constants';
@@ -331,6 +331,21 @@ const getUserById = async (userId: string) => {
     }
 }
 
+const updateOrganizationMetadata = async (OrganizationId: string, metadata: ClerkOrganizationPublicMetadata) => {
+    try {
+        const response = await clerkClient.organizations.updateOrganization(OrganizationId, {
+            publicMetadata: metadata
+        });
+        console.log('Organization metadata updated successfully: \n', response);
+        if(response){
+            return true;
+        }
+    } catch (error) {
+        console.log('Error updating organization metadata:', error);
+        throw error;
+    }
+}
+
 
 export {
     updateBankDetails,
@@ -344,5 +359,6 @@ export {
     getUserPublicMetadata,
     getAllClerkUsersByOrgId,
     deleteTeamFromAllUsers,
-    getUserById
+    getUserById,
+    updateOrganizationMetadata
 }
