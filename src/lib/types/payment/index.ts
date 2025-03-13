@@ -40,6 +40,8 @@ export type ClerkOrganizationPublicMetadata =
         website: string,
         contactNumber: string,
         address: string,
+        fax: string,
+        primaryCurrency: string,
         subscription: {
           plan: string,
           payhereId: string,

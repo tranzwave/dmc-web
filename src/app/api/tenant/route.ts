@@ -50,6 +50,7 @@ export async function POST(req: Request, res: NextApiResponse) {
         website: data.publicMetadata.website,
         contactNumber: data.publicMetadata.contactNumber,
         address: data.publicMetadata.address,
+        primaryCurrency: "USD",
         subscription: {
           plan: "Free",
           payhereId: '',
