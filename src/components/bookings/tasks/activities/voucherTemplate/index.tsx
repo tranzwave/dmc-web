@@ -29,7 +29,7 @@ const ActivityVoucherPDF = ({ vouchers, cancellation, bookingName, organization,
       <VoucherHeader organization={organization} />
       <div className="p-4">
       <div className="w-full text-center" style={{ fontWeight: 'bold', fontSize: '20px' }}>
-          Official Receipt - {vouchers[0].activityVendor.name} {`${vouchers[0].status === 'cancelled' ? ' - Cancelled' : ''}`}
+          Official Receipt {`${vouchers[0].status === 'cancelled' ? ' - Cancelled' : ''}`}
         </div>
 
         <div className="flex w-full flex-row justify-between">
