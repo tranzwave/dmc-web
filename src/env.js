@@ -40,6 +40,7 @@ export const env = createEnv({
     PAYHERE_APP_SECRET:z.string(),
     PAYHERE_AUTHORIZATION:z.string(),
     PAYHERE_ENDPOINT:z.string(),
+    BLOB_READ_WRITE_TOKEN:z.string(),
   },
 
   /**
@@ -87,6 +88,7 @@ export const env = createEnv({
     NEXT_PUBLIC_PAYHERE_CANCEL_URL:process.env.NEXT_PUBLIC_PAYHERE_CANCEL_URL,
     NEXT_PUBLIC_PAYHERE_ENDPOINT:process.env.NEXT_PUBLIC_PAYHERE_ENDPOINT,
     PAYHERE_ENDPOINT:process.env.PAYHERE_ENDPOINT,
+    BLOB_READ_WRITE_TOKEN:process.env.BLOB_READ_WRITE_TOKEN,
 
   },
   /**

@@ -560,8 +560,13 @@ export const driver = createTable("drivers", {
     .default(0),
   mealAllowance: integer("meal_allowance").notNull().default(0),
   driversLicense: varchar("drivers_license", { length: 255 }).notNull(),
+  driversLicenseURL: varchar("drivers_license_url", { length: 255 }), // URL to the drivers license
+
   guideLicense: varchar("guide_license", { length: 255 }),
+  guideLicenseURL: varchar("guide_license_url", { length: 255 }), // URL to the guide
+
   insurance: varchar("insurance", { length: 255 }).notNull(),
+  insuranceURL: varchar("insurance_url", { length: 255 }), // URL to the insurance
   contactNumber: varchar("contact_number", { length: 50 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
@@ -623,7 +628,10 @@ export const guide = createTable("guides", {
   streetName: varchar("street_name", { length: 255 }).notNull(),
   province: varchar("province", { length: 255 }).notNull(),
   type: varchar("type", { length: 255 }).notNull(),
+  
   guideLicense: varchar("guide_license", { length: 255 }),
+  guideLicenseURL: varchar("guide_license_url", { length: 255 }), // URL to the guide license
+
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   cityId: integer("city_id")

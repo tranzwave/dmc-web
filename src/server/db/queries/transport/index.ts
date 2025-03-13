@@ -1132,6 +1132,59 @@ export const getOtherTransportVoucherLinesByVoucherId = async (voucherId: string
     where: eq(transportVoucher.id, voucherId),
   });
 
+export const updateDriverDocumentURL = async (driverId:string, document: string, documentURL:string | null) => {
+  try {
+    const updatedDriver = await db.transaction(async (trx) => {
+      if(document === 'driversLicense') {
+        const updatedDriver = await trx
+          .update(driver)
+          .set({
+            driversLicenseURL: documentURL,
+          })
+          .where(eq(driver.id, driverId))
+          .returning({
+            id: driver.id,
+          });
+
+        return updatedDriver;
+      }
+      else if(document === 'guideLicense') {
+        const updatedDriver = await trx
+          .update(driver)
+          .set({
+            guideLicenseURL: documentURL,
+          })
+          .where(eq(driver.id, driverId))
+          .returning({
+            id: driver.id,
+          });
+
+        return updatedDriver;
+      }
+      else if(document === 'insurance') {
+        const updatedDriver = await trx
+          .update(driver)
+          .set({
+            insuranceURL: documentURL,
+          })
+          .where(eq(driver.id, driverId))
+          .returning({
+            id: driver.id,
+          });
+
+        return updatedDriver;
+      }
+      else {
+        throw new Error("Invalid document type");
+      }
+    });
+    return updatedDriver;
+  } catch (error: any) {
+    console.error("Error in updateDriverDocumentURL:", error?.detail ?? error.message);
+    throw error;
+  }
+}  
+
 
 
 

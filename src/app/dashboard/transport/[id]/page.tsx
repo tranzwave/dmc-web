@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import TitleBar from "~/components/common/titleBar";
+import { DocumentType, DocumentUploadModal } from "~/components/transports/documentUpload";
 import ContactBox from "~/components/ui/content-box";
 import { StatsCard } from "~/components/ui/stats-card";
 import { DriverDTO } from "~/lib/types/driver/type";
@@ -25,7 +26,8 @@ const Page = ({ params }: { params: { id: string } }) => {
   const [currentEndDate, setCurrentEndDate] = useState<string | null>(null);
   const [historyStartDate, setHistoryStartDate] = useState<string | null>(null);
   const [historyEndDate, setHistoryEndDate] = useState<string | null>(null);
-  const {organization, isLoaded} = useOrganization();
+  const { organization, isLoaded } = useOrganization();
+  const [existingDocumentURLs, setExistingDocumentURLs] = useState<{ documentType: DocumentType, url: string | null }[]>([]);
 
   const today = new Date();
 
@@ -33,6 +35,20 @@ const Page = ({ params }: { params: { id: string } }) => {
     try {
       const selectedDriver = await getDriverByIdQuery(params.id);
       setDriver(selectedDriver ?? null);
+      setExistingDocumentURLs([
+        {
+          documentType: "driversLicense",
+          url: selectedDriver?.driversLicenseURL ?? null
+        },
+        {
+          documentType: "insurance",
+          url: selectedDriver?.insuranceURL ?? null
+        },
+        {
+          documentType: "guideLicense",
+          url: selectedDriver?.guideLicenseURL ?? null
+        }
+      ]);
     } catch (error) {
       console.error("Failed to fetch driver details:", error);
       setError("Failed to load driver details.");
@@ -125,14 +141,19 @@ const Page = ({ params }: { params: { id: string } }) => {
       <TitleBar title={`Driver - ${driver.name}`} link="toAddTransport" />
       <div className="mx-9 flex flex-row justify-between">
         <div className="w-[30%]">
-          <ContactBox
-            title={driver.name}
-            description="Egestas elit dui scelerisque ut eu purus aliquam vitae habitasse."
-            location={driver.city.name}
-            address={`${driver.streetName}, ${driver.city.name}`}
-            phone={driver.primaryContactNumber}
-            email={driver.primaryEmail}
-          />
+          <div>
+            <ContactBox
+              title={driver.name}
+              description="Egestas elit dui scelerisque ut eu purus aliquam vitae habitasse."
+              location={driver.city.name}
+              address={`${driver.streetName}, ${driver.city.name}`}
+              phone={driver.primaryContactNumber}
+              email={driver.primaryEmail}
+            />
+          </div>
+          <div>
+            <DocumentUploadModal entityId={params.id} entityType="driver" existingDocumentURLs={existingDocumentURLs} />
+          </div>
         </div>
         <div className="card w-[70%] space-y-6">
           <div>Current Booking</div>
@@ -155,12 +176,12 @@ const Page = ({ params }: { params: { id: string } }) => {
 
           <div>Booking History</div>
           <div>
-          <div className="col-span-3 flex justify-between gap-6">
-            <StatsCard label={`Fee Per KM (${organization?.publicMetadata?.primaryCurrency as string ?? ""})`} value={driver.feePerKM ?? 0} />
-            <StatsCard label="Bookings Completed" value={data.length} />
-            <StatsCard label="Upcoming Bookings" value={data.length} />
-          </div>
-          <div className="text-[10px] font-normal text-zinc-500">*Currency can be changed from organization settings in the top right corner of the screen</div>
+            <div className="col-span-3 flex justify-between gap-6">
+              <StatsCard label={`Fee Per KM (${organization?.publicMetadata?.primaryCurrency as string ?? ""})`} value={driver.feePerKM ?? 0} />
+              <StatsCard label="Bookings Completed" value={data.length} />
+              <StatsCard label="Upcoming Bookings" value={data.length} />
+            </div>
+            <div className="text-[10px] font-normal text-zinc-500">*Currency can be changed from organization settings in the top right corner of the screen</div>
           </div>
 
           <div>Trip History</div>

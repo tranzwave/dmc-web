@@ -76,8 +76,14 @@ export type DriverDTO = {
   accommodationAllowance?: number; 
   mealAllowance?: number; 
   driversLicense: string;
+  driversLicenseURL?: string | null;
+
   guideLicense?: string | null;
+  guideLicenseURL?: string | null;
+
   insurance: string;
+  insuranceURL?: string | null;
+  
   contactNumber: string;
   createdAt?: Date | null; 
   updatedAt?: Date | null; 
