@@ -87,7 +87,7 @@ const TransportVouchersTab = ({
   const pathname = usePathname();
 
   const onVoucherRowClick = (row: TransportVoucher) => {
-    if(row.voucher.status === "cancelled") {
+    if (row.voucher.status === "cancelled") {
       setSelectedVoucher(null);
       return;
     }
@@ -155,7 +155,7 @@ const TransportVouchersTab = ({
       try {
         setIsDeleting(true);
         let deletedData = null
-        if(selectedVoucher.driver) {
+        if (selectedVoucher.driver) {
           deletedData = await deleteDriverTransportVoucher(
             selectedVoucher?.voucher.id ?? "",
             "",
@@ -203,11 +203,11 @@ const TransportVouchersTab = ({
 
   const handleProceededVoucherDelete = async (reason: string) => {
     if (selectedVoucher && selectedVoucher.voucher.id) {
-      console.log("Deleting voucher:" , selectedVoucher);
+      console.log("Deleting voucher:", selectedVoucher);
       try {
         setIsDeleting(true);
         let deletedData = null
-        if(selectedVoucher.driver) {
+        if (selectedVoucher.driver) {
           deletedData = await deleteDriverTransportVoucher(
             selectedVoucher?.voucher.id ?? "",
             reason,
@@ -296,56 +296,56 @@ const TransportVouchersTab = ({
             <TabsTrigger value="otherTransport" className="rounded-r-md">Other Transports</TabsTrigger>
           </TabsList>
           <TabsContent value="driverAndGuide" className="w-full px-0">
-              <TransportTaskTabContent
-                pathname={pathname}
-                vouchers={vouchers}
-                voucherColumns={voucherColumns}
-                onVoucherRowClick={onVoucherRowClick}
-                selectedVoucher={selectedVoucher}
-                isInProgressVoucherDelete={isInProgressVoucherDelete}
-                setIsInProgressVoucherDelete={setIsInProgressVoucherDelete}
-                isProceededVoucherDelete={isProceededVoucherDelete}
-                setIsProceededVoucherDelete={setIsProceededVoucherDelete}
-                isDeleting={isDeleting}
-                isConfirming={isConfirming}
-                isVoucherDelete={isVoucherDelete}
-                setIsVoucherDelete={setIsVoucherDelete}
-                handleConfirm={handleConfirm}
-                renderCancelContent={renderCancelContent}
-                handleInProgressVoucherDelete={handleInProgressVoucherDelete}
-                handleProceededVoucherDelete={handleProceededVoucherDelete}
-                contactButton={contactButton}
-                bookingData={bookingData}
-                setStatusChanged={setStatusChanged}
-                key={selectedVoucher?.voucher.id}
-                activeTab="driverAndGuide"
-              />
+            <TransportTaskTabContent
+              pathname={pathname}
+              vouchers={vouchers}
+              voucherColumns={voucherColumns}
+              onVoucherRowClick={onVoucherRowClick}
+              selectedVoucher={selectedVoucher}
+              isInProgressVoucherDelete={isInProgressVoucherDelete}
+              setIsInProgressVoucherDelete={setIsInProgressVoucherDelete}
+              isProceededVoucherDelete={isProceededVoucherDelete}
+              setIsProceededVoucherDelete={setIsProceededVoucherDelete}
+              isDeleting={isDeleting}
+              isConfirming={isConfirming}
+              isVoucherDelete={isVoucherDelete}
+              setIsVoucherDelete={setIsVoucherDelete}
+              handleConfirm={handleConfirm}
+              renderCancelContent={renderCancelContent}
+              handleInProgressVoucherDelete={handleInProgressVoucherDelete}
+              handleProceededVoucherDelete={handleProceededVoucherDelete}
+              contactButton={contactButton}
+              bookingData={bookingData}
+              setStatusChanged={setStatusChanged}
+              key={selectedVoucher?.voucher.id}
+              activeTab="driverAndGuide"
+            />
           </TabsContent>
           <TabsContent value="otherTransport" className="w-full px-0">
-              <TransportTaskTabContent
-                pathname={pathname}
-                vouchers={vouchers}
-                voucherColumns={voucherColumns}
-                onVoucherRowClick={onVoucherRowClick}
-                selectedVoucher={selectedVoucher}
-                isInProgressVoucherDelete={isInProgressVoucherDelete}
-                setIsInProgressVoucherDelete={setIsInProgressVoucherDelete}
-                isProceededVoucherDelete={isProceededVoucherDelete}
-                setIsProceededVoucherDelete={setIsProceededVoucherDelete}
-                isDeleting={isDeleting}
-                isConfirming={isConfirming}
-                isVoucherDelete={isVoucherDelete}
-                setIsVoucherDelete={setIsVoucherDelete}
-                handleConfirm={handleConfirm}
-                renderCancelContent={renderCancelContent}
-                handleInProgressVoucherDelete={handleInProgressVoucherDelete}
-                handleProceededVoucherDelete={handleProceededVoucherDelete}
-                contactButton={contactButton}
-                bookingData={bookingData}
-                setStatusChanged={setStatusChanged}
-                key={selectedVoucher?.voucher.id}
-                activeTab="otherTransport"
-              />
+            <TransportTaskTabContent
+              pathname={pathname}
+              vouchers={vouchers}
+              voucherColumns={voucherColumns}
+              onVoucherRowClick={onVoucherRowClick}
+              selectedVoucher={selectedVoucher}
+              isInProgressVoucherDelete={isInProgressVoucherDelete}
+              setIsInProgressVoucherDelete={setIsInProgressVoucherDelete}
+              isProceededVoucherDelete={isProceededVoucherDelete}
+              setIsProceededVoucherDelete={setIsProceededVoucherDelete}
+              isDeleting={isDeleting}
+              isConfirming={isConfirming}
+              isVoucherDelete={isVoucherDelete}
+              setIsVoucherDelete={setIsVoucherDelete}
+              handleConfirm={handleConfirm}
+              renderCancelContent={renderCancelContent}
+              handleInProgressVoucherDelete={handleInProgressVoucherDelete}
+              handleProceededVoucherDelete={handleProceededVoucherDelete}
+              contactButton={contactButton}
+              bookingData={bookingData}
+              setStatusChanged={setStatusChanged}
+              key={selectedVoucher?.voucher.id}
+              activeTab="otherTransport"
+            />
           </TabsContent>
         </Tabs>
 
@@ -361,13 +361,15 @@ interface ProceedContentProps {
   voucher: TransportVoucher;
   setStatusChanged: React.Dispatch<React.SetStateAction<boolean>>;
   bookingData: BookingLineWithAllData;
+  type?: string
 }
 
 export const ProceedContent: React.FC<ProceedContentProps> = ({
   voucherColumns,
   voucher,
   setStatusChanged,
-  bookingData
+  bookingData,
+  type
 }) => {
   const componentRef = useRef<HTMLDivElement>(null);
 
@@ -383,22 +385,50 @@ export const ProceedContent: React.FC<ProceedContentProps> = ({
   return (
     <div className="mb-9 space-y-6">
       <div className="flex flex-row justify-end">
-        <VoucherButton voucherComponent={
-          <div>
-            {voucher.driver?.id !== null && organization && user ? (
-              <DriverTransportVoucherPDF voucher={voucher} bookingData={bookingData} organization={organization} user={user as UserResource} />
-            ) : organization && user ? (
-              <GuideTransportVoucherPDF voucher={voucher} bookingData={bookingData} organization={organization} user={user as UserResource} />
-            ) : ''}
-          </div>
-        } />
+        {type === "driver" && (
+          <VoucherButton voucherComponent={
+            <div>
+              {voucher.driver && organization && user ? (
+                <DriverTransportVoucherPDF voucher={voucher} bookingData={bookingData} organization={organization} user={user as UserResource} />
+              ) : null}
+            </div>
+          } />
+        )}
+        {type === "guide" && (
+          <VoucherButton voucherComponent={
+            <div>
+              {(voucher.guide ?? (voucher.driver && voucher.driver.type === "Chauffeur")) && organization && user ? (
+                <GuideTransportVoucherPDF voucher={voucher} bookingData={bookingData} organization={organization} user={user as UserResource} />
+              ) : null}
+            </div>
+          } />
+        )}
+
       </div>
       <div ref={componentRef}>
-        {voucher.driver?.id !== null && organization && user ? (
+        {type === "driver" && organization && user && (
+          <div>
+            {
+            voucher.driver && organization && user ? (
+              <DriverTransportVoucherPDF voucher={voucher} bookingData={bookingData} organization={organization} user={user as UserResource} />
+            ) : null
+          }
+          </div>
+        )}
+        {type === "guide" && organization && user && (
+          <div>
+            {
+            (voucher.guide ?? (voucher.driver && voucher.driver.type === "Chauffer")) && organization && user ? (
+              <GuideTransportVoucherPDF voucher={voucher} bookingData={bookingData} organization={organization} user={user as UserResource} />
+            ) : null
+          }
+          </div>
+        )}
+        {/* {voucher.driver?.id !== null && organization && user ? (
           <DriverTransportVoucherPDF voucher={voucher} bookingData={bookingData} organization={organization} user={user as UserResource} />
         ) : organization && user ? (
           <GuideTransportVoucherPDF voucher={voucher} bookingData={bookingData} organization={organization} user={user as UserResource} />
-        ) : ''}
+        ) : ''} */}
       </div>
       <div className="flex w-full flex-row justify-end gap-2"></div>
     </div>
