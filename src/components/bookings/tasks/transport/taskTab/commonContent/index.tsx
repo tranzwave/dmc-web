@@ -68,9 +68,9 @@ const TransportTaskTabContent: React.FC<VoucherInformationProps> = ({
             <div className="flex justify-between">
                 <div className="card-title">Voucher Information</div>
                 {bookingData?.status !== "cancelled" && (
-                <Link href={`${pathname.replace("/tasks", "")}/edit?tab=transport`}>
-                    <Button variant={"outline"}>Add Vouchers</Button>
-                </Link>
+                    <Link href={`${pathname.replace("/tasks", "")}/edit?tab=transport`}>
+                        <Button variant={"outline"}>Add Vouchers</Button>
+                    </Link>
                 )}
             </div>
             <div className="text-sm font-normal">
@@ -100,31 +100,55 @@ const TransportTaskTabContent: React.FC<VoucherInformationProps> = ({
 
                 {selectedVoucher && bookingData && activeTab === "driverAndGuide" && (
                     <div className="flex flex-row gap-2">
-                        <Popup
-                            title={"Log Sheet"}
-                            description="Please click on preview button to get the document"
-                            trigger={<Button variant={"primaryGreen"}>Log Sheet</Button>}
-                            onConfirm={handleConfirm}
-                            onCancel={() => console.log("Cancelled")}
-                            dialogContent={
-                                <ProceedContent
-                                    voucherColumns={voucherColumns}
-                                    voucher={selectedVoucher}
-                                    setStatusChanged={setStatusChanged}
-                                    bookingData={bookingData}
-                                />
-                            }
-                            size="large"
-                        />
+                        {selectedVoucher.driver && (
+                            <Popup
+                                title={"Log Sheet"}
+                                description="Please click on preview button to get the document"
+                                trigger={<Button variant={"primaryGreen"}>Log Sheet</Button>}
+                                onConfirm={handleConfirm}
+                                onCancel={() => console.log("Cancelled")}
+                                dialogContent={
+                                    <ProceedContent
+                                        voucherColumns={voucherColumns}
+                                        voucher={selectedVoucher}
+                                        setStatusChanged={setStatusChanged}
+                                        bookingData={bookingData}
+                                        type="driver"
+                                    />
+                                }
+                                size="large"
+                            />
+                        )}
+
+                        {selectedVoucher && (selectedVoucher.guide ?? (selectedVoucher.driver && selectedVoucher.driver.type === "Chauffeur")) && (
+                            <Popup
+                                title={"Guide Settlement Form"}
+                                description="Please click on preview button to get the document"
+                                trigger={<Button variant={"primaryGreen"}>Guide Settlement</Button>}
+                                onConfirm={handleConfirm}
+                                onCancel={() => console.log("Cancelled")}
+                                dialogContent={
+                                    <ProceedContent
+                                        voucherColumns={voucherColumns}
+                                        voucher={selectedVoucher}
+                                        setStatusChanged={setStatusChanged}
+                                        bookingData={bookingData}
+                                        type="guide"
+                                    />
+                                }
+                                size="large"
+                            />
+                        )}
 
                         <TourExpenseTrigger bookingData={bookingData} />
                     </div>
                 )}
+
             </div>
 
             {activeTab === "driverAndGuide" && (
                 <DataTable
-                    data={selectedVoucher ? selectedVoucher.voucher.status !== "cancelled" ? selectedVoucher.otherTransport === null ? [selectedVoucher] :[] : [] : []}
+                    data={selectedVoucher ? selectedVoucher.voucher.status !== "cancelled" ? selectedVoucher.otherTransport === null ? [selectedVoucher] : [] : [] : []}
                     columns={voucherColumns}
                     onRowClick={onVoucherRowClick}
                 />
