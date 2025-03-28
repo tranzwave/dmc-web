@@ -33,7 +33,7 @@ const SideNavBar = () => {
       path: "/hotels",
       icon: <Building className="icon-size" />,
     },
-    { name: 'Restaurants', path: '/restaurants', icon: <Utensils className='icon-size'/> },
+    { name: 'Restaurants', path: '/restaurants', icon: <Utensils className='icon-size' /> },
 
     {
       name: "Transport",
@@ -78,11 +78,10 @@ const SideNavBar = () => {
           {navLinks.map((link) => (
             <Link key={link.name} href={`/dashboard` + link.path}>
               <div
-                className={`base-text my-1 flex items-center rounded-lg px-4 py-2 font-medium transition-colors 2xl:my-2 2xl:py-3 ${
-                  pathname.includes(link.path)
+                className={`base-text my-1 flex items-center rounded-lg px-4 py-2 font-medium transition-colors 2xl:my-2 2xl:py-3 ${pathname.includes(link.path)
                     ? "bg-white text-primary-green"
                     : "hover:bg-slate-100 hover:text-primary-green"
-                }`}
+                  }`}
               >
                 <div className="mr-2">{link.icon}</div>
                 {link.name}
@@ -98,9 +97,11 @@ const SideNavBar = () => {
           <div>Developed By</div>
           <div>COORD.TRAVEL</div>
         </div>
-        <div className="base-text flex cursor-pointer items-center justify-center rounded-lg bg-primary-green px-4 py-2 font-medium text-white">
-          Contact Now
-        </div>
+        <Link href="/contact-us" target="_blank" rel="noopener noreferrer">
+          <div className="base-text flex cursor-pointer items-center justify-center rounded-lg bg-primary-green px-4 py-2 font-medium text-white">
+            Contact Now
+          </div>
+        </Link>
       </div>
       <div className="w-full flex justify-start items-center">
         <div className="text-[10px]">v1.0.0</div>

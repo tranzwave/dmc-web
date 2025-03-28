@@ -40,6 +40,10 @@ export const env = createEnv({
     PAYHERE_APP_SECRET:z.string(),
     PAYHERE_AUTHORIZATION:z.string(),
     PAYHERE_ENDPOINT:z.string(),
+    EMAIL_USER:z.string(),
+    EMAIL_PASS:z.string(),
+    NOTIFICATION_EMAIL:z.string(),
+
   },
 
   /**
@@ -87,6 +91,9 @@ export const env = createEnv({
     NEXT_PUBLIC_PAYHERE_CANCEL_URL:process.env.NEXT_PUBLIC_PAYHERE_CANCEL_URL,
     NEXT_PUBLIC_PAYHERE_ENDPOINT:process.env.NEXT_PUBLIC_PAYHERE_ENDPOINT,
     PAYHERE_ENDPOINT:process.env.PAYHERE_ENDPOINT,
+    EMAIL_USER:process.env.EMAIL_USER,
+    EMAIL_PASS:process.env.EMAIL_PASS,
+    NOTIFICATION_EMAIL:process.env.NOTIFICATION_EMAIL,
 
   },
   /**

@@ -220,6 +220,7 @@ function UpgradePlan({ organization }: UpgradePlanProps) {
   const [selectedPlan, setSelectedPlan] = useState("pro")
   const { toast } = useToast()
   const activeSubscription = (organization.publicMetadata as ClerkOrganizationPublicMetadata).subscription
+  console.log("activeSubscription", activeSubscription)
   const subscription = packages.find((p) => p.name === activeSubscription.plan)
 
   if(!subscription) {

@@ -145,7 +145,7 @@ const PaymentButton = ({ selectedPackage, closeDialog }: PaymentButtonProps) => 
                     <input type="hidden" name="hash" value={paymentDetails.hash} />
                     {/* <input type="submit" value="Buy Now" /> */}
                     <Button type="submit" id="payhere-payment" className="w-full py-4 bg-[#287f71] hover:bg-[#287f71]/90 transition-colors duration-200" disabled={!isLoaded || !organization || !IsuserLoaded}>
-                        Continue with {selectedPackage.name} New Plan
+                        Continue with {selectedPackage.name} Plan
                     </Button>
                 </form>
 
