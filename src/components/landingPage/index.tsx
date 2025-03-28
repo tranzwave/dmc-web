@@ -5,6 +5,7 @@ import { Button } from "~/components/ui/button"
 import { Card } from "~/components/ui/card"
 import { ArrowRight, Check, Globe, Users, Calendar } from 'lucide-react'
 import { Navbar } from "./navBar"
+import { packages } from "~/lib/constants"
 
 export default function LandingPage() {
   return (
@@ -37,9 +38,11 @@ export default function LandingPage() {
                 Get Started
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 bg-transparent">
-              Book a Demo
-            </Button>
+            <Link href={`/contact-us`} target="_blank">
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 bg-transparent">
+                Book a Demo
+              </Button>
+            </Link>
           </div>
 
           <div className="relative w-full max-w-4xl mx-auto">
@@ -138,53 +141,49 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto" id="pricing">
-            {[
-              {
-                name: "Starter",
-                price: "$49",
-                description: "Perfect for small travel agencies",
-                features: ["Up to 100 bookings/month", "Basic guest management", "Email support"],
-              },
-              {
-                name: "Professional",
-                price: "$99",
-                description: "Ideal for growing businesses",
-                features: ["Unlimited bookings", "Advanced guest management", "Priority support", "API access"],
-                popular: true,
-              },
-              {
-                name: "Enterprise",
-                price: "Custom",
-                description: "For large-scale operations",
-                features: ["Custom solutions", "Dedicated account manager", "24/7 phone support", "Custom integrations"],
-              },
-            ].map((plan, i) => (
-              <Card key={i} className={`p-8 ${plan.popular ? 'ring-2 ring-[#287f71] relative' : ''}`}>
-                {plan.popular && (
+          <div className="grid md:grid-cols-4 gap-8 max-w-6xl mx-auto" id="pricing">
+            {packages.map((plan, i) => (
+                <Card key={i} className={`p-8 px-12 flex flex-col justify-between ${plan.tabValue === "professional" ? 'ring-2 ring-[#287f71] relative' : ''}`}>
+                {plan.tabValue === "professional" && (
                   <span className="absolute top-0 right-0 bg-[#287f71] text-white px-4 py-1 text-sm rounded-bl-lg">
-                    Popular
+                  Popular
                   </span>
                 )}
-                <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                <div className="mb-4">
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  {plan.price !== "Custom" && <span className="text-gray-600">/month</span>}
-                </div>
-                <p className="text-gray-600 mb-6">{plan.description}</p>
-                <ul className="space-y-4 mb-8">
+                <div>
+                  <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                  <div className="mb-4">
+                  <span className="text-4xl font-bold">${plan.price}</span>
+                  <span className="text-gray-600">/month</span>
+                  </div>
+                  <p className="text-gray-600 mb-6">{plan.description}</p>
+                  <ul className="space-y-4 mb-8">
                   {plan.features.map((feature, j) => (
                     <li key={j} className="flex items-center gap-2">
-                      <Check className="text-[#287f71] w-5 h-5" />
-                      <span>{feature}</span>
+                    <Check className="text-[#287f71] w-5 h-5" />
+                    <span>{feature}</span>
                     </li>
                   ))}
-                </ul>
-                <Button className="w-full bg-[#287f71] hover:bg-[#287f71]/90">
-                  Get Started
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </Card>
+                  </ul>
+                </div>
+                <div className="mt-auto">
+                  {plan.tabValue === "enterprise" && (
+                  <Link href="/contact-us" target="_blank">
+                    <Button className="w-full bg-[#287f71] hover:bg-[#287f71]/90">
+                    Contact Sales
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  </Link>
+                  )}
+                  {plan.tabValue !== "enterprise" && (
+                    <Link href={`/sign-up`}>
+                    <Button className="w-full bg-[#287f71] hover:bg-[#287f71]/90">
+                      Get Started
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                    </Link>
+                  )}
+                </div>
+                </Card>
             ))}
           </div>
         </div>

@@ -80,9 +80,27 @@ export const permissionsList = [
 export const packages: Package[] = [
   {
     id: 0,
-    name: "Start",
-    tabValue: "start",
-    description: "For entrepreneurial businesses",
+    name: "Free",
+    tabValue: "free",
+    description: "The basics needed to trial Coord.travel",
+    price: 0.0,
+    icon: Zap,
+    users: 1,
+    trialPeriod: "unlimited",
+    features: [
+      // "Start Your Free 1 month Trial",
+      "No credit card required. Cancel anytime",
+      "1 user",
+      "Limited bookings",
+      "Basic reporting and analysis"
+    ],
+    recuurence: "1 Month"
+  },
+  {
+    id: 1,
+    name: "Basic",
+    tabValue: "basic",
+    description: "For Small DMCs & Startups",
     price: 5.0,
     icon: Zap,
     users: 5,
@@ -90,16 +108,17 @@ export const packages: Package[] = [
     features: [
       // "Start Your Free 1 month Trial",
       "Up to 5 users",
-      "Unlimited Bookings",
       "Everything included in FREE and:",
+      "Unlimited Bookings",
+      "Unlimited Hotels"
     ],
     recuurence: "1 Month"
   },
   {
-    id: 1,
+    id: 2,
     name: "Plus",
     tabValue: "plus",
-    description: "For growing businesses",
+    description: "For Growing DMCs & Mid-Sized Agencies",
     price: 20.0,
     icon: Star,
     users: 20,
@@ -114,10 +133,10 @@ export const packages: Package[] = [
     recuurence: "1 Month"
   },
   {
-    id: 2,
-    name: "Premium",
-    tabValue: "premium",
-    description: "For sophisticated, high volume businesses",
+    id: 3,
+    name: "Enterprise",
+    tabValue: "enterprise",
+    description: "For Large DMCs & Established Tour Operators",
     price: 69.0,
     icon: Crown,
     users: "Unlimited",
@@ -126,6 +145,8 @@ export const packages: Package[] = [
       // "Start Your Free 1 month Trial",
       "Unlimited users",
       "Everything included in PLUS",
+      "Priority support",
+      "Dedicated account management",
     ],
     recuurence: "1 Month"
   },
