@@ -79,7 +79,7 @@ const VoucherSettingsComponent: React.FC<{ tenant: SelectTenant, currencies:stri
             <Dialog open={isModalVisible} onOpenChange={setIsModalVisible}>
                 <DialogTrigger asChild>
                     <Button variant="primaryGreen" onClick={showModal}>
-                        Open Voucher Settings
+                        Currency Settings
                     </Button>
                 </DialogTrigger>
                 <DialogContent className=''>

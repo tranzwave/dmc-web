@@ -263,6 +263,9 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
           </div>
         </>
       )}
+      <div className="text-[10px] text-gray-500 my-0">
+        You can change the currency by clicking on the "Currency Settings" button in the top right corner of the page.
+      </div>
       <Accordion type="single" collapsible>
         <AccordionItem value="item-1">
           <AccordionTrigger className="w-full justify-end">

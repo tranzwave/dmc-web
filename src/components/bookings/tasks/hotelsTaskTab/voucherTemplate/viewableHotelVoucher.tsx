@@ -33,7 +33,7 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName, organization, us
   const calculateTotal = () => {
     let sum = 0
     voucher.voucherLines.forEach(l => {
-      sum += l.roomCount * (Number(l.rate) ?? 0)
+      sum += l.roomCount * (Number(l.rate) ?? 0) * calculateNights(l.checkInDate, l.checkOutDate)
     })
     return sum ? sum.toFixed(2) : "-";
   }
@@ -41,12 +41,12 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName, organization, us
   useEffect(() => {
     console.log('voucher', voucher)
   }
-  , [voucher])
+    , [voucher])
 
 
   return (
     <div className="flex flex-col justify-center">
-      <VoucherHeader organization={organization}/>
+      <VoucherHeader organization={organization} />
       <div className="p-4">
         <div className="w-full text-center" style={{ fontWeight: 'bold', fontSize: '20px' }}>
           {voucher.status === "cancelled" || cancellation ? (<div className="text-red-500">Cancellation Voucher</div>) : `Hotel Reservation Voucher${voucher.status === 'amended' ? ' - Amendment' : ''}`}
@@ -75,11 +75,11 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName, organization, us
                 </th>
                 <th className="px-4 py-2 text-left font-semibold">Occupancy</th>
                 <th className="px-4 py-2 text-left font-semibold">Meal Plan</th>
-                <th className="px-4 py-2 text-left font-semibold">Quantity</th>
+                <th className="px-4 py-2 text-left font-semibold">Room Count</th>
                 <th className="px-4 py-2 text-left font-semibold">No of Nights</th>
                 <th className="px-4 py-2 text-left font-semibold">Adults</th>
                 <th className="px-4 py-2 text-left font-semibold">Kids</th>
-                <th className="px-4 py-2 text-left font-semibold">Price</th>
+                <th className="px-4 py-2 text-left font-semibold">Rate</th>
                 <th className="px-4 py-2 text-left font-semibold">Amount</th>
               </tr>
             </thead>
@@ -97,7 +97,10 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName, organization, us
                   <td className="px-4 py-2">{line.kidsCount ?? "N/A"}</td>
                   <td className="px-4 py-2">{line.rate ?? '-'}</td>
                   <td className="px-4 py-2">
-                    {line.rate ? ((Number(line.rate) ?? 0) * line.roomCount).toFixed(2) : "-"}
+                    {line.rate ? ((Number(line.rate) ?? 0) * line.roomCount * calculateNights(
+                      line.checkInDate,
+                      line.checkOutDate,
+                    )).toFixed(2) : "-"}
                   </td>
                 </tr>
               ))}
@@ -111,20 +114,21 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName, organization, us
 
         <div className="text-[13px] font-normal">
 
+          <div>Billing Instructions : {voucher.billingInstructions}</div>
 
           {voucher.ratesConfirmedTo && (
             <div>{`Rates have been confirmed by ${voucher.ratesConfirmedBy} ${voucher.ratesConfirmedTo ? ' and communicated to ' + voucher.ratesConfirmedTo : ''}`}</div>
           )}
 
           <div>Other Instructions : {voucher.specialNote}</div>
+        </div>
+        <div className="mt-4 text-[13px]">
 
           {voucher.availabilityConfirmedTo && (
             <div>{`Above arrangement is confirmed on the telephone by ${voucher.availabilityConfirmedBy} ${voucher.availabilityConfirmedTo ? ' and communicated to ' + voucher.availabilityConfirmedTo : ''}`}</div>
           )}
-        </div>
-        <div className="mt-4 text-[13px]">
-          
-          <div>Billing Instructions : {voucher.billingInstructions}</div>
+
+
 
           {voucher.status === 'amended' && (
             <div>Reference(s) : {voucher.reasonToAmend}</div>
@@ -132,6 +136,8 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName, organization, us
           {voucher.status === 'cancelled' && (
             <div>Reason for cancellation : {voucher.reasonToCancel}</div>
           )}
+
+
         </div>
         <div className="mt-10 text-[13px]">
           <div>Printed Date : {format(Date.now(), "dd/MM/yyyy")}</div>
