@@ -13,9 +13,6 @@ export const getAllRoomCategories = (tenantId:string) => {
 export const getRoomCategoryById = (tenantId:string, id: string) => {
     return db.query.roomCategory.findFirst({
       where: eq(roomCategory.tenantId, tenantId),
-      with: {
-        hotel: true,
-      },
     });
 }
 
