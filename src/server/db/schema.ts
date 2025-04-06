@@ -1126,6 +1126,15 @@ export const hotelRoomRelation = relations(hotelRoom, ({ one, many }) => ({
   }),
 }));
 
+//has a relationship with tenant
+export const hotelRoomCategoryRelation = relations(roomCategory,({one}) => ({
+  tenant: one(tenant, {
+    fields: [roomCategory.tenantId],
+    references: [tenant.id],
+  }),
+  })
+);
+
 export const hotelVouchersRelations = relations(
   hotelVoucher,
   ({ one, many }) => ({
