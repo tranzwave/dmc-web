@@ -286,6 +286,25 @@ export const hotel = createTable("hotels", {
     .notNull(),
 });
 
+//Table for common room categories, only specifier is tenantId
+export const roomCategory = createTable("room_categories", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  tenantId: varchar("tenant_id", { length: 255 })
+    .references(() => tenant.id, { onDelete: "cascade" })
+    .notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .$onUpdate(() => new Date()),
+});
+
+
 // Table for Rooms
 export const hotelRoom = createTable("hotel_rooms", {
   id: varchar("id", { length: 255 })
@@ -972,6 +991,7 @@ export const tenantRelations = relations(tenant, ({ one, many }) => ({
   coordinator: many(user),
   marketingTeam: many(marketingTeam),
   notification: many(notification),
+  roomCategory: many(roomCategory),
 }));
 
 export const notificationRelations = relations(notification, ({ one }) => ({

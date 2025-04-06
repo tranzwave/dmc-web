@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HotelRoom, useAddHotel } from "~/app/dashboard/hotels/add/context";
 import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 import { Button } from "~/components/ui/button";
@@ -9,6 +9,11 @@ import { columns } from "./columns";
 import RoomsForm from "./roomsForm";
 import { deleteHotelRoom } from "~/server/db/queries/hotel";
 import { toast } from "~/hooks/use-toast";
+import RoomCategoryAdder from "~/components/common/roomCategoryAdder";
+import { useOrganization } from "@clerk/nextjs";
+import { getAllRoomCategories } from "~/server/db/queries/roomCategories";
+import { set } from "date-fns";
+import LoadingLayout from "~/components/common/dashboardLoading";
 
 const RoomsTab = () => {
     const [addedRooms, setAddedRooms] = useState<HotelRoomType[]>([]); // State to handle added rooms
@@ -23,8 +28,9 @@ const RoomsTab = () => {
         hotelId:""
       });
     const [isDeleting, setIsDeleting] = useState(false);
-
-    console.log({hotelRooms: hotelRooms});
+    const { organization, isLoaded } = useOrganization();
+    const [customRoomCategories, setCustomRoomCategories] = useState<string[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const updateRooms = (room: HotelRoomType) => {
         console.log("Hereeee");
@@ -85,13 +91,54 @@ const RoomsTab = () => {
         }
       };
 
+    
+    useEffect(() => {
+        const fetchRoomCategories = async () => {
+            try {
+                if(!organization) {
+                    return;
+                }
+                setIsLoading(true);
+                const categoriesResponse = await getAllRoomCategories(organization.id);
+
+                if (!categoriesResponse) {
+                    throw new Error("Error fetching room categories");
+                }
+
+                setCustomRoomCategories(categoriesResponse.map((category) => category.name));
+
+                console.log("Fetched room categories:", categoriesResponse);
+                setIsLoading(false);
+            } catch (error) {
+                console.error("Error fetching room categories:", error);
+                setIsLoading(false);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+
+        if (isLoaded) {
+            fetchRoomCategories();
+        }
+
+    }, [organization, isLoaded]);
+
+    if(isLoading) {
+        return (
+            <div className="flex flex-col gap-3 justify-center items-center">
+                <LoadingLayout />
+            </div>
+        );
+    }
+
       
     return (
         <div className="flex flex-col gap-3 justify-center items-center">
             <div className='w-full flex flex-row gap-2 justify-center'>
                 <div className='card w-[90%] space-y-6'>
                     <div className='card-title'>Room Information</div>
-                    <RoomsForm onAddRoom={updateRooms} selectedRoom={selectedHotelRoom} />
+                    <RoomsForm onAddRoom={updateRooms} selectedRoom={selectedHotelRoom} customRoomCategories={customRoomCategories}/>
+                    <RoomCategoryAdder />
                 </div>
             </div>
             <div className='flex flex-col gap-2 items-center justify-center w-[90%]'>
