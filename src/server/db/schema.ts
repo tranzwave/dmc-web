@@ -139,6 +139,10 @@ export const agent = createTable("agents", {
     length: 20,
   }).notNull(),
   agency: varchar("agency", { length: 255 }).notNull(),
+  address: varchar("address", { length: 255 }).default(""),
+  marketingTeamId: varchar("marketing_team_id", { length: 255 })
+    .references(() => marketingTeam.id, { onDelete: "set null" })
+    .notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
@@ -983,6 +987,7 @@ export const marketingTeamRelations = relations(marketingTeam, ({ one, many }) =
     references: [tenant.id],
   }),
   booking: many(booking),
+  agent: many(agent),
 }));
 
 export const subscriptionRelations = relations(subscription, ({ one }) => ({
@@ -998,6 +1003,10 @@ export const agentRelations = relations(agent, ({ one, many }) => ({
     references: [tenant.id],
   }),
   bookingAgent: many(bookingAgent),
+  marketingTeam: one(marketingTeam, {
+    fields: [agent.marketingTeamId],
+    references: [marketingTeam.id],
+  }),
 }));
 
 export const clientRelations = relations(client, ({ one, many }) => ({

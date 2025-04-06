@@ -8,6 +8,8 @@ export type General = {
   email: string,
   primaryContactNumber: string,
   agency: string,
+  address: string,
+  marketingTeamId: string,
   // feild1: string,
   // feild2: string,
   // feild3: string,

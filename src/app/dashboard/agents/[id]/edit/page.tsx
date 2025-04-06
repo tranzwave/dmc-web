@@ -63,6 +63,8 @@ const EditAgent = ({ id }: { id: string }) => {
           email: selectedAgent.email,
           primaryContactNumber: selectedAgent.primaryContactNumber,
           agency: selectedAgent.agency,
+          address: selectedAgent.address ?? "",
+          marketingTeamId: selectedAgent.marketingTeamId,
         })
       
       } catch (error) {
