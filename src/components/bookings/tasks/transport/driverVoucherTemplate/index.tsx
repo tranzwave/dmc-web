@@ -53,13 +53,13 @@ const DriverTransportVoucherPDF = ({
           </div>
 
           <div className="text-[13px]">
-            <div>Voucher ID : {voucher.voucher.id}</div>
+            <div>Voucher ID : {`${voucher.voucher.bookingLineId}-TRS-${voucher.driver?.name.split(" ").join("")}`}</div>
             <div className="font-bold">Flight Details</div>
             <div>
-              Arrival by: {voucher.voucher.startDate}
+              Arrival: {bookingData.flightDetails?.arrivalFlight}
             </div>
             <div>
-              Departure by: {voucher.voucher.endDate}
+              Departure: {bookingData.flightDetails?.departureFlight}
             </div>
           </div>
         </div>

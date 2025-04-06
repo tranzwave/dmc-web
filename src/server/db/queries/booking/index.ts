@@ -1772,3 +1772,51 @@ export const updateTourInvoice = async (
     throw error;
   }
 };
+
+//update flight details in booking line
+export const updateFlightDetails = async (
+  bookingLineId: string,
+  data: Partial<SelectBookingLine>,
+) => {
+  try {
+    // Start a transaction to update the booking line
+    const result = await db.transaction(async (tx) => {
+      // Find the existing booking line by ID
+      const existingBookingLine = await tx.query.bookingLine.findFirst({
+        where: eq(bookingLine.id, bookingLineId),
+      });
+
+      if (!existingBookingLine) {
+        throw new Error(
+          `Couldn't find a booking line with ID: ${bookingLineId}`,
+        );
+      }
+
+      // Update the booking line with the provided general data
+      const updatedBookingLine = await tx
+        .update(bookingLine)
+        .set({
+          flightDetails: data.flightDetails,
+        })
+        .where(eq(bookingLine.id, bookingLineId))
+        .returning();
+
+      if (
+        !updatedBookingLine ||
+        !Array.isArray(updatedBookingLine) ||
+        !updatedBookingLine[0]?.id
+      ) {
+        throw new Error(
+          `Couldn't update the booking line with ID: ${bookingLineId}`,
+        );
+      }
+
+      return updatedBookingLine[0]?.id;
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Error in updateBookingLine:", error);
+    throw error;
+  }
+};
