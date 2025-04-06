@@ -79,7 +79,7 @@ export default function LandingPage() {
       {/* Features Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16"  id="features">
+          <div className="text-center mb-16" id="features">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               The Platform Your Travel Business Will Love
             </h2>
@@ -141,49 +141,49 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-8 max-w-6xl mx-auto" id="pricing">
+          <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-full mx-auto" id="pricing">
             {packages.map((plan, i) => (
-                <Card key={i} className={`p-8 px-12 flex flex-col justify-between ${plan.tabValue === "professional" ? 'ring-2 ring-[#287f71] relative' : ''}`}>
-                {plan.tabValue === "professional" && (
-                  <span className="absolute top-0 right-0 bg-[#287f71] text-white px-4 py-1 text-sm rounded-bl-lg">
-                  Popular
+              <Card key={i} className={`cursor-pointer p-6 w-[320px] flex flex-col justify-between ${plan.tabValue === "plus" ? 'ring-2 ring-[#287f71] relative' : ''} hover:shadow-md`}>
+                {plan.tabValue === "plus" && (
+                  <span className="absolute top-0 right-0 bg-[#287f71] text-white px-4 py-1 text-sm rounded-bl-lg rounded-tr-lg">
+                    Popular
                   </span>
                 )}
                 <div>
                   <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
                   <div className="mb-4">
-                  <span className="text-4xl font-bold">${plan.price}</span>
-                  <span className="text-gray-600">/month</span>
+                    <span className="text-4xl font-bold">${plan.price}</span>
+                    <span className="text-gray-600">/month</span>
                   </div>
                   <p className="text-gray-600 mb-6">{plan.description}</p>
-                  <ul className="space-y-4 mb-8">
-                  {plan.features.map((feature, j) => (
-                    <li key={j} className="flex items-center gap-2">
-                    <Check className="text-[#287f71] w-5 h-5" />
-                    <span>{feature}</span>
-                    </li>
-                  ))}
-                  </ul>
+                  <div className="space-y-2 mb-8">
+                    {plan.features.map((feature, j) => (
+                      <div key={j} className="flex items-center gap-2 text-[14px]">
+                        <Check className="text-[#287f71] min-w-4" size={16} />
+                        <div>{feature}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <div className="mt-auto">
                   {plan.tabValue === "enterprise" && (
-                  <Link href="/contact-us" target="_blank">
-                    <Button className="w-full bg-[#287f71] hover:bg-[#287f71]/90">
-                    Contact Sales
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
-                  </Link>
+                    <Link href="/contact-us" target="_blank">
+                      <Button className="w-full bg-[#287f71] hover:bg-[#287f71]/90">
+                        Contact Sales
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </Button>
+                    </Link>
                   )}
                   {plan.tabValue !== "enterprise" && (
                     <Link href={`/sign-up`}>
-                    <Button className="w-full bg-[#287f71] hover:bg-[#287f71]/90">
-                      Get Started
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
+                      <Button className="w-full bg-[#287f71] hover:bg-[#287f71]/90">
+                        Get Started
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </Button>
                     </Link>
                   )}
                 </div>
-                </Card>
+              </Card>
             ))}
           </div>
         </div>
