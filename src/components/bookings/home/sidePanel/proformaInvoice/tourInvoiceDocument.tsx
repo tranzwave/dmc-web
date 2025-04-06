@@ -32,6 +32,7 @@ const TourInvoicePDF = ({ organization, user, bookingData }: TourInvoiceDocument
     agency: "",
     countryCode: "",
     primaryContactNumber: "",
+    address: "",
   };
 
   const [bankDetails, setBankDetails] = useState<BankDetails | null>(organization.publicMetadata.bankDetails as BankDetails);
@@ -64,6 +65,7 @@ const TourInvoicePDF = ({ organization, user, bookingData }: TourInvoiceDocument
                 <div>Agency Country: {Country.getCountryByCode(agent.countryCode)?.name ?? "N/A"}</div>
                 <div>Agency Email: {agent.email}</div>
                 <div>Agency Phone: {agent.primaryContactNumber}</div>
+                <div>Agency Address: {agent.address}</div>
               </div>
             ): (
               <div>

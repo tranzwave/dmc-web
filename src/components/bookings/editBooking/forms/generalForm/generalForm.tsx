@@ -47,7 +47,7 @@ import {
 } from "~/components/ui/select";
 import { tourTypes } from "~/lib/constants";
 import { cn } from "~/lib/utils";
-import { getAllAgents } from "~/server/db/queries/agents";
+import { getAllAgents, getAllAgentsForMarketingTeams } from "~/server/db/queries/agents";
 import { updateBookingLine } from "~/server/db/queries/booking";
 import { getAllCountries } from "~/server/db/queries/countries";
 import { getAllUsers } from "~/server/db/queries/users";
@@ -153,14 +153,18 @@ const GeneralForm = ({ allUsers, marketingTeams }:GeneralFormProps) => {
   const numberOfDays = form.watch("numberOfDays");
 
   const fetchData = async () => {
-    if(!isLoaded || !organization){
+    if(!isLoaded || !organization || !user){
       return
     }
     try {
       // Run both requests in parallel
       setLoading(true);
+      const usersTeams = (user.publicMetadata as ClerkUserPublicMetadata).teams.filter((team) => {
+        return team.orgId === organization.id;
+      }
+      ).map((team) => team.teamId);
       const [agentsResponse, usersResponse, countriesResponse] =
-        await Promise.all([getAllAgents(organization.id), getAllUsers(), getAllCountries()]);
+        await Promise.all([getAllAgentsForMarketingTeams(organization.id, usersTeams), getAllUsers(), getAllCountries()]);
 
       // Check for errors in the responses
       if (!agentsResponse) {

@@ -1,4 +1,4 @@
-import { activity, activityType, activityVendor, activityVoucher, agent, booking, bookingAgent, bookingLine, city, client, country, driver, driverLanguage, driverVehicle, driverVoucherLine, guide, guideLanguage, guideVoucherLine, hotel, hotelRoom, hotelStaff, hotelVoucher, hotelVoucherLine, language, marketingTeam, notification, otherTransport, otherTransportVoucherLine, restaurant, restaurantMeal, restaurantVoucher, restaurantVoucherLine, shop, shopShopType, shopType, shopVoucher, tenant, transportVoucher, user, vehicle } from './schema';
+import { activity, activityType, activityVendor, activityVoucher, agent, booking, bookingAgent, bookingLine, city, client, country, driver, driverLanguage, driverVehicle, driverVoucherLine, guide, guideLanguage, guideVoucherLine, hotel, hotelRoom, hotelStaff, hotelVoucher, hotelVoucherLine, language, marketingTeam, notification, otherTransport, otherTransportVoucherLine, restaurant, restaurantMeal, restaurantVoucher, restaurantVoucherLine, roomCategory, shop, shopShopType, shopType, shopVoucher, tenant, transportVoucher, user, vehicle } from './schema';
 
 //Country Types
 export type InsertCountry = typeof country.$inferInsert;
@@ -35,6 +35,9 @@ export type SelectHotel = typeof hotel.$inferSelect;
 
 export type InsertHotelRoom = typeof hotelRoom.$inferInsert;
 export type SelectHotelRoom = typeof hotelRoom.$inferSelect;
+
+export type InsertHotelRoomCategory = typeof roomCategory.$inferInsert;
+export type SelectHotelRoomCategory = typeof roomCategory.$inferSelect;
 
 export type InsertHotelStaff = typeof hotelStaff.$inferInsert;
 export type SelectHotelStaff = typeof hotelStaff.$inferSelect;

@@ -15,6 +15,7 @@ import { TransportVoucherData } from '../..';
 import { ColumnDef } from '@tanstack/react-table';
 import { otherTransportVoucherLineColumns } from '~/components/bookings/editBooking/forms/transportForm/otherTransportTab/otherTransportColumns';
 import { TransportVoucher } from '~/app/dashboard/bookings/[id]/edit/context';
+import FlightDetails from '../../flightDetails';
 
 interface VoucherInformationProps {
     pathname: string;
@@ -73,8 +74,24 @@ const TransportTaskTabContent: React.FC<VoucherInformationProps> = ({
                     </Link>
                 )}
             </div>
-            <div className="text-sm font-normal">
-                Click the line to send the voucher
+            <div className='flex flex-row justify-between items-end'>
+                <div className="text-sm font-normal">
+                    Click the line to send the voucher
+                </div>
+
+                {bookingData && (
+                    <Popup
+                        title={"Flight Details"}
+                        description="You can update the flight details here"
+                        trigger={<Button variant={"primaryGreen"}>Update Flight Details</Button>}
+                        onConfirm={handleConfirm}
+                        onCancel={() => console.log("Cancelled")}
+                        dialogContent={<FlightDetails bookingLine={bookingData} initialArrivalFlight={bookingData.flightDetails?.arrivalFlight} initialDepartureFlight={bookingData.flightDetails?.departureFlight}/>}
+                        size="small"
+                    />
+                )}
+
+
             </div>
             {activeTab === "driverAndGuide" && (
                 <DataTable

@@ -1,6 +1,6 @@
 "use server"
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../..";
 import { agent, tenant } from "../../schema";
 import { InsertAgent } from "../../schemaTypes";
@@ -16,6 +16,15 @@ export const getAllAgents = (tenantId: string) => {
     })
 }
 
+export const getAllAgentsForMarketingTeams = (tenantId: string, marketingTeamIdList: string[]) => {
+    return db.query.agent.findMany({
+        where: and(
+            eq(agent.tenantId, tenantId),
+            inArray(agent.marketingTeamId, marketingTeamIdList)
+        ),
+    })
+}
+
 export const getAgentVendorById = (id: string) => {
     return db.query.agent.findFirst({
         where: eq(agent.id, id),
@@ -28,7 +37,9 @@ export const saveAgent = async (agentData: {
     email: string,
     primaryContactNumber: string,
     agency: string,
-    tenantId: string
+    tenantId: string,
+    address: string,
+    marketingTeamId: string,
 }) => {
     const insertedAgents = await db.insert(agent).values({
         name: agentData.name,
@@ -36,7 +47,9 @@ export const saveAgent = async (agentData: {
         email: agentData.email,
         primaryContactNumber: agentData.primaryContactNumber,
         agency: agentData.agency,
-        tenantId: agentData.tenantId
+        tenantId: agentData.tenantId,
+        address: agentData.address,
+        marketingTeamId: agentData.marketingTeamId,
     }).returning();
 
     const newAgent = insertedAgents[0];
@@ -142,6 +155,8 @@ export async function updateAgent(
                 email: updatedAgent.email,
                 primaryContactNumber: updatedAgent.primaryContactNumber,
                 agency: updatedAgent.agency,
+                address: updatedAgent.address,
+                marketingTeamId: updatedAgent.marketingTeamId,
             })
             .where(eq(agent.id, agentId))
             .returning({ updatedId: agent.id });

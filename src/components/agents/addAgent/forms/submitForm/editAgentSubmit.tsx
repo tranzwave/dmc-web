@@ -29,6 +29,8 @@ const EditAgentSubmitForm = ({ id, originalAgentData }: { id: string; originalAg
         tenantId: "",
         createdAt: originalAgentData?.createdAt ?? new Date(),
         id: originalAgentData?.id ?? "",
+        address: general.address,
+        marketingTeamId: general.marketingTeamId,
     }];
 
     try {

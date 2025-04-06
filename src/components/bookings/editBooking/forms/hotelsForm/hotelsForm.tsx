@@ -49,6 +49,7 @@ import {
 } from "~/server/db/schemaTypes";
 import { HotelWithRooms } from ".";
 import { SingleSelect } from "~/components/ui/single-select";
+import Link from "next/link";
 
 interface HotelsFormProps {
   onAddHotel: (
@@ -589,6 +590,19 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
               )}
             />
           </div>
+          {selectedHotel && (
+          <div className="text-[10px] text-gray-500 my-0">
+            Please note that only the room categories belong to selected hotel will be shown. If you want to add a new room to this hotel, <span>
+              <Link
+                href={`/dashboard/hotels/${selectedHotel.id}/edit`}
+                className="text-blue-500 underline"
+                target="_blank"
+              >
+                click here
+              </Link>
+            </span>
+          </div>
+          )}
           <div className="flex w-full flex-row justify-end">
             <Button
               variant={"primaryGreen"}

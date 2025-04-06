@@ -139,6 +139,10 @@ export const agent = createTable("agents", {
     length: 20,
   }).notNull(),
   agency: varchar("agency", { length: 255 }).notNull(),
+  address: varchar("address", { length: 255 }).default(""),
+  marketingTeamId: varchar("marketing_team_id", { length: 255 })
+    .references(() => marketingTeam.id, { onDelete: "set null" })
+    .notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
@@ -281,6 +285,25 @@ export const hotel = createTable("hotels", {
     .references(() => city.id, { onDelete: "cascade" })
     .notNull(),
 });
+
+//Table for common room categories, only specifier is tenantId
+export const roomCategory = createTable("room_categories", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  tenantId: varchar("tenant_id", { length: 255 })
+    .references(() => tenant.id, { onDelete: "cascade" })
+    .notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .$onUpdate(() => new Date()),
+});
+
 
 // Table for Rooms
 export const hotelRoom = createTable("hotel_rooms", {
@@ -968,6 +991,7 @@ export const tenantRelations = relations(tenant, ({ one, many }) => ({
   coordinator: many(user),
   marketingTeam: many(marketingTeam),
   notification: many(notification),
+  roomCategory: many(roomCategory),
 }));
 
 export const notificationRelations = relations(notification, ({ one }) => ({
@@ -983,6 +1007,7 @@ export const marketingTeamRelations = relations(marketingTeam, ({ one, many }) =
     references: [tenant.id],
   }),
   booking: many(booking),
+  agent: many(agent),
 }));
 
 export const subscriptionRelations = relations(subscription, ({ one }) => ({
@@ -998,6 +1023,10 @@ export const agentRelations = relations(agent, ({ one, many }) => ({
     references: [tenant.id],
   }),
   bookingAgent: many(bookingAgent),
+  marketingTeam: one(marketingTeam, {
+    fields: [agent.marketingTeamId],
+    references: [marketingTeam.id],
+  }),
 }));
 
 export const clientRelations = relations(client, ({ one, many }) => ({
@@ -1096,6 +1125,15 @@ export const hotelRoomRelation = relations(hotelRoom, ({ one, many }) => ({
     references: [hotel.id],
   }),
 }));
+
+//has a relationship with tenant
+export const hotelRoomCategoryRelation = relations(roomCategory,({one}) => ({
+  tenant: one(tenant, {
+    fields: [roomCategory.tenantId],
+    references: [tenant.id],
+  }),
+  })
+);
 
 export const hotelVouchersRelations = relations(
   hotelVoucher,

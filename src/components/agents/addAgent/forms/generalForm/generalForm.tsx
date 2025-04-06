@@ -1,5 +1,6 @@
 "use client";
 
+import { useOrganization, useUser } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { parsePhoneNumberFromString } from "libphonenumber-js"; // Correct import for parsing
 import { useEffect, useState } from "react";
@@ -8,6 +9,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { z } from "zod";
 import { useAddAgent } from "~/app/dashboard/agents/add/context";
+import LoadingLayout from "~/components/common/dashboardLoading";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -25,8 +27,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { toast } from "~/hooks/use-toast";
+import { ClerkUserPublicMetadata } from "~/lib/types/payment";
 import { getAllCountries } from "~/server/db/queries/agents";
-import { SelectCountry } from "~/server/db/schemaTypes";
+import { getAllMarketingTeams } from "~/server/db/queries/marketingTeams";
+import { SelectCountry, SelectMarketingTeam } from "~/server/db/schemaTypes";
 
 export const generalSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -40,6 +45,8 @@ export const generalSchema = z.object({
     { message: "Invalid phone number" },
   ),
   agency: z.string().min(1, "Agency is required"),
+  address: z.string().min(1, "Address is required"),
+  marketingTeamId: z.string().min(1, "Marketing team is required"),
 });
 
 type GeneralFormValues = z.infer<typeof generalSchema>;
@@ -49,6 +56,9 @@ const GeneralForm = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { setGeneralDetails, agentDetails, setActiveTab } = useAddAgent();
+  const [marketingTeams, setMarketingTeams] = useState<SelectMarketingTeam[]>([]); // Assuming you have a way to fetch marketing teams
+  const { user, isLoaded } = useUser();
+  const { organization, isLoaded: orgLoaded } = useOrganization();
 
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalSchema),
@@ -57,12 +67,33 @@ const GeneralForm = () => {
 
   const fetchData = async () => {
     try {
+      if (!organization || !user) {
+        return;
+      }
       setLoading(true);
       const result = await getAllCountries();
+      const allTeams = await getAllMarketingTeams(organization.id);
+      const usersTeams = (user.publicMetadata as ClerkUserPublicMetadata).teams
+      const marketingTeamsOfUser = usersTeams.filter((team) => {
+        return team.orgId === organization.id;
+      }
+      ).map((team) => team.teamId);
+
+      const filteredTeams = allTeams.filter((team) => {
+        return marketingTeamsOfUser.includes(team.id);
+      }
+      );
+
+      setMarketingTeams(filteredTeams);
       setCountries(result);
+      setLoading(false)
     } catch (error) {
       console.error("Failed to fetch country data:", error);
       setError("Failed to load data.");
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+      })
     } finally {
       setLoading(false);
     }
@@ -77,6 +108,10 @@ const GeneralForm = () => {
     setGeneralDetails(data);
     setActiveTab("submit");
   };
+
+  if (!isLoaded || !orgLoaded) {
+    return <LoadingLayout />;
+  }
 
   return (
     <Form {...form}>
@@ -163,6 +198,55 @@ const GeneralForm = () => {
                     inputClass="w-full shadow-md"
                     inputStyle={{ width: "inherit" }}
                   />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* // Address and Marketing Team */}
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            name="address"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Address</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter Address" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            name="marketingTeamId"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Marketing Team</FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={(value) => field.onChange(value)}
+                    value={field.value}
+                  >
+                    <SelectTrigger className="bg-slate-100 shadow-md">
+                      <SelectValue placeholder="Select Marketing Team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {loading ? (
+                        <SelectItem value="loading">Loading...</SelectItem>
+                      ) : (
+                        marketingTeams.map((team) => (
+                          <SelectItem key={team.id} value={team.id}>
+                            {team.name}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
                 </FormControl>
                 <FormMessage />
               </FormItem>

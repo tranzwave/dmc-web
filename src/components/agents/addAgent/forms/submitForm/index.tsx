@@ -30,6 +30,8 @@ const SubmitForm = () => {
         tenantId: organization.id,
         agency: general.agency,
         primaryContactNumber: general.primaryContactNumber,
+        address: general.address,
+        marketingTeamId: general.marketingTeamId,
       },
     ];
 
