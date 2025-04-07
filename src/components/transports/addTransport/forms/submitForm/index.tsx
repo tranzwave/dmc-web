@@ -113,18 +113,19 @@ const SubmitForm = () => {
         description: "Driver added successfully",
       });
       router.push("/dashboard/transport");
-    } catch (error:any) {
-      if (error instanceof Error) {
-        setError(error.message);
+    } catch (thrownError:any) {
+      if (thrownError instanceof Error) {
+        setError(thrownError.message);
       } else {
         setError("An unknown error occurred");
       }
+      console.error(thrownError)
       console.error("Error:", error);
       // alert(error);
       setLoading(false);
       toast({
         title: "Uh Oh!",
-        description: `Error while adding the driver: ${error || "Unknown error"}`,
+        description: `Error while adding the driver: ${error ?? "Unknown error"}`,
       });
     } finally {
       setLoading(false);

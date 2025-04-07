@@ -30,6 +30,21 @@ export const updateTransportVoucherStatus = async (transportVoucherId: string, s
   }
 };
 
+export const updateTransportVoucherSpecialNote = async (transportVoucherId: string, specialNote: string) => {
+  try {
+    const updatedVoucher = await db
+      .update(transportVoucher)
+      .set({ remarks: specialNote })
+      .where(eq(transportVoucher.id, transportVoucherId))
+      .returning();
+
+    return updatedVoucher;
+  } catch (error) {
+    console.error("Error updating shop voucher status:", error);
+    throw new Error("Failed to update shop voucher status.");
+  }
+}
+
 export const deleteDriverTransportVoucher = async (transportVoucherId: string, reasonToDelete: string) => {
   try {
     const result = await db.transaction(async (trx) => {

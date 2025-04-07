@@ -333,7 +333,10 @@ export const insertDriver = async (
 
     return newDrivers;
   } catch (error: any) {
-    console.error("Error in insertDriver:", error?.detail ?? error.message);
+    if(error.message.includes("dmc-web_vehicles_number_plate_unique") || error.detail.includes("dmc-web_vehicles_vehicle_type_unique")) {
+      throw new Error("Vehicle with same number plate already exists");
+    }
+    console.error( error?.detail ?? error.message);
     throw error;
   }
 };

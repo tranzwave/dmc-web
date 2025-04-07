@@ -163,6 +163,10 @@ const DriverTransportVoucherPDF = ({
         </div>
 
         <div className="mt-10 text-[13px]">
+          <div>Special Note : {voucher.voucher.remarks}</div>
+        </div>
+
+        <div className="mt-10 text-[13px]">
           <div>Printed Date : {format(Date.now(), "dd/MM/yyyy")}</div>
           <div>Prepared By : {user?.fullName ?? ""}</div>
           <div>Contact Number : {(user?.publicMetadata as any)?.info?.contact ?? ""}</div>
