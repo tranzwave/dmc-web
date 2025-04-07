@@ -24,7 +24,7 @@ const TourInvoicesTable = ({organization, userMetadata, isSuperAdmin}: TourInvoi
         // const result: HotelsBooking[] = await getHotelBookingStats();
         const result = await getAllBookingLines(organization.id, userMetadata?.teams?.map((team) => team.teamId), isSuperAdmin);
 
-        setData(result);
+        setData(result.filter((item) => item.status !== "cancelled"));
       } catch (error) {
         console.error("Failed to fetch hotel booking stats:", error);
       } finally {
