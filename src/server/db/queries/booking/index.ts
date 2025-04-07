@@ -64,28 +64,7 @@ export const getAllBookingLines = async (orgId: string, enrolledTeams: string[],
 
   if (tenantBookingIds.length === 0) return [];
 
-  if (isSuperAdmin) {
-
-    return await db.query.bookingLine.findMany({
-      where: inArray(bookingLine.bookingId, tenantBookingIds), // Filter bookingLines by valid booking IDs
-      with: {
-        booking: {
-          with: {
-            client: true,
-            marketingTeam: true,
-            bookingAgent: {
-              with: {
-                agent: true,
-              },
-            },
-          },
-        },
-      },
-    });
-  }
-
-  // Fetch booking lines where the booking is in the valid bookings list
-  return await db.query.bookingLine.findMany({
+  const allBookings = await db.query.bookingLine.findMany({
     where: inArray(bookingLine.bookingId, tenantBookingIds), // Filter bookingLines by valid booking IDs
     with: {
       booking: {
@@ -101,6 +80,20 @@ export const getAllBookingLines = async (orgId: string, enrolledTeams: string[],
       },
     },
   });
+
+  if (isSuperAdmin) {
+    return allBookings;    
+  } else {
+    // Filter booking lines based on the enrolled teams
+    const filteredBookingLines = allBookings.filter((bookingLine) => {
+      const booking = bookingLine.booking;
+      return enrolledTeams.includes(booking.marketingTeamId ?? "");
+    });
+
+    return filteredBookingLines;
+  }
+
+  // Fetch booking lines where the booking is in the valid bookings list
 };
 
 
