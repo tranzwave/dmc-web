@@ -52,6 +52,7 @@ export default function Bookings() {
         return
       }
       const userEnrolledTeams = (user?.publicMetadata as ClerkUserPublicMetadata)?.teams?.map((team) => team.teamId);
+      const userManagedTeams = (user?.publicMetadata as ClerkUserPublicMetadata)?.teams?.filter((team) => team.orgId === organization.id && team.role === "manager").map((team) => team.teamId);
       const isSuperAdmin = orgRole === "org:admin";
       console.log("User Enrolled Teams:", userEnrolledTeams);
       console.log("Is Super Admin:", isSuperAdmin);
@@ -70,20 +71,32 @@ export default function Bookings() {
         return dateB.getTime() - dateA.getTime(); // Compare the timestamps
       });
 
-      setData(sortedResult);
+      const filteredDataBasedOnAccessLevels = sortedResult.filter((booking) => {
+        // check if the booking team is a team where user is the manager
+        const isUserManagerOfBookingsTeam = userManagedTeams?.includes(booking.booking.marketingTeamId ?? "");
+        if (isUserManagerOfBookingsTeam) {
+          return true;
+        }
+        const isUserEitherManagerOrCoordinator = orgRole === "org:admin" || booking.booking.managerId === user.id || booking.booking.coordinatorId === user.id;
+        const isUserMembershipEitherManagerOrCoordinator = booking.booking.managerId === membership?.id || booking.booking.coordinatorId === membership?.id;
+        return isUserEitherManagerOrCoordinator || isUserMembershipEitherManagerOrCoordinator;
+      }
+      );
+
+      setData(filteredDataBasedOnAccessLevels);
       // setSelectedBooking(sortedResult[0]);
 
       //find the first booking that is not cancelled and user either is the manager or coordinator or super admin
-      const firstBooking = sortedResult.find((booking) => {
-        const isUserEitherManagerOrCoordinator = orgRole === "org:admin" || booking.booking.managerId === user.id || booking.booking.coordinatorId === user.id;
-        const isUserMembershipEitherManagerOrCoordinator = booking.booking.managerId === membership?.id || booking.booking.coordinatorId === membership?.id;
-        return booking.status !== "cancelled" && (isUserEitherManagerOrCoordinator || isUserMembershipEitherManagerOrCoordinator);
-      });
+      // const firstBooking = sortedResult.find((booking) => {
+      //   const isUserEitherManagerOrCoordinator = orgRole === "org:admin" || booking.booking.managerId === user.id || booking.booking.coordinatorId === user.id;
+      //   const isUserMembershipEitherManagerOrCoordinator = booking.booking.managerId === membership?.id || booking.booking.coordinatorId === membership?.id;
+      //   return booking.status !== "cancelled" && (isUserEitherManagerOrCoordinator || isUserMembershipEitherManagerOrCoordinator);
+      // });
 
-      setSelectedBooking(firstBooking ?? null);
+      setSelectedBooking(filteredDataBasedOnAccessLevels[0] ?? null);
       setLoading(false);
     } catch (error) {
-      console.error("Failed to fetch booking data here here here:", error);
+      console.error("Failed to fetch booking data:", error);
       setError("Failed to load data.");
       setLoading(false);
     }
@@ -128,14 +141,14 @@ export default function Bookings() {
       ? bookingEndDate <= parseDate(endDate)
       : true;
 
+    return matchesSearch && matchesStartDate && matchesEndDate;
     if (!user || !membership) {
-      return matchesSearch && matchesStartDate && matchesEndDate;
     }
-    const isUserEitherManagerOrCoordinator = orgRole === "org:admin" || booking.booking.managerId === user.id || booking.booking.coordinatorId === user.id;
+    // const isUserEitherManagerOrCoordinator = orgRole === "org:admin" || booking.booking.managerId === user.id || booking.booking.coordinatorId === user.id;
 
-    const isUserMembershipEitherManagerOrCoordinator = booking.booking.managerId === membership.id || booking.booking.coordinatorId === membership.id;
+    // const isUserMembershipEitherManagerOrCoordinator = booking.booking.managerId === membership.id || booking.booking.coordinatorId === membership.id;
 
-    return matchesSearch && matchesStartDate && matchesEndDate && (isUserEitherManagerOrCoordinator || isUserMembershipEitherManagerOrCoordinator);
+    // return matchesSearch && matchesStartDate && matchesEndDate && (isUserEitherManagerOrCoordinator || isUserMembershipEitherManagerOrCoordinator);
   });
 
   const startIndex = (currentPage - 1) * rowsPerPage;
