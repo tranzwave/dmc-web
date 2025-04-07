@@ -13,11 +13,12 @@ import Popup from "~/components/common/popup";
 import ContactContent from "~/components/common/tasksTab/contactContent";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
-import { useToast } from "~/hooks/use-toast";
+import { toast, useToast } from "~/hooks/use-toast";
 import {
   deleteDriverTransportVoucher,
   deleteGuideTransportVoucher,
   deleteOtherTransportVoucher,
+  updateTransportVoucherSpecialNote,
   updateTransportVoucherStatus,
 } from "~/server/db/queries/booking/transportVouchers";
 import { TransportVoucherData } from "..";
@@ -33,6 +34,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import OtherTransportTab from "~/components/bookings/editBooking/forms/transportForm/otherTransportTab";
 import TransportTaskTabContent from "./commonContent";
 import { TransportVoucher } from "~/app/dashboard/bookings/[id]/edit/context";
+import { Textarea } from "~/components/ui/textarea";
 
 interface TasksTabProps {
   bookingLineId: string;
@@ -375,6 +377,8 @@ export const ProceedContent: React.FC<ProceedContentProps> = ({
 
   const { organization, isLoaded: isOrgLoaded } = useOrganization();
   const { isLoaded, user } = useUser();
+  const [ newSpecialNote, setNewSpecialNote ] = useState<string | null>(voucher.voucher.remarks ?? null);
+  const [isNoteSaving, setIsNoteSaving] = useState(false);
 
   if (!isLoaded || !isOrgLoaded) {
     return (
@@ -382,9 +386,63 @@ export const ProceedContent: React.FC<ProceedContentProps> = ({
     )
   }
 
+  const handleSpecialNoteSave = async () => {
+    try {
+      setIsNoteSaving(true);
+      const response = await updateTransportVoucherSpecialNote(
+        voucher.voucher.id ?? "",
+        newSpecialNote ?? "",
+      )
+
+      if (!response) {
+        throw new Error("Couldn't save the special note");
+      }
+
+      toast({
+        title: "Success!",
+        description: "Special note saved successfully",
+      });
+
+      voucher.voucher.remarks = newSpecialNote;
+      setIsNoteSaving(false);
+    } catch (error) {
+      console.error("Error saving special note:", error);
+      toast({
+        title: "Uh Oh",
+        description: "Couldn't save the special note",
+      });
+      setIsNoteSaving(false);
+    }
+  }
+
   return (
     <div className="mb-9 space-y-6">
-      <div className="flex flex-row justify-end">
+      <div>
+      {type === "driver" && (
+        <div>
+
+          <Textarea
+            placeholder="Add a special note here..."
+            className="w-full"
+            rows={4}
+            defaultValue={voucher.voucher.remarks ?? ""}
+            onChange={(e) => setNewSpecialNote(e.target.value)}
+          />
+        </div>
+      )}
+      </div>
+      <div className="flex flex-row justify-end gap-2">
+        {type === "driver" && (
+        <Button variant={"primaryGreen"} onClick={handleSpecialNoteSave} disabled={isNoteSaving}>
+          {isNoteSaving ? (
+            <div className="flex flex-row items-center gap-2">
+              <LoaderCircle className="h-4 w-4 animate-spin" />
+              Saving...
+            </div>
+          ) : null}
+          Save Special Note
+        </Button>
+        )}
         {type === "driver" && (
           <VoucherButton voucherComponent={
             <div>
