@@ -71,7 +71,16 @@ export default function Bookings() {
       });
 
       setData(sortedResult);
-      setSelectedBooking(sortedResult[0]);
+      // setSelectedBooking(sortedResult[0]);
+
+      //find the first booking that is not cancelled and user either is the manager or coordinator or super admin
+      const firstBooking = sortedResult.find((booking) => {
+        const isUserEitherManagerOrCoordinator = orgRole === "org:admin" || booking.booking.managerId === user.id || booking.booking.coordinatorId === user.id;
+        const isUserMembershipEitherManagerOrCoordinator = booking.booking.managerId === membership?.id || booking.booking.coordinatorId === membership?.id;
+        return booking.status !== "cancelled" && (isUserEitherManagerOrCoordinator || isUserMembershipEitherManagerOrCoordinator);
+      });
+
+      setSelectedBooking(firstBooking ?? null);
       setLoading(false);
     } catch (error) {
       console.error("Failed to fetch booking data here here here:", error);

@@ -707,7 +707,7 @@ const GeneralForm = ({ allUsers, marketingTeams }: GeneralFormProps) => {
                         <SelectValue placeholder="Select agent" />
                       </SelectTrigger>
                       <SelectContent>
-                        {agents.map((agent) => (
+                        {agents.filter(a => a.marketingTeamId === form.getValues('marketingTeam') || form.getValues('marketingManager') === 'super-admin').map((agent) => (
                           <SelectItem key={agent.id} value={agent?.id ?? ""}>
                             {agent.name} - {agent.agency}
                           </SelectItem>
