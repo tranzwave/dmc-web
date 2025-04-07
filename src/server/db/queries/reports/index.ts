@@ -1,6 +1,6 @@
 "use server";
 
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "../..";
 import {
     bookingLine,
@@ -60,7 +60,7 @@ export const getBookingCountByMonth = async () => {
 };
 
 
-export const getHotelBookingStats = async () => {
+export const getHotelBookingStats = async (tenantId: string) => {
     const hotelBookingStats = await db
         .select({
             hotelName: hotel.name,
@@ -69,8 +69,9 @@ export const getHotelBookingStats = async () => {
         })
         .from(hotel)
         .innerJoin(hotelVoucher, sql`${hotel.id} = ${hotelVoucher.hotelId}`)
-        .groupBy(hotel.id)
-    // .orderBy(sql`COUNT(${hotelVoucher.id})`, 'desc');
+        .where(eq(hotel.tenantId, tenantId))
+        .groupBy(hotel.id);
+        // .orderBy(sql`COUNT(${hotelVoucher.id})`, 'desc');
 
     return hotelBookingStats.map(row => {
         let formattedDate = null;
@@ -91,29 +92,31 @@ export const getHotelBookingStats = async () => {
 };
 
 
-export const getDriverBookingStats = async () => {
+
+export const getDriverBookingStats = async (tenantId: string) => {
     const driverBookingStats = await db
         .select({
             driverName: driver.name,
             numberOfBookings: sql`COUNT(${transportVoucher.id})`.as('numberOfBookings'),
             numberOfUpcomingTrips: sql`
-        COUNT(CASE 
-          WHEN ${transportVoucher.startDate}::timestamp > NOW() 
-          THEN 1 
-          ELSE NULL
-        END)
-      `.as('numberOfUpcomingTrips'),
+                COUNT(CASE 
+                    WHEN ${transportVoucher.startDate}::timestamp > NOW() 
+                    THEN 1 
+                    ELSE NULL
+                END)
+            `.as('numberOfUpcomingTrips'),
             numberOfOngoingTrips: sql`
-        COUNT(CASE 
-          WHEN ${transportVoucher.startDate}::timestamp <= NOW() 
-          AND ${transportVoucher.endDate}::timestamp >= NOW() 
-          THEN 1 
-          ELSE NULL
-        END)
-      `.as('numberOfOngoingTrips'),
+                COUNT(CASE 
+                    WHEN ${transportVoucher.startDate}::timestamp <= NOW() 
+                    AND ${transportVoucher.endDate}::timestamp >= NOW() 
+                    THEN 1 
+                    ELSE NULL
+                END)
+            `.as('numberOfOngoingTrips'),
         })
         .from(driver)
         .innerJoin(transportVoucher, sql`${driver.id} = ${transportVoucher.driverId}`)
+        .where(eq(driver.tenantId, tenantId))
         .groupBy(driver.id);
 
     return driverBookingStats.map(row => ({
@@ -123,4 +126,5 @@ export const getDriverBookingStats = async () => {
         numberOfOngoingTrips: Number(row.numberOfOngoingTrips),
     }));
 };
+
 

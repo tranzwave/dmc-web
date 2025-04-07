@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
-import { getHotelBookingStats } from "~/server/db/queries/reports";
 import { columns } from "./columns";
 import { BookingDTO } from "~/components/bookings/home/columns";
 import { OrganizationResource, UserResource } from "@clerk/types";
