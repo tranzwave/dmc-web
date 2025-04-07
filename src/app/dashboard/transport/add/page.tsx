@@ -1,6 +1,6 @@
 "use client";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import TitleBar from "~/components/common/titleBar";
 import ChargesTab from "~/components/transports/addTransport/forms/chargesForm";
 import DocumentsTab from "~/components/transports/addTransport/forms/documentsForm";
@@ -9,16 +9,51 @@ import SubmitForm from "~/components/transports/addTransport/forms/submitForm";
 import VehiclesTab from "~/components/transports/addTransport/forms/vehiclesForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { AddTransportProvider, useAddTransport } from "./context";
+import { getAllVehicles, getAllVehicleTypes } from "~/server/db/queries/transport";
+import { useOrganization } from "@clerk/nextjs";
+import LoadingLayout from "~/components/common/dashboardLoading";
+import { SelectVehicle } from "~/server/db/schemaTypes";
+import { toast } from "~/hooks/use-toast";
 
 const AddTransport = () => {
   const pathname = usePathname();
   const { setGeneralDetails, activeTab, setActiveTab, transportDetails } =
     useAddTransport();
+    const [vehicles, setVehicles] = useState<SelectVehicle[]>([]);
 
-    const isDriver = transportDetails.general.type === 'Driver'
+  const { organization, isLoaded } = useOrganization();
+  const [ fetchingVehicles, setFetchingVehicles ] = useState(false);
+
+  const isDriver = transportDetails.general.type === 'Driver'
   useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        if(!organization) return;
+        setFetchingVehicles(true);
+        const response = await getAllVehicles(organization.id)
+        
+        if (response) {
+          setVehicles(response);
+        }
+
+        setVehicles(response);
+        setFetchingVehicles(false);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch vehicles."
+        });
+        setFetchingVehicles(false);
+      }
+    }
     console.log("Add Transport Component");
-  }, []);
+
+    fetchVehicles();
+  }, [organization]);
+
+  if (!isLoaded) {
+    return <LoadingLayout />;
+  }
 
   return (
     <div className="flex">
@@ -98,7 +133,7 @@ const AddTransport = () => {
               </TabsContent>
 
               <TabsContent value="vehicles">
-                <VehiclesTab />
+                <VehiclesTab vehicles = {vehicles}/>
               </TabsContent>
               <TabsContent value="charges">
                 <ChargesTab />

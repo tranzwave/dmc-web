@@ -94,7 +94,7 @@ interface CheckboxListProps {
                 htmlFor={option}
                 className="text-base font-medium leading-none"
               >
-                {option}
+                {option.replace("booking_", "dashboard_")}
               </label>
             </div>
           )})}

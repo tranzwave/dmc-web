@@ -4,8 +4,15 @@ import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 import { Button } from "~/components/ui/button";
 import { columns, Vehicles } from "./columns";
 import VehiclesForm from "./vehiclesForm";
+import { SelectVehicle } from "~/server/db/schemaTypes";
 
-const VehiclesTab = () => {
+interface VehiclesTabProps {
+  vehicles: SelectVehicle[];
+}
+
+const VehiclesTab = (
+  {vehicles} : VehiclesTabProps
+) => {
   const [addedVehicle, setAddedVehicle] = useState<Vehicles[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicles>({
     vehicle: "",
@@ -58,6 +65,7 @@ const VehiclesTab = () => {
         <VehiclesForm
           onAddVehicles={updateVehicles}
           selectedVehicle={selectedVehicle}
+          allVehicles={vehicles}
         />
       </div>
       <div className="flex w-[100%] flex-col items-center justify-center gap-2">

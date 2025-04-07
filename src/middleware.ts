@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { ClerkOrganizationPublicMetadata, ClerkUserPublicMetadata } from './lib/types/payment';
+import { Permissions } from './lib/types/global';
 
 // Define public routes
 const isPublicRoute = createRouteMatcher([
@@ -90,7 +91,51 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   if (isActive && isOnPaymentPage) {
     return NextResponse.redirect(new URL('/dashboard/overview', req.url));
   }
+
+  const userPublicMetadata = (sessionClaims as CustomJwtSessionClaims).metadata as ClerkUserPublicMetadata;
+
+  console.log('User Public Metadata new:', userPublicMetadata);
+
+  // Check if user has the required permissions from metadata. 
+  // | "booking_activity:manage"
+  // | "booking_agent:manage"
+  // | "booking_hotel:manage"
+  // | "booking_invoice:manage"
+  // | "booking_rest:manage"
+  // | "booking_shops:manage"
+  // | "booking_transport:manage"
+
+  const permissions = userPublicMetadata.permissions || [];
+
+  const pathAndPermissionsMap: Record<string, string[]> = {
+    '/dashboard/overview': ['booking_activity:manage'],
+    '/dashboard/hotels': ['booking_hotel:manage'],
+    '/dashboard/activities': ['booking_activity:manage'],
+    '/dashboard/agents': ['booking_agent:manage'],
+    '/dashboard/reports': ['booking_invoice:manage'],
+    '/dashboard/restaurants': ['booking_rest:manage'],
+    '/dashboard/shops': ['booking_shops:manage'],
+    '/dashboard/transport': ['booking_transport:manage'],
+  };
+  
+  const path = req.nextUrl.pathname;
+  
+  // Find the matching base path from the map
+  const matchedPath = Object.keys(pathAndPermissionsMap).find(basePath =>
+    path.startsWith(basePath)
+  );
+  
+  const requiredPermissions = matchedPath ? pathAndPermissionsMap[matchedPath] : null;
+  
+  // If required permissions are not met, redirect
+  if (requiredPermissions && !requiredPermissions.every(permission => permissions.includes(permission as Permissions))) {
+    const redirectUrl = new URL("/dashboard/unauthorized", req.url);
+    redirectUrl.searchParams.set('requestedPage', path); // Add query param
+    return NextResponse.redirect(redirectUrl);
+  }
+  
   return NextResponse.next();
+  
 });
 
 export const config = {

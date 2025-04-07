@@ -1,7 +1,9 @@
+"use client"
 import { useEffect, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { getHotelBookingStats } from "~/server/db/queries/reports";
 import { columns } from "./columns";
+import { useOrganization } from "@clerk/nextjs";
 
 export type HotelsBooking = {
   hotelName: string;
@@ -12,12 +14,16 @@ export type HotelsBooking = {
 const HotelsBookingTable = () => {
   const [data, setData] = useState<HotelsBooking[]>([]);
   const [loading, setLoading] = useState(true);
+  const { organization, isLoaded } = useOrganization();
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!isLoaded || !organization) {
+        return;
+      }
       try {
         setLoading(true);
-        const result: HotelsBooking[] = await getHotelBookingStats();
+        const result: HotelsBooking[] = await getHotelBookingStats(organization.id);
         setData(result); // Set the fetched data
       } catch (error) {
         console.error("Failed to fetch hotel booking stats:", error);
@@ -27,7 +33,7 @@ const HotelsBookingTable = () => {
     };
 
     fetchData();
-  }, []);
+  }, [organization]);
 
   return (
     <div>

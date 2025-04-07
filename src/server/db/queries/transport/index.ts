@@ -32,6 +32,15 @@ export const getAllVehicleTypes = async () => {
     });
 };
 
+export const getAllVehicles = async (tenantId: string) => {
+  return await db.query.vehicle.findMany({
+    where: eq(vehicle.tenantId, tenantId),
+    with: {
+      drivers: true
+    },
+  });
+}
+
 export const getAllLanguages = () => {
   return db.query.language.findMany();
 };
