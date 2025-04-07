@@ -12,7 +12,7 @@ import VehiclesTab from "~/components/transports/addTransport/forms/vehiclesForm
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Driver } from "~/lib/api";
-import { getAllLanguages, getDriverDataById } from "~/server/db/queries/transport";
+import { getAllLanguages, getAllVehicles, getDriverDataById } from "~/server/db/queries/transport";
 import {
   SelectCity,
   SelectDriver,
@@ -22,6 +22,7 @@ import {
   SelectVehicle,
 } from "~/server/db/schemaTypes";
 import { AddTransportProvider, useAddTransport } from "../../add/context";
+import { useOrganization } from "@clerk/nextjs";
 
 export type DriverData = SelectDriver & {
   city: SelectCity;
@@ -52,6 +53,8 @@ const EditTransport = ({ id }: { id: string }) => {
   const [driverData, setDriverData] = useState<DriverData>();
   const [isFetchingLanguages, setIsFetchingLanguages] = useState<boolean>(false);
   const [languages, setLanguages] = useState<SelectLanguage[]>([]);
+  const [vehicles, setVehicles] = useState<SelectVehicle[]>([]);
+  const { organization, isLoaded } = useOrganization();
 
   useEffect(() => {
     async function fetchDriverDetails() {
@@ -132,9 +135,28 @@ const EditTransport = ({ id }: { id: string }) => {
         setIsFetchingLanguages(false);
       }
     }
+    async function fetchVehicles() {
+      try {
+        if (!transport || !organization) return;
+        setLoading(true);
+
+        const response = await getAllVehicles(organization.id);
+
+        if (!response) {
+          throw new Error("No vehicles found");
+        }
+
+        setVehicles(response);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching vehicles:", error);
+        setLoading(false);
+      }
+    }
 
     fetchDriverDetails();
     fetchLanguages();
+    fetchVehicles();
   }, [id]);
 
   if (loading || isFetchingLanguages) {
@@ -238,7 +260,7 @@ const EditTransport = ({ id }: { id: string }) => {
               {!isGuide && (
                 <>
               <TabsContent value="vehicles">
-                <VehiclesTab />
+                <VehiclesTab vehicles={vehicles}/>
               </TabsContent>
               <TabsContent value="charges">
                 <ChargesTab />
