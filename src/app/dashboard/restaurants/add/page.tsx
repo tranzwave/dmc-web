@@ -45,7 +45,7 @@ const AddRestaurant = () => {
                 </TabsTrigger>
                 <TabsTrigger
                   value="mealsOffered"
-                  statusLabel="Mandatory"
+                  statusLabel="Included"
                   isCompleted={restaurantDetails.mealsOffered.length > 0}
                   inProgress={activeTab == "mealsOffered"}
                   disabled={!restaurantDetails.general.streetName}

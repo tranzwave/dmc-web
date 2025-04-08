@@ -5,6 +5,7 @@ import { db } from "~/server/db";
 import { subscription, tenant } from "~/server/db/schema";
 import { DrizzleError, or } from "drizzle-orm";
 import { ClerkAPIError } from "@clerk/types";
+import { permissionsList } from "~/lib/constants";
 
 type CreateParams = {
   id: string;
@@ -71,21 +72,7 @@ export async function POST(req: Request, res: NextApiResponse) {
     const userResponse = await clerkClient.users.updateUserMetadata(data.id, {
       publicMetadata: {
         role: "admin",
-        permissions: [
-          "booking_activity:manage",
-          "booking_agent:manage",
-          "booking_hotel:manage",
-          "booking_invoice:manage",
-          "booking_rest:manage",
-          "booking_shops:manage",
-          "booking_transport:manage",
-          "sys_domains:manage",
-          "sys_domains:read",
-          "sys_memberships:manage",
-          "sys_memberships:read",
-          "sys_profile:delete",
-          "sys_profile:manage",
-        ],
+        permissions: [...permissionsList],
         info: {
           contact: data.userData.contact,
           address: data.userData.address,

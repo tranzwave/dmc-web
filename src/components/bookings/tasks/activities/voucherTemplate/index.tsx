@@ -1,15 +1,10 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
 import { format } from "date-fns";
-import Image from "next/image";
-import { useOrganization } from "~/app/dashboard/context";
-import LoadingLayout from "~/components/common/dashboardLoading";
 import { ActivityVoucherData } from "..";
 import VoucherHeader from "~/components/common/voucher/VoucherHeader";
-import { formatDate, getLetterByIndex } from "~/lib/utils/index";
+import { formatDate } from "~/lib/utils/index";
 import { Country } from "country-state-city";
 import { OrganizationResource, UserResource } from "@clerk/types";
-import { useState } from "react";
 
 type ActivityVoucherPDFProps = {
   vouchers: ActivityVoucherData[];

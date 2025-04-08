@@ -144,10 +144,10 @@ type UserTableProps = {
                           </div>
                           <CheckboxList
                             assignedPermissions={
-                              (userData.publicMetadata.permissions as string[]) ??
+                              (userData.publicMetadata.permissions as Permissions[]) ??
                               []
                             }
-                            permissions={permissionsList}
+                            permissions={[...permissionsList]}
                             userId={userData.id}
                           />
                         </div>

@@ -148,13 +148,6 @@ const OnboardingFlow = ({isNewlyInvitedMember} : OnboardingFlowProps) => {
         const response = await updateUserPublicMetadata(user.id, {
           role: usersRole === "org:admin" ? "admin" : "member",
           permissions: [
-            "booking_activity:manage",
-            "booking_agent:manage",
-            "booking_hotel:manage",
-            "booking_invoice:manage",
-            "booking_rest:manage",
-            "booking_shops:manage",
-            "booking_transport:manage",
             "sys_domains:manage",
             "sys_domains:read",
             "sys_memberships:manage",

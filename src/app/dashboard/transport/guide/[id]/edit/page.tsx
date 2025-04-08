@@ -159,7 +159,7 @@ const EditTransport = ({ id }: { id: string }) => {
         
                     <TabsTrigger
                       value="documents"
-                      statusLabel="Mandatory"
+                      statusLabel="Included"
                       isCompleted={
                         transportDetails.documents.guideLicense.length >
                         1

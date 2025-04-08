@@ -1,15 +1,9 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
 import { format } from "date-fns";
-import Image from "next/image";
-import { useOrganization } from "~/app/dashboard/context";
-import LoadingLayout from "~/components/common/dashboardLoading";
 import { HotelVoucherData } from "..";
-import { SelectBooking } from "~/server/db/schemaTypes";
-import { use, useEffect, useState } from "react";
-import { getBookingById, getBookingLineWithAllData } from "~/server/db/queries/booking";
+import { useEffect } from "react";
 import { Country } from "country-state-city";
-import { calculateNights, formatDate, getLetterByIndex } from "~/lib/utils/index";
+import { calculateNights, formatDate } from "~/lib/utils/index";
 import VoucherHeader from "~/components/common/voucher/VoucherHeader";
 import { OrganizationResource, UserResource } from "@clerk/types";
 

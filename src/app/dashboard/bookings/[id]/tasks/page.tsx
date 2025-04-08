@@ -12,6 +12,8 @@ import { BookingLineWithAllData, VoucherSettings } from "~/lib/types/booking";
 import { getBookingLineWithAllData } from "~/server/db/queries/booking";
 import { SelectBookingLine } from "~/server/db/schemaTypes";
 import { AddBookingProvider } from "../../add/context";
+import { useUserPermissions } from "~/app/dashboard/context";
+import UnauthorizedCard from "~/components/common/unauthorized";
 
 const Page = ({ params }: { params: { id: string } }) => {
   const pathname = usePathname();
@@ -22,6 +24,7 @@ const Page = ({ params }: { params: { id: string } }) => {
   const searchParams = useSearchParams();
   const tab = searchParams.get("tab");
   const [voucherSettings, setVoucherSettings] = useState<VoucherSettings | null>(null)
+  const permissions = useUserPermissions();
 
   // Fetch the booking details when the component mounts
   const fetchBooking = async () => {
@@ -66,134 +69,144 @@ const Page = ({ params }: { params: { id: string } }) => {
 
   return (
     <AddBookingProvider>
-    <div className="flex">
-      <div className="flex-1">
-        <div className="flex flex-col gap-3">
-          <div className="flex w-full flex-row justify-between gap-1">
-            <TitleBar title={`${bookingLine.id} - Tasks`} link="toAddBooking" />
-            {/* <div>
+      <div className="flex">
+        <div className="flex-1">
+          <div className="flex flex-col gap-3">
+            <div className="flex w-full flex-row justify-between gap-1">
+              <TitleBar title={`${bookingLine.id} - Tasks`} link="toAddBooking" />
+              {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
               </Link>
             </div> */}
-          </div>
-          <div className="w-full">
-            <Tabs defaultValue={tab ?? "hotels"} className="w-full border">
-              <TabsList className="flex w-full justify-evenly">
-                {/* <TabsTrigger value="general">General</TabsTrigger> */}
-                <TabsTrigger
-                  value="hotels"
-                  statusLabel={
-                    bookingLine.includes?.hotels ? "Mandatory" : "Locked"
-                  }
-                  disabled={!bookingLine.includes?.hotels}
-                  isCompleted={bookingLine.includes?.hotels}
-
-                >
-                  Hotels
-                </TabsTrigger>
-                <TabsTrigger
-                  value="restaurants"
-                  statusLabel={
-                    bookingLine.includes?.restaurants ? "Mandatory" : "Locked"
-                  }
-                  disabled={!bookingLine.includes?.restaurants}
-                  isCompleted={bookingLine.includes?.restaurants}
-
-                >
-                  Restaurants
-                </TabsTrigger>
-                <TabsTrigger
-                  value="activities"
-                  statusLabel={
-                    bookingLine.includes?.activities ? "Mandatory" : "Locked"
-                  }
-                  disabled={!bookingLine.includes?.activities}
-                  isCompleted={bookingLine.includes?.activities}
-                >
-                  Activities
-                </TabsTrigger>
-                <TabsTrigger
-                  value="transport"
-                  statusLabel={
-                    bookingLine.includes?.transport ? "Mandatory" : "Locked"
-                  }
-                  isCompleted={bookingLine.includes?.transport}
-                  disabled={!bookingLine.includes?.transport}
-                >
-                  Transport
-                </TabsTrigger>
-                <TabsTrigger
-                  value="shops"
-                  statusLabel={
-                    bookingLine.includes?.shops ? "Mandatory" : "Locked"
-                  }
-                  disabled ={!bookingLine.includes?.shops}
-                  isCompleted ={bookingLine.includes?.shops}
-
-                >
-                  Shops
-                </TabsTrigger>
-              </TabsList>
-              {/* <TabsContent value="general"> */}
-              {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
-              {/* General Task View */}
-              {/* </TabsContent> */}
-              <TabsContent value="hotels">
-                {/* <HotelsTab onAddHotel={addHotel} /> */}
-                <HotelsTasksTab
-                  bookingLineId={params.id}
-                  vouchers={bookingLine?.hotelVouchers ?? []}
-                  currency = {voucherSettings?.hotelVoucherCurrency ?? ""}
-                />
-                {/* <HotelsTasksTab bookingLineId={params.id}/> */}
-              </TabsContent>
-              <TabsContent value="restaurants">
-                {/* <RestaurantsTab onAddRestaurant={addRestaurant} /> */}
-                <RestaurantsTasksTab
-                  bookingLineId={params.id}
-                  vouchers={bookingLine?.restaurantVouchers ?? []}
-                  currency={voucherSettings?.restaurantVoucherCurrency ?? ""}
-                />
-              </TabsContent>
-              <TabsContent value="activities">
-                {/* <ActivitiesTab onAddActivity={addActivity} /> */}
-                <ActivitiesTasksTab
-                  bookingLineId={params.id}
-                  vouchers={bookingLine?.activityVouchers ?? []}
-                  currency={voucherSettings?.activityVoucherCurrency ?? ""}
-                />
-              </TabsContent>
-              <TabsContent value="transport">
-                {/* <TransportTab onAddTransport={addTransport} /> */}
-                <TransportTasksTab
-                  bookingLineId={params.id}
-                  bookingData={bookingLine}
-                  vouchers={bookingLine?.transportVouchers.map(t => {
-                    const { driver,guide,otherTransport,driverVoucherLines, guideVoucherLines, otherTransportVoucherLines, ...voucher } = t;
-                    return {
-                      voucher: voucher,
-                      driver: driver,
-                      guide: guide,
-                      otherTransport: otherTransport,
-                      driverVoucherLine: driver ? driverVoucherLines[0] : null,
-                      guideVoucherLine: guide ? guideVoucherLines[0] : null,
-                      otherTransportVoucherLine: otherTransport ? otherTransportVoucherLines[0] : null
+            </div>
+            <div className="w-full">
+              <Tabs defaultValue={tab ?? "hotels"} className="w-full border">
+                <TabsList className="flex w-full justify-evenly">
+                  {/* <TabsTrigger value="general">General</TabsTrigger> */}
+                  <TabsTrigger
+                    value="hotels"
+                    statusLabel={
+                      bookingLine.includes?.hotels ? "Included" : "Not Included"
                     }
-                  }) ?? []}
-                />
-              </TabsContent>
-              <TabsContent value="shops">
-                <ShopsTasksTab
-                  bookingLineId={params.id}
-                  vouchers={bookingLine?.shopsVouchers ?? []}
-                />
-              </TabsContent>
-            </Tabs>
+                    disabled={!bookingLine.includes?.hotels}
+                    isCompleted={bookingLine.includes?.hotels}
+
+                  >
+                    Hotels
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="restaurants"
+                    statusLabel={
+                      bookingLine.includes?.restaurants ? "Included" : "Not Included"
+                    }
+                    disabled={!bookingLine.includes?.restaurants}
+                    isCompleted={bookingLine.includes?.restaurants}
+
+                  >
+                    Restaurants
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="activities"
+                    statusLabel={
+                      bookingLine.includes?.activities ? "Included" : "Not Included"
+                    }
+                    disabled={!bookingLine.includes?.activities}
+                    isCompleted={bookingLine.includes?.activities}
+                  >
+                    Activities
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="transport"
+                    statusLabel={
+                      bookingLine.includes?.transport ? "Included" : "Not Included"
+                    }
+                    isCompleted={bookingLine.includes?.transport}
+                    disabled={!bookingLine.includes?.transport}
+                  >
+                    Transport
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="shops"
+                    statusLabel={
+                      bookingLine.includes?.shops ? "Included" : "Not Included"
+                    }
+                    disabled={!bookingLine.includes?.shops}
+                    isCompleted={bookingLine.includes?.shops}
+
+                  >
+                    Shops
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="hotels">
+                  {permissions.includes("booking_hotel:manage") ? <HotelsTasksTab
+                    bookingLineId={params.id}
+                    vouchers={bookingLine?.hotelVouchers ?? []}
+                    currency={voucherSettings?.hotelVoucherCurrency ?? ""}
+                  /> : <UnauthorizedCard activity={"manage hotels"}
+                    requiredPermissions={
+                      ["booking_hotel:manage"]
+                    } />}
+
+                </TabsContent>
+                <TabsContent value="restaurants">
+                  {permissions.includes("booking_rest:manage") ? <RestaurantsTasksTab
+                    bookingLineId={params.id}
+                    vouchers={bookingLine?.restaurantVouchers ?? []}
+                    currency={voucherSettings?.restaurantVoucherCurrency ?? ""}
+                  /> : <UnauthorizedCard activity={"manage restaurants"}
+                    requiredPermissions={
+                      ["booking_rest:manage"]
+                    } />}
+                </TabsContent>
+                <TabsContent value="activities">
+                  {permissions.includes("booking_activity:manage") ? <ActivitiesTasksTab
+                    bookingLineId={params.id}
+                    vouchers={bookingLine?.activityVouchers ?? []}
+                    currency={voucherSettings?.activityVoucherCurrency ?? ""}
+                  /> : <UnauthorizedCard activity={"manage activities"}
+                    requiredPermissions={
+                      ["booking_activity:manage"]
+                    } />}
+                </TabsContent>
+                <TabsContent value="transport">
+                  {permissions.includes("booking_transport:manage") ?
+                    <TransportTasksTab
+                      bookingLineId={params.id}
+                      bookingData={bookingLine}
+                      vouchers={bookingLine?.transportVouchers.map(t => {
+                        const { driver, guide, otherTransport, driverVoucherLines, guideVoucherLines, otherTransportVoucherLines, ...voucher } = t;
+                        return {
+                          voucher: voucher,
+                          driver: driver,
+                          guide: guide,
+                          otherTransport: otherTransport,
+                          driverVoucherLine: driver ? driverVoucherLines[0] : null,
+                          guideVoucherLine: guide ? guideVoucherLines[0] : null,
+                          otherTransportVoucherLine: otherTransport ? otherTransportVoucherLines[0] : null
+                        }
+                      }) ?? []}
+                    /> : <UnauthorizedCard activity={"manage transport"}
+                      requiredPermissions={
+                        ["booking_transport:manage"]
+                      } />}
+                </TabsContent>
+                <TabsContent value="shops">
+                  {permissions.includes("booking_shops:manage") ?
+                    <ShopsTasksTab
+                      bookingLineId={params.id}
+                      vouchers={bookingLine?.shopsVouchers ?? []}
+                    />
+                    : <UnauthorizedCard activity={"manage shops"}
+                      requiredPermissions={
+                        ["booking_shops:manage"]
+                      } />}
+                </TabsContent>
+              </Tabs>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </AddBookingProvider>
   );
 };

@@ -1,8 +1,6 @@
 "use client";
 import { useUser } from "@clerk/nextjs";
 import { format } from "date-fns";
-import Image from "next/image";
-import { useOrganization } from "~/app/dashboard/context";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import VoucherHeader from "~/components/common/voucher/VoucherHeader";
 import { formatDate } from "~/lib/utils/index";

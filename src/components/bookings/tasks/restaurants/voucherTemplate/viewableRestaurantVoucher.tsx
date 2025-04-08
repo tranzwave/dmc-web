@@ -1,17 +1,7 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
-import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import Image from "next/image";
-import { useOrganization } from "~/app/dashboard/context";
-import LoadingLayout from "~/components/common/dashboardLoading";
-import {
-  SelectHotelVoucher,
-  SelectHotelVoucherLine,
-} from "~/server/db/schemaTypes";
 import { RestaurantVoucherData } from "..";
 import VoucherHeader from "~/components/common/voucher/VoucherHeader";
-import { getLetterByIndex } from "~/lib/utils/index";
 import { Country } from "country-state-city";
 import { OrganizationResource, UserResource } from "@clerk/types";
 import { useEffect } from "react";

@@ -35,10 +35,10 @@ const AddHotel = () => {
                 <TabsTrigger value="general" isCompleted = {false} onClick={() => setActiveTab("general")} inProgress = {activeTab == "general"}>
                   General
                 </TabsTrigger>
-                <TabsTrigger value="rooms" statusLabel={"Mandatory"} isCompleted={hotelRooms.length > 0} inProgress = {activeTab == "rooms"} disabled={!hotelGeneral.province}>
+                <TabsTrigger value="rooms" statusLabel={"Included"} isCompleted={hotelRooms.length > 0} inProgress = {activeTab == "rooms"} disabled={!hotelGeneral.province}>
                   Rooms
                 </TabsTrigger>
-                <TabsTrigger value="staff" statusLabel={"Mandatory"} isCompleted={hotelStaff.length > 0} inProgress = {activeTab == "staff"} disabled={hotelRooms.length == 0}>
+                <TabsTrigger value="staff" statusLabel={"Included"} isCompleted={hotelStaff.length > 0} inProgress = {activeTab == "staff"} disabled={hotelRooms.length == 0}>
                   Staff
                 </TabsTrigger>
                 <TabsTrigger value="submit" inProgress = {activeTab == "submit"} disabled={hotelStaff.length == 0}>

@@ -62,20 +62,37 @@ export const hotelBoardBasis = [
 ];
 
 export const permissionsList = [
-  "booking_activity:manage",
-  "booking_agent:manage",
+  "booking:read",
+  "booking:create",
+  "booking:cancel",
+
+  "booking:manage",
+  "booking_general_info:manage",
   "booking_hotel:manage",
-  "booking_invoice:manage",
   "booking_rest:manage",
-  "booking_shops:manage",
   "booking_transport:manage",
+  "booking_activity:manage",
+  "booking_shops:manage",
+  "booking_agent:manage",
+  "booking_invoice:manage",
+  "booking:tour_packet:manage",
+
+  "dashboard_hotel:manage",
+  "dashboard_rest:manage",
+  "dashboard_activity:manage",
+  "dashboard_transport:manage",
+  "dashboard_shops:manage",
+  "dashboard_agent:manage",
+  "dashboard_invoice:manage",
+
   "sys_domains:manage",
   "sys_domains:read",
   "sys_memberships:manage",
   "sys_memberships:read",
   "sys_profile:delete",
   "sys_profile:manage",
-];
+  
+] as const;
 
 export const packages: Package[] = [
   {
