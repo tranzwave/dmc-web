@@ -239,7 +239,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
       </div>
     );
 
-    const allDataMissing =
+  const allDataMissing =
     hotelVouchers === null &&
     restaurantVouchers === null &&
     transportVouchers === null &&
@@ -278,11 +278,11 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
       </div>
       <div className="flex flex-col gap-2">
         {/* render empty cards 5 times */}
-        <RenderCard pathname="" loadingTitle="Hotel Vouchers"/>
-        <RenderCard pathname="" loadingTitle="Restaurant Vouchers"/>
-        <RenderCard pathname="" loadingTitle="Transport Vouchers"/>
-        <RenderCard pathname="" loadingTitle="Activity Vouchers"/>
-        <RenderCard pathname="" loadingTitle="Shop Vouchers"/>
+        <RenderCard pathname="" loadingTitle="Hotel Vouchers" />
+        <RenderCard pathname="" loadingTitle="Restaurant Vouchers" />
+        <RenderCard pathname="" loadingTitle="Transport Vouchers" />
+        <RenderCard pathname="" loadingTitle="Activity Vouchers" />
+        <RenderCard pathname="" loadingTitle="Shop Vouchers" />
       </div>
       <div className="flex flex-row justify-stretch gap-2">
         <Button
@@ -297,12 +297,12 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
           className="w-full"
         >Proforma Invoice</Button> */}
         <div className="w-full">
-        <Button
-          variant={"primaryGreen"}
-          // onClick={onTourPacketClick}
-          className="w-full"
-          disabled
-        >Tour Invoice</Button>
+          <Button
+            variant={"primaryGreen"}
+            // onClick={onTourPacketClick}
+            className="w-full"
+            disabled
+          >Tour Invoice</Button>
         </div>
 
         {orgRole === 'org:admin' && (
@@ -342,7 +342,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
             <div>
               {booking.booking.marketingTeam ? (
                 <Badge variant="default" className={`bg-primary-orange ${orgRole === 'org:admin' ? 'hover:cursor-pointer' : ''} text-[10px] 2xl:text-[13px]`}
-                  // onClick={orgRole === 'org:admin' ? () => setIsAssignTeamModalOpen(true) : () => { console.log("") }}
+                // onClick={orgRole === 'org:admin' ? () => setIsAssignTeamModalOpen(true) : () => { console.log("") }}
                 >{booking.booking.marketingTeam.name}</Badge>
               ) : (
                 <>
@@ -373,6 +373,8 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
             pathname={pathname}
             booking={{ id: booking.id, status: booking.status ?? 'inprogress' }}
             tab="hotels"
+            hasAccess={permissions.includes("booking_hotel:manage") ? true : false}
+            requiredPermissions={["booking_hotel:manage"]}
           />
 
           <RenderCard category={{
@@ -384,6 +386,8 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
             pathname={pathname}
             booking={{ id: booking.id, status: booking.status ?? 'inprogress' }}
             tab="restaurants"
+            hasAccess={permissions.includes("booking_rest:manage") ? true : false}
+            requiredPermissions={["booking_rest:manage"]}
           />
 
           <RenderCard category={{
@@ -395,6 +399,8 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
             pathname={pathname}
             booking={{ id: booking.id, status: booking.status ?? 'inprogress' }}
             tab="transport"
+            hasAccess = {permissions.includes("booking_transport:manage") ? true : false}
+            requiredPermissions={["booking_transport:manage"]}
           />
 
           <RenderCard category={{
@@ -406,6 +412,8 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
             pathname={pathname}
             booking={{ id: booking.id, status: booking.status ?? 'inprogress' }}
             tab="activities"
+            hasAccess = {permissions.includes("booking_activity:manage") ? true : false}
+            requiredPermissions={["booking_activity:manage"]}
           />
 
           <RenderCard category={{
@@ -417,16 +425,18 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
             pathname={pathname}
             booking={{ id: booking.id, status: booking.status ?? 'inprogress' }}
             tab="shops"
+            hasAccess = {permissions.includes("booking_shops:manage") ? true : false}
+            requiredPermissions={["booking_shops:manage"]}
           />
         </div>
       )}
       <div className="flex flex-row justify-stretch gap-2">
         {permissions.includes("booking:tour_packet:manage") ? (
           <Button
-          variant={"primaryGreen"}
-          onClick={onTourPacketClick}
-          className="w-full"
-        >Tour Packet - Check List</Button>) : (
+            variant={"primaryGreen"}
+            onClick={onTourPacketClick}
+            className="w-full"
+          >Tour Packet - Check List</Button>) : (
           <Button
             variant={"primaryGreen"}
             className="w-full hover:cursor-pointer"
@@ -435,7 +445,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
         )}
         <div className="w-full">
           {permissions.includes("booking_invoice:manage") ? (
-            <TourInvoiceModalTrigger bookingData={booking}/>
+            <TourInvoiceModalTrigger bookingData={booking} />
           ) : (
             <Button
               variant={"primaryGreen"}
