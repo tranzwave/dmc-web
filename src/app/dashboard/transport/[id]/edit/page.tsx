@@ -204,7 +204,7 @@ const EditTransport = ({ id }: { id: string }) => {
                   <>
                     <TabsTrigger
                       value="vehicles"
-                      statusLabel="Mandatory"
+                      statusLabel="Included"
                       isCompleted={transportDetails.vehicles.length > 0}
                       inProgress={activeTab == "vehicles"}
                       disabled={!transportDetails.general.name}
@@ -213,7 +213,7 @@ const EditTransport = ({ id }: { id: string }) => {
                     </TabsTrigger>
                     <TabsTrigger
                       value="charges"
-                      statusLabel="Mandatory"
+                      statusLabel="Included"
                       isCompleted={transportDetails.charges.feePerKm > 0}
                       inProgress={activeTab == "charges"}
                       disabled={transportDetails.vehicles.length == 0}
@@ -222,7 +222,7 @@ const EditTransport = ({ id }: { id: string }) => {
                     </TabsTrigger>
                     <TabsTrigger
                       value="documents"
-                      statusLabel="Mandatory"
+                      statusLabel="Included"
                       isCompleted={
                         transportDetails.documents.vehicleEmissionTest.length >
                         1

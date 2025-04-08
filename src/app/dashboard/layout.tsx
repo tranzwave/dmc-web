@@ -5,11 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import SideNavBar from "~/components/common/sideNavComponent";
 import TopBar from "~/components/common/topBarComponent";
 import LoadingLayout from "~/components/common/dashboardLoading";
-import { OrganizationProvider } from "./context";
 import type { OrganizationResource } from "@clerk/types"; // Import OrganizationResource type
 import { CustomOrganizationSwitcher } from "~/components/orgSwitcher";
 import { TopBarFlag } from "~/components/common/topBarComponent/freeTrialFlag";
 import { ClerkOrganizationPublicMetadata, ClerkUserPublicMetadata } from "~/lib/types/payment";
+import { UserPermissionsProvider } from "./context";
 
 export default function DashboardLayout({
   children,
@@ -93,14 +93,9 @@ export default function DashboardLayout({
     );
   }
 
-  // if(userMemberships.data?.length > 1){
-  //   return (
-  //     <CustomOrganizationSwitcher/>
-  //   )
-  // }
-
   return (
-    <OrganizationProvider initialOrg={organization}>
+    // <OrganizationProvider initialOrg={organization}>
+    <UserPermissionsProvider initialPermissions={(user.publicMetadata as ClerkUserPublicMetadata).permissions}>
       
       <div className="layout" style={{
         gridTemplateRows: `${isTrial ? '6% 7% 87%': '0 8% 92%'}`,
@@ -116,7 +111,7 @@ export default function DashboardLayout({
           {children}
         </div>
       </div>
-    </OrganizationProvider>
+     </UserPermissionsProvider>
   );
   // if (!(user?.organizationMemberships && user?.organizationMemberships.length !== 1 && userInvitations.data?.length === 0)) {
   // }

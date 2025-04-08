@@ -55,7 +55,7 @@ export interface BookingDetails {
 }
 
 export type StatusKey = "hotels" | "restaurants" | "transport" | "activities" | "shops";
-export type StatusValue = "Mandatory" | "Locked";
+export type StatusValue = "Included" | "Not Included";
 
 // Define the type for the status labels map
 export type StatusLabels = Record<StatusKey, StatusValue>;
@@ -153,11 +153,11 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
   const [bookingDetails, setBookingDetails] = useState<BookingDetails>(defaultBookingDetails);
   const [activeTab, setActiveTab] = useState<string>("general");
   const [statusLabels, setStatusLabels] = useState<StatusLabels>({
-    hotels: "Mandatory",
-    restaurants: "Locked",
-    transport: "Locked",
-    activities: "Locked",
-    shops: "Locked",
+    hotels: "Included",
+    restaurants: "Not Included",
+    transport: "Not Included",
+    activities: "Not Included",
+    shops: "Not Included",
   });
   const [triggerRefetch, setTriggerRefetch] = useState(false)
 

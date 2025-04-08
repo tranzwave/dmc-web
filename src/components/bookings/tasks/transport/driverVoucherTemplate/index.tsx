@@ -1,11 +1,6 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
 import { format } from "date-fns";
-import Image from "next/image";
 import { useState } from "react"; // Import useState
-import { useOrganization } from "~/app/dashboard/context";
-import LoadingLayout from "~/components/common/dashboardLoading";
-import { TransportVoucherData } from ".."; // Assuming TransportVoucherData is defined in the schema types
 import VoucherHeader from "~/components/common/voucher/VoucherHeader";
 import { BookingLineWithAllData } from "~/lib/types/booking";
 import { OrganizationResource, UserResource } from "@clerk/types";

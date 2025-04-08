@@ -1,27 +1,8 @@
 "use client";
-import { User } from "@clerk/backend";
 import { OrganizationSwitcher, useOrganization } from "@clerk/nextjs";
 import { OrganizationMembershipResource } from "@clerk/types";
-import { set } from "date-fns";
-import { LoaderCircle, PencilIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import StatusNote from "~/components/common/statusNote";
-import { Button } from "~/components/ui/button";
-import { Checkbox } from "~/components/ui/checkbox";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "~/components/ui/sheet";
-import { toast } from "~/hooks/use-toast";
-import { permissionsList } from "~/lib/constants";
-import { Permissions } from "~/lib/types/global";
-import { updateUserPermissions } from "~/server/auth";
 import { SelectMarketingTeam } from "~/server/db/schemaTypes";
-import EditMarketingTeamModal from "../manageTeams/editMarketingTeamModal";
 import { getAllMarketingTeams } from "~/server/db/queries/marketingTeams";
 import UserTable from "./userTable";
 

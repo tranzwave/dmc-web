@@ -95,7 +95,7 @@ const EditActivityVendor = ({ id }: { id: string }) => {
                 </TabsTrigger>
                 <TabsTrigger
                   value="activities"
-                  statusLabel="Mandatory"
+                  statusLabel="Included"
                   isCompleted={activityVendorDetails.activities.length > 0}
                   inProgress={activeTab == "activities"}
                   disabled={!activityVendorDetails.general.streetName}

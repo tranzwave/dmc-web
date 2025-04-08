@@ -84,7 +84,7 @@ const AddTransport = () => {
                 </TabsTrigger>
                 <TabsTrigger
                   value="vehicles"
-                  statusLabel="Mandatory"
+                  statusLabel="Included"
                   isCompleted={transportDetails.vehicles.length > 0}
                   inProgress={activeTab === "vehicles"}
                   disabled={!transportDetails.general.name}
@@ -93,7 +93,7 @@ const AddTransport = () => {
                 </TabsTrigger>
                 <TabsTrigger
                   value="charges"
-                  statusLabel="Mandatory"
+                  statusLabel="Included"
                   isCompleted={transportDetails.charges.feePerKm > 0}
                   inProgress={activeTab === "charges"}
                   disabled={transportDetails.vehicles.length === 0}
@@ -102,7 +102,7 @@ const AddTransport = () => {
                 </TabsTrigger>
                 <TabsTrigger
                   value="documents"
-                  statusLabel="Mandatory"
+                  statusLabel="Included"
                   isCompleted={
                     transportDetails.documents.vehicleEmissionTest.length > 1
                   }

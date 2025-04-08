@@ -35,6 +35,8 @@ import { getAllMarketingTeams } from "~/server/db/queries/marketingTeams";
 import { toast } from "~/hooks/use-toast";
 import RenderCard from "./voucherCard";
 import { hotel } from "~/server/db/schema";
+import { ClerkUserPublicMetadata } from "~/lib/types/payment";
+import { useUserPermissions } from "~/app/dashboard/context";
 
 interface SidePanelProps {
   booking: BookingDTO | null;
@@ -56,6 +58,8 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
   const [marketingTeams, setMarketingTeams] = useState<SelectMarketingTeam[]>([]);
   const [showCancelBooking, setShowCancelBooking] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const permissions = useUserPermissions();
+
 
   const { organization, isLoaded: isOrgLoaded } = useOrganization();
   const { isLoaded, user } = useUser();
@@ -298,7 +302,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
           // onClick={onTourPacketClick}
           className="w-full"
           disabled
-        >Tout Invoice</Button>
+        >Tour Invoice</Button>
         </div>
 
         {orgRole === 'org:admin' && (
@@ -354,7 +358,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
           </div>
           <div className="text-[10px] 2xl:text-xs text-neutral-500">{`Coordinator - ${coordinatorAndManager[0]} | Manager - ${coordinatorAndManager[1]}`}</div>
         </div>
-
         <Link href={`${pathname}/${booking.id}/edit?tab=submit`}>
           <Button variant={"primaryGreen"}>Itinerary</Button>
         </Link>
@@ -418,26 +421,46 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
         </div>
       )}
       <div className="flex flex-row justify-stretch gap-2">
-        <Button
+        {permissions.includes("booking:tour_packet:manage") ? (
+          <Button
           variant={"primaryGreen"}
           onClick={onTourPacketClick}
           className="w-full"
-        >Tour Packet - Check List</Button>
-        {/* <Button
-          variant={"primaryGreen"}
-          onClick={onTourInvoiceClick}
-          className="w-full"
-        >Proforma Invoice</Button> */}
+        >Tour Packet - Check List</Button>) : (
+          <Button
+            variant={"primaryGreen"}
+            className="w-full hover:cursor-pointer"
+            onClick={() => toast({ title: "Permission Denied", description: "You don't have permission to edit booking" })}
+          >Tour Packet - Check List</Button>
+        )}
         <div className="w-full">
-          <TourInvoiceModalTrigger bookingData={booking}/>
+          {permissions.includes("booking_invoice:manage") ? (
+            <TourInvoiceModalTrigger bookingData={booking}/>
+          ) : (
+            <Button
+              variant={"primaryGreen"}
+              className="w-full hover:cursor-pointer"
+              onClick={() => toast({ title: "Permission Denied", description: "You don't have permission to manage invoices" })}
+            >Tour Invoice</Button>
+          )}
         </div>
 
         {orgRole === 'org:admin' && booking.status !== "cancelled" && (
-          <Button
-            variant={"destructive"}
-            onClick={onCancelBooking}
-            className="w-full"
-          >Cancel Booking</Button>
+          <div>
+            {permissions.includes("booking:cancel") ? (
+              <Button
+                variant={"destructive"}
+                onClick={onCancelBooking}
+                className="w-full"
+              >Cancel Booking</Button>
+            ) : (
+              <Button
+                variant={"destructive"}
+                className="w-full hover:cursor-pointer"
+                onClick={() => toast({ title: "Permission Denied", description: "You don't have permission to cancel bookings" })}
+              >Cancel Booking</Button>
+            )}
+          </div>
         )}
 
       </div>

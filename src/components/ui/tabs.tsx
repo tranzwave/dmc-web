@@ -2,6 +2,7 @@
 
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import {
+  BanIcon,
   Check,
   ClipboardType,
   LoaderCircle,
@@ -77,10 +78,12 @@ const TabsTrigger = React.forwardRef<
                 size={16}
               />
             )
-          ) : statusLabel === "Mandatory" ? (
+          ) : statusLabel === "Included" ? (
             <LoaderCircle className="mr-2 text-primary-green" size={16} />
-          ) : statusLabel === "Locked" ? (
+          ) : statusLabel === "Not Included" ? (
             <LockIcon className="mr-2 text-primary-green" size={16} />
+          ) : statusLabel === "Unauthorized" ? (
+            <BanIcon className="mr-2 text-primary-green" size={16} />
           ) : icon ? (
             icon
           ) : (

@@ -9,8 +9,8 @@ import { Permissions } from "~/lib/types/global";
 import { updateUserPermissions } from "~/server/auth";
 
 interface CheckboxListProps {
-    assignedPermissions: string[];
-    permissions: string[]; // Permissions list to set default checked values
+    assignedPermissions: Permissions[];
+    permissions: Permissions[]; // Permissions list to set default checked values
     userId: string;
   }
   
@@ -78,7 +78,7 @@ interface CheckboxListProps {
   
     return (
       <div className="p-4">
-        <div className="space-y-4">
+        <div className="space-y-4 max-h-[300px] 2xl:max-h-[500px] overflow-y-scroll">
           {permissions.map((option) => {
             if(option.includes("sys")){
               return ''
@@ -94,7 +94,7 @@ interface CheckboxListProps {
                 htmlFor={option}
                 className="text-base font-medium leading-none"
               >
-                {option.replace("booking_", "dashboard_")}
+                {option}
               </label>
             </div>
           )})}

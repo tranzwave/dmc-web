@@ -20,6 +20,7 @@ import { ClerkUserPublicMetadata } from "~/lib/types/payment";
 import { getAllBookingLines } from "~/server/db/queries/booking";
 import { createNotification } from "~/server/db/queries/notifications";
 import { InsertNotification } from "~/server/db/schemaTypes";
+import { useUserPermissions } from "../context";
 
 export default function Bookings() {
   const [data, setData] = useState<BookingDTO[]>([]);
@@ -41,6 +42,7 @@ export default function Bookings() {
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const permissions = useUserPermissions();
 
 
 
@@ -238,74 +240,90 @@ export default function Bookings() {
             <div>
               {user && organization && (
                 <div>
-                  {(user?.publicMetadata as ClerkUserPublicMetadata)?.teams?.filter(t => t.orgId === organization.id).map((team) => team.teamId ).length > 0 ? (
-                    <Link href={`${pathname}/add`}>
-                      <Button variant="primaryGreen">Add Booking</Button>
-                    </Link>
-                  ) : (
-                    <div>
-                      <Dialog>
-                        <DialogTrigger>
-                          <Button variant="primaryGreen">Add Booking</Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogTitle>
-                            <div className="text-xl font-semibold">Unauthorized</div>
-                          </DialogTitle>
-                          <DialogDescription>
-                            <div className="text-sm">
-                              You are not a part of any marketing team.
-                            </div>
-
-                          </DialogDescription>
+                  {
+                    permissions.includes("booking:create") ?  (
+                      <div>
+                        {(user?.publicMetadata as ClerkUserPublicMetadata)?.teams?.filter(t => t.orgId === organization.id).map((team) => team.teamId).length > 0 ? (
+                          <Link href={`${pathname}/add`}>
+                            <Button variant="primaryGreen">Add Booking</Button>
+                          </Link>
+                        ) : (
                           <div>
-                            {orgRole === "org:admin" ? (
-                              <div>
-                                <div className="text-sm">
-                                  Please add yourself to a team to create a booking.
-                                </div>
-                                <div className="flex flex-row gap-2 w-full justify-end">
-                                  <Link href={`/dashboard/admin?tab=marketingTeams`}>
-                                    <Button variant="primaryGreen">Self Assign</Button>
-                                  </Link>
-                                  <DialogClose>
-                                    <Button variant="default">Close</Button>
-                                  </DialogClose>
-                                </div>
-                              </div>
+                            <Dialog>
+                              <DialogTrigger>
+                                <Button variant="primaryGreen">Add Booking</Button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogTitle>
+                                  <div className="text-xl font-semibold">Unauthorized</div>
+                                </DialogTitle>
+                                <DialogDescription>
+                                  <div className="text-sm">
+                                    You are not a part of any marketing team.
+                                  </div>
 
-                            ) : (
-                              <div className="flex flex-col gap-5">
-                                <div className="text-sm">
-                                  Please ask your admin to add you to a team to create a booking.
-                                </div>
-                                <div className="flex flex-row gap-2 w-full justify-end">
-                                  <Button 
-                                    variant="primaryGreen" 
-                                    onClick={sendAddToTeamRequestNotification}
-                                    disabled={sending}>
-                                    {sending ? (
-                                      <div className="flex flex-row items-center gap-2">
-                                        <LoaderCircle size={20} className="animate-spin"/>
-                                        <span>Sending Request</span>
+                                </DialogDescription>
+                                <div>
+                                  {orgRole === "org:admin" ? (
+                                    <div>
+                                      <div className="text-sm">
+                                        Please add yourself to a team to create a booking.
                                       </div>
-                                    ) : "Request Access"}
-                                    </Button>
-                                  <DialogClose>
-                                    <Button variant="default">Close</Button>
-                                  </DialogClose>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                          <DialogFooter>
+                                      <div className="flex flex-row gap-2 w-full justify-end">
+                                        <Link href={`/dashboard/admin?tab=marketingTeams`}>
+                                          <Button variant="primaryGreen">Self Assign</Button>
+                                        </Link>
+                                        <DialogClose>
+                                          <Button variant="default">Close</Button>
+                                        </DialogClose>
+                                      </div>
+                                    </div>
 
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                  )}
+                                  ) : (
+                                    <div className="flex flex-col gap-5">
+                                      <div className="text-sm">
+                                        Please ask your admin to add you to a team to create a booking.
+                                      </div>
+                                      <div className="flex flex-row gap-2 w-full justify-end">
+                                        <Button
+                                          variant="primaryGreen"
+                                          onClick={sendAddToTeamRequestNotification}
+                                          disabled={sending}>
+                                          {sending ? (
+                                            <div className="flex flex-row items-center gap-2">
+                                              <LoaderCircle size={20} className="animate-spin" />
+                                              <span>Sending Request</span>
+                                            </div>
+                                          ) : "Request Access"}
+                                        </Button>
+                                        <DialogClose>
+                                          <Button variant="default">Close</Button>
+                                        </DialogClose>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                                <DialogFooter>
+
+                                </DialogFooter>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <Button variant="primaryGreen" onClick={
+                        () => toast({
+                          title: "Unauthorized",
+                          description: "You do not have permission to create a booking.",
+                        })
+                      }>
+                        Add Booking
+                      </Button>
+                    )
+                  }
                 </div>
+
               )}
             </div>
           </div>

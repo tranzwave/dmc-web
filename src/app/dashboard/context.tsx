@@ -1,43 +1,35 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import type { OrganizationResource } from "@clerk/types";
+import { Permissions } from "~/lib/types/global";
 
 // Define the type for the context state
-interface OrganizationContextType {
-  organization: OrganizationResource | null; // Use null to indicate absence of an organization
-  setOrganization: React.Dispatch<React.SetStateAction<OrganizationResource | null>>;
+interface UserPermissionsContextType {
+  permissions: Permissions[];
+  setPermissions: React.Dispatch<React.SetStateAction<Permissions[]>>;
 }
 
-// Create the context with a default value of null
-const OrganizationContext = createContext<OrganizationContextType | undefined>(undefined);
+// Create the context
+const UserPermissionsContext = createContext<UserPermissionsContextType | undefined>(undefined);
 
-// Define a custom provider component that accepts initial organization data
-export const OrganizationProvider: React.FC<{ children: ReactNode; initialOrg: OrganizationResource | null }> = ({
-  children,
-  initialOrg,
-}) => {
-  // Create a state to manage the organization data
-  const [organization, setOrganization] = useState<OrganizationResource | null>(initialOrg);
+// Provider component
+export const UserPermissionsProvider: React.FC<{
+  children: ReactNode;
+  initialPermissions: Permissions[];
+}> = ({ children, initialPermissions }) => {
+  const [permissions, setPermissions] = useState<Permissions[]>(initialPermissions || []);
+  const value = { permissions, setPermissions };
 
-  // Context value to pass down to consuming components
-  const value = { organization, setOrganization };
-
-  return <OrganizationContext.Provider value={value}>{children}</OrganizationContext.Provider>;
+  return (
+    <UserPermissionsContext.Provider value={value}>
+      {children}
+    </UserPermissionsContext.Provider>
+  );
 };
 
-// Custom hook to use the organization context
-export const useOrganization = (): OrganizationResource | null => {
-  const context = useContext(OrganizationContext);
+// Custom hook to access permissions
+export const useUserPermissions = () => {
+  const context = useContext(UserPermissionsContext);
   if (!context) {
-    throw new Error("useOrganization must be used within an OrganizationProvider");
+    throw new Error("useUserPermissions must be used within a UserPermissionsProvider");
   }
-  return context.organization;
-};
-
-// Custom hook to update organization context
-export const useUpdateOrganization = (): React.Dispatch<React.SetStateAction<OrganizationResource | null>> => {
-  const context = useContext(OrganizationContext);
-  if (!context) {
-    throw new Error("useUpdateOrganization must be used within an OrganizationProvider");
-  }
-  return context.setOrganization;
+  return context.permissions;
 };

@@ -866,7 +866,7 @@ const GeneralForm = ({ allUsers, marketingTeams }: GeneralFormProps) => {
                             const labelKey = option.id as keyof StatusLabels;
                             setStatusLabels((prev) => ({
                               ...prev,
-                              [labelKey]: checked ? "Mandatory" : "Locked",
+                              [labelKey]: checked ? "Included" : "Not Included",
                             }));
                             field.onChange({
                               ...field.value,

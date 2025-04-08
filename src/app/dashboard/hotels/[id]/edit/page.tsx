@@ -106,7 +106,7 @@ const EditHotel = ({ id }: { id: string }) => {
                 </TabsTrigger>
                 <TabsTrigger
                   value="rooms"
-                  statusLabel={"Mandatory"}
+                  statusLabel={"Included"}
                   isCompleted={hotelRooms.length > 0}
                   inProgress={activeTab == "rooms"}
                   disabled={!hotelGeneral.province}
@@ -115,7 +115,7 @@ const EditHotel = ({ id }: { id: string }) => {
                 </TabsTrigger>
                 <TabsTrigger
                   value="staff"
-                  statusLabel={"Mandatory"}
+                  statusLabel={"Included"}
                   isCompleted={hotelStaff.length > 0}
                   inProgress={activeTab == "staff"}
                   disabled={hotelRooms.length == 0}

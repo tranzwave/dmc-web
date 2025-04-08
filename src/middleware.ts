@@ -105,36 +105,74 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   // | "booking_shops:manage"
   // | "booking_transport:manage"
 
+  // const permissions = userPublicMetadata.permissions || [];
+
+  // const pathAndPermissionsMap: Record<string, string[]> = {
+  //   '/dashboard/overview': ['dashboard_activity:manage'],
+  //   '/dashboard/hotels': ['dashboard_hotel:manage'],
+  //   '/dashboard/activities': ['dashboard_activity:manage'],
+  //   '/dashboard/agents': ['dashboard_agent:manage'],
+  //   '/dashboard/reports': ['dashboard_invoice:manage'],
+  //   '/dashboard/restaurants': ['dashboard_rest:manage'],
+  //   '/dashboard/shops': ['dashboard_shops:manage'],
+  //   '/dashboard/transport': ['dashboard_transport:manage'],
+  //   '/dashboard/bookings': ['booking:read'],
+  //   '/dasboard/bookings/add': ['booking:create'],
+  //   '/dashboard/bookings/edit': ['booking:edit'],
+  // };
+  
+  // const path = req.nextUrl.pathname;
+  
+  // // Find the matching base path from the map except bookings related path
+  // const matchedPath = Object.keys(pathAndPermissionsMap).find((basePath) => {
+  //   return path.startsWith(basePath) && !path.includes('/bookings');
+  // });
+
+  
+  // const requiredPermissions = matchedPath ? pathAndPermissionsMap[matchedPath] : null;
+  
+  // // If required permissions are not met, redirect
+  // if (requiredPermissions && !requiredPermissions.every(permission => permissions.includes(permission as Permissions))) {
+  //   const redirectUrl = new URL("/dashboard/unauthorized", req.url);
+  //   redirectUrl.searchParams.set('requestedPage', path); // Add query param
+  //   return NextResponse.redirect(redirectUrl);
+  // }
+  
+  // return NextResponse.next();
+
   const permissions = userPublicMetadata.permissions || [];
 
-  const pathAndPermissionsMap: Record<string, string[]> = {
-    '/dashboard/overview': ['booking_activity:manage'],
-    '/dashboard/hotels': ['booking_hotel:manage'],
-    '/dashboard/activities': ['booking_activity:manage'],
-    '/dashboard/agents': ['booking_agent:manage'],
-    '/dashboard/reports': ['booking_invoice:manage'],
-    '/dashboard/restaurants': ['booking_rest:manage'],
-    '/dashboard/shops': ['booking_shops:manage'],
-    '/dashboard/transport': ['booking_transport:manage'],
-  };
-  
-  const path = req.nextUrl.pathname;
-  
-  // Find the matching base path from the map
-  const matchedPath = Object.keys(pathAndPermissionsMap).find(basePath =>
-    path.startsWith(basePath)
-  );
-  
-  const requiredPermissions = matchedPath ? pathAndPermissionsMap[matchedPath] : null;
-  
-  // If required permissions are not met, redirect
-  if (requiredPermissions && !requiredPermissions.every(permission => permissions.includes(permission as Permissions))) {
-    const redirectUrl = new URL("/dashboard/unauthorized", req.url);
-    redirectUrl.searchParams.set('requestedPage', path); // Add query param
-    return NextResponse.redirect(redirectUrl);
-  }
-  
-  return NextResponse.next();
+const pathAndPermissionsRules: { pattern: RegExp; required: string[] }[] = [
+  // { pattern: /^\/dashboard\/overview$/, required: ['dashboard_activity:manage'] },
+  { pattern: /^\/dashboard\/hotels$/, required: ['dashboard_hotel:manage'] },
+  { pattern: /^\/dashboard\/activities$/, required: ['dashboard_activity:manage'] },
+  { pattern: /^\/dashboard\/agents$/, required: ['dashboard_agent:manage'] },
+  { pattern: /^\/dashboard\/reports$/, required: ['dashboard_invoice:manage'] },
+  { pattern: /^\/dashboard\/restaurants$/, required: ['dashboard_rest:manage'] },
+  { pattern: /^\/dashboard\/shops$/, required: ['dashboard_shops:manage'] },
+  { pattern: /^\/dashboard\/transport$/, required: ['dashboard_transport:manage'] },
+
+  // Booking related routes
+  { pattern: /^\/dashboard\/bookings$/, required: ['booking:read'] },
+  { pattern: /^\/dashboard\/bookings\/add$/, required: ['booking:create'] },
+  { pattern: /^\/dashboard\/bookings\/[^/]+\/edit$/, required: ['booking:manage'] },
+  { pattern: /^\/dashboard\/bookings\/[^/]+\/tasks$/, required: ['booking:manage'] }, // or 'booking:manage'
+];
+
+const path = req.nextUrl.pathname;
+
+const matchedRule = pathAndPermissionsRules.find((rule) => rule.pattern.test(path));
+const requiredPermissions = matchedRule?.required ?? null;
+
+if (requiredPermissions && !requiredPermissions.every((permission) => permissions.includes(permission as Permissions))) {
+  const redirectUrl = new URL('/dashboard/unauthorized', req.url);
+  redirectUrl.searchParams.set('requestedPage', path);
+  redirectUrl.searchParams.set('requiredPermissions', JSON.stringify(requiredPermissions)); // Add query param
+  return NextResponse.redirect(redirectUrl);
+}
+
+return NextResponse.next();
+
   
 });
 
