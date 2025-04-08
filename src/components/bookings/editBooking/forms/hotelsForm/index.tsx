@@ -264,6 +264,19 @@ const HotelsTab = () => {
     setIsDeleteOpen(true);
   };
 
+  const onDuplicate = async (data: any) => {
+    // setVoucherLineIdToEdit(data.id);
+    if(!selectedVoucher) {
+      toast({
+        title: "Uh Oh!",
+        description: "Couldn't find the selected voucher",
+      });
+      return
+    }
+    setDefaultValues({ ...data, hotel: selectedVoucher.hotel, id: data.id, hotelVoucherId: data.hotelVoucherId, roomCategory: data.roomCategory });
+    setDefaultHotel(selectedVoucher.hotel);
+  }
+
   const handleVoucherLineDelete = async () => {
     if (voucherLineIdToEdit === "none") {
       toast({
@@ -405,6 +418,8 @@ const HotelsTab = () => {
             onRowClick={(row) => {
               setSelectedVoucher(row)
             }}
+            onDuplicate={onDuplicate}
+
           />
         </div>
         <div className="flex w-full justify-end">
