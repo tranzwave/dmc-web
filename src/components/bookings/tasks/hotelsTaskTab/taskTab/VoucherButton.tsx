@@ -8,7 +8,7 @@ interface VoucherButtonProps {
   title?: string;
 }
 
-const VoucherButton: React.FC<VoucherButtonProps> = ({ voucherComponent, buttonText,title }) => {
+const VoucherButton: React.FC<VoucherButtonProps> = ({ voucherComponent, buttonText, title }) => {
   const handleDownloadPdf = () => {
     const newWindow = window.open("", "_blank");
 
@@ -48,35 +48,45 @@ const VoucherButton: React.FC<VoucherButtonProps> = ({ voucherComponent, buttonT
           }
 
           @media print {
-            body {
+            html, body {
+              height: 100%;
               margin: 0;
               padding: 0;
             }
+
+            #print-container {
+              display: flex;
+              flex-direction: column;
+              min-height: 100vh;
+            }
+
+            #root {
+              flex-grow: 1;
+            }
+
+            #footer-wrapper {
+              page-break-before: avoid;
+              page-break-after: avoid;
+              page-break-inside: avoid;
+            }
           }
 
-          #footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            text-align: center;
-            color: #374151;
-            font-size: 12px;
-          }
 
-          #footer-bar {
-            width: 100%;
-            height: 35px;
-            text-align: center;
-          }
         </style>
       </head>
       <body>
-        <div id="root"></div>
-        <div id="footer">
-          <div>This is a computer generated document and doesn't require a signature</div>
-          <div id="footer-bar"></div>
+        <div id="print-container" class="flex flex-col min-h-screen print:min-h-[100vh]">
+          <div id="root" class="flex-grow">
+            <!-- Your React component will render here -->
+          </div>
+
+          <!-- Footer placed only after the content -->
+          <div id="footer-wrapper" class="mt-4 pt-2 border-t text-center text-gray-700 text-[10px] print:mt-12">
+            This is a computer generated document and doesn't require a signature
+          </div>
         </div>
       </body>
+
       </html>
     `;
 

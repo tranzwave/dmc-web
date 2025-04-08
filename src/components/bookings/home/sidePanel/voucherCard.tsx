@@ -6,6 +6,7 @@ import { ArrowRightCircleIcon, Lock } from "lucide-react"
 import Link from "next/link"
 import { useEffect } from "react"
 import { Skeleton } from "~/components/ui/skeleton"
+import { toast } from "~/hooks/use-toast"
 
 interface CategoryDetails {
     title: string
@@ -31,6 +32,8 @@ interface RenderCardProps {
     booking?: BookingProps
     loadingTitle?:string
     tab?:string
+    hasAccess?: boolean
+    requiredPermissions?: string[]
     pathname: string
 }
 
@@ -43,7 +46,7 @@ const StatusBadge = ({ count, label, color }: { count: number; label: string; co
     </div>
 )
 
-export const RenderCard = ({ category, booking, pathname, loadingTitle, tab }: RenderCardProps) => {
+export const RenderCard = ({ category, booking, pathname, loadingTitle, tab, hasAccess, requiredPermissions }: RenderCardProps) => {
 
     useEffect(() => {
         console.log("category", category)
@@ -84,6 +87,7 @@ export const RenderCard = ({ category, booking, pathname, loadingTitle, tab }: R
                         <StatusBadge count={category.statusCount.vendorConfirmed} label="Vendor Confirmed" color="text-green-500" />
                         <StatusBadge count={category.statusCount.cancelled} label="Cancelled" color="text-red-500" />
                     </div>
+                    {hasAccess ? (
                     <div className="-mt-4 transform transition-transform duration-200 hover:scale-[1.05]">
                         {booking.status !== "cancelled" ? (
                             <Link href={`${pathname}/${booking.id}/edit?tab=${tab ?? 'general'}`}>
@@ -95,11 +99,25 @@ export const RenderCard = ({ category, booking, pathname, loadingTitle, tab }: R
                             </Link>
                         )}
                     </div>
+                    ) : (
+                        <div className="-mt-4 transform transition-transform duration-200 hover:scale-[1.05]" onClick={
+                            (e) => {
+                                e.stopPropagation()
+                                toast({
+                                    title: "Access Denied",
+                                    description: `You do not have access to manage ${tab} for bookings. Please ask the admin to grant you ${requiredPermissions?.join(" ,")} permission.`,
+                                })
+                            }
+                        }>
+                            <ArrowRightCircleIcon size={28} className="text-gray-400 font-thin hover:bg-slate-200 rounded-full shadow-lg" />
+                        </div>
+                    )}
                 </div>
             </CardContent>
             {category.locked && (
-                <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-gray-700 bg-opacity-50">
+                <div className="absolute inset-0 flex flex-col items-center justify-center rounded-lg bg-gray-700 bg-opacity-60">
                     <Lock className="text-white" size={32} />
+                    <div className="text-white font-medium text-[14px]">Not Included</div>
                 </div>
             )}
         </Card>
