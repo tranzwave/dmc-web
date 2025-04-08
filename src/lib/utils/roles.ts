@@ -9,5 +9,7 @@ export const checkRole = (role: Roles) => {
 export const checkPermission = (requiredPermissions: Permissions[]) => {
   const { sessionClaims } = auth() // Removed `await`
   const userPermissions = sessionClaims?.metadata.permissions ?? [] // Changed `||` to `??`
-  return requiredPermissions.some(permission => userPermissions.includes(permission))
+  return requiredPermissions.some(permission => 
+    (userPermissions as Permissions[]).includes(permission)
+  )
 }
