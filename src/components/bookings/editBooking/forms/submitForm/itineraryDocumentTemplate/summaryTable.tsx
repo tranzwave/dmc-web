@@ -35,7 +35,7 @@ export const BookingSummaryTable = ({ summary }: Props) => {
                   <div className="font-medium">{dayData.hotel.hotel.name}</div>
                   {/* <div>Check-in: {dayData.hotel}</div>
                   <div>Check-out: {dayData.hotel.checkOut}</div> */}
-                  <div>Remarks: {dayData.hotel.voucher.specialNote || "None"}</div>
+                  <div>Remarks: {dayData.hotel.voucher.specialNote ?? "None"}</div>
                 </>
               ) : (
                 <div>No hotel booked</div>
