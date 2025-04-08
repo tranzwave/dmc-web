@@ -70,6 +70,10 @@ export interface BookingSummary {
   shops: ShopVoucher[];
 }
 
+export interface HotelWiseItinerary {
+  
+}
+
 // Define context properties
 interface EditBookingContextProps {
   bookingDetails: BookingDetails;

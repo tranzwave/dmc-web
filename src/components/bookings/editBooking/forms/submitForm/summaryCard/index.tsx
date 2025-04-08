@@ -24,7 +24,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ summary }) => {
     summary;
     const dateValue = formatDateToWeekdayMonth(date)
   return (
-    <Accordion type="single" collapsible defaultValue={dateValue}>
+    <Accordion type="single" collapsible defaultValue={dateValue} className="w-full">
       <AccordionItem value={dateValue}>
         <AccordionTrigger className="">
           <div className="items-start justify-start space-y-0 w-[10%]">

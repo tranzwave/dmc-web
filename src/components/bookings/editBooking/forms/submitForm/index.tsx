@@ -23,10 +23,12 @@ import SummaryDocument from "./summaryDocumentTemplate";
 import { OrganizationMembershipResource, UserResource } from "@clerk/types";
 import { SelectAgent } from "~/server/db/schemaTypes";
 import { getAgentVendorById } from "~/server/db/queries/agents";
+import ItineraryDocument from "./itineraryDocumentTemplate";
 
 const AddBookingSubmitTab = () => {
   const { bookingDetails, getBookingSummary } = useEditBooking();
   const [showModal, setShowModal] = useState(false);
+  const [showItineraryModal, setShowItineraryModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [id, setId] = useState("0");
@@ -77,7 +79,7 @@ const AddBookingSubmitTab = () => {
       fetchMembers();
     }
   }
-  , []);
+    , []);
 
   return (
     <div className="mt-4 flex h-full flex-col gap-3">
@@ -99,9 +101,14 @@ const AddBookingSubmitTab = () => {
         >
           <div className="card-title flex w-full flex-row justify-between">
             <div>Booking Summary</div>
-            <Button onClick={()=> {setShowModal(true)}} variant="primaryGreen">
-              Download Summary as PDF
-            </Button>
+            <div className="flex flex-row items-center gap-2">
+              <Button onClick={() => { setShowModal(true) }} variant="primaryGreen">
+                Download Tour Summary
+              </Button>
+              <Button onClick={() => { setShowItineraryModal(true) }} variant="primaryGreen">
+                Download Itinerary
+              </Button>
+            </div>
           </div>
           <div ref={summaryRef} className="pdf-summary">
             {summary.map((sum, index) => {
@@ -130,7 +137,24 @@ const AddBookingSubmitTab = () => {
               agent: agent?.name ?? '',
               manager: coordinatorAndManager[1] ?? ''
             }
-          }/>
+          } type="summary" />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showItineraryModal} onOpenChange={setShowItineraryModal}>
+        <DialogContent className="max-w-fit max-h-[90%] overflow-y-scroll">
+          <DialogHeader>
+            <DialogTitle>{`Tour Itinerary | ${id}`}</DialogTitle>
+            <DialogDescription>
+              {message}
+            </DialogDescription>
+          </DialogHeader>
+          <ProceedContent summary={summary} bookingLineId={id} bookingLine={bookingDetails} agentAndManager={
+            {
+              agent: agent?.name ?? '',
+              manager: coordinatorAndManager[1] ?? ''
+            }
+          } type="itinerary" />
         </DialogContent>
       </Dialog>
     </div>
@@ -150,6 +174,7 @@ interface ProceedContentProps {
     agent: string;
     manager: string;
   };
+  type: string;
 }
 
 const ProceedContent: React.FC<ProceedContentProps> = ({
@@ -157,6 +182,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   bookingLineId,
   bookingLine,
   agentAndManager,
+  type
 }) => {
 
   const { organization, isLoaded: isOrgLoaded } = useOrganization();
@@ -168,23 +194,54 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
     )
   }
 
-  return (
-    <div className="mb-9 space-y-6">
-      <div className="flex flex-row justify-end">
-        {organization && user && (
-          <VoucherButton voucherComponent={
-            <div>
-              <SummaryDocument summary={summary} booking={bookingLine} bookingLineId={bookingLineId} organization={organization} user={user as UserResource} agentAndManager={agentAndManager}/>
-            </div>
-          } />
+  if (type === "summary") {
+    return (
+      <div className="mb-9 space-y-6">
+        <div className="flex flex-row justify-end">
+          {organization && user && (
+            <VoucherButton voucherComponent={
+              <div>
+                <SummaryDocument summary={summary} booking={bookingLine} bookingLineId={bookingLineId} organization={organization} user={user as UserResource} agentAndManager={agentAndManager} />
+              </div>
+            } buttonText="Download Tour Summary as PDF" />
 
-        )}
+          )}
+        </div>
+        <div>
+          {organization && user && (
+            <SummaryDocument summary={summary} booking={bookingLine} bookingLineId={bookingLineId} organization={organization} user={user as UserResource} agentAndManager={agentAndManager} />
+          )}
+        </div>
       </div>
-      <div>
-        {organization && user && (
-          <SummaryDocument summary={summary} booking={bookingLine} bookingLineId={bookingLineId} organization={organization} user={user as UserResource} agentAndManager={agentAndManager}/>
-        )}
+    );
+  } else if (type === "itinerary") {
+    return (
+      <div className="mb-9 space-y-6 w-[1000px]">
+        <div className="flex flex-row justify-end">
+          {organization && user && (
+            <VoucherButton voucherComponent={
+              <div>
+                <ItineraryDocument summary={summary} booking={bookingLine} bookingLineId={bookingLineId} organization={organization} user={user as UserResource} agentAndManager={agentAndManager}/>
+                {/* {summary.map((sum, index) => {
+                  return <SummaryCard summary={sum} key={index} />;
+                })} */}
+              </div>
+            } buttonText="Download Tour Itinerary as PDF" />
+
+          )}
+        </div>
+        <div>
+          {organization && user && (
+            <ItineraryDocument summary={summary} booking={bookingLine} bookingLineId={bookingLineId} organization={organization} user={user as UserResource} agentAndManager={agentAndManager}/>
+            // <div>
+            //   {summary.map((sum, index) => {
+            //     return <SummaryCard summary={sum} key={index} />;
+            //   })}
+            // </div>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
 };
