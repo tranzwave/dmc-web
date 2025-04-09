@@ -80,6 +80,7 @@ const TopBar = () => {
                   elements: {
                     organizationSwitcherPopoverActionButton__createOrganization:
                       "hidden",
+                    organizationSwitcherPopoverActionButton__manageOrganization: orgRole !== 'org:admin' ? 'hidden' : 'border',
                   },
                 }}
                 afterSelectOrganizationUrl={(org) => {

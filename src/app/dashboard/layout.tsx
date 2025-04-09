@@ -42,7 +42,7 @@ export default function DashboardLayout({
         (memberships && memberships.length === 0 && userInvitations.data?.length === 0) || 
         (user.publicMetadata && Object.keys(user.publicMetadata).length === 0)
       ) {
-        alert("Redirecting to onboarding");
+        // alert("Redirecting to onboarding");
         if(!orgId){
           router.push("/onboarding");
         }

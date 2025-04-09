@@ -94,7 +94,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 
   const userPublicMetadata = (sessionClaims as CustomJwtSessionClaims).metadata as ClerkUserPublicMetadata;
 
-  console.log('User Public Metadata new:', userPublicMetadata);
+  // console.log('User Public Metadata new:', userPublicMetadata);
 
   // Check if user has the required permissions from metadata. 
   // | "booking_activity:manage"
