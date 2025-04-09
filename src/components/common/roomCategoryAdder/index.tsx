@@ -20,6 +20,8 @@ import { create } from "domain";
 import { createCity } from "~/server/db/queries/cities";
 import { LoaderCircle } from "lucide-react";
 import { createRoomCategory, getAllRoomCategories } from "~/server/db/queries/roomCategories";
+import { isValidInput } from "~/lib/utils/index";
+import { toast } from "~/hooks/use-toast";
 
 const RoomCategoryAdder = () => {
 
@@ -74,6 +76,14 @@ const RoomCategoryAdder = () => {
 
     const handleAddRoomCategories = async () => {
         try {
+            if(!isValidInput(newRoomCategory)) {
+                toast({
+                    title: "Invalid room category",
+                    description: "Please enter a valid room category.",
+                })
+                setSaving(false);
+                return;
+            }
             if(!organization) {
                 return;
             }
@@ -82,6 +92,10 @@ const RoomCategoryAdder = () => {
             const cityExists = roomCategories.find(category => category.name.toLowerCase() === newRoomCategory.toLowerCase());
 
             if (cityExists) {
+                toast({
+                    title: "Category already exists",
+                    description: "Please add a different category.",
+                })
                 throw new Error("Category already exists");
             }
 

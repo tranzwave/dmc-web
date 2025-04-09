@@ -19,6 +19,8 @@ import { set } from "date-fns";
 import { create } from "domain";
 import { createCity } from "~/server/db/queries/cities";
 import { LoaderCircle } from "lucide-react";
+import { toast } from "~/hooks/use-toast";
+import { isValidInput } from "~/lib/utils/index";
 
 const CityAdder = () => {
 
@@ -72,10 +74,22 @@ const CityAdder = () => {
     const handleAddCity = async () => {
         try {
             setSaving(true);
+            if(!isValidInput(newCity)) {
+                toast({
+                    title: "Invalid city name",
+                    description: "Please enter a valid city name.",
+                })
+                setSaving(false);
+                return;
+            }
             const country = organization?.publicMetadata.country as string ?? "LK";
             const cityExists = cities.find(city => city.name.toLowerCase() === newCity.toLowerCase());
 
             if (cityExists) {
+                toast({
+                    title: "City already exists",
+                    description: "Please select a different city.",
+                })
                 throw new Error("City already exists");
             }
 

@@ -17,6 +17,8 @@ import LoadingLayout from "../dashboardLoading";
 import { createShopType, getAllShopTypes } from "~/server/db/queries/shops";
 import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { isValidInput } from "~/lib/utils/index";
+import { toast } from "~/hooks/use-toast";
 
 const ShopTypeAdder = () => {
     const [error, setError] = useState<string | null>(null);
@@ -70,11 +72,23 @@ const ShopTypeAdder = () => {
 
     const handleAddShopType = async () => {
         try {
+            if(!isValidInput(newShopType)) {
+                toast({
+                    title: "Invalid city name",
+                    description: "Please enter a valid city name.",
+                })
+                setSaving(false);
+                return;
+            }
             setSaving(true);
             const country = organization?.publicMetadata.country as string ?? "LK";
             const shopTypeExists = shopTypes.find(shopType => shopType.name.toLowerCase() === newShopType.toLowerCase());
 
             if (shopTypeExists) {
+                toast({
+                    title: "Shop type already exists",
+                    description: "Please enter a different shop type.",
+                })
                 throw new Error("Shop type already exists");
             }
 

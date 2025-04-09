@@ -22,6 +22,7 @@ import { LoaderCircle } from "lucide-react";
 import { createActivityType, getAllActivityTypes } from "~/server/db/queries/activities";
 import { toast } from "~/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { isValidInput } from "~/lib/utils/index";
 
 interface ActivityAdderProps {
     setActivityTypeUpdated: () => void;
@@ -80,11 +81,23 @@ const ActivityAdder = ({setActivityTypeUpdated}: ActivityAdderProps) => {
 
     const handleAddCity = async () => {
         try {
+            if(!isValidInput(newActivityType)) {
+                toast({
+                    title: "Invalid activity type",
+                    description: "Please enter a valid activity type.",
+                })
+                setSaving(false);
+                return;
+            }
             setSaving(true);
             const country = organization?.publicMetadata.country as string ?? "LK";
             const activityTypeExists = activityTypes.find(activityType => activityType.name.toLowerCase() === newActivityType.toLowerCase());
 
             if (activityTypeExists) {
+                toast({
+                    title: "Activity Type already exists",
+                    description: "Please enter a valid activity type.",
+                })
                 throw new Error("Activity Type already exists");
             }
 
