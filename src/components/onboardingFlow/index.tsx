@@ -353,6 +353,7 @@ const PersonalDetailsForm = ({
 }) => {
   form.setValue("name", user?.fullName ?? "");
   form.setValue("email", user?.primaryEmailAddress?.emailAddress ?? "");
+  form.setValue("address", "N/A")
   return (
     <>
       <FormField
@@ -413,7 +414,7 @@ const PersonalDetailsForm = ({
           </FormItem>
         )}
       />
-      <FormField
+      {/* <FormField
         name="address"
         control={form.control}
         render={({ field }) => (
@@ -425,7 +426,7 @@ const PersonalDetailsForm = ({
             <FormMessage />
           </FormItem>
         )}
-      />
+      /> */}
     </>
   );
 };
