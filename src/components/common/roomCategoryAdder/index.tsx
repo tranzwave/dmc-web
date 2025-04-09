@@ -20,6 +20,8 @@ import { create } from "domain";
 import { createCity } from "~/server/db/queries/cities";
 import { LoaderCircle } from "lucide-react";
 import { createRoomCategory, getAllRoomCategories } from "~/server/db/queries/roomCategories";
+import { isValidInput, sanitizeInput } from "~/lib/utils/index";
+import { toast } from "~/hooks/use-toast";
 
 const RoomCategoryAdder = () => {
 
@@ -31,6 +33,7 @@ const RoomCategoryAdder = () => {
     const { organization, isLoaded } = useOrganization();
     const [newRoomCategory, setNewRoomCategory] = useState<string>('');
     const [saving, setSaving] = useState<boolean>(false);
+    const [inputError, setInputError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -74,6 +77,15 @@ const RoomCategoryAdder = () => {
 
     const handleAddRoomCategories = async () => {
         try {
+            if(!isValidInput(newRoomCategory)) {
+                toast({
+                    title: "Invalid room category",
+                    description: "Please enter a valid room category.",
+                })
+                setSaving(false);
+                setInputError("Invalid room category");
+                return;
+            }
             if(!organization) {
                 return;
             }
@@ -82,13 +94,18 @@ const RoomCategoryAdder = () => {
             const cityExists = roomCategories.find(category => category.name.toLowerCase() === newRoomCategory.toLowerCase());
 
             if (cityExists) {
+                toast({
+                    title: "Category already exists",
+                    description: "Please add a different category.",
+                })
+                setInputError("Category already exists");
                 throw new Error("Category already exists");
             }
 
             //make category name all words first letter capitalized
             const roomCategoryName = newRoomCategory.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
-            const response = await createRoomCategory(organization?.id, roomCategoryName)
+            const response = await createRoomCategory(organization?.id, sanitizeInput(roomCategoryName));
 
             if (!response[0]) {
                 throw new Error("Failed to add category");
@@ -99,7 +116,7 @@ const RoomCategoryAdder = () => {
             setSaving(false);
         } catch (error) {
             console.error(error);
-            setError("Failed to add category");
+            setInputError("Failed to add category");
         } finally {
             setSaving(false);
         }
@@ -129,6 +146,7 @@ const RoomCategoryAdder = () => {
                     <div>
                         <Label htmlFor="category">Add a new room category</Label>
                         <Input id="category" onChange={handleCityInput} />
+                        {inputError && <p className="text-red-500 text-[10px] -mt-2">*{inputError}</p>}
                     </div>
                     <div className="w-full flex justify-end">
                         <Button variant={"primaryGreen"} onClick={handleAddRoomCategories} disabled={saving}>

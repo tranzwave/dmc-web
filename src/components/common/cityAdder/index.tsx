@@ -19,6 +19,8 @@ import { set } from "date-fns";
 import { create } from "domain";
 import { createCity } from "~/server/db/queries/cities";
 import { LoaderCircle } from "lucide-react";
+import { toast } from "~/hooks/use-toast";
+import { isValidInput, sanitizeInput } from "~/lib/utils/index";
 
 const CityAdder = () => {
 
@@ -30,6 +32,7 @@ const CityAdder = () => {
     const { organization, isLoaded } = useOrganization();
     const [newCity, setNewCity] = useState<string>('');
     const [saving, setSaving] = useState<boolean>(false);
+    const [inputError, setInputError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -72,17 +75,31 @@ const CityAdder = () => {
     const handleAddCity = async () => {
         try {
             setSaving(true);
+            if(!isValidInput(newCity)) {
+                toast({
+                    title: "Invalid city name",
+                    description: "Please enter a valid city name.",
+                })
+                setSaving(false);
+                setInputError("Invalid city name");
+                return;
+            }
             const country = organization?.publicMetadata.country as string ?? "LK";
             const cityExists = cities.find(city => city.name.toLowerCase() === newCity.toLowerCase());
 
             if (cityExists) {
+                toast({
+                    title: "City already exists",
+                    description: "Please select a different city.",
+                })
+                setInputError("City already exists");
                 throw new Error("City already exists");
             }
 
             // make new city name sentence case
             const cityName = newCity.charAt(0).toUpperCase() + newCity.slice(1);
 
-            const response = await createCity(cityName, country);
+            const response = await createCity(sanitizeInput(cityName), country);
 
             if (!response[0]) {
                 throw new Error("Failed to add city");
@@ -93,7 +110,7 @@ const CityAdder = () => {
             setSaving(false);
         } catch (error) {
             console.error(error);
-            setError("Failed to add city");
+            setInputError("Failed to add city");
         } finally {
             setSaving(false);
         }
@@ -123,6 +140,7 @@ const CityAdder = () => {
                     <div>
                         <Label htmlFor="city">Add a new city</Label>
                         <Input id="city" onChange={handleCityInput} />
+                        {inputError && <div className="text-red-500 text-[10px] -mt-2">*{inputError}</div>}
                     </div>
                     <div className="w-full flex justify-end">
                         <Button variant={"primaryGreen"} onClick={handleAddCity} disabled={saving}>

@@ -95,3 +95,13 @@ export async function generateHash(merchant_id: string, order_id: string, amount
       .toUpperCase();
   return hash;
 }
+
+export function isValidInput(value: string): boolean {
+  //check for empty string and min length is 1
+  return value.trim() !== "" && value.length >= 1;
+}
+
+export function sanitizeInput(value: string): string {
+  // Remove any special characters except for spaces and trailing spaces
+  return value.replace(/[^a-zA-Z0-9\s]/g, "").trim();
+}
