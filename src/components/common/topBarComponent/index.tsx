@@ -90,13 +90,18 @@ const TopBar = () => {
                 }
                 }
               >
-                <OrganizationSwitcher.OrganizationProfilePage
-                  label="Other Info"
-                  url="other-info"
-                  labelIcon={<FileText size={15} />}
-                >
-                  <OrgCustomPage />
-                </OrganizationSwitcher.OrganizationProfilePage>
+                {
+                  orgRole === 'org:admin' && (
+                    <OrganizationSwitcher.OrganizationProfilePage
+                      label="Other Info"
+                      url="other-info"
+                      labelIcon={<FileText size={15} />}
+                    >
+                      <OrgCustomPage />
+                    </OrganizationSwitcher.OrganizationProfilePage>
+
+                  )
+                }
               </OrganizationSwitcher>
               <div>
                 {/* <UserButton>
