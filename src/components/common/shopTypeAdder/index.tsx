@@ -17,8 +17,9 @@ import LoadingLayout from "../dashboardLoading";
 import { createShopType, getAllShopTypes } from "~/server/db/queries/shops";
 import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { isValidInput } from "~/lib/utils/index";
+import { isValidInput, sanitizeInput } from "~/lib/utils/index";
 import { toast } from "~/hooks/use-toast";
+import { set } from "date-fns";
 
 const ShopTypeAdder = () => {
     const [error, setError] = useState<string | null>(null);
@@ -30,6 +31,7 @@ const ShopTypeAdder = () => {
     const [newShopType, setNewShopType] = useState<string>('');
     const [saving, setSaving] = useState<boolean>(false);
     const router = useRouter();
+    const [inputError, setInputError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -78,6 +80,7 @@ const ShopTypeAdder = () => {
                     description: "Please enter a valid city name.",
                 })
                 setSaving(false);
+                setInputError("Invalid city name");
                 return;
             }
             setSaving(true);
@@ -89,6 +92,7 @@ const ShopTypeAdder = () => {
                     title: "Shop type already exists",
                     description: "Please enter a different shop type.",
                 })
+                setInputError("Shop type already exists");
                 throw new Error("Shop type already exists");
             }
 
@@ -96,7 +100,7 @@ const ShopTypeAdder = () => {
             const shopTypeName = newShopType.charAt(0).toUpperCase() + newShopType.slice(1);
 
             const response = await createShopType({
-                name: shopTypeName
+                name: sanitizeInput(shopTypeName),
             });
 
             if (!response[0]) {
@@ -108,7 +112,7 @@ const ShopTypeAdder = () => {
             setSaving(false);
         } catch (error) {
             console.error(error);
-            setError("Failed to add shop type");
+            setInputError("Failed to add shop type");
         } finally {
             setSaving(false);
         }
@@ -138,6 +142,7 @@ const ShopTypeAdder = () => {
                     <div>
                         <Label htmlFor="shopType">Add a new shop type</Label>
                         <Input id="shopType" onChange={handleShopTypeInput} />
+                        {inputError && <span className="text-red-500 text-[10px] -mt-2">*{inputError}</span>}
                     </div>
                     <div className="w-full flex justify-end">
                         <Button variant={"primaryGreen"} onClick={handleAddShopType} disabled={saving}>

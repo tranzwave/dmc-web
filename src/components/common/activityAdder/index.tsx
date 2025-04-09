@@ -22,13 +22,13 @@ import { LoaderCircle } from "lucide-react";
 import { createActivityType, getAllActivityTypes } from "~/server/db/queries/activities";
 import { toast } from "~/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { isValidInput } from "~/lib/utils/index";
+import { isValidInput, sanitizeInput } from "~/lib/utils/index";
 
 interface ActivityAdderProps {
     setActivityTypeUpdated: () => void;
 }
 
-const ActivityAdder = ({setActivityTypeUpdated}: ActivityAdderProps) => {
+const ActivityAdder = ({ setActivityTypeUpdated }: ActivityAdderProps) => {
 
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -39,6 +39,7 @@ const ActivityAdder = ({setActivityTypeUpdated}: ActivityAdderProps) => {
     const [newActivityType, setNewActivityType] = useState<string>('');
     const [saving, setSaving] = useState<boolean>(false);
     const router = useRouter();
+    const [inputError, setInputError] = useState<string | null>(null);
 
 
     useEffect(() => {
@@ -75,18 +76,20 @@ const ActivityAdder = ({setActivityTypeUpdated}: ActivityAdderProps) => {
     };
 
     const handleActivityTypeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setInputError(null);
         const query = e.target.value.toLowerCase();
         setNewActivityType(query);
     }
 
     const handleAddCity = async () => {
         try {
-            if(!isValidInput(newActivityType)) {
+            if (!isValidInput(newActivityType)) {
                 toast({
                     title: "Invalid activity type",
                     description: "Please enter a valid activity type.",
                 })
                 setSaving(false);
+                setInputError("Invalid activity type");
                 return;
             }
             setSaving(true);
@@ -98,13 +101,14 @@ const ActivityAdder = ({setActivityTypeUpdated}: ActivityAdderProps) => {
                     title: "Activity Type already exists",
                     description: "Please enter a valid activity type.",
                 })
+                setInputError("Activity type already exists");
                 throw new Error("Activity Type already exists");
             }
 
             // make new activity name sentence case
             const activityTypeName = newActivityType.charAt(0).toUpperCase() + newActivityType.slice(1);
 
-            const response = await createActivityType(activityTypeName);
+            const response = await createActivityType(sanitizeInput(activityTypeName));
 
             if (!response[0]) {
                 throw new Error("Failed to add activity");
@@ -114,10 +118,11 @@ const ActivityAdder = ({setActivityTypeUpdated}: ActivityAdderProps) => {
 
             setSaving(false);
 
-            
+
         } catch (error) {
             console.error(error);
-            setError("Failed to add activity");
+            setInputError("Failed to add activity");
+            // setError("Failed to add activity");
         } finally {
             setSaving(false);
             setActivityTypeUpdated();
@@ -148,6 +153,11 @@ const ActivityAdder = ({setActivityTypeUpdated}: ActivityAdderProps) => {
                     <div>
                         <Label htmlFor="activity">Add a new Activity Type</Label>
                         <Input id="activity" onChange={handleActivityTypeInput} />
+                        {inputError && (
+                        <div className="text-red-500 text-[10px] -mt-2">
+                            *{inputError}
+                        </div>
+                    )}
                     </div>
                     <div className="w-full flex justify-end">
                         <Button variant={"primaryGreen"} onClick={handleAddCity} disabled={saving}>
@@ -161,15 +171,15 @@ const ActivityAdder = ({setActivityTypeUpdated}: ActivityAdderProps) => {
                     </div>
                 </div>
                 <div className="my-2">
-                        <Label htmlFor="search">Search Cities</Label>
-                        <Input
-                            id="search"
-                            value={searchQuery}
-                            onChange={handleSearchChange}
-                            placeholder="Search cities"
-                            className="w-[80%]"
-                        />
-                    </div>
+                    <Label htmlFor="search">Search Cities</Label>
+                    <Input
+                        id="search"
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        placeholder="Search cities"
+                        className="w-[80%]"
+                    />
+                </div>
                 <div className="flex flex-col max-h-[500px] overflow-y-scroll text-[13px] mt-5">
                     <div>
                         {filteredActivityTypes.map((activity) => (
@@ -181,4 +191,4 @@ const ActivityAdder = ({setActivityTypeUpdated}: ActivityAdderProps) => {
         </Sheet>
     )
 }
-  export default ActivityAdder;
+export default ActivityAdder;
