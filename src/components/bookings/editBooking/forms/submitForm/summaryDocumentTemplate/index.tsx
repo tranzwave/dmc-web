@@ -21,6 +21,17 @@ type SummaryDocumentProps = {
 
 const SummaryDocument = ({ summary, booking, bookingLineId, organization, user, agentAndManager }: SummaryDocumentProps) => {
 
+  // Sort the booking vouchers based on the earliest voucherLine inside that voucher
+  const sortedVouchers = booking.vouchers.sort((a, b) => {
+    const aEarliestDate = Math.min(
+      ...a.voucherLines.map((line) => new Date(line.checkInDate).getTime())
+    );
+    const bEarliestDate = Math.min(
+      ...b.voucherLines.map((line) => new Date(line.checkInDate).getTime())
+    );
+    return aEarliestDate - bEarliestDate;
+  });
+
   return (
     <div className="flex flex-col">
       <VoucherHeader organization={organization} />
@@ -64,7 +75,7 @@ const SummaryDocument = ({ summary, booking, bookingLineId, organization, user, 
               </tr>
             </thead>
             <tbody>
-              {booking.vouchers.map((voucher) =>
+              {sortedVouchers.map((voucher) =>
                 voucher.voucherLines.map((line, index) => (
                   <tr className="border-b hover:bg-gray-50" key={line.id}>
                     {index === 0 && (
