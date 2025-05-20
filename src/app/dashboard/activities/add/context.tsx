@@ -127,6 +127,20 @@ export const AddActivityProvider: React.FC<{ children: ReactNode }> = ({ childre
         if (!response) {
           throw new Error("Error deleting activity");
         }
+
+        console.log("Activity deleted successfully:", activity.name);
+
+        setActivityVendorDetails(prev => ({
+          ...prev,
+          activities: prev.activities.filter(
+            (a) => a.id !== activity.id
+          ),
+        }));
+        toast({
+          title: 'Success',
+          description: 'Activity deleted successfully',
+        });
+        return true;
       }
 
       setActivityVendorDetails(prev => ({

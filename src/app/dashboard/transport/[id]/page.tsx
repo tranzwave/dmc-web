@@ -65,6 +65,10 @@ const Page = ({ params }: { params: { id: string } }) => {
 
   const driverVoucherColumns: ColumnDef<SelectTransportVoucher>[] = [
     {
+      header: "Booking ID",
+      accessorFn: (row) => row.bookingLineId,
+    },
+    {
       accessorKey: "startDate",
       header: "Start Date",
       accessorFn: (row) => formatDate(row.startDate.toString()),

@@ -8,13 +8,13 @@ import { StatsCard } from "~/components/ui/stats-card";
 import { HotelDTO } from "~/lib/types/hotel";
 import { formatDate } from "~/lib/utils/index";
 import { getHotelByIdQuery, getVoucherLinesByHotelId } from "~/server/db/queries/hotel";
-import { SelectHotelVoucherLine } from "~/server/db/schemaTypes";
+import { SelectHotelVoucher, SelectHotelVoucherLine } from "~/server/db/schemaTypes";
 
 
 
 const Page = ({ params }: { params: { id: string } }) => {
   const [hotel, setHotel] = useState<HotelDTO | null>(null);
-  const [vouchers, setVouchers] = useState<SelectHotelVoucherLine[]>([]);
+  const [vouchers, setVouchers] = useState<any[]>([]);
   const [voucherCounts, setVoucherCounts] = useState({
     upcomingBookings : 0,
     fiveStarRatings: 0
@@ -115,7 +115,11 @@ export default Page;
 
 
 
-const voucherLinesColumns: ColumnDef<SelectHotelVoucherLine>[] = [
+const voucherLinesColumns: ColumnDef<any>[] = [
+  {
+    header: "Booking ID",
+    accessorFn: (row) => row.hotelVoucher.bookingLineId ?? "N/A",
+  },
     {
       header: "Start Date",
       accessorFn: (row) => formatDate(row.checkInDate.toString()),
