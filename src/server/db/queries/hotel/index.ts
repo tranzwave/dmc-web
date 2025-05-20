@@ -132,6 +132,14 @@ export const getVoucherLinesByHotelId = async (hotelId: string) => {
       remarks: hotelVoucherLine.remarks,
       createdAt: hotelVoucherLine.createdAt,
       updatedAt: hotelVoucherLine.updatedAt,
+      hotelVoucher: {
+        id: hotelVoucher.id,
+        hotelId: hotelVoucher.hotelId,
+        bookingLineId: hotelVoucher.bookingLineId,
+        status: hotelVoucher.status,
+        createdAt: hotelVoucher.createdAt,
+        updatedAt: hotelVoucher.updatedAt,
+      }
     })
     .from(hotelVoucherLine)
     .leftJoin(
@@ -157,6 +165,7 @@ export const getVoucherLinesByHotelId = async (hotelId: string) => {
     remarks: row.remarks,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
+    hotelVoucher: row.hotelVoucher
   }));
 };
 
