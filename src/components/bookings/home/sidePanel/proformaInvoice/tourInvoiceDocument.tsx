@@ -56,12 +56,12 @@ const TourInvoicePDF = ({ organization, user, bookingData }: TourInvoiceDocument
             <div>Country : {country}</div>
             {!bookingData.booking.directCustomer ? (
               <div className="mt-2">
-                <div>Agent: {agent.name}</div>
-                <div>Agency: {agent.agency}</div>
-                <div>Agency Country: {Country.getCountryByCode(agent.countryCode)?.name ?? "N/A"}</div>
-                <div>Agency Email: {agent.email}</div>
-                <div>Agency Phone: {agent.primaryContactNumber}</div>
-                <div>Agency Address: {agent.address}</div>
+                <div>{agent.name}</div>
+                <div>{agent.agency}</div>
+                {/* <div>Agency Country: {Country.getCountryByCode(agent.countryCode)?.name ?? "N/A"}</div> */}
+                <div>{agent.email}</div>
+                <div>{agent.primaryContactNumber}</div>
+                <div>{agent.address}</div>
               </div>
             ): (
               <div>
@@ -71,8 +71,22 @@ const TourInvoicePDF = ({ organization, user, bookingData }: TourInvoiceDocument
             )}
           </div>
           <div className="text-[13px]">
-            <div>Arrival: {bookingData.startDate.toDateString()}</div>
-            <div>Departure: {bookingData.endDate.toDateString()}</div>
+            <div>Arrival: {bookingData.startDate.toLocaleDateString(
+                "en-GB",
+                {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                }
+            )}</div>
+            <div>Departure: {bookingData.endDate.toLocaleDateString(
+                "en-GB",
+                {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                }
+            )}</div>
             <div>Invoice Date: {new Date().toLocaleDateString(
                 "en-GB",
                 {
@@ -82,8 +96,8 @@ const TourInvoicePDF = ({ organization, user, bookingData }: TourInvoiceDocument
                 }
             )}</div>
             <div>Invoice No: {bookingData.id}-INV</div>
-            <div>Destination: {String(organization.publicMetadata?.country ?? '')}</div>
-            <div>No. of Days: {calculateNights(bookingData.startDate, bookingData.endDate)}</div>
+            <div>Destination: {Country.getCountryByCode(String(organization.publicMetadata?.country ?? ''))?.name ?? "N/A"}</div>
+            <div>No. of Days: {calculateNights(bookingData.startDate, bookingData.endDate) + 1}</div>
             <div>No. of travellers: {`${bookingData.adultsCount} Adults | ${bookingData.kidsCount} Kids`}</div>
           </div>
         </div>

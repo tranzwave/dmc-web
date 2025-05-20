@@ -24,7 +24,7 @@ import { set } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "~/components/ui/dialog";
 import TourPacketCheckList from "./tourPacketCheckList";
 import { TourPacket } from "~/lib/types/booking";
-import { cancelBookingLine, updateBookingLine, updateTourPacketList } from "~/server/db/queries/booking";
+import { cancelBookingLine, completeBookingLine, updateBookingLine, updateTourPacketList } from "~/server/db/queries/booking";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import TourPacketCheckListPDF from "./tourPacketCheckListDocument";
 import TourInvoiceModal from "./proformaInvoice/tourInvoiceModal";
@@ -57,7 +57,9 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
   const [isAssignTeamModalOpen, setIsAssignTeamModalOpen] = useState(false);
   const [marketingTeams, setMarketingTeams] = useState<SelectMarketingTeam[]>([]);
   const [showCancelBooking, setShowCancelBooking] = useState(false);
+  const [showCompleteBooking, setShowCompleteBooking] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
   const permissions = useUserPermissions();
 
 
@@ -152,6 +154,10 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
     setShowCancelBooking(true);
   }
 
+  const onCompleteBooking = async () => {
+    setShowCompleteBooking(true);
+  }
+
   const cancelBooking = async () => {
     if (booking && hotelVouchers && restaurantVouchers && transportVouchers && activityVouchers && shopVouchers) {
       try {
@@ -177,6 +183,41 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
           title: "Error",
           description: "Error cancelling the booking"
         })
+      }
+    }
+  }
+
+  const confirmBooking = async () => {
+    if (booking && hotelVouchers && restaurantVouchers && transportVouchers && activityVouchers && shopVouchers) {
+      try {
+        setIsCompleting(true);
+        const updatedBooking = await completeBookingLine(
+          booking.id,
+          hotelVouchers.map(v => v.id),
+          restaurantVouchers.map(v => v.id),
+          transportVouchers.map(v => v.id),
+          activityVouchers.map(v => v.id),
+          shopVouchers.map(v => v.id)
+        );
+        setIsCompleting(false);
+
+
+        toast({
+          title: "Booking Completed",
+          description: "The booking has been successfully completed"
+        })
+
+        booking.status = "confirmed";
+
+        setShowCompleteBooking(false);
+      } catch (error) {
+        console.error("Error completing booking:", error);
+        setIsCompleting(false);
+        toast({
+          title: "Error",
+          description: "Error completing the booking"
+        })
+
       }
     }
   }
@@ -430,7 +471,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
           />
         </div>
       )}
-      <div className="flex flex-row justify-stretch gap-2">
+      <div className="w-full grid grid-cols-2 gap-2">
         {permissions.includes("booking:tour_packet:manage") ? (
           <Button
             variant={"primaryGreen"}
@@ -455,7 +496,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
           )}
         </div>
 
-        {orgRole === 'org:admin' && booking.status !== "cancelled" && (
+        {orgRole === 'org:admin' && booking.status !== "cancelled" && booking.status !== "confirmed" && (
           <div>
             {permissions.includes("booking:cancel") ? (
               <Button
@@ -472,6 +513,24 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
             )}
           </div>
         )}
+
+        {orgRole === 'org:admin' && booking.status === "inprogress" && (
+            <div>
+              {permissions.includes("booking:cancel") ? (
+                <Button
+                  variant={"primaryGreen"}
+                  onClick={onCompleteBooking}
+                  className="w-full"
+                >Complete Booking</Button>
+              ) : (
+                <Button
+                  variant={"primaryGreen"}
+                  className="w-full hover:cursor-pointer"
+                  onClick={() => toast({ title: "Permission Denied", description: "You don't have permission to complete bookings" })}
+                >Complete Booking</Button>
+              )}
+            </div>
+          ) }
 
       </div>
       <Dialog open={showTourPacket} onOpenChange={setShowTourPacket} >
@@ -523,12 +582,43 @@ const SidePanel: React.FC<SidePanelProps> = ({ booking }) => {
               <Button variant="destructive" onClick={cancelBooking} disabled={isCancelling}>
                 {isCancelling ? (
                   <div className="flex flex-row gap-1 items-center">
-                    <LoaderCircle size={20} />
+                    <LoaderCircle size={20} className="animate-spin"/>
                     <div>Cancelling</div>
                   </div>
                 ) : 'Cancel Booking'}
               </Button>
               <Button variant="outline" onClick={() => setShowCancelBooking(false)}>Close</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showCompleteBooking} onOpenChange={setShowCompleteBooking} >
+        <DialogContent className="max-w-fit max-h-[90%] overflow-y-scroll">
+          <DialogHeader>
+            <DialogTitle>Complete Booking| {booking.id}</DialogTitle>
+            <DialogDescription>
+              This action will complete the booking
+            </DialogDescription>
+          </DialogHeader>
+          <div>
+            <div className="text-[13px]">
+              This action will complete the booking and all the vouchers associated with it. Are you sure you want to complete the booking?
+            </div>
+            {/* <div className="mt-4 text-[13px]">
+              <label htmlFor="reasonToComplete" className="text-[13px] font-semibold">Reason to complete</label>
+              <input type="text" id="reasonToComplete" value={reasonToComplete} onChange={(e) => setReasonToComplete(e.target.value)} className="w-full h-12 mt-1 p-2 border border-primary-borderGray rounded-md" />
+            </div> */}
+            <div className="w-full flex items-center justify-end gap-4 mt-4">
+              <Button variant="primaryGreen" onClick={confirmBooking} disabled={isCancelling}>
+                {isCompleting ? (
+                  <div className="flex flex-row gap-1 items-center">
+                    <LoaderCircle size={20} className="animate-spin" />
+                    <div>Loading</div>
+                  </div>
+                ) : 'Complete Booking'}
+              </Button>
+              <Button variant="outline" onClick={() => setShowCompleteBooking(false)}>Close</Button>
             </div>
           </div>
         </DialogContent>

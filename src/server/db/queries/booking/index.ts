@@ -1621,6 +1621,118 @@ export const cancelBookingLine = async (
   }
 }
 
+export const completeBookingLine = async (
+  bookingLineId: string,
+  hotelVouchers: string[],
+  restaurantVouchers: string[],
+  transportVouchers: string[],
+  activityVouchers: string[],
+  shopVouchers: string[],
+) => {
+  try {
+    const result = await db.transaction(async (trx) => {
+      const bookingLineToComplete = await trx.query.bookingLine.findFirst({
+        where: eq(bookingLine.id, bookingLineId),
+      });
+
+      if (!bookingLineToComplete) {
+        throw new Error(`Couldn't find a booking line with ID: ${bookingLineId}`);
+      }
+
+      const updatedBookingLine = await trx
+        .update(bookingLine)
+        .set({
+          status: "confirmed",
+        })
+        .where(eq(bookingLine.id, bookingLineId))
+        .returning();
+
+      if (!updatedBookingLine || !updatedBookingLine[0]?.id) {
+        throw new Error(`Couldn't complete the booking line with ID: ${bookingLineId}`);
+      }
+
+      // Complete all hotel vouchers associated with the booking line
+      for (const voucherId of hotelVouchers) {
+        const updatedHotelVoucher = await trx
+          .update(hotelVoucher)
+          .set({
+            status: "vendorConfirmed",
+          })
+          .where(eq(hotelVoucher.id, voucherId))
+          .returning();
+
+        if (!updatedHotelVoucher || !updatedHotelVoucher[0]?.id) {
+          throw new Error(`Couldn't complete the hotel voucher with ID: ${voucherId}`);
+        }
+      }
+
+      // Complete all restaurant vouchers associated with the booking line
+      for (const voucherId of restaurantVouchers) {
+        const updatedRestaurantVoucher = await trx
+          .update(restaurantVoucher)
+          .set({
+            status: "vendorConfirmed",
+          })
+          .where(eq(restaurantVoucher.id, voucherId))
+          .returning();
+
+        if (!updatedRestaurantVoucher || !updatedRestaurantVoucher[0]?.id) {
+          throw new Error(`Couldn't complete the restaurant voucher with ID: ${voucherId}`);
+        }
+      }
+
+      // Complete all transport vouchers associated with the booking line
+      for (const voucherId of transportVouchers) {
+        const updatedTransportVoucher = await trx
+          .update(transportVoucher)
+          .set({
+            status: "vendorConfirmed",
+          })
+          .where(eq(transportVoucher.id, voucherId))
+          .returning();
+
+        if (!updatedTransportVoucher || !updatedTransportVoucher[0]?.id) {
+          throw new Error(`Couldn't complete the transport voucher with ID: ${voucherId}`);
+        }
+      }
+      // Complete all activity vouchers associated with the booking line
+      for (const voucherId of activityVouchers) {
+        const updatedActivityVoucher = await trx
+          .update(activityVoucher)
+          .set({
+            status: "vendorConfirmed",
+          })
+          .where(eq(activityVoucher.id, voucherId))
+          .returning();
+
+        if (!updatedActivityVoucher || !updatedActivityVoucher[0]?.id) {
+          throw new Error(`Couldn't complete the activity voucher with ID: ${voucherId}`);
+        }
+      }
+      // Complete all shop vouchers associated with the booking line
+      for (const voucherId of shopVouchers) {
+        const updatedShopVoucher = await trx
+          .update(shopVoucher)
+          .set({
+            status: "vendorConfirmed",
+          })
+          .where(eq(shopVoucher.id, voucherId))
+          .returning();
+
+        if (!updatedShopVoucher || !updatedShopVoucher[0]?.id) {
+          throw new Error(`Couldn't complete the shop voucher with ID: ${voucherId}`);
+        }
+      }
+      return updatedBookingLine[0]?.id;
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Error in completeBookingLine:", error);
+    throw error;
+  }
+};
+
 //Update tourPacketList in booking line
 export const updateTourPacketList = async (
   bookingLineId: string,

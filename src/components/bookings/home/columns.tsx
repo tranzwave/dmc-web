@@ -120,9 +120,17 @@ export const columns: ColumnDef<BookingDTO>[] = [
       // Set badge color based on the status value
       const statusColor:any = {
         inprogress: "bg-yellow-500 text-white", // Yellow for in progress
-        confirmed: "bg-green-500 text-white",  // Green for confirmed
+        confirmed: "bg-primary-green text-white",  // Green for confirmed
         cancelled: "bg-red-500 text-white",    // Red for cancelled
       };
+
+      if (status === "confirmed") {
+        return (
+          <Badge className={statusColor[status.toLowerCase()]}>
+            Completed
+          </Badge>
+        );
+      }
 
       return (
         <Badge className={statusColor[status.toLowerCase()]}>
