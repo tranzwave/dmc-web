@@ -1,7 +1,7 @@
 "use client";
 import { format } from "date-fns";
 import VoucherHeader from "~/components/common/voucher/VoucherHeader";
-import { formatDate, getLetterByIndex } from "~/lib/utils/index";
+import { calculateNights, formatDate, getLetterByIndex } from "~/lib/utils/index";
 import { Country } from "country-state-city";
 import { OrganizationResource, UserResource } from "@clerk/types";
 import { BookingDetails, BookingSummary } from "~/app/dashboard/bookings/[id]/edit/context";
@@ -46,7 +46,9 @@ const SummaryDocument = ({ summary, booking, bookingLineId, organization, user, 
             <div>Agent : {agentAndManager.agent}</div>
             <div>Start Date : {formatDate(booking.general.startDate)}</div>
             <div>End Date : {formatDate(booking.general.endDate)}</div>
-            <div>Days : {booking.general.numberOfDays}</div>
+            {/* <div>Days : {booking.general.numberOfDays}</div> */}
+            <div>Days : {calculateNights(booking.general.startDate, booking.general.endDate)}</div>
+
           </div>
           <div className="text-[13px]">
             <div>Booking Name : {booking.general.clientName}</div>
