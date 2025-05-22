@@ -97,7 +97,7 @@ const TourInvoicePDF = ({ organization, user, bookingData }: TourInvoiceDocument
             )}</div>
             <div>Invoice No: {bookingData.id}-INV</div>
             <div>Destination: {Country.getCountryByCode(String(organization.publicMetadata?.country ?? ''))?.name ?? "N/A"}</div>
-            <div>No. of Days: {calculateNights(bookingData.startDate, bookingData.endDate) + 1}</div>
+            <div>No. of Days: {calculateNights(bookingData.startDate, bookingData.endDate)}</div>
             <div>No. of travellers: {`${bookingData.adultsCount} Adults | ${bookingData.kidsCount} Kids`}</div>
           </div>
         </div>
