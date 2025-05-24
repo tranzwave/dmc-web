@@ -159,13 +159,14 @@ const TourInvoiceModal: React.FC<TourInvoiceModalProps> = ({ bookingData, organi
           <div className="flex flex-col gap-1">
             <label className="mr-2">Deposit Payment</label>
             <input
-              type="text"
+              type="number"
               name="depositPayment"
               title='Deposit Payment'
               value={invoiceDetails.depositPayment}
-              onChange={(e) => setInvoiceDetails((prevState) => ({ ...prevState, depositPayment: e.target.value }))}
+              onChange={(e) => setInvoiceDetails((prevState) => ({ ...prevState, depositPayment: e.target.value.toString() }))}
               className="border border-gray-300 rounded px-2 py-1"
               placeholder="Deposit Payment"
+              min={0}
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -183,13 +184,14 @@ const TourInvoiceModal: React.FC<TourInvoiceModalProps> = ({ bookingData, organi
           <div className="flex flex-col gap-1">
             <label className="mr-2">Bank Charges</label>
             <input
-              type="text"
+              type="number"
               name="bankCharges"
               title='Bank Charges'
               value={invoiceDetails.bankCharges}
-              onChange={(e) => setInvoiceDetails((prevState) => ({ ...prevState, bankCharges: e.target.value }))}
+              onChange={(e) => setInvoiceDetails((prevState) => ({ ...prevState, bankCharges: e.target.value.toString() }))}
               className="border border-gray-300 rounded px-2 py-1"
               placeholder="Bank Charges"
+              min={0}
             />
           </div>
           <div className="flex flex-col gap-1">
