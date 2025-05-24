@@ -118,7 +118,7 @@ export const packages: Package[] = [
     name: "Basic",
     tabValue: "basic",
     description: "For Small DMCs & Startups",
-    price: 5.0,
+    price: 1.0,
     icon: Zap,
     users: 5,
     trialPeriod: "1 month",
