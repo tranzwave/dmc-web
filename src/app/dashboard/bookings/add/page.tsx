@@ -70,12 +70,7 @@ const AddBooking = () => {
   }, []);
 
   if (!isLoaded || loading || !isUserLoaded || !user || !organization) {
-    return (
-    <div>
-      <div> {`${isLoaded}, ${loading}, ${isUserLoaded}, `} </div>
-      <div><LoadingLayout/></div>
-    </div>
-    )
+    return <div><LoadingLayout/></div>
   }
 
   const usersTeams = (user?.publicMetadata as ClerkUserPublicMetadata)?.teams.filter(team => team.orgId == organization.id);
