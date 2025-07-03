@@ -67,10 +67,15 @@ const AddBooking = () => {
     }
     console.log("Add Booking Component");
     fetchAllUsers();
-  }, [organization]);
+  }, []);
 
   if (!isLoaded || loading || !isUserLoaded || !user || !organization) {
-    return <div> <LoadingLayout/></div>
+    return (
+    <div>
+      <div> {`${isLoaded}, ${loading}, ${isUserLoaded}, `} </div>
+      <div><LoadingLayout/></div>
+    </div>
+    )
   }
 
   const usersTeams = (user?.publicMetadata as ClerkUserPublicMetadata)?.teams.filter(team => team.orgId == organization.id);

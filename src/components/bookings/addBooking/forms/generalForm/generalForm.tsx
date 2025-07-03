@@ -228,7 +228,7 @@ const GeneralForm = ({ allUsers, marketingTeams }: GeneralFormProps) => {
 
     fetchData();
     fetchMembers();
-  }, [organization]);
+  }, []);
 
   useEffect(() => {
     router.prefetch(`${pathname.split("add")[0]}/${id}/edit`);
