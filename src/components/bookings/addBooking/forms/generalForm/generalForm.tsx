@@ -52,16 +52,20 @@ import {
 } from "~/components/ui/select";
 import { tourTypes } from "~/lib/constants";
 import { cn } from "~/lib/utils";
-import { getAllAgents } from "~/server/db/queries/agents";
+import { getAllAgents, getAllAgentsForMarketingTeams } from "~/server/db/queries/agents";
 import { createNewBooking } from "~/server/db/queries/booking";
 import { getAllCountries } from "~/server/db/queries/countries";
 import { getAllUsers } from "~/server/db/queries/users";
 import {
   SelectAgent,
   SelectCountry,
+  SelectMarketingTeam,
   SelectUser,
 } from "~/server/db/schemaTypes";
-import { Country, State, City }  from 'country-state-city';
+import { Country, State, City } from 'country-state-city';
+import { PartialClerkUser } from "~/lib/types/marketingTeam";
+import { marketingTeam } from "~/server/db/schema";
+import { ClerkUserPublicMetadata } from "~/lib/types/payment";
 
 // Define the schema for form validation
 export const addBookingGeneralSchema = z
@@ -87,6 +91,7 @@ export const addBookingGeneralSchema = z
     numberOfDays: z.number().min(1, "Number of days must be at least 1"),
     endDate: z.string().min(1, "End date is required"),
     marketingManager: z.string().min(1, "Manager is required"),
+    marketingTeam: z.string().min(1, "Marketing team is required").optional().or(z.literal('')),
     agent: z.string().min(1, "Agent is required").optional().or(z.literal("")),
     tourType: z.string().min(1, "Tour type is required"),
     includes: z.object({
@@ -114,7 +119,12 @@ const includesOptions = [
   { id: "shops", label: "Shops" },
 ];
 
-const GeneralForm = () => {
+interface GeneralFormProps {
+  allUsers: PartialClerkUser[];
+  marketingTeams: SelectMarketingTeam[];
+}
+
+const GeneralForm = ({ allUsers, marketingTeams }: GeneralFormProps) => {
   const { setGeneralDetails, bookingDetails, setActiveTab, setStatusLabels } =
     useAddBooking();
   const [loading, setLoading] = useState(false);
@@ -137,6 +147,9 @@ const GeneralForm = () => {
   const [members, setMembers] = useState<OrganizationMembershipResource[]>([]); // Correct type for members
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
+  const [selectedMarketingTeam, setSelectedMarketingTeam] = useState<string | null>();
+  const [selectedMarketingTeamManagers, setSelectedMarketingTeamManagers] = useState<PartialClerkUser[]>([]);
+  const isUserMemberOfMarketingTeam = marketingTeams.some((team) => (user?.publicMetadata as ClerkUserPublicMetadata)?.teams?.some(t => t.teamId === team.id));
 
   const fetchMembers = async () => {
     if (organization) {
@@ -155,18 +168,28 @@ const GeneralForm = () => {
 
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(addBookingGeneralSchema),
-    defaultValues: bookingDetails.general,
+    defaultValues: {
+      ...bookingDetails.general,
+      marketingManager: 'super-admin',
+    },
   });
 
   const startDate = form.watch("startDate");
   const numberOfDays = form.watch("numberOfDays");
 
   const fetchData = async () => {
+    if(!organization || !user){
+      return
+    }
     try {
       // Run both requests in parallel
       setLoading(true);
+      const usersTeams = (user.publicMetadata as ClerkUserPublicMetadata).teams.filter((team) => {
+        return team.orgId === organization.id;
+      }
+      ).map((team) => team.teamId);
       const [agentsResponse, usersResponse, countriesResponse] =
-        await Promise.all([getAllAgents(), getAllUsers(), getAllCountries()]);
+        await Promise.all([getAllAgentsForMarketingTeams(organization.id, usersTeams), getAllUsers(), getAllCountries()]);
 
       // Check for errors in the responses
       if (!agentsResponse) {
@@ -202,17 +225,19 @@ const GeneralForm = () => {
   };
 
   useEffect(() => {
-    console.log(Country.getAllCountries())
 
     fetchData();
     fetchMembers();
-  }, [organization]);
+  }, []);
 
   useEffect(() => {
     router.prefetch(`${pathname.split("add")[0]}/${id}/edit`);
   }, [id]);
 
   const onSubmit: SubmitHandler<GeneralFormValues> = async (data) => {
+    if(!organization){
+      return
+    }
     setSaving(true);
     const sd = new Date(data.startDate);
     const ed = new Date(data.endDate);
@@ -222,13 +247,25 @@ const GeneralForm = () => {
     const diffInDays = Math.ceil(diffInMilliseconds / (1000 * 60 * 60 * 24));
 
     data.numberOfDays = diffInDays;
+    data.marketingTeam = selectedMarketingTeam ?? undefined;
     console.log(data);
+    if(data.marketingManager === 'super-admin') {
+      const superAdmin = members.find((member) => member.role === "org:admin");
+
+      if (!superAdmin) {
+        return;
+      }
+      data.marketingManager = superAdmin.publicUserData.userId ?? '';
+    }
     setGeneralDetails(data);
     try {
       // Call the createNewBooking function with the necessary data
       console.log(bookingDetails);
+      if(!organization){
+        return
+      }
       const createdBooking = await createNewBooking(
-        organization ? organization?.id : "",
+        organization.id,
         {
           general: data,
           activities: [],
@@ -335,6 +372,22 @@ const GeneralForm = () => {
 
   return (
     <div>
+      {marketingTeams.length === 0 && (<div className=" text-gray-500 text-[10px] flex flex-row gap-1">
+        <div>
+          No marketing teams found. This booking will be created in organization level.
+        </div>
+        <div>
+          <div onClick={() => router.push('/dashboard/admin?tab=marketingTeams')} className="underline hover:cursor-pointer">Click here to add a new team</div>
+        </div>
+      </div>)
+      }
+      {marketingTeams.length > 0 && !marketingTeams.some((team) => (user?.publicMetadata as ClerkUserPublicMetadata)?.teams?.some(t => t.teamId === team.id)) && (
+        <div className=" text-gray-500 text-[10px] flex flex-row gap-1">
+          <div>
+            You are a not a member of any marketing team. This booking will be created in organization level.
+          </div>
+        </div>
+      )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-3 gap-4">
@@ -636,19 +689,14 @@ const GeneralForm = () => {
                 />
               </div>
             ) : (
-              ""
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              name="marketingManager"
+              <FormField
+              name="agent"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Manager</FormLabel>
+                  <FormLabel>Travel Agent</FormLabel>
                   <FormControl>
-                    {/* <Input placeholder="Enter marketing manager's name" {...field} /> */}
+                    {/* <Input placeholder="Enter agent's name" {...field} /> */}
                     <Select
                       onValueChange={(value) => {
                         field.onChange(value);
@@ -656,20 +704,59 @@ const GeneralForm = () => {
                       value={field.value}
                     >
                       <SelectTrigger className="bg-slate-100 shadow-md">
-                        <SelectValue placeholder="Select manager" />
+                        <SelectValue placeholder="Select agent" />
                       </SelectTrigger>
                       <SelectContent>
-                        {/* {users.map((user) =>
-                          user.role === "manager" ? (
-                            <SelectItem key={user.id} value={user?.id ?? ""}>
-                              {user.name}
-                            </SelectItem>
-                          ) : null,
-                        )} */}
-                        {members.map((user) =>
-                          <SelectItem key={user.id} value={user?.id ?? "unknown"}>
-                            {user.publicUserData.firstName + ' ' + user.publicUserData.lastName}
+                        {agents.filter(a => a.marketingTeamId === form.getValues('marketingTeam') || form.getValues('marketingManager') === 'super-admin').map((agent) => (
+                          <SelectItem key={agent.id} value={agent?.id ?? ""}>
+                            {agent.name} - {agent.agency}
                           </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              name="marketingTeam"
+              control={form.control}
+              
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Marketing Team</FormLabel>
+                  <FormControl>
+                    {/* <Input placeholder="Enter marketing manager's name" {...field} /> */}
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        setSelectedMarketingTeam(value);
+                        const teamManagers = allUsers.filter((user) => (user.publicMetadata as ClerkUserPublicMetadata)?.teams?.some(t => t.teamId === value && t.role === "manager"));
+                        if (teamManagers.length === 0) {
+                          form.setValue('marketingManager', 'super-admin');
+                        }
+                        console.log(form.getValues('marketingManager'));
+                        setSelectedMarketingTeamManagers(teamManagers);
+                      }}
+                      value={field.value}
+                      disabled={marketingTeams.length === 0 || !isUserMemberOfMarketingTeam}
+                    >
+                      <SelectTrigger className="bg-slate-100 shadow-md">
+                        <SelectValue placeholder="Select Marketing Team" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {marketingTeams.map((team) => {
+                          if ((user?.publicMetadata as ClerkUserPublicMetadata)?.teams?.some(t => t.teamId === team.id)) {
+                            return <SelectItem key={team.id} value={team.id}>
+                              {team.name}
+                            </SelectItem>
+                          }
+                        }
                         )}
                       </SelectContent>
                     </Select>
@@ -678,32 +765,34 @@ const GeneralForm = () => {
                 </FormItem>
               )}
             />
-            {form.watch("directCustomer") == true ? (
-              <div></div>
-            ) : (
+            <div>
               <FormField
-                name="agent"
+                name="marketingManager"
                 control={form.control}
+                // disabled={selectedMarketingTeamManagers.length === 0}
+                defaultValue="super-admin"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Travel Agent</FormLabel>
+                    <FormLabel>Team Manager</FormLabel>
                     <FormControl>
-                      {/* <Input placeholder="Enter agent's name" {...field} /> */}
+                      {/* <Input placeholder="Enter marketing manager's name" {...field} /> */}
                       <Select
                         onValueChange={(value) => {
                           field.onChange(value);
                         }}
                         value={field.value}
+                        disabled={selectedMarketingTeamManagers.length === 0 || marketingTeams.length === 0}
+                        defaultValue="super-admin"
                       >
                         <SelectTrigger className="bg-slate-100 shadow-md">
-                          <SelectValue placeholder="Select agent" />
+                          <SelectValue placeholder="Select manager" />
                         </SelectTrigger>
                         <SelectContent>
-                          {agents.map((agent) => (
-                            <SelectItem key={agent.id} value={agent?.id ?? ""}>
-                              {agent.name} - {agent.agency}
+                          {selectedMarketingTeamManagers.length > 0 && (selectedMarketingTeamManagers.map((user) => (
+                            <SelectItem key={user.id} value={user.id}>
+                              {user.fullName}
                             </SelectItem>
-                          ))}
+                          )))}
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -711,12 +800,16 @@ const GeneralForm = () => {
                   </FormItem>
                 )}
               />
-            )}
+              {selectedMarketingTeamManagers.length == 0 && selectedMarketingTeam && (
+                <div className="text-[12px] text-red-500">No managers are available for the selected team. Super admin of the organization will be considered as the manager for this booking</div>
+              )}
+            </div>
           </div>
 
           <FormField
             name="tourType"
             control={form.control}
+            
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Tour Type</FormLabel>
@@ -773,7 +866,7 @@ const GeneralForm = () => {
                             const labelKey = option.id as keyof StatusLabels;
                             setStatusLabels((prev) => ({
                               ...prev,
-                              [labelKey]: checked ? "Mandatory" : "Locked",
+                              [labelKey]: checked ? "Included" : "Not Included",
                             }));
                             field.onChange({
                               ...field.value,

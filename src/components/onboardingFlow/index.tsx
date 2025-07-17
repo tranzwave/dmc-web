@@ -37,6 +37,14 @@ import { useRouter } from "next/navigation";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import PaymentForm from "../payment/PaymentForm";
+import { updateUserPublicMetadata } from "~/server/auth";
+import { Permissions } from "~/lib/types/global";
+import { set } from "date-fns";
+
+interface OnboardingFlowProps {
+  isNewlyInvitedMember: boolean
+}
 
 // Zod schemas for validation
 const personalDetailsSchema = z.object({
@@ -73,7 +81,7 @@ export type OrganizationDetailsFormValues = z.infer<
   typeof organizationDetailsSchema
 >;
 
-const OnboardingFlow = () => {
+const OnboardingFlow = ({isNewlyInvitedMember} : OnboardingFlowProps) => {
   const [step, setStep] = useState(1);
   const { user, isLoaded } = useUser();
   const { session } = useSession();
@@ -82,6 +90,7 @@ const OnboardingFlow = () => {
   const { toast } = useToast();
   const [countries, setCountries] = useState<SelectCountry[]>([]);
   const router = useRouter()
+  const [isPersonalDetailsSaving, setIsPersonalDetailsSaving] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -115,24 +124,70 @@ const OnboardingFlow = () => {
     defaultValues: { orgName: "", domainName: "", country: "" },
   });
 
-  const handlePersonalSubmit: SubmitHandler<PersonalDetailsFormValues> = (
+  const handlePersonalSubmit: SubmitHandler<PersonalDetailsFormValues> = async (
     data,
   ) => {
+    if(!user){
+      return;
+    
+    }
     console.log("Personal details submitted:", data);
-    setStep(2); // Move to the next step
+    if(!isNewlyInvitedMember){
+      setStep(2);
+    } else {
+      try {
+        setIsPersonalDetailsSaving(true);
+        const memberships = await organization?.getMemberships()
+        console.log(memberships);
+        const usersRole = memberships?.data.find((member) => member.publicUserData.userId === user.id)?.role;
+
+        if(!usersRole){
+          throw new Error("User role not found")
+        }
+
+        const response = await updateUserPublicMetadata(user.id, {
+          role: usersRole === "org:admin" ? "admin" : "member",
+          permissions: [
+            "sys_domains:manage",
+            "sys_domains:read",
+            "sys_memberships:manage",
+            "sys_memberships:read",
+            "sys_profile:delete",
+            "sys_profile:manage",
+          ],
+          info: {
+            contact: data.contactNumber,
+            address: data.address,
+          },
+          teams: []
+        });
+
+        if (!response) {
+          throw new Error("Error updating user metadata");
+        }
+
+        console.log("User metadata updated successfully:", response);
+        setIsPersonalDetailsSaving(false);
+        router.push("/dashboard/overview");
+      } catch (error) {
+        console.error("Error updating user metadata:", error);
+        toast({
+          title: "Uh oh!",
+          description: "Couldn't update user metadata",
+        });
+        setIsPersonalDetailsSaving(false);
+      }
+    }
   };
 
-  const handleOrganizationSubmit: SubmitHandler<
-    OrganizationDetailsFormValues
-  > = async (data) => {
+  const handleOrganizationSubmit: SubmitHandler<OrganizationDetailsFormValues> = async (data) => {
     console.log("Organization details submitted:", data);
     console.log(personalFormMethods.getValues());
     console.log(user);
     console.log(session);
     const token = await session?.getToken();
     console.log(organization);
-
-
+  
     try {
       setIsLoading(true);
       const response = await fetch("/api/tenant", {
@@ -149,37 +204,40 @@ const OnboardingFlow = () => {
             domainName: data.domainName,
             website: data.website,
             contactNumber: data.contactNumber,
-            address: data.address
+            address: data.address,
           },
           userData: {
             contact: personalFormMethods.getValues("contactNumber"),
-            address: personalFormMethods.getValues("address")
-          }
+            address: personalFormMethods.getValues("address"),
+          },
         }),
       });
-
+  
+      const responseData = await response.json();
+  
       if (!response.ok) {
-        throw new Error("Error creating organization");
+        console.error("Error creating organization:", responseData);
+        throw new Error(responseData.message || "Unknown error occurred");
       }
-
-      const createdOrg = await response.json();
-      console.log(createdOrg?.clerkResponse);
+  
+      console.log(responseData?.clerkResponse);
       toast({
         title: "Success!",
         description: "Your organization has been created successfully",
       });
+      
+      router.push(`/org-selection?orgId=${responseData.clerkResponse}`);
       setIsLoading(false);
-      router.push(`/dashboard/overview?orgId=${createdOrg.clerkResponse}`)
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.error("Organization creation failed:", error);
       setIsLoading(false);
       toast({
         title: "Uh oh!",
-        description: "Couldn't create the organization",
+        description: error.message || "Couldn't create the organization",
       });
     }
-    // Call Clerk API or handle final submission here
   };
+  
 
   if (!isLoaded) {
     return <LoadingLayout />;
@@ -187,7 +245,7 @@ const OnboardingFlow = () => {
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center p-5 text-[#111729] shadow-2xl">
-      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-md">
+      <div className="w-full max-w-[520px] rounded-lg bg-white p-6 shadow-md">
         {step === 1 ? (
           <Form {...personalFormMethods}>
             <form
@@ -204,12 +262,22 @@ const OnboardingFlow = () => {
               <Button
                 type="submit"
                 className="mt-4 w-full rounded bg-[#287F71] py-2 text-white transition duration-300 hover:bg-[#206757]"
+                disabled={isPersonalDetailsSaving}
               >
-                Next
+                <div className="flex flex-row">
+                  {isPersonalDetailsSaving ? (
+                    <div className="flex flex-row">
+                      <LoaderCircle size={16} className="animate-spin" />
+                      <div>Please Wait</div>
+                    </div>
+                  ) : (
+                    <div>Continue</div>
+                  )}
+                </div>
               </Button>
             </form>
           </Form>
-        ) : (
+        ) : step === 2 ? (
           <div>
             <div className="my-2 cursor-pointer">
               <ArrowLeft
@@ -254,6 +322,17 @@ const OnboardingFlow = () => {
               </form>
             </Form>
           </div>
+        ) : step === 3 ? (
+          <div>
+            <h2 className="mb-4 text-center text-2xl font-bold text-[#287F71]">
+              Choose Your Perfect Plan
+            </h2>
+            <div>
+              {/* <PaymentForm onCloseDialog={()=>{console.log("Close dialog")}}/> */}
+            </div>
+          </div>
+        ) : (
+          ""
         )}
       </div>
       <div className="text-[13px]">Sign in with a different account</div>
@@ -274,6 +353,7 @@ const PersonalDetailsForm = ({
 }) => {
   form.setValue("name", user?.fullName ?? "");
   form.setValue("email", user?.primaryEmailAddress?.emailAddress ?? "");
+  form.setValue("address", "N/A")
   return (
     <>
       <FormField
@@ -334,7 +414,7 @@ const PersonalDetailsForm = ({
           </FormItem>
         )}
       />
-      <FormField
+      {/* <FormField
         name="address"
         control={form.control}
         render={({ field }) => (
@@ -346,7 +426,7 @@ const PersonalDetailsForm = ({
             <FormMessage />
           </FormItem>
         )}
-      />
+      /> */}
     </>
   );
 };

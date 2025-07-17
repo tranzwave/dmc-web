@@ -20,6 +20,8 @@ const defaultGeneral: General = {
   email: "",
   primaryContactNumber: "",
   agency: "",
+  address: "",
+  marketingTeamId: "",
   // feild1: "",
   // feild2: "",
   // feild3: "",

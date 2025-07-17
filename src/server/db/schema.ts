@@ -16,7 +16,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { AdapterAccount } from "next-auth/adapters";
-import { FlightDetails, TourExpense } from "~/lib/types/booking";
+import { FlightDetails, TourExpense, TourInvoice, TourInvoiceEntry } from "~/lib/types/booking";
 
 export const createTable = pgTableCreator((name) => `dmc-web_${name}`);
 
@@ -36,9 +36,9 @@ export const tenant = createTable("tenants", {
     .$defaultFn(() => crypto.randomUUID()),
   clerkId: varchar("clerk_id", { length: 255 }).notNull().unique(),
   country: varchar("country_code", { length: 3 })
-    .references(() => country.code)
+    .references(() => country.code, { onDelete: "cascade" })
     .notNull(),
-  name: varchar("name", { length: 255 }).notNull().unique(),
+  name: varchar("name", { length: 255 }).notNull(),
   domain: varchar("domain", { length: 255 }).notNull().unique(),
   subscriptionPlan: varchar("subscription", { length: 255 }).notNull(),
   isActive: boolean("is_active").notNull().default(true),
@@ -59,6 +59,28 @@ export const tenant = createTable("tenants", {
     ),
 });
 
+export const subscription = createTable("subscriptions", {
+  id: varchar("id", { length: 255 })
+  .notNull()
+  .primaryKey()
+  .$defaultFn(() => crypto.randomUUID()),
+  payhereSubscriptionId: varchar("payhere_subscription_id", { length: 255 }),
+  clerkOrgId: varchar("org_id", { length: 255 }),
+  tenantId: varchar("tenant_id", { length: 255 })
+    .references(() => tenant.id, { onDelete: "cascade" })
+    .notNull(),
+  plan: varchar("plan", { length: 255 }).notNull(),
+  startDate: timestamp("start_date", { withTimezone: true }).notNull(),
+  isTrial: boolean("is_trial").notNull().default(true),
+  trialEndDate: timestamp("trial_end_date", { withTimezone: true }),
+  clerkUserId: varchar("user_id", { length: 255 }),
+  nextBillingDate: timestamp("next_billing_date", { withTimezone: true }),
+  endDate: timestamp("end_date", { withTimezone: true }),
+  status: varchar("status", { length: 255 }).notNull().default("active"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
 // Users table (admin, members)
 export const user = createTable("users", {
   id: varchar("id", { length: 255 })
@@ -66,7 +88,7 @@ export const user = createTable("users", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   tenantId: varchar("tenant_id", { length: 255 })
-    .references(() => tenant.id)
+    .references(() => tenant.id, { onDelete: "cascade" })
     .notNull(),
   name: varchar("name", { length: 255 }),
   email: varchar("email", { length: 255 }).notNull(),
@@ -87,10 +109,10 @@ export const client = createTable("clients", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   tenantId: varchar("tenant_id", { length: 255 })
-    .references(() => tenant.id)
+    .references(() => tenant.id, { onDelete: "cascade" })
     .notNull(),
   country: varchar("country_code", { length: 3 })
-    .references(() => country.code)
+    .references(() => country.code, { onDelete: "cascade" })
     .notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   primaryEmail: varchar("primary_email", { length: 100 }),
@@ -106,17 +128,21 @@ export const agent = createTable("agents", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   tenantId: varchar("tenant_id", { length: 255 })
-    .references(() => tenant.id)
+    .references(() => tenant.id, { onDelete: "cascade" })
     .notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   countryCode: varchar("country_code", { length: 3 })
-    .references(() => country.code)
+    .references(() => country.code, { onDelete: "cascade" })
     .notNull(),
   email: varchar("email", { length: 255 }).notNull(),
   primaryContactNumber: varchar("primary_contact_number", {
     length: 20,
   }).notNull(),
   agency: varchar("agency", { length: 255 }).notNull(),
+  address: varchar("address", { length: 255 }).default(""),
+  marketingTeamId: varchar("marketing_team_id", { length: 255 })
+    .references(() => marketingTeam.id, { onDelete: "set null" })
+    .notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
@@ -127,10 +153,12 @@ export const booking = createTable("bookings", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   tenantId: varchar("tenant_id", { length: 255 })
-    .references(() => tenant.id)
+    .references(() => tenant.id, { onDelete: "cascade" })
     .notNull(),
+  marketingTeamId: varchar("marketing_team_id", { length: 255 })
+    .references(() => marketingTeam.id, { onDelete: "set null" }),
   clientId: varchar("client_id", { length: 255 })
-    .references(() => client.id)
+    .references(() => client.id, { onDelete: "cascade" })
     .notNull(),
   coordinatorId: varchar("coordinator_id", { length: 255 })
     // .references(() => user.id)
@@ -146,10 +174,10 @@ export const bookingAgent = createTable(
   "booking_agent",
   {
     bookingId: varchar("booking_id", { length: 255 })
-      .references(() => booking.id)
+      .references(() => booking.id, { onDelete: "cascade" })
       .notNull(),
     agentId: varchar("agent_id", { length: 255 })
-      .references(() => agent.id)
+      .references(() => agent.id, { onDelete: "cascade" })
       .notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
@@ -169,7 +197,7 @@ export const bookingLine = createTable("booking_lines", {
   id: varchar("id", { length: 255 }).notNull().primaryKey(),
   bookingId: varchar("booking_id")
     .notNull()
-    .references(() => booking.id),
+    .references(() => booking.id, { onDelete: "cascade" }),
   includes: jsonb("includes").$type<{
     hotels: boolean;
     restaurants: boolean;
@@ -199,6 +227,11 @@ export const bookingLine = createTable("booking_lines", {
   flightDetails: jsonb("flight_details")
     .$type<FlightDetails>()
     .default(sql`'{"arrivalFlight": "", "arrivalDate": "", "arrivalTime": "", "departureFlight": "", "departureDate": "", "departureTime": ""}'::jsonb`),
+  //jsonb field for tour invoice. use TourInvoiceEntry
+  tourInvoice: jsonb("tour_invoice")
+    .$type<TourInvoice>()
+    .default(sql`'{"entries": [], "invoiceDetails": {}}'::jsonb`),
+  reasonToCancel: varchar("reason_to_cancel", { length: 255 }),
 
 });
 
@@ -208,7 +241,7 @@ export const city = createTable(
     id: serial("id").primaryKey(),
     name: varchar("name", { length: 255 }).notNull(), // City name
     country: varchar("country_code", { length: 3 })
-      .references(() => country.code)
+      .references(() => country.code, { onDelete: "cascade" })
       .notNull(),
   },
   (table) => ({
@@ -231,7 +264,7 @@ export const hotel = createTable("hotels", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   tenantId: varchar("tenant_id", { length: 255 })
-    .references(() => tenant.id)
+    .references(() => tenant.id, { onDelete: "cascade" })
     .notNull(),
   name: varchar("hotel_name", { length: 255 }).notNull(),
   stars: integer("stars").notNull(),
@@ -249,9 +282,28 @@ export const hotel = createTable("hotels", {
     .default(sql`CURRENT_TIMESTAMP`)
     .$onUpdate(() => new Date()),
   cityId: integer("city_id")
-    .references(() => city.id)
+    .references(() => city.id, { onDelete: "cascade" })
     .notNull(),
 });
+
+//Table for common room categories, only specifier is tenantId
+export const roomCategory = createTable("room_categories", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  tenantId: varchar("tenant_id", { length: 255 })
+    .references(() => tenant.id, { onDelete: "cascade" })
+    .notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .$onUpdate(() => new Date()),
+});
+
 
 // Table for Rooms
 export const hotelRoom = createTable("hotel_rooms", {
@@ -261,7 +313,7 @@ export const hotelRoom = createTable("hotel_rooms", {
     .$defaultFn(() => crypto.randomUUID()),
   hotelId: varchar("hotel_id")
     .notNull()
-    .references(() => hotel.id),
+    .references(() => hotel.id, { onDelete: "cascade" }),
   roomType: varchar("room_type", { length: 255 }).notNull(),
   typeName: varchar("type_name", { length: 255 }).notNull(),
   count: integer("count").notNull(),
@@ -285,7 +337,7 @@ export const hotelStaff = createTable("hotel_staffs", {
     .$defaultFn(() => crypto.randomUUID()),
   hotelId: varchar("hotel_id")
     .notNull()
-    .references(() => hotel.id),
+    .references(() => hotel.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull(),
   contactNumber: varchar("contact_number", { length: 20 }).notNull(),
@@ -314,10 +366,10 @@ export const hotelVoucher = createTable("hotel_vouchers", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   bookingLineId: varchar("booking_line_id", { length: 255 })
-    .references(() => bookingLine.id)
+    .references(() => bookingLine.id, { onDelete: "cascade" })
     .notNull(),
   hotelId: varchar("hotel_id", { length: 255 })
-    .references(() => hotel.id)
+    .references(() => hotel.id, { onDelete: "cascade" })
     .notNull(),
   coordinatorId: varchar("coordinator_id", { length: 255 })
     // .references(() => user.id)
@@ -357,7 +409,7 @@ export const hotelVoucherLine = createTable("hotel_voucher_lines", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   hotelVoucherId: varchar("hotel_voucher_id", { length: 255 })
-    .references(() => hotelVoucher.id)
+    .references(() => hotelVoucher.id, { onDelete: "cascade" })
     .notNull(),
   rate: numeric("rate", { precision: 4 }),
   roomType: varchar("room_type", { length: 100 }).notNull(),
@@ -382,7 +434,7 @@ export const restaurant = createTable("restaurants", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   tenantId: varchar("tenant_id", { length: 255 })
-    .references(() => tenant.id)
+    .references(() => tenant.id, { onDelete: "cascade" })
     .notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   streetName: varchar("street_name", { length: 255 }).notNull(),
@@ -394,7 +446,7 @@ export const restaurant = createTable("restaurants", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   cityId: integer("city_id")
-    .references(() => city.id)
+    .references(() => city.id, { onDelete: "cascade" })
     .notNull(),
 });
 
@@ -404,7 +456,7 @@ export const restaurantMeal = createTable("restaurant_meals", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   restaurantId: varchar("restaurant_id", { length: 255 }).references(
-    () => restaurant.id,
+    () => restaurant.id, { onDelete: "cascade" },
   ),
   mealType: varchar("meal_type", { length: 50 }).notNull(),
   startTime: varchar("startTime", { length: 10 }).notNull(),
@@ -418,11 +470,11 @@ export const restaurantVoucher = createTable("restaurant_vouchers", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   bookingLineId: varchar("booking_line_id", { length: 255 })
-    .references(() => bookingLine.id)
+    .references(() => bookingLine.id, { onDelete: "cascade" })
     .notNull(),
   restaurantId: varchar("restaurant_id", { length: 255 })
-    .references(() => restaurant.id)
-    .notNull(),
+    .references(() => restaurant.id, { onDelete: "cascade" }),
+    // .notNull(),
   coordinatorId: varchar("coordinator_id", { length: 255 })
     // .references(() => user.id)
     .notNull(),
@@ -457,7 +509,7 @@ export const restaurantVoucherLine = createTable("restaurant_voucher_lines", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   restaurantVoucherId: varchar("restaurant_voucher_id", { length: 255 })
-    .references(() => restaurantVoucher.id)
+    .references(() => restaurantVoucher.id, { onDelete: "cascade" })
     .notNull(),
   rate: numeric("rate", { precision: 4 }),
   mealType: varchar("meal_type", { length: 50 }).notNull(),
@@ -492,7 +544,7 @@ export const vehicle = createTable("vehicles", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   tenantId: varchar("tenant_id", { length: 255 })
-    .references(() => tenant.id)
+    .references(() => tenant.id, { onDelete: "cascade" })
     .notNull(),
   vehicleType: varchar("vehicle_type", { length: 100 }).notNull(),
   numberPlate: varchar("number_plate", { length: 20 }).notNull().unique(),
@@ -512,7 +564,7 @@ export const driver = createTable("drivers", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   tenantId: varchar("tenant_id", { length: 255 })
-    .references(() => tenant.id)
+    .references(() => tenant.id, { onDelete: "cascade" })
     .notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   primaryEmail: varchar("primary_email", { length: 255 }).notNull(),
@@ -537,7 +589,7 @@ export const driver = createTable("drivers", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   cityId: integer("city_id")
-    .references(() => city.id)
+    .references(() => city.id, { onDelete: "cascade" })
     .notNull(),
 });
 
@@ -546,10 +598,10 @@ export const driverVehicle = createTable(
   "driver_vehicles",
   {
     driverId: varchar("driver_id", { length: 255 })
-      .references(() => driver.id)
+      .references(() => driver.id, { onDelete: "cascade" })
       .notNull(),
     vehicleId: varchar("vehicle_id", { length: 255 })
-      .references(() => vehicle.id)
+      .references(() => vehicle.id, { onDelete: "cascade" })
       .notNull(),
   },
   (table) => {
@@ -564,10 +616,10 @@ export const driverLanguage = createTable(
   "driver_languages",
   {
     driverId: varchar("driver_id", { length: 255 })
-      .references(() => driver.id)
+      .references(() => driver.id, { onDelete: "cascade" })
       .notNull(),
     languageCode: varchar("language_code", { length: 255 })
-      .references(() => language.code)
+      .references(() => language.code, { onDelete: "cascade" })
       .notNull(),
   },
   (table) => {
@@ -584,7 +636,7 @@ export const guide = createTable("guides", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   tenantId: varchar("tenant_id", { length: 255 })
-    .references(() => tenant.id)
+    .references(() => tenant.id, { onDelete: "cascade" })
     .notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   primaryEmail: varchar("primary_email", { length: 255 }).notNull(),
@@ -598,7 +650,7 @@ export const guide = createTable("guides", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   cityId: integer("city_id")
-    .references(() => city.id)
+    .references(() => city.id, { onDelete: "cascade" })
     .notNull(),
 });
 
@@ -607,10 +659,10 @@ export const guideLanguage = createTable(
   "guide_languages",
   {
     guideId: varchar("guide_id", { length: 255 })
-      .references(() => guide.id)
+      .references(() => guide.id, { onDelete: "cascade" })
       .notNull(),
     languageCode: varchar("language_code", { length: 255 })
-      .references(() => language.code)
+      .references(() => language.code, { onDelete: "cascade" })
       .notNull(),
   },
   (table) => {
@@ -620,6 +672,36 @@ export const guideLanguage = createTable(
   },
 );
 
+// Other transport table
+export const otherTransport = createTable("other_transports", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  tenantId: varchar("tenant_id", { length: 255 })
+    .references(() => tenant.id, { onDelete: "cascade" })
+    .notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  primaryEmail: varchar("primary_email", { length: 255 }).notNull(),
+  primaryContactNumber: varchar("primary_contact_number", {
+    length: 20,
+  }).notNull(),
+  streetName: varchar("street_name", { length: 255 }).notNull(),
+  cityId: integer("city_id")
+    .references(() => city.id, { onDelete: "cascade" })
+    .notNull(),
+  province: varchar("province", { length: 255 }).notNull(),
+  transportMethod: varchar("transport_method", { length: 255 }).notNull(),
+  vehicleType: varchar("vehicle_type", { length: 255 }).notNull(),
+  startLocation: varchar("start_location", { length: 255 }).notNull(),
+  destination: varchar("destination", { length: 255 }).notNull(),
+  capacity: integer("capacity").notNull(),
+  price: numeric("price", { precision: 4 }).notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
 // Transport Vouchers table
 export const transportVoucher = createTable("transport_vouchers", {
   id: varchar("id", { length: 255 })
@@ -627,10 +709,14 @@ export const transportVoucher = createTable("transport_vouchers", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   bookingLineId: varchar("booking_line_id", { length: 255 })
-    .references(() => bookingLine.id)
+    .references(() => bookingLine.id, { onDelete: "cascade" })
     .notNull(),
-  driverId: varchar("driver_id", { length: 255 }).references(() => driver.id),
-  guideId: varchar("guide_id", { length: 255 }).references(() => guide.id),
+  driverId: varchar("driver_id", { length: 255 }).references(() => driver.id, {onDelete: "cascade"}),
+  guideId: varchar("guide_id", { length: 255 }).references(() => guide.id, {onDelete: "cascade"}),
+  //other transport id
+  otherTransportId: varchar("other_transport_id", { length: 255 }).references(
+    () => otherTransport.id,
+  ),
   coordinatorId: varchar("coordinator_id", { length: 255 }),
   // .references(() => user.id),
   status: statusEnum("status").default("inprogress"),
@@ -651,7 +737,7 @@ export const driverVoucherLine = createTable("driver_voucher_lines", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   transportVoucherId: varchar("transport_voucher_id", { length: 255 })
-    .references(() => transportVoucher.id)
+    .references(() => transportVoucher.id, { onDelete: "cascade" })
     .notNull(),
   vehicleType: varchar("vehicle_type", { length: 255 }).notNull().default("-"),
   // language: varchar("languages", { length: 255 }).notNull(),
@@ -669,7 +755,7 @@ export const guideVoucherLine = createTable("guide_voucher_lines", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   transportVoucherId: varchar("transport_voucher_id", { length: 255 })
-    .references(() => transportVoucher.id)
+    .references(() => transportVoucher.id, { onDelete: "cascade" })
     .notNull(),
   // language: varchar("languages", { length: 255 }).notNull(),
   // startDate: varchar("start_date", { length: 100 }).notNull(),
@@ -680,6 +766,37 @@ export const guideVoucherLine = createTable("guide_voucher_lines", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
+//Other transport voucher line
+export const otherTransportVoucherLine = createTable(
+  "other_transport_voucher_lines",
+  {
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    transportVoucherId: varchar("transport_voucher_id", { length: 255 })
+      .references(() => transportVoucher.id, { onDelete: "cascade" })
+      .notNull(),
+    
+    otherTransportId: varchar("other_transport_id", { length: 255 })
+      .references(() => otherTransport.id, { onDelete: "cascade" })
+      .notNull(),
+    //date and time
+    date: varchar("date", { length: 100 }).notNull(),
+    time: varchar("time", { length: 10 }).notNull(),
+    //Start and end location
+    startLocation: varchar("start_location", { length: 255 }).notNull(),
+    endLocation: varchar("end_location", { length: 255 }).notNull(),
+    //adults and kids count
+    adultsCount: integer("adults_count").notNull(),
+    kidsCount: integer("kids_count").notNull(),
+    //remarks
+    remarks: text("remarks"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  },
+);
+
 // Activity Vendors table
 export const activityVendor = createTable("activity_vendors", {
   id: varchar("id", { length: 255 })
@@ -687,7 +804,7 @@ export const activityVendor = createTable("activity_vendors", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   tenantId: varchar("tenant_id", { length: 255 })
-    .references(() => tenant.id)
+    .references(() => tenant.id, { onDelete: "cascade" })
     .notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   streetName: varchar("street_name", { length: 255 }).notNull(),
@@ -697,7 +814,7 @@ export const activityVendor = createTable("activity_vendors", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   cityId: integer("city_id")
-    .references(() => city.id)
+    .references(() => city.id, { onDelete: "cascade" })
     .notNull(),
 });
 
@@ -708,13 +825,13 @@ export const activity = createTable("activities", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   tenantId: varchar("tenant_id", { length: 255 })
-    .references(() => tenant.id)
+    .references(() => tenant.id, { onDelete: "cascade" })
     .notNull(),
   activityVendorId: varchar("activity_vendor_id", { length: 255 })
-    .references(() => activityVendor.id)
+    .references(() => activityVendor.id, { onDelete: "cascade" })
     .notNull(),
   activityType: integer("activity_type_id")
-    .references(() => activityType.id)
+    .references(() => activityType.id, { onDelete: "cascade" })
     .notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   capacity: integer("capacity").notNull(),
@@ -733,15 +850,15 @@ export const activityVoucher = createTable("activity_vouchers", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   bookingLineId: varchar("booking_line_id", { length: 255 })
-    .references(() => bookingLine.id)
+    .references(() => bookingLine.id, { onDelete: "cascade" })
     .notNull(),
   activityName: varchar("activity_name", { length: 255 }).notNull(),
   city: varchar("city_name", { length: 50 }).notNull(),
   activityVendorId: varchar("activity_vendor_id", { length: 255 })
-    .references(() => activityVendor.id)
+    .references(() => activityVendor.id, { onDelete: "cascade" })
     .notNull(),
   activityId: varchar("activity_id", { length: 255 })
-    .references(() => activity.id)
+    .references(() => activity.id, { onDelete: "cascade" })
     .notNull(),
   coordinatorId: varchar("coordinator_id", { length: 255 })
     // .references(() => user.id)
@@ -757,6 +874,9 @@ export const activityVoucher = createTable("activity_vouchers", {
   status: statusEnum("status").default("inprogress"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+
+  billingInstructions: varchar("billing_instructions", { length: 255 }),
+  otherInstructions: varchar("other_instructions", { length: 255 })
 });
 
 // Shops table
@@ -766,7 +886,7 @@ export const shop = createTable("shops", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   tenantId: varchar("tenant_id", { length: 255 })
-    .references(() => tenant.id)
+    .references(() => tenant.id, { onDelete: "cascade" })
     .notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   streetName: varchar("street_name", { length: 255 }).notNull(),
@@ -778,7 +898,7 @@ export const shop = createTable("shops", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   cityId: integer("city_id")
-    .references(() => city.id)
+    .references(() => city.id, { onDelete: "cascade" })
     .notNull(),
 });
 
@@ -791,10 +911,10 @@ export const shopShopType = createTable(
   "shop_shop_type",
   {
     shopId: varchar("shop_id", { length: 255 })
-      .references(() => shop.id)
+      .references(() => shop.id, { onDelete: "cascade" })
       .notNull(),
     shopTypeId: integer("shop_type_id")
-      .references(() => shopType.id)
+      .references(() => shopType.id, { onDelete: "cascade" })
       .notNull(),
   },
   (table) => {
@@ -814,7 +934,7 @@ export const shopVoucher = createTable("shop_vouchers", {
     // .references(() => bookingLine.id)
     .notNull(),
   shopId: varchar("shop_id", { length: 255 })
-    .references(() => shop.id)
+    .references(() => shop.id, { onDelete: "cascade" })
     .notNull(),
   coordinatorId: varchar("coordinator_id", { length: 255 })
     // .references(() => user.id)
@@ -833,11 +953,68 @@ export const shopVoucher = createTable("shop_vouchers", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
+//Marketing teams
+export const marketingTeam = createTable("marketing_teams", {
+  id: varchar("id", { length: 255 })
+  .notNull()
+  .primaryKey()
+  .$defaultFn(() => crypto.randomUUID()),
+  tenantId: varchar("tenant_id", { length: 255 }).references(() => tenant.id, { onDelete: "cascade" }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  country: varchar("country", { length: 255 }).default("N/A"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
+//Notifications
+export const notification = createTable("notifications", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  tenantId: varchar("tenant_id", { length: 255 })
+    .references(() => tenant.id, { onDelete: "cascade" })
+    .notNull(),
+    targetUser: varchar("target_user", { length: 255 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  pathname: varchar("pathname", { length: 255 }),
+  isRead: boolean("is_read").default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
 export const tenantRelations = relations(tenant, ({ one, many }) => ({
   booking: many(booking),
   client: many(client),
   agent: many(agent),
   coordinator: many(user),
+  marketingTeam: many(marketingTeam),
+  notification: many(notification),
+  roomCategory: many(roomCategory),
+}));
+
+export const notificationRelations = relations(notification, ({ one }) => ({
+  tenant: one(tenant, {
+    fields: [notification.tenantId],
+    references: [tenant.id],
+  }),
+}));
+
+export const marketingTeamRelations = relations(marketingTeam, ({ one, many }) => ({
+  tenant: one(tenant, {
+    fields: [marketingTeam.tenantId],
+    references: [tenant.id],
+  }),
+  booking: many(booking),
+  agent: many(agent),
+}));
+
+export const subscriptionRelations = relations(subscription, ({ one }) => ({
+  tenant: one(tenant, {
+    fields: [subscription.tenantId],
+    references: [tenant.id],
+  }),
 }));
 
 export const agentRelations = relations(agent, ({ one, many }) => ({
@@ -846,6 +1023,10 @@ export const agentRelations = relations(agent, ({ one, many }) => ({
     references: [tenant.id],
   }),
   bookingAgent: many(bookingAgent),
+  marketingTeam: one(marketingTeam, {
+    fields: [agent.marketingTeamId],
+    references: [marketingTeam.id],
+  }),
 }));
 
 export const clientRelations = relations(client, ({ one, many }) => ({
@@ -876,6 +1057,10 @@ export const bookingsRelations = relations(booking, ({ one }) => ({
   bookingAgent: one(bookingAgent, {
     fields: [booking.id],
     references: [bookingAgent.bookingId],
+  }),
+  marketingTeam: one(marketingTeam, {
+    fields: [booking.marketingTeamId],
+    references: [marketingTeam.id],
   }),
   // coordinator: one(user, {
   //   fields: [booking.coordinatorId],
@@ -940,6 +1125,15 @@ export const hotelRoomRelation = relations(hotelRoom, ({ one, many }) => ({
     references: [hotel.id],
   }),
 }));
+
+//has a relationship with tenant
+export const hotelRoomCategoryRelation = relations(roomCategory,({one}) => ({
+  tenant: one(tenant, {
+    fields: [roomCategory.tenantId],
+    references: [tenant.id],
+  }),
+  })
+);
 
 export const hotelVouchersRelations = relations(
   hotelVoucher,
@@ -1050,6 +1244,20 @@ export const guideRelations = relations(guide, ({ many, one }) => ({
   transportVouchers: many(transportVoucher),
 }));
 
+// Other Transport table relations
+
+export const otherTransportRelations = relations(
+  otherTransport,
+  ({ one, many }) => ({
+    city: one(city, {
+      fields: [otherTransport.cityId],
+      references: [city.id],
+    }),
+    transportVoucher: many(transportVoucher),
+    otherTransportVoucherLines: many(otherTransportVoucherLine),
+  }),
+);
+
 // Driver-Vehicle join table relations
 export const driverVehicleRelations = relations(driverVehicle, ({ one }) => ({
   driver: one(driver, {
@@ -1108,6 +1316,21 @@ export const guideVoucherLineRelations = relations(
   }),
 );
 
+// OtherTransportVoucherLine table relations
+export const otherTransportVoucherLineRelations = relations(
+  otherTransportVoucherLine,
+  ({ one }) => ({
+    transportVoucher: one(transportVoucher, {
+      fields: [otherTransportVoucherLine.transportVoucherId],
+      references: [transportVoucher.id],
+    }),
+    otherTransport: one(otherTransport, {
+      fields: [otherTransportVoucherLine.otherTransportId],
+      references: [otherTransport.id],
+    }),
+  }),
+);
+
 // Transport Vouchers table relations
 export const transportVouchersRelations = relations(
   transportVoucher,
@@ -1124,8 +1347,13 @@ export const transportVouchersRelations = relations(
       fields: [transportVoucher.guideId],
       references: [guide.id],
     }),
+    otherTransport: one(otherTransport, {
+      fields: [transportVoucher.otherTransportId],
+      references: [otherTransport.id],
+    }),
     driverVoucherLines: many(driverVoucherLine),
     guideVoucherLines: many(guideVoucherLine),
+    otherTransportVoucherLines: many(otherTransportVoucherLine),
   }),
 );
 
@@ -1178,6 +1406,7 @@ export const shopRelations = relations(shop, ({ one, many }) => ({
     fields: [shop.cityId],
     references: [city.id],
   }),
+  shopShopType: many(shopShopType),
 }));
 
 export const shopShopTypeRelations = relations(shopShopType, ({ one }) => ({
@@ -1211,7 +1440,7 @@ export const accounts = createTable(
   {
     userId: varchar("user_id", { length: 255 })
       .notNull()
-      .references(() => user.id),
+      .references(() => user.id, { onDelete: "cascade" }),
     type: varchar("type", { length: 255 })
       .$type<AdapterAccount["type"]>()
       .notNull(),
@@ -1247,7 +1476,7 @@ export const sessions = createTable(
       .primaryKey(),
     userId: varchar("user_id", { length: 255 })
       .notNull()
-      .references(() => user.id),
+      .references(() => user.id, { onDelete: "cascade" }),
     expires: timestamp("expires", {
       mode: "date",
       withTimezone: true,

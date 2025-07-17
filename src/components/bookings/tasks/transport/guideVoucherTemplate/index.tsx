@@ -1,17 +1,13 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
 import { format } from "date-fns";
-import Image from "next/image";
 import { useState } from "react"; // Import useState
-import { useOrganization } from "~/app/dashboard/context";
-import LoadingLayout from "~/components/common/dashboardLoading";
-import { TransportVoucherData } from ".."; // Assuming TransportVoucherData is defined in the schema types
 import { BookingLineWithAllData } from "~/lib/types/booking";
 import { OrganizationResource, UserResource } from "@clerk/types";
 import VoucherHeader from "~/components/common/voucher/VoucherHeader";
+import { TransportVoucher } from "~/app/dashboard/bookings/[id]/edit/context";
 
 type TransportVoucherPDFProps = {
-  voucher: TransportVoucherData;
+  voucher: TransportVoucher;
   bookingData:BookingLineWithAllData;
   organization: OrganizationResource;
   user: UserResource
@@ -41,22 +37,22 @@ const GuideTransportVoucherPDF = ({
         <div className="flex w-full flex-row justify-between">
           {/* Tour Details */}
           <div className="text-[13px]">
-            <div>Tour ID: {voucher.bookingLineId}</div>
+            <div>Tour ID: {voucher.voucher.bookingLineId}</div>
             <div>Booking Name: {bookingData.booking.client.name}</div>
             <div>Transport Type : {voucher.guide?.type}</div>
             <div>Guide Name : {voucher.guide?.name}</div>
             <div>No of Pax: {`${bookingData.adultsCount} Adults | ${bookingData.kidsCount} Kids`}</div>
-            <div>Language : {voucher.language}</div>
+            <div>Language : {voucher.voucher.language}</div>
           </div>
 
           <div className="text-[13px]">
-          <div>Voucher ID : {voucher.id}</div>
+          <div>Voucher ID : {voucher.voucher.id}</div>
             <div className="font-bold">Flight Details</div>
             <div>
-              Arrival by: {voucher.startDate}
+              Arrival by: {voucher.voucher.startDate}
             </div>
             <div>
-              Departure by: {voucher.endDate}
+              Departure by: {voucher.voucher.endDate}
             </div>
           </div>
         </div>

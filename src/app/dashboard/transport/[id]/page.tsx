@@ -1,7 +1,9 @@
 "use client";
+import { useOrganization } from "@clerk/nextjs";
 import { ColumnDef } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
+import LoadingLayout from "~/components/common/dashboardLoading";
 import TitleBar from "~/components/common/titleBar";
 import ContactBox from "~/components/ui/content-box";
 import { StatsCard } from "~/components/ui/stats-card";
@@ -23,6 +25,7 @@ const Page = ({ params }: { params: { id: string } }) => {
   const [currentEndDate, setCurrentEndDate] = useState<string | null>(null);
   const [historyStartDate, setHistoryStartDate] = useState<string | null>(null);
   const [historyEndDate, setHistoryEndDate] = useState<string | null>(null);
+  const {organization, isLoaded} = useOrganization();
 
   const today = new Date();
 
@@ -61,6 +64,10 @@ const Page = ({ params }: { params: { id: string } }) => {
   if (!driver) return <div>No driver found with the given ID.</div>;
 
   const driverVoucherColumns: ColumnDef<SelectTransportVoucher>[] = [
+    {
+      header: "Booking ID",
+      accessorFn: (row) => row.bookingLineId,
+    },
     {
       accessorKey: "startDate",
       header: "Start Date",
@@ -113,6 +120,10 @@ const Page = ({ params }: { params: { id: string } }) => {
     false,
   );
 
+  if (!isLoaded) return <div>
+    <LoadingLayout />
+  </div>;
+
   return (
     <div className="flex w-full flex-col justify-between gap-3">
       <TitleBar title={`Driver - ${driver.name}`} link="toAddTransport" />
@@ -147,10 +158,13 @@ const Page = ({ params }: { params: { id: string } }) => {
           />
 
           <div>Booking History</div>
+          <div>
           <div className="col-span-3 flex justify-between gap-6">
-            <StatsCard label="Fee Per KM (LKR)" value={driver.feePerKM ?? 0} />
+            <StatsCard label={`Fee Per KM (${organization?.publicMetadata?.primaryCurrency as string ?? ""})`} value={driver.feePerKM ?? 0} />
             <StatsCard label="Bookings Completed" value={data.length} />
             <StatsCard label="Upcoming Bookings" value={data.length} />
+          </div>
+          <div className="text-[10px] font-normal text-zinc-500">*Currency can be changed from organization settings in the top right corner of the screen</div>
           </div>
 
           <div>Trip History</div>
@@ -188,6 +202,7 @@ const DateInput = ({
   <div className="flex items-center gap-3 text-sm text-gray-500">
     <label className="mb-1 block">{label}</label>
     <input
+      title="Start Date"
       type="date"
       value={value ?? ""}
       onChange={(e) => onChange(e.target.value)}

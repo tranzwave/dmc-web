@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useAddBooking } from "~/app/dashboard/bookings/add/context";
+import { HotelWithRooms } from "~/components/bookings/editBooking/forms/hotelsForm";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -39,9 +40,9 @@ interface HotelsFormProps {
   onAddHotel: (
     data: InsertHotelVoucherLine,
     isNewVoucher: boolean,
-    hotel: any,
+    hotel: HotelWithRooms,
   ) => void;
-  hotels: SelectHotel[];
+  hotels: HotelWithRooms[];
   defaultValues: InsertHotelVoucherLine | null;
 }
 
@@ -64,7 +65,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   hotels,
   defaultValues,
 }) => {
-  const [selectedHotel, setSelectedHotel] = useState<SelectHotel | null>();
+  const [selectedHotel, setSelectedHotel] = useState<HotelWithRooms | null>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { bookingDetails } = useAddBooking();
 
@@ -106,10 +107,12 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       remarks: form.getValues("remarks"),
     };
 
-    if (isNewVoucher) {
+    if (isNewVoucher && selectedHotel) {
       onAddHotel(voucherLine, true, selectedHotel);
     } else {
-      onAddHotel(voucherLine, false, selectedHotel);
+      if(selectedHotel){
+        onAddHotel(voucherLine, false, selectedHotel);
+      }
     }
 
     // Reset form and close the modal

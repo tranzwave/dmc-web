@@ -2,9 +2,11 @@ import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { General } from '~/components/bookings/addBooking/forms/generalForm/columns';
 import { Hotel } from '~/components/bookings/addBooking/forms/hotelsForm/columns';
 import { Transport } from '~/components/bookings/addBooking/forms/transportForm/columns';
+import { HotelWithRooms } from '~/components/bookings/editBooking/forms/hotelsForm';
+import { OtherTransportWithCity } from '~/components/transports/addTransport/forms/generalForm/other-transport/columns';
 import { Driver } from '~/lib/types/driver/type';
 import { calculateDaysBetween } from '~/lib/utils/index';
-import { InsertActivityVoucher, InsertDriverVoucherLine, InsertGuideVoucherLine, InsertHotelVoucher, InsertHotelVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectDriver, SelectGuide, SelectHotel, SelectRestaurant, SelectShop } from '~/server/db/schemaTypes';
+import { InsertActivityVoucher, InsertDriverVoucherLine, InsertGuideVoucherLine, InsertHotelVoucher, InsertHotelVoucherLine, InsertOtherTransportVoucherLine, InsertRestaurantVoucher, InsertRestaurantVoucherLine, InsertShopVoucher, InsertTransportVoucher, SelectActivityVendor, SelectDriver, SelectGuide, SelectHotel, SelectOtherTransport, SelectRestaurant, SelectShop } from '~/server/db/schemaTypes';
 
 export interface TransportWithDriver {
   transport: Transport;
@@ -12,7 +14,7 @@ export interface TransportWithDriver {
 }
 
 export type HotelVoucher = {
-  hotel: SelectHotel;
+  hotel: HotelWithRooms;
   voucher: InsertHotelVoucher;
   voucherLines: InsertHotelVoucherLine[];
 }
@@ -34,11 +36,13 @@ export type ShopVoucher = {
 }
 
 export type TransportVoucher = {
+  voucher: InsertTransportVoucher;
   driver?: SelectDriver | null; 
   guide?: SelectGuide | null;
-  voucher: InsertTransportVoucher;
-  driverVoucherLine?: InsertDriverVoucherLine;
-  guideVoucherLine?: InsertGuideVoucherLine;
+  otherTransport?: OtherTransportWithCity | null;
+  driverVoucherLine?: InsertDriverVoucherLine | null;
+  guideVoucherLine?: InsertGuideVoucherLine | null;
+  otherTransportVoucherLine?: InsertOtherTransportVoucherLine | null;
 }
 
 export interface BookingDetails {
@@ -51,7 +55,7 @@ export interface BookingDetails {
 }
 
 export type StatusKey = "hotels" | "restaurants" | "transport" | "activities" | "shops";
-export type StatusValue = "Mandatory" | "Locked";
+export type StatusValue = "Included" | "Not Included";
 
 // Define the type for the status labels map
 export type StatusLabels = Record<StatusKey, StatusValue>;
@@ -109,6 +113,7 @@ export const defaultGeneral: General = {
   numberOfDays: 1,
   endDate: "",
   marketingManager: "",
+  marketingTeam: "",
   agent: "",
   tourType: "",
   includes: {
@@ -148,11 +153,11 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
   const [bookingDetails, setBookingDetails] = useState<BookingDetails>(defaultBookingDetails);
   const [activeTab, setActiveTab] = useState<string>("general");
   const [statusLabels, setStatusLabels] = useState<StatusLabels>({
-    hotels: "Mandatory",
-    restaurants: "Locked",
-    transport: "Locked",
-    activities: "Locked",
-    shops: "Locked",
+    hotels: "Included",
+    restaurants: "Not Included",
+    transport: "Not Included",
+    activities: "Not Included",
+    shops: "Not Included",
   });
   const [triggerRefetch, setTriggerRefetch] = useState(false)
 
@@ -240,6 +245,9 @@ export const EditBookingProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   const addTransport = (transport: TransportVoucher) => {
     setBookingDetails(prev => ({ ...prev, transport: [...prev.transport, transport] }));
+    console.log(transport)
+    console.log("Transport added")
+    console.log(bookingDetails.transport)
   };
 
   const addTransportVouchers = (vouchers: TransportVoucher[]) => {

@@ -1,60 +1,68 @@
-
-import { redirect } from 'next/navigation'
-import { SearchUsers } from './_search-users'
-import { clerkClient } from '@clerk/nextjs/server'
-import { setRole } from './_actions'
-import { checkRole } from '~/lib/utils/roles'
-import { Permissions } from '~/lib/types/global'
+"use client"
+import { useOrganization } from '@clerk/nextjs';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import LoadingLayout from '~/components/common/dashboardLoading';
 import { OrganizationRolesAndPermissions } from '~/components/organization/managePermissions'
-import { OrganizationSwitcher } from '@clerk/nextjs'
+import { MarketingTeams } from '~/components/organization/manageTeams';
+import BankDetailsForm from '~/components/settings/payment'
+import SubscriptionPage from '~/components/settings/payment/subscription';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
+import { getAllCountries } from '~/server/db/queries/countries';
+import { SelectCountry } from '~/server/db/schemaTypes';
 
-export default async function AdminDashboard(params: { searchParams: { search?: string } }) {
-  if (!checkRole('admin')) {
-    alert("Not aut")
-    redirect('/dashboard/overview')
+export default function AdminDashboard(params: { searchParams: { tab?: string } }) {
+  const { organization, isLoaded } = useOrganization();
+  const [ countries, setCountries ] = useState<SelectCountry[]>([])
+  // const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // const activeTab = searchParams.get('tab') ?? 'rolesAndPermissions';
+    console.log('Organization:', organization);
+    
+
+    if (organization) {
+      const countriesResponse = getAllCountries().then((response) => {
+        setCountries(response);
+        console.log('Countries:', response);
+
+        return response;
+      });
+    }
+
+    
+  }, [organization]);
+
+
+  if (!isLoaded) {
+    return <LoadingLayout />
   }
 
-
-
   return (
-    <>
-    <OrganizationRolesAndPermissions/>
-      {/* <h1>This is the admin dashboard</h1>
-      <p>This page is restricted to users with the 'admin' role.</p>
-
-      <SearchUsers /> */}
-
-      {/* {users.map((user) => {
-        return (
-          <div key={user.id}>
-            <div>
-              {user.firstName} {user.lastName}
-            </div>
-            <div>
-              {
-                user.emailAddresses.find((email) => email.id === user.primaryEmailAddressId)
-                  ?.emailAddress
-              }
-            </div>
-            <div>{user.publicMetadata.role as string}</div>
-            <div>{user.publicMetadata?.permissions as string[]}</div>
-            <div>
-              <form action={setRole}>
-                <input type="hidden" value={user.id} name="id" />
-                <input type="hidden" value="admin" name="role" />
-                <button type="submit">Make Admin</button>
-              </form>
-            </div>
-            <div>
-              <form action={setRole}>
-                <input type="hidden" value={user.id} name="id" />
-                <input type="hidden" value="moderator" name="role" />
-                <button type="submit">Make Moderator</button>
-              </form>
-            </div>
-          </div>
-        )
-      })} */}
-    </>
+    <div className='w-full h-full'>
+      <Tabs defaultValue={params.searchParams.tab ?? 'rolesAndPermissions'} className='w-full h-[97%] pb-4'>
+        <TabsList className='flex w-full justify-evenly'>
+          <TabsTrigger value='rolesAndPermissions'>Roles and Permissions</TabsTrigger>
+          <TabsTrigger value='marketingTeams'>Marketing Teams</TabsTrigger>
+          <TabsTrigger value='payment'>Bank Details</TabsTrigger>
+          <TabsTrigger value='subscription'>Subscription</TabsTrigger>
+        </TabsList>
+        <TabsContent value='rolesAndPermissions'>
+          <OrganizationRolesAndPermissions />
+        </TabsContent>
+        <TabsContent value='marketingTeams'>
+          <MarketingTeams countries={countries}/>
+        </TabsContent>
+        <TabsContent value='payment'>
+          {organization && <BankDetailsForm organization={organization} />}
+        </TabsContent>
+        <TabsContent value='subscription'>
+          <SubscriptionPage />
+        </TabsContent>
+      </Tabs>
+    </div>
+    // <>
+    // <OrganizationRolesAndPermissions/>
+    // </>
   )
 }

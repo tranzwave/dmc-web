@@ -63,6 +63,8 @@ export default async function seed(db:DB) {
             "email" :currentAgent.email,
             "agency": currentAgent.agency,
             "primaryContactNumber":currentAgent.primaryContactNumber,
+            "address": "currentAgent.address",
+            "marketingTeamId": "currentAgent.marketingTeamId",
 
           });
         }

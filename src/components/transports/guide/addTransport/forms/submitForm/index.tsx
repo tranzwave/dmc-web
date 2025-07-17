@@ -1,12 +1,13 @@
 "use client"
+import { useOrganization } from "@clerk/nextjs";
 import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAddGuideTransport } from "~/app/dashboard/transport/guide/add/context";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
-import { insertGuide } from "~/server/db/queries/transport";
-import { InsertGuide, InsertLanguage } from "~/server/db/schemaTypes";
+import { getAllLanguages, insertGuide } from "~/server/db/queries/transport";
+import { InsertGuide, InsertLanguage, SelectLanguage } from "~/server/db/schemaTypes";
 
 const SubmitForm = () => {
     const { transportDetails } = useAddGuideTransport();
@@ -15,34 +16,44 @@ const SubmitForm = () => {
     const { toast } = useToast()
     const { general, documents } = transportDetails;
     const router = useRouter()
+    const {organization, isLoaded} = useOrganization();
+    const [languages, setLanguages] = useState<SelectLanguage[]>([]);
+    const [isFetchingLanguages, setIsFetchingLanguages] = useState(false);
 
     const addGuide = async () => {
-        console.log({
-          general,
-          documents,
-        });
-        const guideData:InsertGuide[] = [{
-            name: general.name,
-            primaryEmail: general.primaryEmail,
-            primaryContactNumber: general.primaryContactNumber,
-            streetName: general.streetName,
-            province: general.province,
-            tenantId: "",
-            cityId: Number(general.city),
-            type: general.type,
-            guideLicense: documents.guideLicense
-        }]
-
-        const languages:InsertLanguage[] = [{
-            name:"English",
-            code: "en"
-        }]
+        
       
         try {
+            setLoading(true);
+            if(!organization) {
+                throw new Error("Organization not loaded")
+            };
+            const guideData:InsertGuide[] = [{
+                name: general.name,
+                primaryEmail: general.primaryEmail,
+                primaryContactNumber: general.primaryContactNumber,
+                streetName: general.streetName,
+                province: general.province,
+                tenantId: "",
+                cityId: Number(general.city),
+                type: general.type,
+                guideLicense: documents.guideLicense
+            }]
+    
+            const guidesLanguage:InsertLanguage[] = general.languages.map((l) => {
+                const language = languages.find((lang) => lang.name === l);
+                if (!language) {
+                  throw new Error("Language not found");
+                }
+                return language;
+              }
+              );
+
           // Replace insertDriver with your function to handle the insertion of driver details
           const response = await insertGuide(
             guideData,
-            languages
+            guidesLanguage,
+            organization.id
             
           );
           if (!response) {
@@ -77,6 +88,27 @@ const SubmitForm = () => {
           setLoading(false);
         }
       };
+
+    useEffect(() => {
+        async function fetchLanguages() {
+            try {
+                setIsFetchingLanguages(true);
+                const response = await getAllLanguages();
+                if(!response) {
+                    throw new Error("Failed to fetch languages")
+                }
+                setLanguages(response);
+                setIsFetchingLanguages(false);
+            } catch (error) {
+                console.error("Failed to fetch languages:", error);
+            } finally {
+                setIsFetchingLanguages(false);
+            }
+        }
+
+        fetchLanguages();
+    }
+    ,[]);
       
     return (
         <div>
@@ -93,7 +125,7 @@ const SubmitForm = () => {
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">Language:</td>
-                            <td className="border px-4 py-2">{general.language}</td>
+                            <td className="border px-4 py-2">{general.languages.join(", ")}</td>
                         </tr>
                         <tr>
                             <td className="border px-4 py-2 font-bold">Email:</td>

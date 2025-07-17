@@ -14,12 +14,13 @@ interface DataTableWithActionsProps<T> {
   data: T[];
   columns: ColumnDef<T>[];
   onRowClick: (row: T) => void;
-  onEdit: (row:T) => void;
+  onEdit?: (row:T) => void;
   onDelete?: (row:T) => void;
   onView?: () => void;
   onDuplicate?: (row:T) => void;
   selectedRow?: T;
   renderExpandedRow?: (row: T) => JSX.Element;
+  isDeleting?: boolean;
 }
 
 export const DataTableWithActions = <T extends object>({
@@ -31,7 +32,8 @@ export const DataTableWithActions = <T extends object>({
   onDelete,
   onDuplicate,
   selectedRow,
-  renderExpandedRow
+  renderExpandedRow,
+  isDeleting,
 }: DataTableWithActionsProps<T>) => (
   <DataTable
     columns={[
@@ -57,12 +59,17 @@ export const DataTableWithActions = <T extends object>({
                   </div>
                 )}
                 
-                
-                <DropdownMenuItem onSelect={() => onEdit(row.original)}>Edit</DropdownMenuItem>
+                {onEdit && (
+                  <DropdownMenuItem onSelect={() => onEdit(row.original)}>Edit</DropdownMenuItem>
+                )}
                 {onDelete && (
                   <div>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onSelect={() => onDelete(row.original)}>Delete</DropdownMenuItem>
+                    {isDeleting ? (
+                    <DropdownMenuItem disabled={true}>Deleting...</DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem onSelect={() => {onDelete(row.original)}}>Delete</DropdownMenuItem>
+                    )}
                   </div>
                 )}
                 

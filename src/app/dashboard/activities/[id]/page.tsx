@@ -18,6 +18,10 @@ const Page = ({ params }: { params: { id: string } }) => {
 
   const activityVoucherColumns: ColumnDef<SelectActivityVoucher>[] = [
     {
+      header: "Booking ID",
+      accessorFn: (row) => row.bookingLineId,
+    },
+    {
       header: "Activity",
       accessorFn: (row) => row.activityName,
     },

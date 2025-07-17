@@ -1,4 +1,5 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
+import { toast } from '~/hooks/use-toast';
 import { InsertHotel, InsertHotelRoom, InsertHotelStaff, InsertMeal, InsertRestaurant, SelectCity } from '~/server/db/schemaTypes';
 
 export type Hotel = InsertHotel & {
@@ -97,18 +98,78 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [restaurantMeals, setRestaurantMeals] = useState<InsertMeal[]>(defaultRestaurantMeals);
   const [activeTab, setActiveTab] = useState<string>("general");
 
+  // const addHotelRoom = (room: InsertHotelRoom) => {
+  //   //Check whether the room already exists
+  //   console.log("Adding room:", room);
+  //   const roomExists = hotelRooms.some(
+  //     (r) => (
+  //       (r.typeName === room.typeName 
+  //       && r.roomType === room.roomType 
+  //       && r.count === room.count 
+  //       && r.amenities === room.amenities 
+  //       && r.floor === room.floor 
+  //       && r.bedCount === room.bedCount) || (r.id && r.id !== "" && r.id === room.id))
+  //   );
+  //   if (roomExists) {
+  //     console.error(`Room with typeName "${room.typeName}" and roomType "${room.roomType}" already exists.`);
+  //     return;
+  //   }
+  //   setHotelRooms(prev => [...prev, room]);
+  // };
+
   const addHotelRoom = (room: InsertHotelRoom) => {
-    //Check whether the room already exists
-    console.log("Adding room:", room);
-    const existingRoom = hotelRooms.find(
-      (r) => (r.typeName === room.typeName && r.roomType === room.roomType && r.count === room.count && r.amenities === room.amenities && r.floor === room.floor && r.bedCount === room.bedCount) || r.id === room.id
-    );
-    if (existingRoom) {
-      console.error(`Room with typeName "${room.typeName}" and roomType "${room.roomType}" already exists.`);
-      return;
-    }
-    setHotelRooms(prev => [...prev, room]);
+    console.log("Adding or editing room:", room);
+  
+    setHotelRooms(prevRooms => {
+      // Check if the room exists by ID (for editing)
+      const roomIndex = prevRooms.findIndex(r => r.id === room.id && r.id !== undefined && r.id !== "");
+      
+      if (roomIndex !== -1) {
+        // Update existing room
+
+        const isDuplicateType = prevRooms.some(
+          (r, index) => r.roomType === room.roomType && r.bedCount === room.bedCount && r.typeName === room.typeName
+        );
+        
+        if (isDuplicateType) {
+          toast({
+            title: 'A room with the same type already exists',
+            description: `${room.roomType}s with ${room.bedCount} bed(s) already exists.`,
+          })
+          return prevRooms;
+        }
+
+        const updatedRooms = [...prevRooms];
+        updatedRooms[roomIndex] = { ...prevRooms[roomIndex], ...room };
+        console.log(`Updated room with ID: ${room.id}`);
+        return updatedRooms;
+      }
+  
+      // Check if a similar room already exists (for adding)
+      const roomExists = prevRooms.some(
+        (r) => r.typeName === room.typeName 
+          && r.roomType === room.roomType 
+          // && r.count === room.count 
+          // && r.amenities === room.amenities 
+          // && r.floor === room.floor 
+          && r.bedCount === room.bedCount
+      );
+      
+      if (roomExists) {
+        console.error(`Room with typeName "${room.typeName}" and roomType "${room.roomType}" already exists.`);
+        toast({
+          title: 'Room already exists',
+          description: `${room.roomType}s with ${room.bedCount} bed(s) already exists.`,
+        })
+        return prevRooms;
+      }
+  
+      // Add new room
+      console.log("Adding new room.");
+      return [...prevRooms, room];
+    });
   };
+  
 
   const addBulkHotelRooms = (rooms: InsertHotelRoom[]) => {
     setHotelRooms(rooms);
@@ -119,7 +180,57 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
   }
 
   const addHotelStaff = (staff: InsertHotelStaff) => {
-    setHotelStaff(prev => [...prev, staff]);
+    try {
+      console.log("Adding or editing staff:", staff);
+  
+      setHotelStaff(prevStaff => {
+        // Check if the staff exists by ID (for editing)
+        const staffIndex = prevStaff.findIndex(s => s.id === staff.id && s.id !== undefined && s.id !== "");
+        
+        if (staffIndex !== -1) {
+          // Check if the new email or contact number already exist for another staff member
+          const isDuplicate = prevStaff.some(
+            (s, index) => index !== staffIndex && (s.email === staff.email || s.contactNumber === staff.contactNumber)
+          );
+          
+          if (isDuplicate) {
+            toast({
+              title: 'Staff with the same email or contact number already exists',
+              description: `Staff with email "${staff.email}" or contact number "${staff.contactNumber}" already exists.`,
+            })
+            return prevStaff;
+          }
+          
+          // Update existing staff
+          const updatedStaff = [...prevStaff];
+          updatedStaff[staffIndex] = { ...prevStaff[staffIndex], ...staff };
+          console.log(`Updated staff with ID: ${staff.id}`);
+          return updatedStaff;
+        }
+  
+        // Check if a staff member with the same email or contact number already exists (for adding)
+        const staffExists = prevStaff.some(s => s.email === staff.email || s.contactNumber === staff.contactNumber);
+        
+        if (staffExists) {
+          toast({
+            title: 'Staff already exists',
+            description: `Staff with email "${staff.email}" or contact number "${staff.contactNumber}" already exists.`,
+          })
+          return prevStaff
+        }
+  
+        // Add new staff
+        console.log("Adding new staff.");
+        return [...prevStaff, staff];
+      });
+    } catch (error:any) {
+      console.error("Error in addOrEditHotelStaff:", error);
+      toast({
+        title: 'Error',
+        description: error.message,
+      });
+      //throw error;
+    }
   };
 
   const addRestaurant = (restaurant: InsertRestaurant) => {

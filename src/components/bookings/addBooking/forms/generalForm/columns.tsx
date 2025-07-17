@@ -13,6 +13,7 @@ export type General = {
   endDate: string;
   marketingManager: string;
   
+  
   tourType: string;
   includes: {
     hotels: boolean;
@@ -24,4 +25,6 @@ export type General = {
   primaryEmail?: string;
   primaryContactNumber?:string;
   agent?: string;
+
+  marketingTeam?: string;
 };

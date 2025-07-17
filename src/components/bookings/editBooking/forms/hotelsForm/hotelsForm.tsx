@@ -47,6 +47,9 @@ import {
   SelectHotel,
   SelectHotelVoucherLine,
 } from "~/server/db/schemaTypes";
+import { HotelWithRooms } from ".";
+import { SingleSelect } from "~/components/ui/single-select";
+import Link from "next/link";
 
 interface HotelsFormProps {
   onAddHotel: (
@@ -54,17 +57,17 @@ interface HotelsFormProps {
     isNewVoucher: boolean,
     hotel: any,
   ) => void;
-  hotels: SelectHotel[];
+  hotels: HotelWithRooms[];
   defaultValues:
   | (InsertHotelVoucherLine & {
-    hotel: SelectHotel;
+    hotel: HotelWithRooms;
   })
   | null
   | undefined;
   amendment?: boolean;
   isUpdating?: boolean;
   isSaving?: boolean;
-  triggerEdit?:boolean
+  triggerEdit?: boolean
 }
 
 export const hotelsSchema = z.object({
@@ -91,7 +94,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   isSaving,
   triggerEdit
 }) => {
-  const [selectedHotel, setSelectedHotel] = useState<SelectHotel | null>();
+  const [selectedHotel, setSelectedHotel] = useState<HotelWithRooms | null>(defaultValues?.hotel ?? null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { bookingDetails } = useEditBooking();
   const [voucherLineId, setVoucherLineId] = useState(defaultValues?.id ?? "");
@@ -102,6 +105,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       ...defaultValues,
       remarks: defaultValues?.remarks ?? "No Remarks",
       name: defaultValues?.hotel.name,
+      roomCategory: defaultValues?.roomCategory ?? "",
     },
     values: {
       adultsCount:
@@ -161,11 +165,11 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
 
   function onSubmit(values: z.infer<typeof hotelsSchema>) {
     // setIsModalOpen(true);
-    if(selectedHotel){
-      if(bookingDetails.vouchers.find(v => v.hotel.id === selectedHotel.id)){
-        if(triggerEdit){
+    if (selectedHotel) {
+      if (bookingDetails.vouchers.find(v => v.hotel.id === selectedHotel.id && v.voucher.status !== 'cancelled')) {
+        if (triggerEdit) {
           handleModalResponse(true)
-        } else{
+        } else {
           setIsModalOpen(true)
         }
       } else {
@@ -174,18 +178,16 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
     }
   }
 
-  function getHotelId(name: string) {
-    const hotel = hotels.find((hotel) => hotel.name === name);
-    const id = hotel?.id;
-    setSelectedHotel(hotel);
+  function getHotelId(id: string) {
+    const hotel = hotels.find((hotel) => hotel.id === id);
+    // const id = hotel?.id;
+    setSelectedHotel(hotel ?? null);
   }
 
   useEffect(() => {
-    // form.reset();
-    console.log(defaultValues);
-    if (defaultValues?.hotel) {
-      setSelectedHotel(defaultValues?.hotel);
-    }
+    form.reset();
+    console.log('defaultValues', defaultValues);
+    setSelectedHotel(defaultValues?.hotel ?? null);
   }, [defaultValues]);
 
   return (
@@ -193,7 +195,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-3 gap-3">
-            <FormField
+            {/* <FormField
               name="name"
               control={form.control}
               render={({ field }) => (
@@ -224,7 +226,42 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                   <FormMessage />
                 </FormItem>
               )}
+            /> */}
+            <FormField
+              name="name"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem className="w-full max-w-full">
+                  <FormLabel>Hotel Name</FormLabel>
+                  <FormControl>
+                    {amendment ? (
+                      <Input
+                        type="text"
+                        defaultValue={hotels.find(h => h.id === defaultValues?.hotel?.id)?.name ?? ""}
+                        disabled
+                      />
+                    ) : (
+                      <SingleSelect
+                        options={hotels.map((hotel) => ({
+                          label: hotel.name,
+                          value: hotel.id,
+                        }))}
+                        onValueChange={(value) => {
+                          if (value) {
+                            field.onChange(value);
+                            getHotelId(value);
+                          }
+                        }}
+                        defaultValue={defaultValues?.hotel?.id ?? ""}
+                        placeholder="Select hotel"
+                      />
+                    )}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
+
             <div className="flex flex-row gap-3">
               <div className="w-full">
                 <FormField
@@ -435,16 +472,21 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                           field.onChange(value);
                         }}
                         value={field.value}
+                        defaultValue={defaultValues?.roomCategory}
                       >
                         <SelectTrigger className="bg-slate-100 shadow-md">
                           <SelectValue placeholder="Select room category" />
                         </SelectTrigger>
                         <SelectContent>
-                          {hotelRoomCategories.map((room) => (
-                            <SelectItem key={room} value={room}>
-                              {room}
-                            </SelectItem>
-                          ))}
+                          {selectedHotel?.hotelRoom && selectedHotel?.hotelRoom.length > 0 && (
+                            selectedHotel.hotelRoom.map((room) => {
+                              return (
+                                <SelectItem key={room.id} value={room.roomType}>
+                                  {room.roomType}
+                                </SelectItem>
+                              )
+                            })
+                          )}
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -548,6 +590,19 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
               )}
             />
           </div>
+          {selectedHotel && (
+          <div className="text-[10px] text-gray-500 my-0">
+            Please note that only the room categories belong to selected hotel will be shown. If you want to add a new room to this hotel, <span>
+              <Link
+                href={`/dashboard/hotels/${selectedHotel.id}/edit`}
+                className="text-blue-500 underline"
+                target="_blank"
+              >
+                click here
+              </Link>
+            </span>
+          </div>
+          )}
           <div className="flex w-full flex-row justify-end">
             <Button
               variant={"primaryGreen"}

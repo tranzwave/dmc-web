@@ -20,6 +20,10 @@ const Shop = ({ params }: { params: { id: string } }) => {
 
     const shopVoucherColumns: ColumnDef<SelectShopVoucher>[] = [
         {
+          header: "Booking ID",
+          accessorFn: (row) => row.bookingLineId,
+        },
+        {
           header: "Shop Type",
           accessorFn: row => row.shopType
         },

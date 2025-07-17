@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { DataTable } from "~/components/bookings/home/dataTable";
 import { getDriverBookingStats } from "~/server/db/queries/reports";
 import { columns } from "./columns";
+import { useOrganization } from "@clerk/nextjs";
 
 export type DriverBooking = {
   driverName: string;
@@ -13,12 +14,16 @@ export type DriverBooking = {
 const TransportHistoryTable = () => {
   const [data, setData] = useState<DriverBooking[]>([]);
   const [loading, setLoading] = useState(true);
+  const {organization, isLoaded} = useOrganization();
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!isLoaded || !organization) {
+        return;
+      }
       try {
         setLoading(true);
-        const result: DriverBooking[] = await getDriverBookingStats();
+        const result: DriverBooking[] = await getDriverBookingStats(organization.id);
         setData(result);
       } catch (error) {
         console.error("Failed to fetch driver booking stats:", error);
@@ -28,7 +33,7 @@ const TransportHistoryTable = () => {
     };
 
     fetchData();
-  }, []);
+  }, [organization]);
 
   return (
     <div>

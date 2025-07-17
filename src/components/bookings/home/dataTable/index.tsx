@@ -33,6 +33,9 @@ export function DataTable<TData, TValue>({
   renderExpandedRow,
 }: DataTableProps<TData, TValue>) {
   const [expandedRow, setExpandedRow] = useState<TData | null>(null); // Track the expanded row
+  const [internalSelectedRow, setInternalSelectedRow] = useState<TData | null>(selectedRow ?? null);
+  const highlightBgColor = "bg-green-100/50";
+  const highlightHoverBgColor = "hover:bg-green-100/50";
 
   const table = useReactTable({
     data,
@@ -46,8 +49,9 @@ export function DataTable<TData, TValue>({
       setExpandedRow((prevExpandedRow) =>
         prevExpandedRow === row ? null : row
       );
-      onRowClick?.(row); // Trigger the onRowClick handler if provided
     }
+    onRowClick?.(row); // Trigger the onRowClick handler if provided
+    setInternalSelectedRow(row);
 
   };
 
@@ -72,22 +76,32 @@ export function DataTable<TData, TValue>({
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
+            table.getRowModel().rows.map((row, index) => (
               <>
                 {/* Main Row */}
                 <TableRow
                   key={row.id}
-                  onClick={() => handleRowClick(row.original)}
-                  className={`cursor-pointer hover:bg-gray-100 ${
-                    selectedRow && selectedRow === row.original
-                      ? "bg-green-200"
-                      : ""
-                  }`}
+                  onClick={(e) => {
+                  handleRowClick(row.original);
+                  e.currentTarget.classList.add(highlightBgColor); // Set the target element's background to gray-100
+                  e.currentTarget.classList.add(highlightHoverBgColor); // Set the target element's background to gray-100
+                    // Remove background color from other rows
+                    const rows = e.currentTarget.parentElement?.children;
+                    if (rows) {
+                    for (const rowElement of rows) {
+                      if (rowElement && rowElement !== e.currentTarget) {
+                        rowElement.classList.remove(highlightBgColor);
+                        rowElement.classList.remove(highlightHoverBgColor);
+                      }
+                    }
+                    }
+                  }}
+                  className={`cursor-pointer hover:bg-gray-100 ${index === 0 ? `${highlightBgColor} ${highlightHoverBgColor}` : ""}`}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
                   ))}
                 </TableRow>
 

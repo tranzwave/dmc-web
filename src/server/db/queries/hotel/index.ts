@@ -47,6 +47,9 @@ export const getAllHotels = (tenantId:string) => {
 export const getAllHotelsV2 = (tenantId:string) => {
   return db.query.hotel.findMany({
     where:eq(hotel.tenantId, tenantId),
+    with: {
+      hotelRoom: true,
+    }
   });
 };
 
@@ -129,6 +132,14 @@ export const getVoucherLinesByHotelId = async (hotelId: string) => {
       remarks: hotelVoucherLine.remarks,
       createdAt: hotelVoucherLine.createdAt,
       updatedAt: hotelVoucherLine.updatedAt,
+      hotelVoucher: {
+        id: hotelVoucher.id,
+        hotelId: hotelVoucher.hotelId,
+        bookingLineId: hotelVoucher.bookingLineId,
+        status: hotelVoucher.status,
+        createdAt: hotelVoucher.createdAt,
+        updatedAt: hotelVoucher.updatedAt,
+      }
     })
     .from(hotelVoucherLine)
     .leftJoin(
@@ -154,6 +165,7 @@ export const getVoucherLinesByHotelId = async (hotelId: string) => {
     remarks: row.remarks,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
+    hotelVoucher: row.hotelVoucher
   }));
 };
 
@@ -529,61 +541,124 @@ export async function updateHotelAndRelatedData(
 
 
 // Function to update hotel rooms
+// async function updateHotelRooms(trx: any, hotelId: string, updatedRooms: InsertHotelRoom[]) {
+//   if (updatedRooms.length > 0) {
+//     const roomSqlChunks: SQL[] = [];
+//     const roomIds: string[] = [];
+
+//     roomSqlChunks.push(sql`(case`);
+
+//     for (const room of updatedRooms) {
+//       roomSqlChunks.push(
+//         sql`when ${hotelRoom.id} = ${room.id} then ${room}` // Replace 'name' with the actual fields being updated
+//       );
+//       roomIds.push(room.id ?? ""); // Collect room IDs
+//     }
+
+//     roomSqlChunks.push(sql`end)`);
+//     const finalRoomSql: SQL = sql.join(roomSqlChunks, sql.raw(' '));
+
+//     await trx
+//       .update(hotelRoom)
+//       .set({ name: finalRoomSql }) // Update other fields similarly
+//       .where(inArray(hotelRoom.id, roomIds));
+
+//     return roomIds;
+//   }
+
+//   return [];
+// }
+
 async function updateHotelRooms(trx: any, hotelId: string, updatedRooms: InsertHotelRoom[]) {
-  if (updatedRooms.length > 0) {
-    const roomSqlChunks: SQL[] = [];
-    const roomIds: string[] = [];
+  if (updatedRooms.length === 0) return [];
 
-    roomSqlChunks.push(sql`(case`);
+  const roomIds: string[] = [];
+  const newRooms: InsertHotelRoom[] = [];
 
-    for (const room of updatedRooms) {
-      roomSqlChunks.push(
-        sql`when ${hotelRoom.id} = ${room.id} then ${room}` // Replace 'name' with the actual fields being updated
-      );
-      roomIds.push(room.id ?? ""); // Collect room IDs
+  for (const room of updatedRooms) {
+    if (room.id) {
+      // If room has an ID, update it
+      await trx.update(hotelRoom)
+        .set({ ...room })
+        .where(eq(hotelRoom.id, room.id));
+      roomIds.push(room.id);
+    } else {
+      // If room has no ID, it's a new room to insert
+      newRooms.push({ ...room, hotelId });
     }
-
-    roomSqlChunks.push(sql`end)`);
-    const finalRoomSql: SQL = sql.join(roomSqlChunks, sql.raw(' '));
-
-    await trx
-      .update(hotelRoom)
-      .set({ name: finalRoomSql }) // Update other fields similarly
-      .where(inArray(hotelRoom.id, roomIds));
-
-    return roomIds;
   }
 
-  return [];
+  // Insert new rooms
+  if (newRooms.length > 0) {
+    const insertedRooms = await trx.insert(hotelRoom).values(newRooms).returning({ id: hotelRoom.id });
+    roomIds.push(...insertedRooms.map((r: any) => r.id));
+  }
+
+  return roomIds;
 }
+
+export async function deleteHotelRoom(roomId: string) {
+  try {
+    const deletedRoomId = await db.transaction(async (trx) => {
+      const deletedRoom = await trx
+        .delete(hotelRoom)
+        .where(eq(hotelRoom.id, roomId)).returning({id:hotelRoom.id});
+      return deletedRoom;
+    });
+
+    console.log("Room deleted successfully");
+    return deletedRoomId;
+  } catch (error) {
+    console.error("Error deleting room:", error);
+    throw error; // Re-throw the error to handle it elsewhere if needed
+  }
+}
+
 
 // Function to update hotel staff
 async function updateHotelStaff(trx: any, hotelId: string, updatedStaff: InsertHotelStaff[]) {
-  if (updatedStaff.length > 0) {
-    const staffSqlChunks: SQL[] = [];
-    const staffIds: string[] = [];
+  if (updatedStaff.length === 0) return [];
 
-    staffSqlChunks.push(sql`(case`);
+  const staffIds: string[] = [];
+  const newStaff: InsertHotelStaff[] = [];
 
-    for (const staff of updatedStaff) {
-      staffSqlChunks.push(
-        sql`when ${hotelStaff.id} = ${staff.id} then ${staff.name}` // Replace 'name' with the actual fields being updated
-      );
-      staffIds.push(staff.id ?? ""); // Collect staff IDs
+  for (const staff of updatedStaff) {
+    if (staff.id) {
+      // If staff has an ID, update it
+      await trx.update(hotelStaff)
+        .set({ ...staff })
+        .where(eq(hotelStaff.id, staff.id));
+      staffIds.push(staff.id);
+    } else {
+      // If staff has no ID, it's a new staff to insert
+      newStaff.push({ ...staff, hotelId });
     }
-
-    staffSqlChunks.push(sql`end)`);
-    const finalStaffSql: SQL = sql.join(staffSqlChunks, sql.raw(' '));
-
-    await trx
-      .update(hotelStaff)
-      .set({ name: finalStaffSql }) // Update other fields similarly
-      .where(inArray(hotelStaff.id, staffIds));
-
-    return staffIds;
   }
 
-  return [];
+  // Insert new staff
+  if (newStaff.length > 0) {
+    const insertedStaff = await trx.insert(hotelStaff).values(newStaff).returning({ id: hotelStaff.id });
+    staffIds.push(...insertedStaff.map((s: any) => s.id));
+  }
+
+  return staffIds;
+}
+
+export async function deleteHotelStaff(staffId: string) {
+  try {
+    const deletedStaffId = await db.transaction(async (trx) => {
+      const deletedStaff = await trx
+        .delete(hotelStaff)
+        .where(eq(hotelStaff.id, staffId)).returning({id:hotelStaff.id});
+      return deletedStaff;
+    });
+
+    console.log("Staff deleted successfully");
+    return deletedStaffId;
+  } catch (error) {
+    console.error("Error deleting staff:", error);
+    throw error; // Re-throw the error to handle it elsewhere if needed
+  }
 }
 
 

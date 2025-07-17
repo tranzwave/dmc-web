@@ -1,3 +1,6 @@
+import { OrganizationResource } from "@clerk/types";
+import crypto from 'crypto';
+
 export function formatDate(dateString: string) {
   // Convert the date string to a Date object
   const date = new Date(dateString);
@@ -71,9 +74,54 @@ export function calculateNights(checkIn: Date | string, checkOut: Date | string)
   return Math.floor(nights);
 }
 
+// calculate days between incuding the end date
+export function calculateDaysBetweenIncludingEnd(startDate: Date | string, endDate: Date | string): number {
+  // Convert inputs to Date objects if they are strings
+  const start = typeof startDate === "string" ? new Date(startDate) : startDate;
+  const end = typeof endDate === "string" ? new Date(endDate) : endDate;
+
+  // Calculate the difference in milliseconds
+  const differenceInMillis = end.getTime() - start.getTime();
+
+  // Convert milliseconds to days (1 day = 86,400,000 milliseconds)
+  const days = differenceInMillis / (1000 * 60 * 60 * 24);
+
+  // Ensure days is a positive integer
+  if (days < 0) {
+    throw new Error("End date must be after the start date.");
+  }
+
+  return Math.floor(days) + 1; // Include the end date
+}
+
 //Make first letter of each word uppercase
 export function toTitleCase(str: string): string {
   return str.replace(/\w\S*/g, function(txt) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
   });
+}
+
+export async function generateHash(merchant_id: string, order_id: string, amount: string, currency: string, merchantSecret: string): Promise<string> {
+  const hash = crypto
+      .createHash('md5')
+      .update(
+          `${merchant_id}${order_id}${amount}${currency}${crypto
+              .createHash('md5')
+              .update(merchantSecret)
+              .digest('hex')
+              .toUpperCase()}`
+      )
+      .digest('hex')
+      .toUpperCase();
+  return hash;
+}
+
+export function isValidInput(value: string): boolean {
+  //check for empty string and min length is 1
+  return value.trim() !== "" && value.length >= 1;
+}
+
+export function sanitizeInput(value: string): string {
+  // Remove any special characters except for spaces and trailing spaces
+  return value.replace(/[^a-zA-Z0-9\s]/g, "").trim();
 }

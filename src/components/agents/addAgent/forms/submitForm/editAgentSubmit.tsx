@@ -29,9 +29,12 @@ const EditAgentSubmitForm = ({ id, originalAgentData }: { id: string; originalAg
         tenantId: "",
         createdAt: originalAgentData?.createdAt ?? new Date(),
         id: originalAgentData?.id ?? "",
+        address: general.address,
+        marketingTeamId: general.marketingTeamId,
     }];
 
     try {
+      setLoading(true);
       const response = await updateAgent(id, agentData[0] ?? null);
 
       if (!response) {

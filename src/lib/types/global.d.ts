@@ -1,4 +1,9 @@
+import { permissionsList } from "../constants";
+import { ClerkOrganizationPublicMetadata } from "./payment";
+
 export {};
+
+
 
 export type Roles =
   | "acm_coordinator"
@@ -8,20 +13,8 @@ export type Roles =
   | "member"
   | "tsp_coordinator";
 
-export type Permissions =
-  | "booking_activity:manage"
-  | "booking_agent:manage"
-  | "booking_hotel:manage"
-  | "booking_invoice:manage"
-  | "booking_rest:manage"
-  | "booking_shops:manage"
-  | "booking_transport:manage"
-  | "sys_domains:manage"
-  | "sys_domains:read"
-  | "sys_memberships:manage"
-  | "sys_memberships:read"
-  | "sys_profile:delete"
-  | "sys_profile:manage";
+
+export type Permissions = typeof permissionsList[number];
 
 declare global {
   interface CustomJwtSessionClaims {
@@ -51,5 +44,6 @@ declare global {
         | "sys_profile:manage"
       >;
     };
+    organizationMetadata: ClerkOrganizationPublicMetadata
   }
 }

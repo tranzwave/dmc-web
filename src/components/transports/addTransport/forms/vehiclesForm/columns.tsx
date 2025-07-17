@@ -10,6 +10,7 @@ export type Vehicles = {
   model: string;
   year: string;
   vrl: string;
+  id?: string;
 };
 
 export const columns: ColumnDef<Vehicles>[] = [

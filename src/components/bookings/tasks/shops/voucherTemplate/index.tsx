@@ -1,9 +1,5 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
 import { format } from "date-fns";
-import Image from "next/image";
-import { useOrganization } from "~/app/dashboard/context";
-import LoadingLayout from "~/components/common/dashboardLoading";
 import { ShopVoucherData } from "..";
 import VoucherHeader from "~/components/common/voucher/VoucherHeader";
 import { formatDate } from "~/lib/utils/index";
@@ -21,6 +17,9 @@ type ShopVoucherPDFProps = {
 const ShopVoucherPDF = ({ vouchers, cancellation, organization, user, bookingData }: ShopVoucherPDFProps) => {
 
   console.log(vouchers)
+
+  const driverNames = bookingData.transportVouchers.map((v) => v.driver?.name).filter((v) => v);
+  const guideNames = bookingData.transportVouchers.map((v) => v.guide?.name).filter((v) => v);
 
   return (
     <div className="flex flex-col border">
@@ -40,6 +39,11 @@ const ShopVoucherPDF = ({ vouchers, cancellation, organization, user, bookingDat
             <div>Tour ID: {vouchers[0]?.bookingLineId ?? "N/A"}</div>
             <div>Booking Name: {bookingData.booking.client.name}</div>
             <div>Participants: {`Adults - ${vouchers[0]?.adultsCount ?? "N/A"} | Kids - ${vouchers[0]?.kidsCount ?? "N/A"}`}</div>
+          </div>
+
+          <div>
+            {driverNames.length > 0 && <div className="text-[12px]">Drivers: {driverNames.join(" | ")}</div>}
+            {guideNames.length > 0 && <div className="text-[12px]">Guides: {guideNames.join(" | ")}</div>}
           </div>
         </div>
 
@@ -61,6 +65,7 @@ const ShopVoucherPDF = ({ vouchers, cancellation, organization, user, bookingDat
             </thead>
             <tbody>
               {vouchers.map((v,index) => {
+                if(v.status === "cancelled") return null;
                 return (
                   <tr className="border-b hover:bg-gray-50 h-36 text-[12px]" key={index}>
                     <td className="px-4 py-2">{v.shop.name ?? "N/A"}</td>

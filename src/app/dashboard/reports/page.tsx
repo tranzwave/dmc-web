@@ -1,5 +1,5 @@
 "use client";
-import { useOrganization, useUser } from "@clerk/nextjs";
+import { useAuth, useOrganization, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import LoadingLayout from "~/components/common/dashboardLoading";
 import Pagination from "~/components/common/pagination";
@@ -7,9 +7,11 @@ import TitleBar from "~/components/common/titleBar";
 import TouristsByCountry from "~/components/overview/touristsByCountry";
 import BookingsByCountry from "~/components/reports/bookingsByCountry/page";
 import HotelsBookingTab from "~/components/reports/hotelsBookingTable";
+import TourInvoicesTab from "~/components/reports/tourInvoiceTable";
 import TransportHistoryTab from "~/components/reports/transportHistoryTable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { useToast } from "~/hooks/use-toast";
+import { ClerkUserPublicMetadata } from "~/lib/types/payment";
 import { getClientCountByCountry, getStat } from "~/server/db/queries/overview";
 
 type Stat = {
@@ -41,6 +43,7 @@ const Reports = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 3;
   const { organization, isLoaded:isOrgLoaded } = useOrganization();
+  const { orgRole, isLoaded:isAuthLoaded} = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -110,7 +113,7 @@ const Reports = () => {
       )
     : [];
 
-  if (loading || !isLoaded || !isOrgLoaded) {
+  if (loading || !isLoaded || !isOrgLoaded || !isAuthLoaded) {
     return (
       <div>
         <div className="flex w-full flex-row justify-between gap-1">
@@ -124,23 +127,22 @@ const Reports = () => {
 
   return (
     <div>
-      <div className="flex w-full flex-row justify-between gap-1">
+      <div className="flex w-full flex-row justify-between gap-1 mb-3">
         <TitleBar title="Reports" link="to AddReport" />
      
       </div>
       <div className="flex gap-10">
-        <div className="w-[40%] grid-flow-col">
+        <div className="w-[100%] flex flex-col gap-6">
           <div className="text-sm text-primary-gray">
             Number of bookings within a year
+            <BookingsByCountry />
           </div>
-          <BookingsByCountry />
 
           <div>
             <div className="card-title">Tourists By Country</div>
             <div className="text-sm text-primary-gray">
               Countries with highest number of tourists
             </div>
-          </div>
           <div>
             <TouristsByCountry data={paginatedTourists} />
             <Pagination
@@ -148,6 +150,7 @@ const Reports = () => {
               totalPages={totalPages}
               onPageChange={(page) => setCurrentPage(page)}
             />
+          </div>
           </div>
         </div>
 
@@ -160,6 +163,11 @@ const Reports = () => {
               <TabsTrigger value="transportHistory">
                 Transport History
               </TabsTrigger>
+              {orgRole === "org:admin" && (
+              <TabsTrigger value="tourInvoices">
+                Tour Invoices
+              </TabsTrigger>
+              )}
             </TabsList>
             <TabsContent value="hotelsBooking">
               <HotelsBookingTab />
@@ -167,6 +175,11 @@ const Reports = () => {
             <TabsContent value="transportHistory">
               <TransportHistoryTab />
             </TabsContent>
+            {orgRole === "org:admin" && organization && user && (
+            <TabsContent value="tourInvoices">
+              <TourInvoicesTab organization={organization} isSuperAdmin={orgRole === "org:admin"} userMetadata={user.publicMetadata as ClerkUserPublicMetadata}/>
+            </TabsContent>
+            )} 
           </Tabs>
         </div>
       </div>

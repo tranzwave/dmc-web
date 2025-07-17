@@ -4,8 +4,15 @@ import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 import { Button } from "~/components/ui/button";
 import { columns, Vehicles } from "./columns";
 import VehiclesForm from "./vehiclesForm";
+import { SelectVehicle } from "~/server/db/schemaTypes";
 
-const VehiclesTab = () => {
+interface VehiclesTabProps {
+  vehicles: SelectVehicle[];
+}
+
+const VehiclesTab = (
+  {vehicles} : VehiclesTabProps
+) => {
   const [addedVehicle, setAddedVehicle] = useState<Vehicles[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicles>({
     vehicle: "",
@@ -16,13 +23,14 @@ const VehiclesTab = () => {
     year: "",
     vrl: "",
   });
+  const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const { addVehicles, transportDetails, setActiveTab, deleteVehicle, duplicateVehicle } =
     useAddTransport();
 
   const updateVehicles = (vehicles: Vehicles) => {
     console.log(vehicles);
-    addVehicles(vehicles);
+    addVehicles(vehicles, isEditing, selectedVehicle.id);
     setSelectedVehicle({
       vehicle: "",
       numberPlate: "",
@@ -32,11 +40,13 @@ const VehiclesTab = () => {
       year: "",
       vrl: "",
     });
+    setIsEditing(false);
   };
 
   const onRowEdit = (row: Vehicles) => {
     console.log(row);
     setSelectedVehicle(row);
+    setIsEditing(true);
   };
 
   const onRowDuplicate = (row: Vehicles) => {
@@ -55,6 +65,7 @@ const VehiclesTab = () => {
         <VehiclesForm
           onAddVehicles={updateVehicles}
           selectedVehicle={selectedVehicle}
+          allVehicles={vehicles}
         />
       </div>
       <div className="flex w-[100%] flex-col items-center justify-center gap-2">

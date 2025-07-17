@@ -47,18 +47,22 @@ import {
 } from "~/components/ui/select";
 import { tourTypes } from "~/lib/constants";
 import { cn } from "~/lib/utils";
-import { getAllAgents } from "~/server/db/queries/agents";
+import { getAllAgents, getAllAgentsForMarketingTeams } from "~/server/db/queries/agents";
 import { updateBookingLine } from "~/server/db/queries/booking";
 import { getAllCountries } from "~/server/db/queries/countries";
 import { getAllUsers } from "~/server/db/queries/users";
 import {
   SelectAgent,
   SelectCountry,
+  SelectMarketingTeam,
   SelectUser,
 } from "~/server/db/schemaTypes";
-import { useOrganization } from "@clerk/nextjs";
+import { useOrganization, useUser } from "@clerk/nextjs";
 import { OrganizationMembershipResource } from "@clerk/types";
 import { toast } from "~/hooks/use-toast";
+import { marketingTeam } from "~/server/db/schema";
+import { PartialClerkUser } from "~/lib/types/marketingTeam";
+import { ClerkUserPublicMetadata } from "~/lib/types/payment";
 
 // Define the schema for form validation
 export const generalSchema = z
@@ -78,7 +82,8 @@ export const generalSchema = z
     startDate: z.string().min(1, "Start date is required"),
     numberOfDays: z.number().min(1, "Number of days must be at least 1"),
     endDate: z.string().min(1, "End date is required"),
-    marketingManager: z.string().min(1, "Marketing manager is required"),
+    // marketingManager: z.string().min(1, "Marketing manager is required"),
+    // marketingTeam: z.string().min(1, "Marketing team is required"),
     agent: z.string().min(1, "Agent is required"),
     tourType: z.string().min(1, "Tour type is required"),
     includes: z.object({
@@ -106,7 +111,12 @@ const includesOptions = [
   { id: "shops", label: "Shops" },
 ];
 
-const GeneralForm = () => {
+interface GeneralFormProps {
+  allUsers: PartialClerkUser[];
+  marketingTeams: SelectMarketingTeam[];
+}
+
+const GeneralForm = ({ allUsers, marketingTeams }:GeneralFormProps) => {
   const { setGeneralDetails, bookingDetails, setActiveTab, setStatusLabels } =
     useEditBooking();
   const [loading, setLoading] = useState(false);
@@ -126,6 +136,12 @@ const GeneralForm = () => {
   const { organization, isLoaded } = useOrganization();
   const [members, setMembers] = useState<OrganizationMembershipResource[]>([]); // Correct type for members
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [selectedMarketingTeam, setSelectedMarketingTeam] = useState<string | null>();
+  const [selectedMarketingTeamManagers, setSelectedMarketingTeamManagers] = useState<PartialClerkUser[]>([]);
+  const { user, isLoaded: isUserLoaded } = useUser();
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
+
+
  
 
   const form = useForm<GeneralFormValues>({
@@ -137,11 +153,18 @@ const GeneralForm = () => {
   const numberOfDays = form.watch("numberOfDays");
 
   const fetchData = async () => {
+    if(!isLoaded || !organization || !user){
+      return
+    }
     try {
       // Run both requests in parallel
       setLoading(true);
+      const usersTeams = (user.publicMetadata as ClerkUserPublicMetadata).teams.filter((team) => {
+        return team.orgId === organization.id;
+      }
+      ).map((team) => team.teamId);
       const [agentsResponse, usersResponse, countriesResponse] =
-        await Promise.all([getAllAgents(), getAllUsers(), getAllCountries()]);
+        await Promise.all([getAllAgentsForMarketingTeams(organization.id, usersTeams), getAllUsers(), getAllCountries()]);
 
       // Check for errors in the responses
       if (!agentsResponse) {
@@ -194,7 +217,9 @@ const GeneralForm = () => {
     };
 
     fetchMembers();
-  }, []);
+    setSelectedMarketingTeam(bookingDetails.general.marketingTeam);
+    setSelectedMarketingTeamManagers(allUsers.filter((user) => (user.publicMetadata as ClerkUserPublicMetadata)?.teams?.some(t => t.teamId === bookingDetails.general.marketingTeam && t.role === "manager")));
+  }, [organization]);
 
   const onSubmit: SubmitHandler<GeneralFormValues> = async (data) => {
     setSaving(true);
@@ -209,7 +234,6 @@ const GeneralForm = () => {
     console.log(data);
     setGeneralDetails(data);
     try {
-      alert("Booking Updating");
 
 
       const updatedBooking = await updateBookingLine(
@@ -464,11 +488,11 @@ const GeneralForm = () => {
                             );
                             field.onChange(dateString);
                           }}
-                          disabled={(date) => {
-                            const today = new Date();
-                            today.setHours(0, 0, 0, 0);
-                            return date < today;
-                          }}
+                          // disabled={(date) => {
+                          //   const today = new Date();
+                          //   today.setHours(0, 0, 0, 0);
+                          //   return date < today;
+                          // }}
                           numberOfMonths={1}
                         />
                       </PopoverContent>
@@ -553,39 +577,8 @@ const GeneralForm = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              name="marketingManager"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Manager</FormLabel>
-                  <FormControl>
-                    {/* <Input placeholder="Enter marketing manager's name" {...field} /> */}
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                      }}
-                      value={field.value}
-                      disabled = {true}
-                    >
-                      <SelectTrigger className="bg-slate-100 shadow-md">
-                        <SelectValue placeholder="Select manager" />
-                      </SelectTrigger>
-                      <SelectContent>
-                      {members.map((user) =>
-                          <SelectItem key={user.id} value={user?.id ?? ""}>
-                          {user.publicUserData.firstName + ' ' + user.publicUserData.lastName}
-                        </SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {form.watch("directCustomer") == true ? (
+          <div className="grid grid-cols-4 gap-4">
+          {form.watch("directCustomer") == true ? (
               <div></div>
             ) : (
               <FormField
@@ -681,7 +674,7 @@ const GeneralForm = () => {
                             const labelKey = option.id as keyof StatusLabels;
                             setStatusLabels((prev) => ({
                               ...prev,
-                              [labelKey]: checked ? "Mandatory" : "Locked",
+                              [labelKey]: checked ? "Included" : "Not Included",
                             }));
                             field.onChange({
                               ...field.value,

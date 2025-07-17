@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import { EditBookingProvider } from "~/app/dashboard/bookings/[id]/edit/context";
+import { HotelWithRooms } from "~/components/bookings/editBooking/forms/hotelsForm";
 import HotelsForm from "~/components/bookings/editBooking/forms/hotelsForm/hotelsForm";
 import { Input } from "~/components/ui/input";
 import { useToast } from "~/hooks/use-toast";
@@ -14,13 +15,13 @@ import {
 
 interface HotelsFormProps {
   defaultValues:
-    | (InsertHotelVoucherLine & {
-        hotel: SelectHotel;
-      })
-    | null
-    | undefined; // Ensures it matches the expected type
+  | (InsertHotelVoucherLine & {
+    hotel: HotelWithRooms;
+  })
+  | null
+  | undefined;
   onSave: () => void; // Ensures it matches the expected type
-  hotels: SelectHotel[];
+  hotels: HotelWithRooms[];
 }
 
 const HotelsVoucherForm: React.FC<HotelsFormProps> = ({

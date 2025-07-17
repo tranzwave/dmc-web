@@ -42,7 +42,7 @@ const AddGuideTransport = () => {
                 </TabsTrigger>
                     <TabsTrigger
                       value="documents"
-                      statusLabel="Mandatory"
+                      statusLabel="Included"
                       isCompleted={transportDetails.general.name.length > 1}
                       inProgress={activeTab === "documents"}
                       disabled={!transportDetails.general.name}

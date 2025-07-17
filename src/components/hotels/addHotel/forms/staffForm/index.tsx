@@ -6,9 +6,11 @@ import { Button } from "~/components/ui/button";
 import { HotelStaffType } from "../generalForm/columns";
 import { columns } from "./columns";
 import StaffForm from "./staffForm";
+import { toast } from "~/hooks/use-toast";
+import { deleteHotelStaff } from "~/server/db/queries/hotel";
 
 const StaffTab = () => {
-  const [addedStaff, setAddedStaff] = useState<HotelStaffType[]>([]);
+  //const [addedStaff, setAddedStaff] = useState<HotelStaffType[]>([]);
 
   const [selectedStaff, setSelectedStaff] = useState<HotelStaffType>({
     name: "",
@@ -20,9 +22,10 @@ const StaffTab = () => {
 
   const { addHotelStaff, hotelStaff, setActiveTab, deleteStaff, duplicateHotelStaff } =
     useAddHotel(); // Assuming useAddStaff context
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleAddStaff = (staff: HotelStaffType) => {
-    setAddedStaff([...addedStaff, staff]);
+    //setAddedStaff([...addedStaff, staff]);
     addHotelStaff(staff); // Call context to add staff
     setSelectedStaff({
       name: "",
@@ -43,9 +46,38 @@ const StaffTab = () => {
     duplicateHotelStaff(row.name, row.email);
   };
 
-  const onRowDelete = (row: HotelStaffType) => {
-    alert(row.name);
-    deleteStaff(row.name, row.email);
+  const onRowDelete = async (row: HotelStaffType) => {
+    if (isDeleting) {
+      toast({
+        title: "Error",
+        description: "Please wait for the previous action to complete",
+      });
+    }
+    try {
+      setIsDeleting(true);
+
+      if(row.id){
+        const response = await deleteHotelStaff(row.id);
+        if (!response) {
+          throw new Error(`Error: Failed to delete the staff`);
+        }
+
+        console.log("Success:", response);
+        toast({
+          title: "Success",
+          description: "Staff member deleted successfully",
+        });
+
+        setIsDeleting(false);
+      }
+      deleteStaff(row.name, row.email);
+    } catch (error) {
+      console.error("Failed to delete staff member:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete staff member",
+      });
+    }
   };
 
   return (
@@ -65,7 +97,8 @@ const StaffTab = () => {
             onDelete={onRowDelete}
             onEdit={onRowEdit}
             onRowClick={onRowEdit}
-            onDuplicate={onRowDuplicate}
+            // onDuplicate={onRowDuplicate}
+            isDeleting={isDeleting}
           />
         </div>
         <div className="flex w-full justify-end">

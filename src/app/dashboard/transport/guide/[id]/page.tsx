@@ -185,6 +185,7 @@ const DateInput = ({
   <div className="flex items-center gap-3 text-sm text-gray-500">
     <label className="mb-1 block">{label}</label>
     <input
+    title="Start Date"
       type="date"
       value={value ?? ""}
       onChange={(e) => onChange(e.target.value)}

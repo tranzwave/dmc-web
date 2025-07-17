@@ -1,15 +1,20 @@
 "use client";
+import { useOrganization } from "@clerk/nextjs";
+import { set } from "date-fns";
 import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAddTransport } from "~/app/dashboard/transport/add/context";
+import LoadingLayout from "~/components/common/dashboardLoading";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
-import { insertDriver } from "~/server/db/queries/transport";
+import { getAllLanguages, insertDriver } from "~/server/db/queries/transport";
+import { language } from "~/server/db/schema";
 import {
   InsertDriver,
   InsertLanguage,
   InsertVehicle,
+  SelectLanguage,
 } from "~/server/db/schemaTypes";
 
 const SubmitForm = () => {
@@ -19,6 +24,9 @@ const SubmitForm = () => {
   const { toast } = useToast();
   const { general, vehicles, charges, documents } = transportDetails;
   const router = useRouter();
+  const {organization, isLoaded} = useOrganization();
+  const [languages, setLanguages] = useState<SelectLanguage[]>([]);
+  const [isFetchingLanguages, setIsFetchingLanguages] = useState(false);
 
   const addDriver = async () => {
     console.log({
@@ -28,55 +36,66 @@ const SubmitForm = () => {
       documents,
     });
 
-   const driverData: InsertDriver[] = [
-  {
-    name: general?.name ?? "Unknown", // Provide fallback if general.name is undefined
-    primaryEmail: general?.primaryEmail ?? "No email provided",
-    primaryContactNumber: general?.primaryContactNumber ?? "No contact",
-    streetName: general?.streetName ?? "",
-    province: general?.province ?? "",
-    contactNumber: general?.primaryContactNumber ?? "",
-    tenantId: "",
-    cityId: Number(general?.city ?? 0), // Ensure city is a valid number or 0
-    driversLicense: documents?.driverLicense ?? "",
-    insurance: documents?.insurance ?? "",
-    type: general?.type ?? "Unknown",
-    guideLicense: documents?.guideLicense ?? "",
-    accommodationAllowance: charges?.accommodationAllowance ?? 0,
-    fuelAllowance: charges?.fuelAllowance ?? 0,
-    mealAllowance: charges?.mealAllowance ?? 0,
-    feePerKM: charges?.feePerKm ?? 0,
-    feePerDay: charges?.feePerDay ?? 0,
-  },
-];
-
-
-    const vehicleData: InsertVehicle[] = vehicles.map((v) => {
-      return {
-        make: v.make,
-        model: v.model,
-        numberPlate: v.numberPlate,
-        seats: v.seats,
-        vehicleType: v.vehicle,
-        tenantId: "",
-        year: Number(v.year),
-        revenueLicense: v.vrl,
-      };
-    });
-
-    const languages: InsertLanguage[] = [
-      {
-        name: "English",
-        code: "en",
-      },
-    ];
-
     try {
+
+      if(!organization) {
+        throw new Error("Organization not found");
+      };
+
+      const driverData: InsertDriver[] = [
+        {
+          name: general?.name ?? "Unknown", // Provide fallback if general.name is undefined
+          primaryEmail: general?.primaryEmail ?? "No email provided",
+          primaryContactNumber: general?.primaryContactNumber ?? "No contact",
+          streetName: general?.streetName ?? "",
+          province: general?.province ?? "",
+          contactNumber: general?.primaryContactNumber ?? "",
+          tenantId: organization.id,
+          cityId: Number(general?.city ?? 0), // Ensure city is a valid number or 0
+          driversLicense: documents?.driverLicense ?? "",
+          insurance: documents?.insurance ?? "",
+          type: general?.type ?? "Unknown",
+          guideLicense: documents?.guideLicense ?? "",
+          accommodationAllowance: charges?.accommodationAllowance ?? 0,
+          fuelAllowance: charges?.fuelAllowance ?? 0,
+          mealAllowance: charges?.mealAllowance ?? 0,
+          feePerKM: charges?.feePerKm ?? 0,
+          feePerDay: charges?.feePerDay ?? 0,
+        },
+      ];
+      
+      
+          const vehicleData: InsertVehicle[] = vehicles.map((v) => {
+            return {
+              make: v.make,
+              model: v.model,
+              numberPlate: v.numberPlate,
+              seats: v.seats,
+              vehicleType: v.vehicle,
+              tenantId: organization.id,
+              year: Number(v.year),
+              revenueLicense: v.vrl,
+            };
+          });
+      
+          const driversLanguages: SelectLanguage[] = general.languages.map((l) => {
+            const language = languages.find((lang) => lang.name === l);
+            if (!language) {
+              throw new Error("Language not found");
+            }
+            return language;
+          }
+          );
+
+      setLoading(true);
+
+
       // Replace insertDriver with your function to handle the insertion of driver details
       const response = await insertDriver(
         driverData,
         vehicleData,
-        languages,
+        driversLanguages,
+        organization.id,
         // charges,
         // documents,
       );
@@ -94,23 +113,51 @@ const SubmitForm = () => {
         description: "Driver added successfully",
       });
       router.push("/dashboard/transport");
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
+    } catch (thrownError:any) {
+      if (thrownError instanceof Error) {
+        setError(thrownError.message);
       } else {
         setError("An unknown error occurred");
       }
+      console.error(thrownError)
       console.error("Error:", error);
-      alert(error);
+      // alert(error);
       setLoading(false);
       toast({
         title: "Uh Oh!",
-        description: "Error while adding the driver",
+        description: `Error while adding the driver: ${error ?? "Unknown error"}`,
       });
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    async function fetchLanguages() {
+      try {
+        setIsFetchingLanguages(true);
+        const response = await getAllLanguages();
+        
+        if (!response) {
+          throw new Error("No languages found");
+        }
+
+
+        setLanguages(response);
+        setIsFetchingLanguages(false);
+      } catch (error) {
+        console.error("Error fetching languages:", error);
+        setIsFetchingLanguages(false);
+      }
+    }
+
+    fetchLanguages();
+  }
+  , []);
+
+  if (isFetchingLanguages) {
+    return <LoadingLayout />;
+  }
 
   return (
     <div>
@@ -127,7 +174,7 @@ const SubmitForm = () => {
             </tr>
             <tr>
               <td className="border px-4 py-2 font-bold">Language:</td>
-              <td className="border px-4 py-2">{general.language}</td>
+              <td className="border px-4 py-2">{general.languages.join(", ")}</td>
             </tr>
             <tr>
               <td className="border px-4 py-2 font-bold">Email:</td>

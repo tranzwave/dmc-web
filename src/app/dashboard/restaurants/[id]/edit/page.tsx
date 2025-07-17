@@ -30,7 +30,7 @@ const EditRestaurant = ({ id }: { id: string }) => {
   const pathname = usePathname();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const { restaurantDetails, activeTab, setActiveTab, setGeneralDetails, addMeals } = useAddRestaurant();
+  const { restaurantDetails, activeTab, setActiveTab, setGeneralDetails, addMeals, addBulkMeals } = useAddRestaurant();
   const [restaurantVendor, setRestaurantVendor] = useState<FetchedRestaurantVendorData>();
   const [isGeneralDetailsSet, setIsGeneralDetailsSet] = useState<boolean>(false); // State to control rendering
 
@@ -55,15 +55,7 @@ const EditRestaurant = ({ id }: { id: string }) => {
         city: city,
       });
 
-      restaurantMeal.forEach((m) => {
-        addMeals({
-          mealType:m.mealType,
-          startTime:m.startTime,
-          endTime:m.endTime,
-          id:m.id,
-          restaurantId:m.restaurantId
-        });
-      });
+      addBulkMeals(restaurantMeal);
 
       setIsGeneralDetailsSet(true); // Mark as ready to render GeneralTab
 
@@ -87,7 +79,7 @@ const EditRestaurant = ({ id }: { id: string }) => {
       <div className="flex-1">
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
-            <TitleBar title={`Edit Activity Vendor - ${restaurantVendor?.name ?? ""}`} link="toAddActivity" />
+            <TitleBar title={`Edit Restaurant - ${restaurantVendor?.name ?? ""}`} link="toAddActivity" />
             {/* <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
@@ -107,7 +99,7 @@ const EditRestaurant = ({ id }: { id: string }) => {
                 </TabsTrigger>
                 <TabsTrigger
                   value="mealsOffered"
-                  statusLabel="Mandatory"
+                  statusLabel="Included"
                   isCompleted={restaurantDetails.mealsOffered.length > 0}
                   inProgress={activeTab == "mealsOffered"}
                   disabled={!restaurantDetails.general.streetName}
@@ -130,7 +122,7 @@ const EditRestaurant = ({ id }: { id: string }) => {
                 <MealsOfferedTab />
               </TabsContent>
               <TabsContent value="submit">
-                <EditRestaurantSubmitForm id={id} originalDriverData={restaurantVendor ?? null} />
+                <EditRestaurantSubmitForm id={id} originalRestaurant={restaurantVendor ?? null} />
                 {/* <SubmitForm/> */}
               </TabsContent>
             </Tabs>

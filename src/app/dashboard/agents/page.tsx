@@ -1,4 +1,5 @@
 "use client";
+import { useOrganization, useUser } from "@clerk/nextjs";
 import { ColumnDef } from "@tanstack/react-table";
 import { Search } from "lucide-react";
 import Link from "next/link";
@@ -10,7 +11,8 @@ import DataTableDropDown from "~/components/common/dataTableDropdown";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { getAllAgents } from "~/server/db/queries/agents";
+import { ClerkUserPublicMetadata } from "~/lib/types/payment";
+import { getAllAgents, getAllAgentsForMarketingTeams } from "~/server/db/queries/agents";
 import { SelectAgent } from "~/server/db/schemaTypes";
 
 export type AgentVendorData = SelectAgent & NonNullable<unknown>
@@ -66,13 +68,25 @@ const AgentHome = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const { organization, isLoaded, membership} = useOrganization();
+  const { user, isLoaded: userLoaded } = useUser();
 
   // Fetch data on mount
   useEffect(() => {
     async function fetchData() {
+      if(!isLoaded || !organization || !user){
+        return
+      }
       try {
         setLoading(true);
-        const result = await getAllAgents();
+        const usersMarketingTeams = (user.publicMetadata as ClerkUserPublicMetadata).teams.filter((team) => {
+          return team.orgId === organization.id;
+        }
+        ).map((team) => team.teamId);
+        const result = await getAllAgentsForMarketingTeams(
+          organization.id,
+          usersMarketingTeams
+        );
         setData(result);
       } catch (error) {
         console.error("Failed to fetch activity data:", error);
@@ -83,7 +97,7 @@ const AgentHome = () => {
     }
 
     fetchData();
-  }, []);
+  }, [organization]);
 
   const filteredData = data.filter((agent) => {
     const searchTerm = searchQuery.toLowerCase();
@@ -96,7 +110,7 @@ const AgentHome = () => {
     return matchesSearch;
   });
 
-  if (loading) {
+  if (loading || !isLoaded || !userLoaded) {
     return (
       <div>
         <div className="flex w-full flex-row justify-between gap-1">

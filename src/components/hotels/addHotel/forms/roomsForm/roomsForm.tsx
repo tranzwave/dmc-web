@@ -26,6 +26,7 @@ import { HotelRoomType } from "../roomsForm/columns";
 interface RoomsFormProps {
   onAddRoom: (room: HotelRoomType) => void;
   selectedRoom: HotelRoomType;
+  customRoomCategories: string[];
 }
 
 // Define the schema for room details
@@ -55,7 +56,7 @@ export const roomsSchema = z.object({
   additionalComments: z.string().optional(), // Optional field
 });
 
-const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom }) => {
+const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom, customRoomCategories }) => {
   const roomsForm = useForm<HotelRoomType>({
     resolver: zodResolver(roomsSchema),
     defaultValues: defaultHotelRoom,
@@ -78,6 +79,8 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom }) => {
       count: Number(data.count),
       floor: Number(data.floor),
       bedCount: Number(data.bedCount),
+      id: selectedRoom?.id ?? undefined,
+
     });
     roomsForm.reset();
   };
@@ -116,7 +119,13 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom }) => {
                       <SelectValue placeholder="Select room category" />
                     </SelectTrigger>
                     <SelectContent>
-                      {hotelRoomCategories.map((category) => (
+                      {/* {hotelRoomCategories.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))} */}
+                      {/* add custom room categories to hotelRoomCategories array and map for select item */}
+                      {hotelRoomCategories.concat(customRoomCategories).map((category) => (
                         <SelectItem key={category} value={category}>
                           {category}
                         </SelectItem>

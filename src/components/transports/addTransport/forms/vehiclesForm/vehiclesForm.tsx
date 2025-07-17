@@ -15,10 +15,13 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Vehicles } from "./columns";
+import { SelectVehicle } from "~/server/db/schemaTypes";
+import { toast } from "~/hooks/use-toast";
 
 interface VehiclesFormProps {
   onAddVehicles: (vehicles: Vehicles) => void;
   selectedVehicle: Vehicles
+  allVehicles: SelectVehicle[]
 }
 
 // Define the schema for form validation
@@ -35,7 +38,7 @@ export const vehiclesSchema = z.object({
 // Define the type of the form values
 type VehiclesFormValues = z.infer<typeof vehiclesSchema>;
 
-const VehiclesForm: React.FC<VehiclesFormProps> = ({ onAddVehicles,selectedVehicle }) => {
+const VehiclesForm: React.FC<VehiclesFormProps> = ({ onAddVehicles,selectedVehicle, allVehicles }) => {
   const form = useForm<VehiclesFormValues>({
     resolver: zodResolver(vehiclesSchema),
     defaultValues: {
@@ -52,9 +55,17 @@ const VehiclesForm: React.FC<VehiclesFormProps> = ({ onAddVehicles,selectedVehic
   const {reset} = form;
 
   function onSubmit(values: z.infer<typeof vehiclesSchema>) {
+    if (allVehicles.some(vehicle => vehicle.numberPlate === values.numberPlate)) {
+      toast({
+        title: "Error",
+        description: "Vehicle with this number plate already exists.",
+      });
+      return;
+    }
     onAddVehicles({
       ...values,
       seats: Number(values.seats),
+      id: selectedVehicle.id ?? undefined
     });
     form.reset();
   }

@@ -1,19 +1,10 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
-import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import Image from "next/image";
-import { useOrganization } from "~/app/dashboard/context";
-import LoadingLayout from "~/components/common/dashboardLoading";
-import {
-  SelectHotelVoucher,
-  SelectHotelVoucherLine,
-} from "~/server/db/schemaTypes";
 import { RestaurantVoucherData } from "..";
 import VoucherHeader from "~/components/common/voucher/VoucherHeader";
-import { getLetterByIndex } from "~/lib/utils/index";
 import { Country } from "country-state-city";
 import { OrganizationResource, UserResource } from "@clerk/types";
+import { useEffect } from "react";
 
 type RestaurantVoucherPDFProps = {
   voucher: RestaurantVoucherData;
@@ -26,12 +17,17 @@ type RestaurantVoucherPDFProps = {
 
 const RestaurantVoucherView = ({ voucher, cancellation, bookingName, organization, user, currency }: RestaurantVoucherPDFProps) => {
 
+  useEffect(() => {
+    console.log('voucher', voucher)
+  }
+  , [voucher])
+
   return (
     <div className="flex flex-col border">
       <VoucherHeader organization={organization} />
       <div className="p-4">
         <div className="w-full text-center" style={{ fontWeight: 'bold', fontSize: '20px' }}>
-          {cancellation ? (<div className="text-red-500">Cancellation Voucher</div>) : 'Restaurant Reservation Voucher'}
+          {voucher.status === "cancelled" || cancellation ? (<div className="text-red-500">Cancellation Voucher</div>) : `Restaurant Reservation Voucher${voucher.status === 'amended' ? ' - Amendment' : ''}`}
 
         </div>
         <div className="flex w-full flex-row justify-between">
@@ -99,7 +95,7 @@ const RestaurantVoucherView = ({ voucher, cancellation, bookingName, organizatio
             <div>Reference(s) : {voucher.reasonToAmend}</div>
           )}
           {voucher.status === 'cancelled' && (
-            <div>Reason for cancellation : {voucher.id}</div>
+            <div>Reason for cancellation : {voucher.reasonToCancel}</div>
           )}
         </div>
         <div className="mt-10 text-[13px]">

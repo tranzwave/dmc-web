@@ -1,9 +1,11 @@
 "use client";
 
+import { SelectLanguage } from "~/server/db/schemaTypes";
+
 
 export type General = {
   name: string;
-  language: string;
+  languages: string[];
   primaryEmail: string;
   primaryContactNumber: string;
   streetName: string;

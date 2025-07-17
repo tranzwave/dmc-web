@@ -22,6 +22,7 @@ import {
   InsertHotelVoucher,
   InsertHotelVoucherLine,
   SelectHotel,
+  SelectHotelRoom,
   SelectHotelVoucherLine
 } from "~/server/db/schemaTypes";
 import { Hotel, hotelVoucherColumns, hotelVoucherLineColumns } from "./columns";
@@ -30,6 +31,10 @@ import { DataTable } from "~/components/bookings/home/dataTable";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table";
 import { ExpandableDataTableWithActions } from "~/components/common/expnadableDataTable";
 import { useOrganization } from "@clerk/nextjs";
+
+export type HotelWithRooms = SelectHotel & {
+  hotelRoom: SelectHotelRoom[];
+};
 
 const HotelsTab = () => {
   const [addedHotels, setAddedHotels] = useState<Hotel[]>([]);
@@ -42,17 +47,17 @@ const HotelsTab = () => {
     updateTriggerRefetch,
   } = useEditBooking();
   const [loading, setLoading] = useState(false);
-  const [hotels, setHotels] = useState<SelectHotel[]>([]);
+  const [hotels, setHotels] = useState<HotelWithRooms[]>([]);
   const [error, setError] = useState<string | null>();
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
   const [defaultValues, setDefaultValues] = useState<
     | (InsertHotelVoucherLine & {
-      hotel: SelectHotel;
+      hotel: HotelWithRooms;
     })
     | null
   >();
-  const [defaultHotel, setDefaultHotel] = useState<SelectHotel>();
+  const [defaultHotel, setDefaultHotel] = useState<HotelWithRooms>();
   const [voucherLineIdToEdit, setVoucherLineIdToEdit] = useState<string>("none");
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isExistingVoucherDelete, setIsExistingVoucherDelete] = useState(false);
@@ -70,7 +75,7 @@ const HotelsTab = () => {
   const updateHotels = async (
     data: InsertHotelVoucherLine,
     isNewVoucher: boolean,
-    hotel: SelectHotel,
+    hotel: HotelWithRooms,
   ) => {
     console.log(data);
     const voucher: InsertHotelVoucher = {
@@ -139,7 +144,7 @@ const HotelsTab = () => {
         );
       } else {
         // newResponse = await addHotelVoucherLinesToBooking()
-        const existingVoucherId = bookingDetails.vouchers.find(v => v.hotel.id === hotel.id)?.voucher.id
+        const existingVoucherId = bookingDetails.vouchers.find(v => v.hotel.id === hotel.id && v.voucher.status !== 'cancelled')?.voucher.id
         existingVoucherId ? newResponse = await addHotelVoucherLineToExistingVoucher(
           existingVoucherId,
           data
@@ -244,9 +249,8 @@ const HotelsTab = () => {
     // const lineIdToEdit = bookingDetails.vouchers.find((v) => v.voucher.id === selectedVoucher?.voucher.id)?.voucherLines.find(v=> v.id === data.id)?.id;
     setVoucherLineIdToEdit(data.id);
 
-    setDefaultValues({ ...data, hotel: selectedVoucher.hotel, id: data.id, hotelVoucherId: data.hotelVoucherId });
+    setDefaultValues({ ...data, hotel: selectedVoucher.hotel, id: data.id, hotelVoucherId: data.hotelVoucherId, roomCategory: data.roomCategory });
     setDefaultHotel(selectedVoucher.hotel);
-
   };
 
   const onDelete = async (data: any) => {
@@ -259,6 +263,19 @@ const HotelsTab = () => {
     setIsUnsavedVoucherDelete(true);
     setIsDeleteOpen(true);
   };
+
+  const onDuplicate = async (data: any) => {
+    // setVoucherLineIdToEdit(data.id);
+    if(!selectedVoucher) {
+      toast({
+        title: "Uh Oh!",
+        description: "Couldn't find the selected voucher",
+      });
+      return
+    }
+    setDefaultValues({ ...data, hotel: selectedVoucher.hotel, id: data.id, hotelVoucherId: data.hotelVoucherId, roomCategory: data.roomCategory });
+    setDefaultHotel(selectedVoucher.hotel);
+  }
 
   const handleVoucherLineDelete = async () => {
     if (voucherLineIdToEdit === "none") {
@@ -401,6 +418,8 @@ const HotelsTab = () => {
             onRowClick={(row) => {
               setSelectedVoucher(row)
             }}
+            onDuplicate={onDuplicate}
+
           />
         </div>
         <div className="flex w-full justify-end">

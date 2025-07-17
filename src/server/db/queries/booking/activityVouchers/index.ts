@@ -2,6 +2,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "~/server/db";
 import { activityVoucher } from './../../../schema';
+import { SelectActivity, SelectActivityVoucher } from "~/server/db/schemaTypes";
 
 
 export const getActivityVouchers = (bookingLineId: string) => {
@@ -28,3 +29,18 @@ export const updateActivityVoucherStatus = async (activityVoucherId: string, sta
     throw new Error("Failed to update shop voucher status.");
   }
 };
+
+export const updateActivityVoucher = async (activityVoucherId: string, data: Partial<SelectActivityVoucher>) => {
+  try {
+    const updatedVoucher = await db
+      .update(activityVoucher)
+      .set(data)
+      .where(eq(activityVoucher.id, activityVoucherId))
+      .returning();
+
+    return updatedVoucher;
+  } catch (error) {
+    console.error("Error updating shop voucher:", error);
+    throw new Error("Failed to update shop voucher.");
+  }
+}

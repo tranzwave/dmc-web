@@ -27,7 +27,11 @@ export const getHotelVouchers = (bookingLineId: string) => {
     where: eq(hotelVoucher.bookingLineId, bookingLineId),
     with: {
       voucherLines: true,
-      hotel: true,
+      hotel: {
+        with: {
+          hotelRoom: true,
+        }
+      },
     },
   });
 };
@@ -125,16 +129,16 @@ export const bulkUpdateHotelVoucherRates = async (
   }
 };
 
-export const updateHotelVoucherStatus = async (voucher: SelectHotelVoucher) => {
+export const updateHotelVoucherStatus = async (voucherId: string, status: "inprogress" | "confirmed" | "cancelled" | "sentToVendor" | "vendorConfirmed" | "sentToClient" | "amended" | null | undefined) => {
   try {
     const updatedRow = await db
       .update(hotelVoucher)
-      .set({ status: voucher.status })
-      .where(eq(hotelVoucher.id, voucher.id ?? ""))
+      .set({ status: status })
+      .where(eq(hotelVoucher.id, voucherId))
       .returning();
     return updatedRow ? true : false;
   } catch (error) {
-    console.error(`Failed to update voucher rate for ID ${voucher.id}:`, error);
+    console.error(`Failed to update voucher rate for ID ${voucherId}:`, error);
     return false; // Ensure to propagate the error for transaction handling
   }
 };

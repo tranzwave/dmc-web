@@ -1,4 +1,5 @@
 "use client";
+import { useOrganization } from "@clerk/nextjs";
 import { ColumnDef } from "@tanstack/react-table";
 import { Search } from "lucide-react";
 import Link from "next/link";
@@ -10,11 +11,13 @@ import DataTableDropDown from "~/components/common/dataTableDropdown";
 import TitleBar from "~/components/common/titleBar";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { toast } from "~/hooks/use-toast";
 import { getAllActivityVendors } from "~/server/db/queries/activities";
-import { SelectActivityVendor, SelectCity } from "~/server/db/schemaTypes";
+import { SelectActivity, SelectActivityVendor, SelectCity } from "~/server/db/schemaTypes";
 
 export type ActivityVendorData = SelectActivityVendor & {
   city: SelectCity;
+  activity?: SelectActivity[];
 };
 
 const ActivityHome = () => {
@@ -27,18 +30,22 @@ const ActivityHome = () => {
       header: "Contact Number",
       accessorFn: (row) => row.contactNumber,
     },
-    {
-      header: "Street Name",
-      accessorFn: (row) => row.streetName,
-    },
+    // {
+    //   header: "Street Name",
+    //   accessorFn: (row) => row.streetName,
+    // },
     {
       header: "City",
       accessorFn: (row) => row.city.name,
     },
     {
-      header: "Province",
-      accessorFn: (row) => row.province,
+      header: "No. of Activities",
+      accessorFn: (row) => row.activity?.length,
     },
+    // {
+    //   header: "Province",
+    //   accessorFn: (row) => row.province,
+    // },
     {
       accessorKey: "id",
       header: "",
@@ -63,13 +70,21 @@ const ActivityHome = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const {organization, isLoaded} = useOrganization();
 
   // Fetch data on mount
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
-        const result = await getAllActivityVendors();
+        if(!organization || !isLoaded) {
+          toast({
+            title: "Failed to load data.",
+            description: "Organization data not found.",
+          })
+          throw new Error("Organization data not found.");
+        };
+        const result = await getAllActivityVendors(organization.id);
         setData(result);
       } catch (error) {
         console.error("Failed to fetch activity data:", error);

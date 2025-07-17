@@ -68,7 +68,10 @@ const HotelsHome = () => {
       setLoading(true);
       try {
         // const result = await getHotelData();
-        const result = await getAllHotels(organization?.id ?? "");
+        if (!organization) {
+          throw new Error("Organization not found");
+        }
+        const result = await getAllHotels(organization.id);
 
         setData(result);
       } catch (error) {
@@ -80,7 +83,7 @@ const HotelsHome = () => {
     }
 
     fetchData();
-  }, []);
+  }, [organization]);
 
   const filteredData = data.filter((hotel) => {
     const searchTerm = searchQuery.toLowerCase();

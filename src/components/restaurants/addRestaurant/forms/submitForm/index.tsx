@@ -6,6 +6,9 @@ import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
 import { insertRestaurant } from "~/server/db/queries/restaurants";
 import { columns } from "../mealsOfferedForm/columns";
+import { useOrganization } from "@clerk/nextjs";
+import LoadingLayout from "~/components/common/dashboardLoading";
+import { LoaderCircle } from "lucide-react";
 
 const SubmitForm = () => {
     const { restaurantDetails } = useAddRestaurant();
@@ -14,12 +17,16 @@ const SubmitForm = () => {
     const { toast } = useToast()
     const router = useRouter()
     const pathname = usePathname()
+    const { organization, isLoaded } = useOrganization();
 
     const handleSubmit = async () => {
         console.log('Submitting restaurant details:', restaurantDetails);
         setLoading(true)
 
         try {
+            if (!organization || !isLoaded) {
+                throw new Error("Organization not found");
+            }
             let response;
             // Replace insertActivity with your function to handle the insertion of activity details
             if(pathname.includes("/edit")){
@@ -27,7 +34,7 @@ const SubmitForm = () => {
                 alert("Updated")
                 return
             } else{
-                response = await insertRestaurant([restaurantDetails]);
+                response = await insertRestaurant([restaurantDetails], organization.id);
             }        
             if (!response) {
               throw new Error(`Error: Inserting Restaurant`);
@@ -58,6 +65,10 @@ const SubmitForm = () => {
             setLoading(false);
           }
     };
+
+    if (!isLoaded) {
+        return <div><LoadingLayout/></div>;
+    }
 
     return (
         <div>
@@ -101,8 +112,13 @@ const SubmitForm = () => {
             </div>
 
             <div className="flex w-full justify-center mt-4">
-                <Button variant="primaryGreen" onClick={handleSubmit}>
-                    Submit
+                <Button variant="primaryGreen" onClick={handleSubmit} disabled={loading}>
+                    {loading ? (
+                        <div className="flex flex-row items-center">
+                            <LoaderCircle className="animate-spin" size={20} />
+                            <div className="ml-2">Saving</div>
+                        </div>
+                    ) : "Submit"}
                 </Button>
             </div>
         </div>

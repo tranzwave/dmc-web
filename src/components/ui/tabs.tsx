@@ -2,6 +2,7 @@
 
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import {
+  BanIcon,
   Check,
   ClipboardType,
   LoaderCircle,
@@ -16,6 +17,7 @@ type TabsTriggerProps = React.ComponentPropsWithoutRef<
   statusLabel?: string;
   isCompleted?: boolean;
   inProgress?: boolean;
+  icon?: React.ReactNode;
 };
 
 const Tabs = TabsPrimitive.Root;
@@ -39,6 +41,7 @@ const TabsTrigger = React.forwardRef<
       statusLabel = "",
       isCompleted = false,
       inProgress = false,
+      icon,
       ...props
     },
     ref,
@@ -75,10 +78,14 @@ const TabsTrigger = React.forwardRef<
                 size={16}
               />
             )
-          ) : statusLabel === "Mandatory" ? (
+          ) : statusLabel === "Included" ? (
             <LoaderCircle className="mr-2 text-primary-green" size={16} />
-          ) : statusLabel === "Locked" ? (
+          ) : statusLabel === "Not Included" ? (
             <LockIcon className="mr-2 text-primary-green" size={16} />
+          ) : statusLabel === "Unauthorized" ? (
+            <BanIcon className="mr-2 text-primary-green" size={16} />
+          ) : icon ? (
+            icon
           ) : (
             <ClipboardType className="mr-2 text-primary-green" size={16} />
           )}

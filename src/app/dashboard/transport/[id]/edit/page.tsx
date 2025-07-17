@@ -12,7 +12,7 @@ import VehiclesTab from "~/components/transports/addTransport/forms/vehiclesForm
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Driver } from "~/lib/api";
-import { getDriverDataById } from "~/server/db/queries/transport";
+import { getAllLanguages, getAllVehicles, getDriverDataById } from "~/server/db/queries/transport";
 import {
   SelectCity,
   SelectDriver,
@@ -22,6 +22,7 @@ import {
   SelectVehicle,
 } from "~/server/db/schemaTypes";
 import { AddTransportProvider, useAddTransport } from "../../add/context";
+import { useOrganization } from "@clerk/nextjs";
 
 export type DriverData = SelectDriver & {
   city: SelectCity;
@@ -32,29 +33,6 @@ export type DriverData = SelectDriver & {
     language: SelectLanguage;
   })[];
 };
-
-// const SubmitForm = () => {
-//   const { transportDetails } = useAddTransport();
-
-//   const handleSubmit = () => {
-//     // Handle the submission of activityDetails
-//     console.log('Submitting booking details:', transportDetails);
-//   };
-
-//   return (
-//     <div className='flex flex-col gap-3'>
-//       <div className='card w-full h-10'>
-//         <p>Review all the details and submit your activity.</p>
-//       </div>
-//       <div className='flex w-full justify-center'>
-//         <Button variant="primaryGreen" onClick={handleSubmit}>
-//           Submit
-//         </Button>
-//       </div>
-
-//     </div>
-//   );
-// };
 
 const EditTransport = ({ id }: { id: string }) => {
   const pathname = usePathname();
@@ -73,6 +51,10 @@ const EditTransport = ({ id }: { id: string }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [driverData, setDriverData] = useState<DriverData>();
+  const [isFetchingLanguages, setIsFetchingLanguages] = useState<boolean>(false);
+  const [languages, setLanguages] = useState<SelectLanguage[]>([]);
+  const [vehicles, setVehicles] = useState<SelectVehicle[]>([]);
+  const { organization, isLoaded } = useOrganization();
 
   useEffect(() => {
     async function fetchDriverDetails() {
@@ -82,6 +64,8 @@ const EditTransport = ({ id }: { id: string }) => {
         if (!selectedDriver) {
           throw new Error("Couldn't find driver");
         }
+
+        console.log("Selected driver:", selectedDriver);
 
         setDriverData(selectedDriver);
         setGeneralDetails({
@@ -93,7 +77,7 @@ const EditTransport = ({ id }: { id: string }) => {
             documents: true,
             vehicles: true,
           },
-          language: selectedDriver.languages[0]?.language.id.toString() ?? "",
+          languages: selectedDriver.languages.map(l => l.language.name),
           primaryContactNumber: selectedDriver.primaryContactNumber,
           primaryEmail: selectedDriver.primaryEmail,
           province: selectedDriver.province,
@@ -109,6 +93,7 @@ const EditTransport = ({ id }: { id: string }) => {
             seats: v.vehicle.seats,
             vrl: v.vehicle.revenueLicense,
             year: v.vehicle.year.toString(),
+            id: v.vehicleId,
           });
         });
 
@@ -133,11 +118,48 @@ const EditTransport = ({ id }: { id: string }) => {
         setLoading(false);
       }
     }
+    async function fetchLanguages() {
+      try {
+        setIsFetchingLanguages(true);
+        const response = await getAllLanguages();
+        
+        if (!response) {
+          throw new Error("No languages found");
+        }
+
+
+        setLanguages(response);
+        setIsFetchingLanguages(false);
+      } catch (error) {
+        console.error("Error fetching languages:", error);
+        setIsFetchingLanguages(false);
+      }
+    }
+    async function fetchVehicles() {
+      try {
+        if (!transport || !organization) return;
+        setLoading(true);
+
+        const response = await getAllVehicles(organization.id);
+
+        if (!response) {
+          throw new Error("No vehicles found");
+        }
+
+        setVehicles(response);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching vehicles:", error);
+        setLoading(false);
+      }
+    }
 
     fetchDriverDetails();
+    fetchLanguages();
+    fetchVehicles();
   }, [id]);
 
-  if (loading) {
+  if (loading || isFetchingLanguages) {
     return (
       <div>
         <LoadingLayout />
@@ -156,7 +178,7 @@ const EditTransport = ({ id }: { id: string }) => {
       <div className="flex-1">
         <div className="flex flex-col gap-3">
           <div className="flex w-full flex-row justify-between gap-1">
-            <TitleBar title="Add Driver" link="toAddTransport" />
+            <TitleBar title={isGuide ? 'Edit Guide' : 'Edit Driver'} link="toAddTransport" />
             <div>
               <Link href={`${pathname}`}>
                 <Button variant="link">Finish Later</Button>
@@ -182,7 +204,7 @@ const EditTransport = ({ id }: { id: string }) => {
                   <>
                     <TabsTrigger
                       value="vehicles"
-                      statusLabel="Mandatory"
+                      statusLabel="Included"
                       isCompleted={transportDetails.vehicles.length > 0}
                       inProgress={activeTab == "vehicles"}
                       disabled={!transportDetails.general.name}
@@ -191,7 +213,7 @@ const EditTransport = ({ id }: { id: string }) => {
                     </TabsTrigger>
                     <TabsTrigger
                       value="charges"
-                      statusLabel="Mandatory"
+                      statusLabel="Included"
                       isCompleted={transportDetails.charges.feePerKm > 0}
                       inProgress={activeTab == "charges"}
                       disabled={transportDetails.vehicles.length == 0}
@@ -200,7 +222,7 @@ const EditTransport = ({ id }: { id: string }) => {
                     </TabsTrigger>
                     <TabsTrigger
                       value="documents"
-                      statusLabel="Mandatory"
+                      statusLabel="Included"
                       isCompleted={
                         transportDetails.documents.vehicleEmissionTest.length >
                         1
@@ -238,7 +260,7 @@ const EditTransport = ({ id }: { id: string }) => {
               {!isGuide && (
                 <>
               <TabsContent value="vehicles">
-                <VehiclesTab />
+                <VehiclesTab vehicles={vehicles}/>
               </TabsContent>
               <TabsContent value="charges">
                 <ChargesTab />
@@ -252,6 +274,7 @@ const EditTransport = ({ id }: { id: string }) => {
                 <EditTransportSubmitForm
                   id={id}
                   originalDriverData={driverData ?? null}
+                  languages={languages}
                 />
               </TabsContent>
             </Tabs>

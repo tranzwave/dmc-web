@@ -1,0 +1,1 @@
+ALTER TABLE "dmc-web_notifications" ALTER COLUMN "pathname" DROP NOT NULL;

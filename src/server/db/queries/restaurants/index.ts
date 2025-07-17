@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { RestaurantDetails } from "~/app/dashboard/restaurants/add/context";
 import { db } from "../..";
 import { InsertMeal, InsertRestaurant } from "../../schemaTypes";
-import { city, restaurant, restaurantMeal, restaurantVoucher } from './../../schema';
+import { city, restaurant, restaurantMeal, restaurantVoucher, tenant } from './../../schema';
 
 
 export const getTenantId = () => {
@@ -23,8 +23,9 @@ export const getCityById = (id: string) => {
     });
 };
 
-export const getAllRestaurantVendors = () => {
+export const getAllRestaurantVendors = (tenantId:string) => {
     return db.query.restaurant.findMany({
+        where: eq(restaurant.tenantId, tenantId),
         with: {
             city: true
         }
@@ -91,10 +92,15 @@ export const saveRestaurant = async (restaurantData: {
 
 export const insertRestaurant = async (
     restaurantDetails: RestaurantDetails[],
+    tenantId: string
 ) => {
     try {
         const newRestaurants = await db.transaction(async (tx) => {
-            const foundTenant = await tx.query.tenant.findFirst();
+            const foundTenant = await tx.query.tenant.findFirst(
+                {
+                    where: eq(tenant.id, tenantId)
+                }
+            );
 
             if (!foundTenant) {
                 throw new Error("Couldn't find any tenant");
@@ -167,7 +173,7 @@ export const insertRestaurant = async (
 
 export async function updateRestaurantAndRelatedData(
     restaurantId: string,
-    updatedRestaurant: InsertRestaurant | null,
+    updatedRestaurant: InsertRestaurant,
     updatedMeals: InsertMeal[],
 ) {
     console.log(restaurantId);
@@ -187,6 +193,7 @@ export async function updateRestaurantAndRelatedData(
                 streetName: updatedRestaurant.streetName,
                 province: updatedRestaurant.province,
                 cityId: updatedRestaurant.cityId,
+                primaryEmail: updatedRestaurant.primaryEmail,
 
             })
             .where(eq(restaurant.id, restaurantId))
@@ -199,7 +206,7 @@ export async function updateRestaurantAndRelatedData(
         // Update related vehicles
         const updatedMealsData = await updateRestaurantMeals(trx, restaurantId, updatedMeals);
 
-        return { updatedDriverResult: updatedRestaurantResult };
+        return { updatedDriverResult: updatedRestaurantResult, updatedMealsData };
     });
 
     console.log(updated);
@@ -211,9 +218,43 @@ async function updateRestaurantMeals(
     restaurantId: string,
     updatedMeals: InsertMeal[]
 ) {
-    // If there are no vehicles to update, return early
-    if (updatedMeals.length === 0) {
-        return [];
+    if (updatedMeals.length === 0) return [];
+
+    const mealIds: string[] = [];
+    const newMeals: InsertMeal[] = [];
+
+    for (const mealData of updatedMeals) {
+        if (mealData.id) {
+            // If meal has an ID, update it
+            await trx.update(restaurantMeal)
+                .set({ ...mealData })
+                .where(eq(restaurantMeal.id, mealData.id));
+            mealIds.push(mealData.id);
+        } else {
+            // If meal has no ID, it's a new meal to insert
+            newMeals.push({ ...mealData, restaurantId });
+        }
+    }
+
+    // Insert new meals
+    if (newMeals.length > 0) {
+        const insertedMeals = await trx.insert(restaurantMeal).values(newMeals).returning({ id: restaurantMeal.id });
+        mealIds.push(...insertedMeals.map((m: any) => m.id));
+    }
+
+    return mealIds;
+}
+
+export async function deleteRestaurantMeal(mealId: string) {
+    try {
+        await db.delete(restaurantMeal)
+            .where(eq(restaurantMeal.id, mealId));
+
+        console.log("Meal deleted successfully");
+        return true
+    } catch (error) {
+        console.error("Error deleting meal:", error);
+        throw error; // Re-throw the error to handle it elsewhere if needed
     }
 }
 

@@ -14,9 +14,10 @@ import {
 } from "~/server/db/schemaTypes";
 import HotelVouchersTasksTab from "./taskTab";
 import { VoucherConfirmationDetails } from "~/lib/types/booking";
+import { HotelWithRooms } from "../../editBooking/forms/hotelsForm";
 
 export type HotelVoucherData = SelectHotelVoucher & {
-  hotel: SelectHotel;
+  hotel: HotelWithRooms;
   voucherLines: SelectHotelVoucherLine[];
 };
 // Define specific columns for hotels
@@ -92,6 +93,9 @@ const HotelsTasksTab = ({
   currency: string;
 }) => {
   const { toast } = useToast();
+  const [selectedHotel, setSelectedHotel] = useState<SelectHotel>();
+  const [localVouchers, setLocalVouchers] = useState(vouchers);
+
   const updateVoucherLinesRates = async (
     ratesMap: Map<string,string>,
     voucherId:string,
@@ -107,7 +111,7 @@ const HotelsTasksTab = ({
     if (!confirmationDetails) {
       throw new Error("Failed");
     }
-    alert("Updating voucher line:");
+    // alert("Updating voucher line:");
     try {
       const bulkUpdateResponse = bulkUpdateHotelVoucherRates(ratesMap,voucherId, {
         availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
@@ -121,21 +125,44 @@ const HotelsTasksTab = ({
       if (!bulkUpdateResponse) {
         throw new Error("Failed");
       }
-      window.location.reload();
+      toast({
+        title: "Success",
+        description: "Voucher line updated successfully",
+      });
+      // window.location.reload();
     } catch (error) {
       console.error("Error updating voucher line:", error);
-      alert("Failed to update voucher line. Please try again.");
+      toast({
+        title: "Error",
+        description: "Error while updating the voucher line",
+      });
+      // alert("Failed to update voucher line. Please try again.");
     }
   };
   const updateVoucherStatus = async (voucher: SelectHotelVoucher, confirmationDetails?:VoucherConfirmationDetails) => {
-    alert("Updating voucher status:");
+    // alert("Updating voucher status:");
     try {
-      const voucherUpdateResponse = confirmationDetails ? await updateHotelVoucherStatusWithConfirmationDetails(voucher, confirmationDetails) :  await updateHotelVoucherStatus(voucher);
+      const voucherId = voucher.id ?? "";
+      const status = voucher.status;
+      const voucherUpdateResponse = confirmationDetails ? await updateHotelVoucherStatusWithConfirmationDetails(voucher, confirmationDetails) :  await updateHotelVoucherStatus(voucherId, status);
 
       if (!voucherUpdateResponse) {
         throw new Error("Failed");
       }
+
+      setLocalVouchers((prev) =>
+        prev.map((v) =>
+          v.id === voucher.id ? { 
+            ...v, 
+            status: voucher.status,
+            responsiblePerson:voucher.responsiblePerson ?? confirmationDetails?.responsiblePerson ?? "",
+            confirmationNumber:voucher.confirmationNumber ?? confirmationDetails?.confirmationNumber ?? "",
+            reminderDate:voucher.reminderDate ?? confirmationDetails?.reminderDate ?? "",
+          } : v
+        )
+      );
       return true;
+      
     } catch (error) {
       console.error("Error updating voucher line:", error);
       toast({
@@ -146,15 +173,13 @@ const HotelsTasksTab = ({
     }
   };
 
-  const [selectedHotel, setSelectedHotel] = useState<SelectHotel>();
-
 
   return (
     <HotelVouchersTasksTab
       bookingLineId={bookingLineId}
       columns={hotelColumns}
       voucherColumns={hotelVoucherLineColumns}
-      vouchers={vouchers}
+      vouchers={localVouchers}
       updateVoucherLine={updateVoucherLinesRates}
       updateVoucherStatus={updateVoucherStatus}
       contactDetails={

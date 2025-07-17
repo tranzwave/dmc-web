@@ -21,6 +21,7 @@ import {
 } from "~/server/db/schemaTypes";
 import { restaurantVoucherColumns } from "./columns";
 import RestaurantForm from "./restaurantsForm";
+import { useOrganization } from "@clerk/nextjs";
 
 export type RestaurantData = SelectRestaurant & {
   restaurantMeal: SelectMeal[];
@@ -56,6 +57,7 @@ const RestaurantsTab = () => {
   const pathname = usePathname();
   const bookingLineId = pathname.split("/")[3];
   const router = useRouter()
+  const {organization, isLoaded} = useOrganization();
 
   const updateRestaurants = async(
     data: InsertRestaurantVoucherLine,
@@ -134,6 +136,10 @@ const RestaurantsTab = () => {
     setLoading(true);
 
     try {
+
+      if(!organization){
+        throw new Error("Organization not found")
+      }
       const response = await getAllRestaurants();
 
       if (!response) {
@@ -221,7 +227,7 @@ const RestaurantsTab = () => {
     setIsDeleting(false);
   };
 
-  if (loading) {
+  if (loading || !isLoaded) {
     return <div>Loading</div>;
   }
   
