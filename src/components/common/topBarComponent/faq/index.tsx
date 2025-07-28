@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Info, X } from "lucide-react"
+import { Info } from "lucide-react"
 import { Button } from "~/components/ui/button"
 import {
   Dialog,
@@ -9,73 +9,100 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "~/components/ui/dialog"
 import { Screen, screens } from "~/lib/constants/guides"
 import { usePathname } from "next/navigation"
-
-interface GuideSheetProps {
-  videoId: string
-  screenTitle: string
-  description?: string
-}
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover"
 
 export default function GuideSheet() {
-  const [open, setOpen] = useState(false)
-  const [screen, setScreen] = useState<Screen>(screens[0]!);
-  const pathname = usePathname();
-
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [screen, setScreen] = useState<Screen>(screens[0]!)
+  const [selectedVideo, setSelectedVideo] = useState<{ title: string; videoId: string } | null>(null)
+  const pathname = usePathname()
 
   useEffect(() => {
-    const currentPath = pathname.split("dashboard/")[1];
+    const currentPath = pathname.split("dashboard/")[1]
     if (!currentPath) {
-      return;
+      setScreen(screens[0]!)
+      return
     }
-    const currentSubScreen = currentPath.split("/")[currentPath.split("/").length - 1];
-    const mainScreen = currentPath.split("/")[0];
-    const screenToSearchFor = currentSubScreen ? `${mainScreen}/${currentSubScreen}` : currentPath;
-    const currentScreen = screens.find((s) => s.id === screenToSearchFor);
+    const currentSubScreen = currentPath.split("/")[currentPath.split("/").length - 1]
+    const mainScreen = currentPath.split("/")[0]
+    const screenToSearchFor = currentSubScreen ? `${mainScreen}/${currentSubScreen}` : currentPath
+    const currentScreen = screens.find((s) => s.id === (mainScreen === currentSubScreen ? mainScreen : screenToSearchFor))
     if (currentScreen) {
-      setScreen(currentScreen);
+      setScreen(currentScreen)
     } else {
-      setScreen(screens[0]!);
+      setScreen(screens[0]!)
     }
-  }
-    , [pathname])
+  }, [pathname])
 
+  const handleVideoSelect = (video: { title: string; videoId: string }) => {
+    setSelectedVideo(video)
+    setDialogOpen(true)
+    setMenuOpen(false)
+  }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Info size={20} color="#697077" className="hover:cursor-pointer" />
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[900px] min-h-[70vh] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-semibold">{screen.title} Guide</DialogTitle>
-            {/* <Button variant="ghost" size="icon" onClick={() => setOpen(false)} className="h-8 w-8 rounded-full">
-              <X className="h-4 w-4" />
-              <span className="sr-only">Close</span>
-            </Button> */}
+    <>
+      <Popover open={menuOpen} onOpenChange={setMenuOpen}>
+        <PopoverTrigger asChild>
+          <Info size={20} color="#697077" className="hover:cursor-pointer" />
+        </PopoverTrigger>
+        <PopoverContent className="w-auto">
+          <div className="mb-2 font-semibold text-base">{screen.title} Guide Videos</div>
+          <div className="flex flex-col gap-2">
+            {screen.videos && screen.videos.length > 0 ? (
+              screen.videos.map((video) => (
+                <Button
+                  key={video.videoId}
+                  variant="outline"
+                  className="justify-start"
+                  onClick={() => handleVideoSelect(video)}
+                >
+                  {video.title}
+                </Button>
+              ))
+            ) : (
+              <div className="text-sm text-muted-foreground">No videos available for this section.</div>
+            )}
           </div>
-          {screen.description && (
-            <DialogDescription className="text-sm text-muted-foreground mt-2">{screen.description}</DialogDescription>
-          )}
-        </DialogHeader>
-        <div className="mt-4 aspect-video w-full overflow-hidden rounded-lg">
-          <iframe
-            width="100%"
-            height="100%"
-            src={`https://www.youtube.com/embed/${screen.videoId}`}
-            title={`${screen.title} guide video`}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="aspect-video"
-          ></iframe>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </PopoverContent>
+      </Popover>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-[900px] min-h-[70vh] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-xl font-semibold">
+                {screen.title} Guide - {selectedVideo?.title}
+              </DialogTitle>
+            </div>
+            {screen.description && (
+              <DialogDescription className="text-sm text-muted-foreground mt-2">{screen.description}</DialogDescription>
+            )}
+          </DialogHeader>
+          <div className="mt-4 aspect-video w-full overflow-hidden rounded-lg">
+            {selectedVideo && (
+              <iframe
+                width="100%"
+                height="100%"
+                src={`https://www.youtube.com/embed/${selectedVideo.videoId}`}
+                title={`${selectedVideo.title} guide video`}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="aspect-video"
+              ></iframe>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 

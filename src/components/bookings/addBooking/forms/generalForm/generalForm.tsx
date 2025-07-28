@@ -533,11 +533,11 @@ const GeneralForm = ({ allUsers, marketingTeams }: GeneralFormProps) => {
                             );
                             field.onChange(dateString);
                           }}
-                          disabled={(date) => {
-                            const today = new Date();
-                            today.setHours(0, 0, 0, 0);
-                            return date < today;
-                          }}
+                          // disabled={(date) => {
+                          //   const today = new Date();
+                          //   today.setHours(0, 0, 0, 0);
+                          //   return date < today;
+                          // }}
                           numberOfMonths={1}
                         />
                       </PopoverContent>
