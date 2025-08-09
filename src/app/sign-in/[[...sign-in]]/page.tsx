@@ -6,7 +6,9 @@ export default function Page() {
   return (
     <div className='w-full h-full flex flex-row'>
 
-      <SideHero/>
+      <SideHero>
+        <SignIn forceRedirectUrl={"/dashboard/overview"} />
+      </SideHero>
 
       {/* Sign-In Section */}
       <div className='w-[60%] h-full flex justify-center items-center'>
