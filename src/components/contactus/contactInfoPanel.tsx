@@ -70,7 +70,7 @@ export default function ContactInfoPanel() {
   return (
     <section
       aria-label="Contact Information"
-      className="p-10 rounded-3xl bg-white/20 backdrop-blur-[30px] border border-white/25 shadow-xl hover:shadow-2xl hover:shadow-primary-green/20 flex flex-col space-y-10">
+      className="p-10 pt-12 rounded-3xl bg-white/20 backdrop-blur-[30px] border border-white/25 shadow-xl hover:shadow-2xl hover:shadow-primary-green/20 flex flex-col space-y-10">
       <p className="text-lg font-medium text-gray-700 leading-relaxed">
         We'd love to hear from you. Fill out the form below and we'll get back to you as soon as possible.
       </p>
