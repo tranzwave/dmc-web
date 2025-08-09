@@ -11,11 +11,11 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   return (
-    <div className="flex flex-col overflow-auto h-screen bg-gradient-to-br from-[#e6f4f1] via-[#f2f9f8] to-[#ffffff]">
+    <div className="flex flex-col overflow-auto h-screen bg-gradient-to-br pb-8 from-[#e6f4f1] via-[#f2f9f8] to-[#ffffff]">
       <div className="sticky top-0 left-0 w-full z-50">
         <Navbar />
       </div>
-      <div className="flex-1 container mx-auto py-10 px-6 md:px-10 mt-10">
+      <div className="flex-1 container mx-auto py-10 px-6 md:px-10 mt-20">
         <h1 className="text-4xl md:text-6xl font-extrabold tracking-wide text-primary-green mb-12 select-none drop-shadow-md">
           Contact Us
         </h1>
