@@ -13,7 +13,7 @@ export default function HeroSection() {
         <Image
           src="/placeholder.svg?height=1080&width=1920"
           alt="Background"
-          fill // <-- updated prop
+          fill 
           className="object-cover"
           priority
         />
