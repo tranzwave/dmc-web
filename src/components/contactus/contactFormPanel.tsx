@@ -133,10 +133,10 @@ export default function ContactFormPanel({
     }, [formError, setFormError])
 
     return (
-        <section
-            aria-label="Contact Form"
-            className="p-10 rounded-3xl bg-white/20 backdrop-blur-[30px] border border-white/25 shadow-lg shadow-primary-green/20"
-        >
+ <section
+      aria-label="Contact Information"
+      className="p-10 rounded-3xl bg-white/20 backdrop-blur-[30px] border border-white/25 shadow-xl hover:shadow-2xl hover:shadow-primary-green/20 flex flex-col space-y-10">
+     
             {formSuccess ? (
                 <div className="flex flex-col items-center justify-center text-center space-y-6 h-full">
                     <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center drop-shadow-md">
