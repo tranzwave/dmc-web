@@ -15,8 +15,8 @@ export default function ContactPage() {
       <div className="sticky top-0 left-0 w-full z-50">
         <Navbar />
       </div>
-      <div className="flex-1 container mx-auto py-10 px-6 md:px-10 mt-20">
-        <h1 className="text-4xl font-extrabold tracking-tight text-primary-green mb-12 select-none drop-shadow-md">
+      <div className="flex-1 container mx-auto py-10 px-6 md:px-10 mt-10">
+        <h1 className="text-4xl md:text-6xl font-extrabold tracking-wide text-primary-green mb-12 select-none drop-shadow-md">
           Contact Us
         </h1>
 
