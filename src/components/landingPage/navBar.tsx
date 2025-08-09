@@ -11,36 +11,30 @@ import {
   NavigationMenuTrigger,
 } from "~/components/ui/navigation-menu"
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet"
-import { Calendar, MapPin, Menu, Users } from 'lucide-react'
+import { Menu, MapPin, Calendar, Users, Settings, Sparkles, ClipboardList } from 'lucide-react'
 import Image from "next/image"
+import { cn } from "~/lib/utils"
 
 export function Navbar() {
   return (
-    <header className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-sm">
+    <header className="fixed top-0 w-full z-50 bg-gradient-to-r from-white/40 to-white/10 backdrop-blur-2xl border-b border-white/30 shadow-lg">
       <div className="container mx-auto px-6">
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group">
             <div className="relative overflow-hidden rounded-xl">
-              {/* <Image
+              <Image
                 src="/assets/new-logo.png" 
                 style={{ width: '130px', height: '60px' }}
                 width={130}
                 height={60}
                 alt="Travel Logo"
                 className="rounded-xl transition-transform duration-300 group-hover:scale-105"
-              /> */}
-              <Image
-                src="https://images.pexels.com/photos/1371360/pexels-photo-1371360.jpeg?auto=compress&cs=tinysrgb&w=130&h=60&fit=crop"
-                alt="Travel Logo"
-                width={50}
-                height={50}
-                className="rounded-xl transition-transform duration-300 group-hover:scale-105"
               />
             </div>
-            <span className="text-5xl font-extrabold bg-gradient-to-r from-[#287f71] to-[#2dd4bf] bg-clip-text text-transparent">
+            {/* <span className="text-4xl font-extrabold bg-gradient-to-r from-[#287f71] to-[#2dd4bf] bg-clip-text text-transparent">
               COORD.TRAVEL
-            </span>
+            </span> */}
           </Link>
 
           {/* Mobile Menu */}
@@ -60,23 +54,38 @@ export function Navbar() {
                 <nav className="flex flex-col gap-1">
                   <div className="mb-6">
                     <h3 className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Navigation
+                      COORD.TRAVEL
                     </h3>
                   </div>
 
-                  <Link
-                    href="#features"
-                    className="flex items-center gap-3 px-4 py-3 text-lg font-medium text-gray-700 hover:bg-white/50 rounded-xl transition-all duration-200 mx-2"
-                  >
-                    <MapPin className="h-5 w-5 text-[#287f71]" />
-                    Features
-                  </Link>
+                  <div className="mx-2 ml-0">
+                    <div className="flex items-center gap-3 px-4 py-3 text-lg font-medium text-gray-700 hover:bg-white/50 rounded-xl transition-all duration-200 mx-2">
+                      <Sparkles className="h-5 w-5 text-[#287f71]" />
+                      Features
+                    </div>
+                    <div className="pl-4 space-y-1 ml-6">
+                      <Link
+                        href="#features"
+                        className="flex items-center gap-3 px-4 py-3 text-base font-medium text-gray-600 hover:bg-white/50 rounded-xl transition-all duration-200"
+                      >
+                        <ClipboardList className="h-4 w-4 text-[#287f71]" />
+                        Guest Management
+                      </Link>
+                      <Link
+                        href="#features"
+                        className="flex items-center gap-3 px-4 py-3 text-base font-medium text-gray-600 hover:bg-white/50 rounded-xl transition-all duration-200"
+                      >
+                        <Calendar className="h-4 w-4 text-[#287f71]" />
+                        Booking System
+                      </Link>
+                    </div>
+                  </div>
 
                   <Link
                     href="#pricing"
                     className="flex items-center gap-3 px-4 py-3 text-lg font-medium text-gray-700 hover:bg-white/50 rounded-xl transition-all duration-200 mx-2"
                   >
-                    <Calendar className="h-5 w-5 text-[#287f71]" />
+                    <Settings className="h-5 w-5 text-[#287f71]" />
                     Pricing
                   </Link>
 
@@ -109,35 +118,35 @@ export function Navbar() {
                     Features
                   </NavigationMenuTrigger>
                   <NavigationMenuContent className="bg-white/95 backdrop-blur-xl border border-white/20 shadow-xl rounded-2xl">
-                    <div className="grid gap-3 p-8 w-[520px]">
+                    <div className="flex flex-col gap-3 p-8 w-[420px]">
                       <div className="mb-4">
                         <h4 className="text-lg font-semibold text-gray-900">Travel Features</h4>
                         <p className="text-sm text-gray-600">Everything you need for seamless travel planning</p>
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-2">
                         <Link
                           href="#features"
-                          className="group flex flex-col gap-2 rounded-xl p-4 hover:bg-white/50 transition-all duration-200 border border-transparent hover:border-white/30"
+                          className="group flex items-start gap-3 rounded-xl p-4 hover:bg-white/50 transition-all duration-200 border border-transparent hover:border-white/30"
                         >
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-[#287f71]" />
+                          <MapPin className="h-5 w-5 text-[#287f71] mt-0.5 flex-shrink-0" />
+                          <div className="flex flex-col gap-1">
                             <span className="font-semibold text-gray-900 group-hover:text-[#287f71] transition-colors">Guest Management</span>
+                            <p className="text-sm text-gray-600 leading-relaxed">
+                              Streamline your guest experience from start to finish with our comprehensive management tools
+                            </p>
                           </div>
-                          <p className="text-sm text-gray-600 leading-relaxed">
-                            Streamline your guest experience from start to finish with our comprehensive management tools
-                          </p>
                         </Link>
                         <Link
                           href="#features"
-                          className="group flex flex-col gap-2 rounded-xl p-4 hover:bg-white/50 transition-all duration-200 border border-transparent hover:border-white/30"
+                          className="group flex items-start gap-3 rounded-xl p-4 hover:bg-white/50 transition-all duration-200 border border-transparent hover:border-white/30"
                         >
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-[#287f71]" />
+                          <Calendar className="h-5 w-5 text-[#287f71] mt-0.5 flex-shrink-0" />
+                          <div className="flex flex-col gap-1">
                             <span className="font-semibold text-gray-900 group-hover:text-[#287f71] transition-colors">Booking System</span>
+                            <p className="text-sm text-gray-600 leading-relaxed">
+                              Efficient and automated booking management with real-time availability and instant confirmations
+                            </p>
                           </div>
-                          <p className="text-sm text-gray-600 leading-relaxed">
-                            Efficient and automated booking management with real-time availability and instant confirmations
-                          </p>
                         </Link>
                       </div>
                     </div>
@@ -175,4 +184,3 @@ export function Navbar() {
     </header>
   )
 }
-
