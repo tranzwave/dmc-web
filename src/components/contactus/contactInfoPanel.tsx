@@ -1,3 +1,11 @@
+/**
+ * Contact Information Panel
+ *
+ * A panel displaying the contact information of the company.
+ *
+ * @created 8/10/2025
+ * @updated 8/10/2025
+ */
 "use client"
 
 import { MapPin, Phone, Mail, Clock } from "lucide-react"
