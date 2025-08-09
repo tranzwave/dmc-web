@@ -24,7 +24,7 @@ export function Navbar() {
           <Link href="/" className="flex items-center space-x-2 group">
             <div className="relative overflow-hidden rounded-xl">
               <Image
-                src="/assets/new-logo.png" 
+                src="/assets/new-logo.png"
                 style={{ width: '130px', height: '60px' }}
                 width={130}
                 height={60}
@@ -114,7 +114,7 @@ export function Navbar() {
             <NavigationMenu>
               <NavigationMenuList className="gap-1">
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="bg-transparent hover:bg-white/10 rounded-full px-6 py-2 font-medium text-gray-700 transition-all duration-200 border border-transparent hover:border-white/20">
+                  <NavigationMenuTrigger className="bg-transparent hover:bg-white/20 rounded-full px-6 py-2 font-medium text-gray-700 transition-all duration-200 border border-transparent hover:border-white/20">
                     Features
                   </NavigationMenuTrigger>
                   <NavigationMenuContent className="bg-white/95 backdrop-blur-xl border border-white/20 shadow-xl rounded-2xl">
@@ -126,7 +126,7 @@ export function Navbar() {
                       <div className="flex flex-col gap-2">
                         <Link
                           href="#features"
-                          className="group flex items-start gap-3 rounded-xl p-4 hover:bg-white/50 transition-all duration-200 border border-transparent hover:border-white/30"
+                          className="group flex items-start gap-3 rounded-xl p-4 hover:bg-white/60 transition-all duration-200 border border-transparent hover:border-white/30"
                         >
                           <MapPin className="h-5 w-5 text-[#287f71] mt-0.5 flex-shrink-0" />
                           <div className="flex flex-col gap-1">
@@ -138,7 +138,7 @@ export function Navbar() {
                         </Link>
                         <Link
                           href="#features"
-                          className="group flex items-start gap-3 rounded-xl p-4 hover:bg-white/50 transition-all duration-200 border border-transparent hover:border-white/30"
+                          className="group flex items-start gap-3 rounded-xl p-4 hover:bg-white/60 transition-all duration-200 border border-transparent hover:border-white/30"
                         >
                           <Calendar className="h-5 w-5 text-[#287f71] mt-0.5 flex-shrink-0" />
                           <div className="flex flex-col gap-1">
@@ -155,7 +155,7 @@ export function Navbar() {
 
                 <NavigationMenuItem>
                   <Link href="/#pricing" legacyBehavior passHref>
-                    <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-full px-6 py-2 text-sm font-medium transition-all duration-200 hover:bg-white/10 focus:bg-white/10 focus:text-gray-900 focus:outline-none border border-transparent hover:border-white/20 text-gray-700">
+                    <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-full px-6 py-2 text-sm font-medium transition-all duration-200 hover:bg-white/20 focus:bg-white/10 focus:text-gray-900 focus:outline-none border border-transparent hover:border-white/20 text-gray-700">
                       Pricing
                     </NavigationMenuLink>
                   </Link>
@@ -163,7 +163,7 @@ export function Navbar() {
 
                 <NavigationMenuItem>
                   <Link href="/contact-us" legacyBehavior passHref>
-                    <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-full px-6 py-2 text-sm font-medium transition-all duration-200 hover:bg-white/10 focus:bg-white/10 focus:text-gray-900 focus:outline-none border border-transparent hover:border-white/20 text-gray-700">
+                    <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-full px-6 py-2 text-sm font-medium transition-all duration-200 hover:bg-white/20 focus:bg-white/10 focus:text-gray-900 focus:outline-none border border-transparent hover:border-white/20 text-gray-700">
                       Contact
                     </NavigationMenuLink>
                   </Link>
@@ -173,7 +173,7 @@ export function Navbar() {
 
             <div className="ml-4">
               <Link href="/dashboard/overview">
-                <Button className="h-11 px-8 bg-gradient-to-r from-[#287f71] to-[#2dd4bf] hover:from-[#1e6b5c] hover:to-[#14b8a6] text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[0.98] border-0">
+                <Button className="h-11 px-8 bg-white/40 backdrop-blur-xl border border-white/60 rounded-full text-[#287f71] font-semibold shadow-md hover:shadow-lg hover:bg-white/70 transition-all duration-300 transform hover:scale-[0.98]">
                   Get Started
                 </Button>
               </Link>
