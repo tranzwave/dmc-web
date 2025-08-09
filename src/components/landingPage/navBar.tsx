@@ -91,7 +91,7 @@ export function Navbar() {
 
                   <Link
                     href="/contact-us"
-                    className="flex items-center gap-3 px-4 py-3 text-lg font-medium text-gray-700 hover:bg-white/50 rounded-xl transition-all duration-200 mx-2"
+                    className="flex items-center gap-3 px-4 py-3 text-lg font-medium text-gray-700 hover:bg-white/90 rounded-xl transition-all duration-200 mx-2"
                   >
                     <Users className="h-5 w-5 text-[#287f71]" />
                     Contact
@@ -114,7 +114,7 @@ export function Navbar() {
             <NavigationMenu>
               <NavigationMenuList className="gap-1">
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="bg-transparent hover:bg-white/20 rounded-full px-6 py-2 font-medium text-gray-700 transition-all duration-200 border border-transparent hover:border-white/20">
+                  <NavigationMenuTrigger className="bg-transparent hover:bg-white/20 hover:shadow-lg rounded-full px-6 py-2 font-medium text-gray-700 transition-all duration-200 border border-transparent hover:border-white/20">
                     Features
                   </NavigationMenuTrigger>
                   <NavigationMenuContent className="bg-white/95 backdrop-blur-xl border border-white/20 shadow-xl rounded-2xl">
@@ -155,7 +155,7 @@ export function Navbar() {
 
                 <NavigationMenuItem>
                   <Link href="/#pricing" legacyBehavior passHref>
-                    <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-full px-6 py-2 text-sm font-medium transition-all duration-200 hover:bg-white/20 focus:bg-white/10 focus:text-gray-900 focus:outline-none border border-transparent hover:border-white/20 text-gray-700">
+                    <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-full px-6 py-2 text-sm font-medium transition-all duration-200 hover:bg-white/20 hover:shadow-lg focus:bg-white/10 focus:text-gray-900 focus:outline-none border border-transparent hover:border-white/20 text-gray-700">
                       Pricing
                     </NavigationMenuLink>
                   </Link>
@@ -163,7 +163,7 @@ export function Navbar() {
 
                 <NavigationMenuItem>
                   <Link href="/contact-us" legacyBehavior passHref>
-                    <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-full px-6 py-2 text-sm font-medium transition-all duration-200 hover:bg-white/20 focus:bg-white/10 focus:text-gray-900 focus:outline-none border border-transparent hover:border-white/20 text-gray-700">
+                    <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-full px-6 py-2 text-sm font-medium transition-all duration-200 hover:bg-white/20 hover:shadow-lg focus:bg-white/10 focus:text-gray-900 focus:outline-none border border-transparent hover:border-white/20 text-gray-700">
                       Contact
                     </NavigationMenuLink>
                   </Link>
