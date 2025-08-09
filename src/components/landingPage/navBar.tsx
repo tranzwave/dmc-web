@@ -17,7 +17,7 @@ import { cn } from "~/lib/utils"
 
 export function Navbar() {
   return (
-    <header className="fixed top-0 w-full z-50 bg-gradient-to-r from-white/40 to-white/10 backdrop-blur-2xl border-b border-white/30 shadow-lg">
+    <header className="sticky top-0 w-full z-50 bg-gradient-to-r from-white/40 to-white/10 backdrop-blur-2xl border-b border-white/30 shadow-lg">
       <div className="container mx-auto px-6">
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
