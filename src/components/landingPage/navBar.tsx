@@ -35,8 +35,8 @@ export function Navbar() {
   }
 
   return (
-   <header className="fixed top-0 left-1/2 -translate-x-1/2 w-full sm:w-auto z-[50] bg-gradient-to-r from-white/40 to-white/10 backdrop-blur-2xl border-b border-white/30 shadow-lg rounded-b-3xl">
-    <div className="container mx-0 px-6">
+   <header className="fixed top-0 left-1/2 -translate-x-1/2 w-full sm:w-[90%] md:w-[80%] lg:w-[75%] z-[50] bg-gradient-to-r from-white/40 to-white/10 backdrop-blur-2xl border-b border-white/30 shadow-lg rounded-b-3xl">
+   <div className="container mx-0 px-6">
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <Link href={"/"} onClick={handleLogoClick} className="flex items-center space-x-2 group">
