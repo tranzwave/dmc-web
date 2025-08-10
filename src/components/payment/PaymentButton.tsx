@@ -85,7 +85,7 @@ const PaymentButton = ({ selectedPackage, closeDialog }: PaymentButtonProps) => 
                 notify_url: notify_url,
                 order_id: order_id,
                 amount: selectedPackage.price.toFixed(2),
-                currency: "USD",
+                currency: "LKR",
                 first_name: user.firstName ? user.firstName : (() => { throw new Error("First name not found") })(),
                 last_name: user.lastName ? user.lastName : (() => { throw new Error("Last name not found") })(),
                 email: user.primaryEmailAddress ? user.primaryEmailAddress.emailAddress : (() => { throw new Error("Email not found") })(),
