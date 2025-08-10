@@ -1,7 +1,7 @@
 /**
  * StatsSection component displays key statistics with animations.
  *
- * @update 8/10/2025
+ * @update 8/11/2025
  */
 "use client"
 
@@ -16,12 +16,42 @@ const stats = [
 ]
 
 export default function StatsSection() {
+  const controls = useAnimation()
+  const ref = useRef(null)
+  const inView = useInView(ref, { amount: 0.3 }) // trigger when 30% in view
+
+  useEffect(() => {
+    if (inView) {
+      controls.start("visible")
+    } else {
+      controls.start("hidden")
+    }
+  }, [inView, controls])
   return (
     <section className="py-20 bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-center text-3xl sm:text-4xl font-extrabold text-gray-900 mb-16">
-          Powering the travel experiences industry
-        </h2>
+        <motion.div
+          ref={ref}
+          variants={{
+            hidden: { opacity: 0, y: 30, scale: 0.98 },
+            visible: {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              transition: { duration: 0.6, ease: "easeOut" },
+            },
+          }}
+          initial="hidden"
+          animate={controls}
+          className="text-center mb-16"
+        >
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-gray-900 select-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.1)]">
+            Powering the travel experiences industry
+          </h2>
+          <p className="text-gray-700 max-w-2xl mx-auto font-light leading-relaxed">
+            Choose the perfect plan for your travel business needs
+          </p>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 gap-y-10 text-center">
           {stats.map(({ icon: Icon, number, label }, i) => (
@@ -29,7 +59,7 @@ export default function StatsSection() {
           ))}
         </div>
       </div>
-    </section>
+    </section >
   )
 }
 
