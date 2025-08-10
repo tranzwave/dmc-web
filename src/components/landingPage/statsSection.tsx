@@ -18,12 +18,12 @@ const stats = [
 export default function StatsSection() {
   return (
     <section className="py-20 bg-gray-50">
-      <div className="max-w-6xl mx-auto px-6">
-        <h2 className="text-center text-3xl md:text-4xl font-extrabold text-gray-900 mb-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-center text-3xl sm:text-4xl font-extrabold text-gray-900 mb-16">
           Powering the travel experiences industry
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 gap-y-10 text-center">
           {stats.map(({ icon: Icon, number, label }, i) => (
             <StatItem key={i} Icon={Icon} number={number} label={label} delay={i * 0.3} />
           ))}
@@ -80,7 +80,7 @@ function StatItem({
 }) {
   const controls = useAnimation()
   const ref = useRef(null)
-  const inView = useInView(ref) // no once:true, so triggers every time
+  const inView = useInView(ref) // triggers every time
 
   const [startCount, setStartCount] = useState(false)
 
@@ -114,10 +114,10 @@ function StatItem({
       className="flex flex-col items-center max-w-xs mx-auto"
     >
       <div className="bg-[#287f71]/5 rounded-full p-5 mb-6">
-        <Icon className="text-[#287f71] w-12 h-12" />
+        <Icon className="text-[#287f71] w-10 h-10 sm:w-12 sm:h-12" />
       </div>
-      <div className="text-3xl font-semibold text-gray-900 mb-2">{animatedNumber}</div>
-      <p className="text-gray-600 text-sm md:text-base leading-relaxed">{label}</p>
+      <div className="text-2xl sm:text-3xl md:text-4xl font-semibold text-gray-900 mb-2">{animatedNumber}</div>
+      <p className="text-gray-600 text-xs sm:text-sm md:text-base leading-relaxed">{label}</p>
     </motion.div>
   )
 }
