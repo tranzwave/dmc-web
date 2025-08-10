@@ -4,7 +4,7 @@ import Image from "next/image";
 export default function DashboardPreview() {
     return (
         <>
-            <section className="flex flex-col md:flex-row items-center justify-between max-w mx-auto px-4 sm:px-6 lg:px-10 py-12 sm:py-16 gap-10 sm:gap-12">
+            <section className="flex flex-col md:flex-row items-center justify-between max-w mx-auto px-4 sm:px-6 lg:px-10 py-12 sm:py-16 gap-10 sm:gap-12 mb-4">
                 {/* Left Text */}
                 <motion.div
                     className="max-w-full md:max-w-4xl flex flex-col gap-5 sm:gap-6"
