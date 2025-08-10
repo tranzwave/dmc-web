@@ -29,7 +29,7 @@ export default function PricingSection() {
                             transition={{ delay: i * 0.15, duration: 0.6, ease: "easeOut" }}
                         >
                             <Card
-                                className={`cursor-pointer p-6 w-[320px] min-h-[420px] flex flex-col justify-between rounded-2xl bg-white/20 backdrop-blur-[24px] border border-white/40 shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out ${plan.tabValue === "plus" ? "ring-2 ring-[#2bc8a6] relative" : ""
+                                className={`cursor-pointer p-6 w-[320px] h-auto flex flex-col justify-between rounded-2xl bg-white/20 backdrop-blur-[24px] border border-white/40 shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out ${plan.tabValue === "plus" ? "ring-2 ring-[#2bc8a6] relative" : ""
                                     }`}
                             >
                                 {plan.tabValue === "plus" && (
