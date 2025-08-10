@@ -1,11 +1,5 @@
 'use client'
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "~/components/ui/button"
-import { Card } from "~/components/ui/card"
-import { ArrowRight, Check, Globe, Users, Calendar } from 'lucide-react'
 import { Navbar } from "./navBar"
-import { packages } from "~/lib/constants"
 import HeroSection from "./heroSection"
 import PricingSection from "./pricingSection"
 import DashboardPreview from "./dashboardPreview"
@@ -15,7 +9,7 @@ import StatsSection from "./statsSection"
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen overflow-x-hidden">
       <Navbar />
       {/* Hero Section */}
       <HeroSection />
