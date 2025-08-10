@@ -6,6 +6,7 @@ import DashboardPreview from "./dashboardPreview"
 import FeaturesSection from "./featuresSection"
 import SupportSection from './supportSection';
 import StatsSection from "./statsSection"
+import FocusOnGuestsSection from "./focusOnGuestsSection"
 
 export default function LandingPage() {
   return (
@@ -38,6 +39,11 @@ export default function LandingPage() {
 
       {/* Dashboard Preview */}
       <DashboardPreview />
+
+      {/* Focus on Guests Section */}
+      <div className="px-4">
+        <FocusOnGuestsSection className="px-4 sm:px-8"/>
+      </div>
 
       {/* Pricing Section */}
       <div id="pricing">
