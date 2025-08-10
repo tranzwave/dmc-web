@@ -1,3 +1,9 @@
+/**
+ * Landing Page
+ *
+ * @update 8/10/2025
+ */
+
 'use client'
 import { Navbar } from "./navBar"
 import HeroSection from "./heroSection"
