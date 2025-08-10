@@ -45,8 +45,9 @@ export default function LandingPage() {
       <DashboardPreview />
 
       {/* Pricing Section */}
-      <PricingSection />
-
+      <div id="pricing">
+        <PricingSection />
+      </div>
       {/* Support Section */}
       <SupportSection />
 
