@@ -33,7 +33,7 @@ const TransportHistoryTable = () => {
     };
 
     fetchData();
-  }, [organization]);
+  }, []);
 
   return (
     <div>

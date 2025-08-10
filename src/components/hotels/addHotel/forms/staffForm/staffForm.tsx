@@ -1,35 +1,25 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { z } from 'zod';
+import { useAddHotel } from "~/app/dashboard/hotels/add/context";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { HotelStaffType } from "../staffForm/columns";
+import { staffSchema } from "../schemas";
 
 interface StaffFormProps {
   onAddStaff: (staff: HotelStaffType) => void;
   selectedStaff: HotelStaffType
 }
 
-// Define the schema for staff details
-export const staffSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  contactNumber: z.string().refine(
-    (value) => {
-      const phoneNumber = parsePhoneNumberFromString(value);
-      return phoneNumber?.isValid() ?? false;
-    },
-    { message: "Invalid phone number" },
-  ),
-  occupation: z.string().min(1, "Occupation is required"),
-});
-
 const StaffForm: React.FC<StaffFormProps> = ({ onAddStaff, selectedStaff }) => {
+  const { staffDraft, setStaffDraft } = useAddHotel();
+  const lastDraftKeyRef = useRef<string>("");
+  const lastResetKeyRef = useRef<string>("");
+
   const staffForm = useForm<HotelStaffType>({
     resolver: zodResolver(staffSchema),
     defaultValues: {
@@ -38,9 +28,11 @@ const StaffForm: React.FC<StaffFormProps> = ({ onAddStaff, selectedStaff }) => {
       contactNumber: '',
       occupation: '',
     },
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
   });
 
-  const {reset} = staffForm;
+  const {reset, watch, getValues} = staffForm;
 
   const onSubmit: SubmitHandler<HotelStaffType> = (data) => {
     onAddStaff({
@@ -48,12 +40,37 @@ const StaffForm: React.FC<StaffFormProps> = ({ onAddStaff, selectedStaff }) => {
       id: selectedStaff?.id ?? undefined
     });
     staffForm.reset();
+    setStaffDraft(null);
+    lastDraftKeyRef.current = "";
   };
 
-  useEffect(()=>{
-    reset(selectedStaff)
+  const toStableKey = (v: Partial<HotelStaffType> | null | undefined) => JSON.stringify(v ?? {});
 
-  }, [selectedStaff,reset])
+  useEffect(() => {
+    const hasSelection = !!(selectedStaff?.id ?? selectedStaff?.name ?? selectedStaff?.email ?? selectedStaff?.contactNumber ?? selectedStaff?.occupation);
+    const target: Partial<HotelStaffType> | undefined = hasSelection
+      ? selectedStaff
+      : staffDraft ?? undefined;
+    if (!target) return;
+    const keyTarget = toStableKey(target);
+    const keyCurrent = toStableKey(getValues());
+    if (keyTarget !== keyCurrent && lastResetKeyRef.current !== keyTarget) {
+      lastResetKeyRef.current = keyTarget;
+      reset(target as any);
+    }
+  }, [selectedStaff, staffDraft, reset, getValues]);
+
+  useEffect(() => {
+    const sub = watch((value) => {
+      const nextDraft = { ...(value as any), id: selectedStaff?.id ?? (value as any)?.id } as any;
+      const key = JSON.stringify(nextDraft);
+      if (lastDraftKeyRef.current !== key) {
+        lastDraftKeyRef.current = key;
+        setStaffDraft(nextDraft);
+      }
+    });
+    return () => sub.unsubscribe();
+  }, [watch, setStaffDraft, selectedStaff?.id]);
 
   return (
     <Form {...staffForm}>

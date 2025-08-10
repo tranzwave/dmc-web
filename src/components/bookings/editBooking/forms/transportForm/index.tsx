@@ -127,15 +127,15 @@ const TransportTab = () => {
   };
 
   useEffect(() => {
-    console.log("Booking Details: ", bookingDetails);
-    if (!bookingDetails.general.includes.transport) {
-      setActiveTab("shops");
-      return () => {
-        console.log("Return");
-      };
-    }
+    // console.log("Booking Details: ", bookingDetails);
+    // if (!bookingDetails.general.includes.transport) {
+    //   setActiveTab("shops");
+    //   return () => {
+    //     console.log("Return");
+    //   };
+    // }
     fetchData();
-  }, [bookingDetails]);
+  }, []);
 
   const handleRowClick = (type: DriverData | GuideData) => {
     setSelectedTransportToAdd(type);

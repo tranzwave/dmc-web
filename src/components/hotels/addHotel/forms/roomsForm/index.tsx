@@ -10,14 +10,10 @@ import RoomsForm from "./roomsForm";
 import { deleteHotelRoom } from "~/server/db/queries/hotel";
 import { toast } from "~/hooks/use-toast";
 import RoomCategoryAdder from "~/components/common/roomCategoryAdder";
-import { useOrganization } from "@clerk/nextjs";
-import { getAllRoomCategories } from "~/server/db/queries/roomCategories";
-import { set } from "date-fns";
-import LoadingLayout from "~/components/common/dashboardLoading";
 
-const RoomsTab = () => {
-    const [addedRooms, setAddedRooms] = useState<HotelRoomType[]>([]); // State to handle added rooms
-    const { addHotelRoom, hotelRooms,setActiveTab, deleteRoom, duplicateHotelRoom } = useAddHotel(); // Assuming similar context structure
+const RoomsTab = ({ customRoomCategories }: { customRoomCategories: string[] }) => {
+    const [addedRooms, setAddedRooms] = useState<HotelRoomType[]>([]);
+    const { addHotelRoom, hotelRooms,setActiveTab, deleteRoom, duplicateHotelRoom } = useAddHotel();
     const [selectedHotelRoom, setSelectedHotelRoom] = useState<HotelRoomType>({
         roomType: "",
         typeName: "",
@@ -28,14 +24,9 @@ const RoomsTab = () => {
         hotelId:""
       });
     const [isDeleting, setIsDeleting] = useState(false);
-    const { organization, isLoaded } = useOrganization();
-    const [customRoomCategories, setCustomRoomCategories] = useState<string[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
 
     const updateRooms = (room: HotelRoomType) => {
-        console.log("Hereeee");
-        console.log("Adding Room ", room);
-        addHotelRoom(room); // Adding the room to the context
+        addHotelRoom(room);
         setSelectedHotelRoom({
             roomType: "",
             typeName: "",
@@ -45,11 +36,10 @@ const RoomsTab = () => {
             bedCount: 1,
             hotelId:""
           });
-        setAddedRooms((prevRooms) => [...prevRooms, room]); // Update local state
+        setAddedRooms((prevRooms) => [...prevRooms, room]);
     };
 
     const onRowEdit = (row: HotelRoomType) => {
-        console.log(row);
         setSelectedHotelRoom(row);
       };
 
@@ -91,47 +81,6 @@ const RoomsTab = () => {
         }
       };
 
-    
-    useEffect(() => {
-        const fetchRoomCategories = async () => {
-            try {
-                if(!organization) {
-                    return;
-                }
-                setIsLoading(true);
-                const categoriesResponse = await getAllRoomCategories(organization.id);
-
-                if (!categoriesResponse) {
-                    throw new Error("Error fetching room categories");
-                }
-
-                setCustomRoomCategories(categoriesResponse.map((category) => category.name));
-
-                console.log("Fetched room categories:", categoriesResponse);
-                setIsLoading(false);
-            } catch (error) {
-                console.error("Error fetching room categories:", error);
-                setIsLoading(false);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-
-        if (isLoaded) {
-            fetchRoomCategories();
-        }
-
-    }, [organization, isLoaded]);
-
-    if(isLoading) {
-        return (
-            <div className="flex flex-col gap-3 justify-center items-center">
-                <LoadingLayout />
-            </div>
-        );
-    }
-
-      
     return (
         <div className="flex flex-col gap-3 justify-center items-center">
             <div className='w-full flex flex-row gap-2 justify-center'>

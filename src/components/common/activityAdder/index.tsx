@@ -67,7 +67,7 @@ const ActivityAdder = ({ setActivityTypeUpdated }: ActivityAdderProps) => {
         if (isLoaded) {
             fetchData();
         }
-    }, [organization, isLoaded]);
+    }, [isLoaded]);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const query = e.target.value.toLowerCase();

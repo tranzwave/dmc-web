@@ -190,12 +190,13 @@ const ShopsTab = () => {
   };
 
   useEffect(() => {
-    if (!bookingDetails.general.includes.shops) {
-      setActiveTab("submit");
-      return () => {
-        console.log("Return");
-      };
-    }
+    // if (!bookingDetails.general.includes.shops) {
+    //   console.log("Shops not included in booking details, setting active tab to submit");
+    //   setActiveTab("submit");
+    //   return () => {
+    //     console.log("Return");
+    //   };
+    // }
     fetchData();
   }, []);
 

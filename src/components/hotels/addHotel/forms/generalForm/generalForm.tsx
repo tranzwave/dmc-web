@@ -1,9 +1,7 @@
 "use client";
 
-import { useOrganization } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -28,26 +26,8 @@ import {
 } from "~/components/ui/select";
 import { toast } from "~/hooks/use-toast";
 import { toTitleCase } from "~/lib/utils/index";
-import { getAllCities } from "~/server/db/queries/activities";
 import { InsertHotel, SelectCity } from "~/server/db/schemaTypes";
-
-// Define the schema for form validation
-export const hotelGeneralSchema = z.object({
-  name: z.string().min(1, "Hotel name is required"),
-  stars: z.number().min(1, "Star rating is required"),
-  primaryEmail: z.string().email("Invalid email address"),
-  primaryContactNumber: z.string().refine(
-    (value) => {
-      const phoneNumber = parsePhoneNumberFromString(value);
-      return phoneNumber?.isValid() ?? false;
-    },
-    { message: "Invalid phone number" },
-  ),
-  streetName: z.string().min(1, "Street name is required"),
-  city: z.string().min(1, "City is required"),
-  province: z.string().min(1, "Province is required"),
-  hasRestaurant: z.boolean().default(true),
-});
+import { hotelGeneralSchema, type HotelGeneralFormData } from "../schemas";
 
 export const restaurantSchema = z.object({
   name: z.string().min(1, "Restaurant name is required"),
@@ -66,29 +46,29 @@ export const restaurantMealSchema = z.object({
 // type HotelGeneralType = z.infer<typeof hotelGeneralSchema>;
 type RestaurantType = z.infer<typeof restaurantSchema>;
 type RestaurantMealType = z.infer<typeof restaurantMealSchema>;
-type HotelGeneralFormData = z.infer<typeof hotelGeneralSchema>;
 
-const HotelGeneralForm = ({
-  defaultValues,
-}: {
+type Props = {
   defaultValues: InsertHotel;
-}) => {
+  cities: SelectCity[];
+  orgId: string;
+};
+
+const HotelGeneralForm = ({ defaultValues, cities, orgId }: Props) => {
   const [error, setError] = useState<string>();
-  const [loading, setLoading] = useState(false);
-  const [cities, setCities] = useState<SelectCity[]>([]);
-  const [selectedCity, setSelectedCity] = useState(0);
-  const {memberships, organization, isLoaded} = useOrganization();
+  const { setHotelGeneral, hotelGeneral, setActiveTab } = useAddHotel();
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const lastPayloadRef = useRef<string>("");
+  const citiesMapRef = useRef<Record<string, { id: number; name: string }>>({});
 
-
-  const {
-    setHotelGeneral,
-    hotelGeneral,
-    addRestaurant,
-    addRestaurantMeal,
-    restaurants,
-    restaurantMeals,
-    setActiveTab,
-  } = useAddHotel();
+  // Build a case-insensitive city lookup map when cities change
+  useEffect(() => {
+    const map: Record<string, { id: number; name: string }> = {};
+    (cities || []).forEach((c) => {
+      const key = (c.name ?? "").trim().toLowerCase();
+      if (key) map[key] = { id: Number(c.id as any), name: c.name };
+    });
+    citiesMapRef.current = map;
+  }, [cities]);
 
   const generalForm = useForm<HotelGeneralFormData>({
     resolver: zodResolver(hotelGeneralSchema),
@@ -98,86 +78,96 @@ const HotelGeneralForm = ({
       primaryEmail: defaultValues.primaryEmail,
       primaryContactNumber: defaultValues.primaryContactNumber,
       streetName: defaultValues.streetName,
-      // city: cities.find((city) => city.id === defaultValues.cityId)?.name,
       province: defaultValues.province,
-      hasRestaurant: defaultValues.hasRestaurant
+      hasRestaurant: defaultValues.hasRestaurant,
+      city: toTitleCase(
+        (cities ?? []).find((city) => String(city.id) === String(defaultValues.cityId))?.name ?? ""
+      ),
     },
   });
 
-  const { reset } = generalForm; // Destructure the reset method
+  const { reset, watch, getValues, setValue } = generalForm;
+
+  // Populate city once when cities arrive if the field is still empty
+  useEffect(() => {
+    const currentCity = (getValues("city") ?? "").trim();
+    if (currentCity) return;
+    const match = (cities ?? []).find((c) => String(c.id) === String(defaultValues.cityId));
+    const initCity = toTitleCase(match?.name ?? "");
+    if (initCity) {
+      setValue("city", initCity, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+    }
+  }, [cities, defaultValues.cityId, getValues, setValue]);
+
+  // Sync form values into context (debounced) so tab switches reflect latest edits
+  useEffect(() => {
+    const subscription = watch((values) => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        const inputCity = (values.city ?? "").trim();
+        const foundCity = citiesMapRef.current[inputCity.toLowerCase()];
+        const cityId = foundCity?.id ?? 0;
+        const payload = {
+          name: values.name ?? "",
+          stars: values.stars! ?? 0,
+          primaryEmail: values.primaryEmail ?? "",
+          primaryContactNumber: values.primaryContactNumber ?? "",
+          streetName: values.streetName ?? "",
+          cityId,
+          tenantId:
+            hotelGeneral.tenantId && hotelGeneral.tenantId !== ""
+              ? hotelGeneral.tenantId
+              : orgId,
+          province: values.province ?? "",
+          hasRestaurant: values.hasRestaurant ?? false,
+          city: toTitleCase(foundCity?.name ?? inputCity),
+        };
+        const key = JSON.stringify(payload);
+        if (lastPayloadRef.current !== key) {
+          lastPayloadRef.current = key;
+          setHotelGeneral(payload as any);
+        }
+      }, 200);
+    });
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      subscription.unsubscribe();
+    };
+  }, [watch, orgId, setHotelGeneral]);
+
+  // Initialize once when defaults arrive and the form is still empty
+  useEffect(() => {
+    const currentName = (generalForm.getValues("name") ?? "").trim();
+    const hasDefaults = Boolean(
+      defaultValues?.name ||
+      defaultValues?.primaryEmail ||
+      defaultValues?.streetName ||
+      defaultValues?.province
+    );
+    if (!hasDefaults) return;
+    if (!currentName) {
+      reset({
+        name: defaultValues.name,
+        stars: defaultValues.stars,
+        primaryEmail: defaultValues.primaryEmail,
+        primaryContactNumber: defaultValues.primaryContactNumber,
+        streetName: defaultValues.streetName,
+        province: defaultValues.province,
+        hasRestaurant: defaultValues.hasRestaurant,
+        city: toTitleCase(
+          (cities ?? []).find((city) => String(city.id) === String(defaultValues.cityId))?.name ?? ""
+        ),
+      });
+    }
+  }, [defaultValues, cities, reset]);
 
   const onGeneralSubmit: SubmitHandler<HotelGeneralFormData> = (values) => {
-    if(!organization){
-      toast({
-        title: "Uh Oh!",
-        description: "Couldn't fetch organization",
-      });
-      return
-    }
-    console.log(values);
-    setHotelGeneral({
-      name: values.name,
-      stars: values.stars,
-      primaryEmail: values.primaryEmail,
-      primaryContactNumber: values.primaryContactNumber,
-      streetName: values.streetName,
-      cityId: cities.find((city) => city.name === toTitleCase(values.city))?.id ?? 0,
-      tenantId: hotelGeneral.tenantId && hotelGeneral.tenantId !== "" ? hotelGeneral.tenantId : organization.id,
-      province: values.province,
-      hasRestaurant: values.hasRestaurant,
-      city:toTitleCase(values.city)
-    });
-
     setActiveTab("rooms");
   };
 
   const handleHasRestaurantChange = (value: string) => {
-    if (value === "true") {
-      generalForm.setValue("hasRestaurant", true);
-    }
+    generalForm.setValue("hasRestaurant", value === "true");
   };
-
-  const fetchData = async () => {
-    try {
-      // Run both requests in parallel
-      setLoading(true);
-      const country = organization?.publicMetadata.country as string ?? "LK";
-
-      const [citiesResponse] = await Promise.all([getAllCities(country)]);
-
-      if (!citiesResponse) {
-        throw new Error("Error fetching countries");
-      }
-
-      console.log("Fetched Users:", citiesResponse);
-
-      setCities(citiesResponse);
-
-      setLoading(false);
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("An unknown error occurred");
-      }
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-    if (defaultValues) {
-      console.log(defaultValues)
-      setSelectedCity(defaultValues.cityId)
-      // alert("here")
-      console.log(generalForm.getValues())
-    }
-    reset(defaultValues);
-  }, [hotelGeneral]);
-
-  if (loading || !isLoaded) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div>
@@ -208,8 +198,8 @@ const HotelGeneralForm = ({
                   <FormLabel>Star Category</FormLabel>
                   <FormControl>
                     <Select
-                      onValueChange={(value) => field.onChange(Number(value))} // Convert the selected value to a number
-                      value={field.value?.toString() ?? ""} // Ensure the value is a string for Select
+                      onValueChange={(value) => field.onChange(Number(value))}
+                      value={field.value?.toString() ?? ""}
                     >
                       <SelectTrigger className="bg-slate-100 shadow-md">
                         <SelectValue placeholder="Select star rating" />
@@ -222,12 +212,6 @@ const HotelGeneralForm = ({
                         <SelectItem value="5">5</SelectItem>
                       </SelectContent>
                     </Select>
-                    {/* <Input
-                      type="number"
-                      value={field.value ?? ""}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                      placeholder="Enter star rating"
-                    /> */}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -285,50 +269,19 @@ const HotelGeneralForm = ({
                 </FormItem>
               )}
             />
-            {cities && (
-              <FormField
-                name="city"
-                control={generalForm.control}
-                defaultValue={toTitleCase(cities.find((city) => city.id === defaultValues.cityId)?.name ?? "")}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter city" {...field} defaultValue={toTitleCase(cities.find((city) => city.id === defaultValues.cityId)?.name ?? "")}/>
-                      {/* <Select
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                        }}
-                        value={
-                          field.value ||
-                          cities
-                            .find((city) => city.id === selectedCity)
-                            ?.id?.toString()
-                        } // Ensure initial value is set correctly
-                        defaultValue={cities
-                          .find((city) => city.id === selectedCity)
-                          ?.id?.toString()} // Set the initial default value
-                      >
-                        <SelectTrigger className="bg-slate-100 shadow-md">
-                          <SelectValue placeholder="Select city" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {cities.map((city) => (
-                            <SelectItem
-                              key={city.id}
-                              value={String(city.id ?? 0) ?? "0"}
-                            >
-                              {city.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select> */}
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+            <FormField
+              name="city"
+              control={generalForm.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>City</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter city" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               name="province"
@@ -352,7 +305,7 @@ const HotelGeneralForm = ({
                   <FormControl>
                     <Select
                       onValueChange={handleHasRestaurantChange}
-                      value={field.value ? "false" : "true"}
+                      value={field.value ? "true" : "false"}
                     >
                       <SelectTrigger className="bg-slate-100 shadow-md">
                         <SelectValue placeholder="Select" />

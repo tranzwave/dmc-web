@@ -44,7 +44,7 @@ const RestaurantHome = () => {
     }
 
     fetchData();
-  }, [organization]);
+  }, []);
 
   const filteredData = data.filter((restaurant) => {
     const searchTerm = searchQuery.toLowerCase();

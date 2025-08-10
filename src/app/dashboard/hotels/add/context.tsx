@@ -43,6 +43,12 @@ interface AddHotelContextProps {
   //Bulk hotel rooms data setter and bulk hotel staff data setter
   addBulkHotelRooms: (rooms: InsertHotelRoom[]) => void;
   addBulkHotelStaff: (staff: InsertHotelStaff[]) => void;
+
+  // Drafts to preserve in-progress edits
+  roomDraft: InsertHotelRoom | null;
+  setRoomDraft: (draft: InsertHotelRoom | null) => void;
+  staffDraft: InsertHotelStaff | null;
+  setStaffDraft: (draft: InsertHotelStaff | null) => void;
 }
 
 // Provide default values
@@ -97,6 +103,8 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [restaurants, setRestaurants] = useState<InsertRestaurant[]>(defaultRestaurants);
   const [restaurantMeals, setRestaurantMeals] = useState<InsertMeal[]>(defaultRestaurantMeals);
   const [activeTab, setActiveTab] = useState<string>("general");
+  const [roomDraft, setRoomDraft] = useState<InsertHotelRoom | null>(null);
+  const [staffDraft, setStaffDraft] = useState<InsertHotelStaff | null>(null);
 
   // const addHotelRoom = (room: InsertHotelRoom) => {
   //   //Check whether the room already exists
@@ -320,8 +328,11 @@ export const AddHotelProvider: React.FC<{ children: ReactNode }> = ({ children }
         duplicateHotelRoom,
         duplicateHotelStaff,
         addBulkHotelRooms,
-        addBulkHotelStaff
-        
+        addBulkHotelStaff,
+        roomDraft,
+        setRoomDraft,
+        staffDraft,
+        setStaffDraft
       }}
     >
       {children}

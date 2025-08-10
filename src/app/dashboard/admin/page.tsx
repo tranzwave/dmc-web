@@ -31,7 +31,7 @@ export default function AdminDashboard(params: { searchParams: { tab?: string } 
     }
 
     
-  }, [organization]);
+  }, []);
 
 
   if (!isLoaded) {
