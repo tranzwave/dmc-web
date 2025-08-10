@@ -1,7 +1,7 @@
 /**
  * Landing Page
  *
- * @update 8/10/2025
+ * @update 8/11/2025
  */
 
 'use client'
@@ -13,6 +13,8 @@ import FeaturesSection from "./featuresSection"
 import SupportSection from './supportSection';
 import StatsSection from "./statsSection"
 import FocusOnGuestsSection from "./focusOnGuestsSection"
+import ContactUsSection from "./contactUsSection"
+import FaqsSection from "./faqsSection"
 
 export default function LandingPage() {
   return (
@@ -48,7 +50,7 @@ export default function LandingPage() {
 
       {/* Focus on Guests Section */}
       <div className="px-4">
-        <FocusOnGuestsSection className="px-4 sm:px-8"/>
+        <FocusOnGuestsSection className="px-4 sm:px-8" />
       </div>
 
       {/* Pricing Section */}
@@ -60,6 +62,15 @@ export default function LandingPage() {
 
       {/* Stats Section */}
       <StatsSection />
+
+      {/* Contact Us Section */}
+      <div id="contact-us">
+        <ContactUsSection />
+      </div>
+
+      <div id="faqs">
+        <FaqsSection />
+      </div>
 
       {/* Footer */}
       <footer className="py-8 bg-gray-900 text-white">
