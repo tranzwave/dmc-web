@@ -8,6 +8,7 @@ import { Navbar } from "./navBar"
 import { packages } from "~/lib/constants"
 import HeroSection from "./heroSection"
 import PricingSection from "./pricingSection"
+import DashboardPreview from "./dashboardPreview"
 
 export default function LandingPage() {
   return (
@@ -76,19 +77,7 @@ export default function LandingPage() {
       </section>
 
       {/* Dashboard Preview */}
-      <section className="py-20 bg-gradient-to-b from-[#287f71]/10 to-transparent">
-        <div className="container mx-auto px-4">
-          <div className="relative rounded-lg overflow-hidden shadow-2xl">
-            <Image
-              src="/assets/landing/booking.png"
-              alt="Dashboard preview"
-              width={1280}
-              height={720}
-              className="w-full"
-            />
-          </div>
-        </div>
-      </section>
+      <DashboardPreview />
 
       {/* Pricing Section */}
       <PricingSection />
