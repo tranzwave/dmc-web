@@ -1,0 +1,123 @@
+/**
+ * StatsSection component displays key statistics with animations.
+ *
+ * @update 8/10/2025
+ */
+"use client"
+
+import React, { useEffect, useRef, useState } from "react"
+import { motion, useAnimation, useInView, easeOut } from "framer-motion"
+import { Users, Globe, Languages } from "lucide-react"
+
+const stats = [
+  { number: "50K+", label: "Active Users", icon: Users },
+  { number: "100+", label: "Countries", icon: Globe },
+  { number: "20+", label: "Languages", icon: Languages },
+]
+
+export default function StatsSection() {
+  return (
+    <section className="py-20 bg-gray-50">
+      <div className="max-w-6xl mx-auto px-6">
+        <h2 className="text-center text-3xl md:text-4xl font-extrabold text-gray-900 mb-16">
+          Powering the travel experiences industry
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+          {stats.map(({ icon: Icon, number, label }, i) => (
+            <StatItem key={i} Icon={Icon} number={number} label={label} delay={i * 0.3} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function useCountUp(target: string, start: boolean, duration = 1500) {
+  const [count, setCount] = useState<string | number>(0)
+
+  useEffect(() => {
+    if (!start) {
+      setCount(0)
+      return
+    }
+
+    let startTimestamp: number | null = null
+    const cleanTarget = Number(target.replace(/[K+,]/g, "")) || 0
+    if (cleanTarget === 0) {
+      setCount(target)
+      return
+    }
+
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1)
+      const value = Math.floor(progress * cleanTarget)
+      setCount(value)
+      if (progress < 1) {
+        requestAnimationFrame(step)
+      } else {
+        setCount(target) // show original string (with + etc) after done
+      }
+    }
+
+    requestAnimationFrame(step)
+  }, [target, start, duration])
+
+  return count
+}
+
+function StatItem({
+  Icon,
+  number,
+  label,
+  delay = 0,
+}: {
+  Icon: React.ComponentType<{ className?: string }>
+  number: string
+  label: string
+  delay?: number
+}) {
+  const controls = useAnimation()
+  const ref = useRef(null)
+  const inView = useInView(ref) // no once:true, so triggers every time
+
+  const [startCount, setStartCount] = useState(false)
+
+  useEffect(() => {
+    if (inView) {
+      controls.start("visible")
+      setStartCount(true)
+    } else {
+      controls.start("hidden")
+      setStartCount(false)
+    }
+  }, [controls, inView])
+
+  const animatedNumber = useCountUp(number, startCount, 1500)
+
+  const variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, delay, ease: easeOut },
+    },
+  }
+
+  return (
+    <motion.div
+      ref={ref}
+      initial="hidden"
+      animate={controls}
+      variants={variants}
+      className="flex flex-col items-center max-w-xs mx-auto"
+    >
+      <div className="bg-[#287f71]/5 rounded-full p-5 mb-6">
+        <Icon className="text-[#287f71] w-12 h-12" />
+      </div>
+      <div className="text-3xl font-semibold text-gray-900 mb-2">{animatedNumber}</div>
+      <p className="text-gray-600 text-sm md:text-base leading-relaxed">{label}</p>
+    </motion.div>
+  )
+}
