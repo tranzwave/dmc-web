@@ -16,7 +16,7 @@ export default function SupportSection() {
   }, [isInView, controls]);
 
   return (
-    <section className="w-full bg-white py-12" ref={ref}>
+    <section className="w-full bg-white py-12 pb-16" ref={ref}>
       <motion.div
         className="max-w-5xl mx-auto px-6 text-center"
         initial={{ opacity: 0, y: 20 }}
