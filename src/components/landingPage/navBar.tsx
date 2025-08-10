@@ -1,7 +1,7 @@
 /**
  * Navigation Bar
  *
- * @update 8/10/2025
+ * @update 8/11/2025
  */
 'use client'
 
@@ -102,7 +102,7 @@ export function Navbar() {
                   </Link>
 
                   <Link
-                    href="/contact-us"
+                    href="#contact-us"
                     className="flex items-center gap-3 px-4 py-3 text-lg font-medium text-gray-700 hover:bg-white/90 rounded-xl transition-all duration-200 mx-2"
                   >
                     <Users className="h-5 w-5 text-[#287f71]" />
