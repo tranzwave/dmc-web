@@ -49,7 +49,7 @@ export const MarketingTeams = ({countries}: MarketingTeamProps) => {
         };
 
         fetchMembers();
-    }, [organization, isMarketingTeamUpdated]);
+    }, [isMarketingTeamUpdated]);
 
     const handleAdd = () => {
         setIsAddModalOpen(true);

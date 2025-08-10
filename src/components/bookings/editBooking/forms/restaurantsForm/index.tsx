@@ -160,12 +160,12 @@ const RestaurantsTab = () => {
   };
 
   useEffect(() => {
-    if (!bookingDetails.general.includes.restaurants) {
-      setActiveTab("activities");
-      return () => {
-        console.log("Return");
-      };
-    }
+    // if (!bookingDetails.general.includes.restaurants) {
+    //   setActiveTab("activities");
+    //   return () => {
+    //     console.log("Return");
+    //   };
+    // }
     getRestaurants();
   }, [router]);
 

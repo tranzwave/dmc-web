@@ -175,7 +175,9 @@ const HotelsTab = () => {
   };
 
   const getHotels = async () => {
-    setLoading(true);
+    if(hotels.length === 0){
+      setLoading(true);
+    }
 
     try {
       const newResponse = await getAllHotelsV2(organization?.id ?? "");
@@ -198,17 +200,11 @@ const HotelsTab = () => {
   };
 
   useEffect(() => {
-    if (!bookingDetails.general.includes.hotels) {
-      setActiveTab("restaurants");
-      return () => {
-        console.log("Return");
-      };
-    }
     console.log("rerenderinggg");
     getHotels();
   }, []);
 
-  if (loading || !isOrgLoaded) {
+  if (loading) {
     return <div>Loading</div>;
   }
 

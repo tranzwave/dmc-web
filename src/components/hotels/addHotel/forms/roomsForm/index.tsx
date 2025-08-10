@@ -121,7 +121,7 @@ const RoomsTab = () => {
             fetchRoomCategories();
         }
 
-    }, [organization, isLoaded]);
+    }, [isLoaded]);
 
     if(isLoading) {
         return (

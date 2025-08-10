@@ -34,7 +34,7 @@ export const OrganizationRolesAndPermissions = () => {
     };
 
     fetchMembers();
-  }, [organization]);
+  }, []);
 
   if (!organization) {
     return <div>

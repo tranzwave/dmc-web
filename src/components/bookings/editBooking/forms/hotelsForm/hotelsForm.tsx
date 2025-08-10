@@ -185,10 +185,10 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   }
 
   useEffect(() => {
-    form.reset();
+    // form.reset();
     console.log('defaultValues', defaultValues);
     setSelectedHotel(defaultValues?.hotel ?? null);
-  }, [defaultValues]);
+  }, []);
 
   return (
     <div>

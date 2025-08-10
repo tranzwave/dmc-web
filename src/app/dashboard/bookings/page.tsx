@@ -106,7 +106,7 @@ export default function Bookings() {
 
   useEffect(() => {
     fetchBookingLines();
-  }, [organization, user, orgRole]);
+  }, [user, orgRole]);
 
   useEffect(() => {
     const id = searchParams.get('id');

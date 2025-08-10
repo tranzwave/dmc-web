@@ -96,25 +96,14 @@ const ActivitiesTab = () => {
     }
   };
 
-  useEffect(() => {
-    if(!bookingDetails.general.includes.activities){
-      setActiveTab("transport")
-      return ()=>{console.log("Return")};
-    }
-    fetchData();
-  }, []);
+  // useEffect(() => {
+  //   if(!bookingDetails.general.includes.activities){
+  //     setActiveTab("transport")
+  //     return ()=>{console.log("Return")};
+  //   }
+  //   fetchData();
+  // }, []);
 
-  const onNextClick = () => {
-    console.log(bookingDetails);
-    if (bookingDetails.activities.length > 0) {
-      setActiveTab("transport");
-    } else {
-      toast({
-        title: "Uh Oh!",
-        description: "You must add activities to continue",
-      });
-    }
-  };
   if (loading || !isLoaded) {
     return <div>Loading...</div>;
   }
