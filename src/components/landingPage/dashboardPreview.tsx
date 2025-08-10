@@ -48,7 +48,7 @@ export default function DashboardPreview() {
 
   return (
     <>
-      <section className="flex flex-col md:flex-row items-center justify-between max-w mx-auto px-4 sm:px-6 lg:px-10 py-12 sm:py-16 gap-10 sm:gap-12 mb-4">
+      <section className="flex flex-col md:flex-row items-center justify-between max-w mx-auto px-6 sm:px-6 lg:px-10 py-12 sm:py-16 gap-10 sm:gap-12 mb-4">
         {/* Left Text */}
         <motion.div
           ref={leftRef}
@@ -179,7 +179,7 @@ export default function DashboardPreview() {
       {/* Dashboard Preview */}
       <motion.section
         ref={imageRef}
-        className="py-16 sm:py-20 bg-gradient-to-b from-[#287f71]/10 to-transparent"
+        className="py-16 px-4 sm:py-20 bg-gradient-to-b from-[#287f71]/10 to-transparent"
         initial={{ opacity: 0, y: 20 }}
         animate={imageControls}
         transition={{ duration: 0.8, ease: "easeOut" }}
