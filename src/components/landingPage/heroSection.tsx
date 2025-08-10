@@ -4,6 +4,7 @@ import { ArrowRight, Calendar } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "~/components/ui/button"
+import { motion } from "framer-motion"
 
 export default function HeroSection() {
   return (
@@ -13,7 +14,7 @@ export default function HeroSection() {
         <Image
           src="/placeholder.svg?height=1080&width=1920"
           alt="Background"
-          fill 
+          fill
           className="object-cover"
           priority
         />
@@ -23,8 +24,13 @@ export default function HeroSection() {
       {/* Content Wrapper */}
       <div className="relative z-10 flex flex-col md:flex-row items-center justify-between max-w-7xl w-full mx-auto gap-12">
 
-        {/* Text Content */}
-        <div className="flex-1 max-w-xl text-center md:text-left text-white">
+        {/* Text Content with motion */}
+        <motion.div
+          className="flex-1 max-w-xl text-center md:text-left text-white"
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
           <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-wide drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)] select-none leading-tight">
             Modern Platform For{' '}
             <span className="block text-primary-green tracking-normal text-[44px] md:text-[58px] drop-shadow-[0_6px_12px_rgba(43,200,166,0.8)] leading-none">
@@ -70,10 +76,16 @@ export default function HeroSection() {
               </Button>
             </Link>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Image */}
-        <div className="flex-1 max-w-4xl overflow-hidden hover:shadow-3xl transition-shadow duration-500">
+        {/* Image with motion */}
+        <motion.div
+          className="flex-1 max-w-4xl overflow-hidden hover:shadow-3xl transition-shadow duration-500 rounded-xl"
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          whileHover={{ scale: 1.02 }}
+        >
           <Image
             src="/assets/landing/landing-ss.webp"
             alt="System screenshot"
@@ -82,7 +94,7 @@ export default function HeroSection() {
             priority
             className="rounded-xl"
           />
-        </div>
+        </motion.div>
       </div>
     </section>
   )
