@@ -10,6 +10,7 @@ import HeroSection from "./heroSection"
 import PricingSection from "./pricingSection"
 import DashboardPreview from "./dashboardPreview"
 import FeaturesSection from "./featuresSection"
+import SupportSection from './supportSection';
 
 export default function LandingPage() {
   return (
@@ -45,6 +46,9 @@ export default function LandingPage() {
 
       {/* Pricing Section */}
       <PricingSection />
+
+      {/* Support Section */}
+      <SupportSection />
 
       {/* Stats Section */}
       <section className="py-20 bg-[#287f71] text-white">
