@@ -29,7 +29,7 @@ export default function PricingSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-full mx-auto justify-center">
+        <div className="grid px-4 md:px-6 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-full mx-auto justify-center">
           {packages.map((plan, i) => (
             <PricingCard
               key={i}
