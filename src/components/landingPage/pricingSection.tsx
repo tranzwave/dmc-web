@@ -1,7 +1,7 @@
 /**
  * Pricing Section
  *
- * @update 8/10/2025
+ * @update 8/11/2025
  */
 "use client"
 
@@ -14,20 +14,42 @@ import { motion, useAnimation, useInView } from "framer-motion"
 import { useEffect, useRef } from "react"
 
 export default function PricingSection() {
-  const refs = useRef<(HTMLDivElement | null)[]>([])
-  const controls = packages.map(() => useAnimation())
+  const controls = useAnimation()
+  const ref = useRef(null)
+  const inView = useInView(ref, { amount: 0.3 }) // 30% visibility to trigger
+
+  useEffect(() => {
+    if (inView) {
+      controls.start("visible")
+    } else {
+      controls.start("hidden")
+    }
+  }, [inView, controls])
 
   return (
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <motion.div
+          ref={ref}
+          className="text-center mb-16"
+          initial="hidden"
+          animate={controls}
+          variants={{
+            hidden: { opacity: 0, y: 30 },
+            visible: {
+              opacity: 1,
+              y: 0,
+              transition: { duration: 0.6, ease: "easeOut" },
+            },
+          }}
+        >
           <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-gray-900 select-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.1)]">
             Simple, Transparent Pricing
           </h2>
           <p className="text-gray-700 max-w-2xl mx-auto font-light leading-relaxed">
             Choose the perfect plan for your travel business needs
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid px-4 md:px-6 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-full mx-auto justify-center">
           {packages.map((plan, i) => (
@@ -65,9 +87,8 @@ function PricingCard({ plan, delay }: { plan: typeof packages[0], delay: number 
       transition={{ delay, duration: 0.6, ease: "easeOut" }}
     >
       <Card
-        className={`cursor-pointer p-6 w-[320px] h-auto flex flex-col justify-between rounded-2xl bg-white/20 backdrop-blur-[24px] border border-white/40 shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out ${
-          plan.tabValue === "plus" ? "ring-2 ring-[#2bc8a6] relative" : ""
-        }`}
+        className={`cursor-pointer p-6 w-[320px] h-auto flex flex-col justify-between rounded-2xl bg-white/20 backdrop-blur-[24px] border border-white/40 shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out ${plan.tabValue === "plus" ? "ring-2 ring-[#2bc8a6] relative" : ""
+          }`}
       >
         {plan.tabValue === "plus" && (
           <span className="absolute top-0 right-0 bg-[#2bc8a6] text-white px-4 py-1 text-sm rounded-bl-lg rounded-tr-2xl select-none">
