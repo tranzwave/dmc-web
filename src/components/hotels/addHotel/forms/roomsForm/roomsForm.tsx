@@ -1,8 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { z } from "zod";
-import { defaultHotelRoom } from "~/app/dashboard/hotels/add/context";
+import { defaultHotelRoom, useAddHotel } from "~/app/dashboard/hotels/add/context";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -22,6 +21,7 @@ import {
 } from "~/components/ui/select";
 import { hotelRoomCategories, hotelRoomTypes } from "~/lib/constants";
 import { HotelRoomType } from "../roomsForm/columns";
+import { roomsSchema } from "../schemas";
 
 interface RoomsFormProps {
   onAddRoom: (room: HotelRoomType) => void;
@@ -30,48 +30,46 @@ interface RoomsFormProps {
 }
 
 // Define the schema for room details
-export const roomsSchema = z.object({
-  roomType: z.string().min(1, "Room type is required"),
-  typeName: z.string().min(0, "Type name is required"),
-  count: z
-    .number()
-    .min(1, "Count must be 1 or higher")
-    .optional()
-    .or(z.literal("")), // Optional field
-  amenities: z
-    .string()
-    .min(1, "Amenities are required")
-    .optional()
-    .or(z.literal("")), // Optional field
-  floor: z
-    .number()
-    .min(0, "Floor must be 0 or higher")
-    .optional()
-    .or(z.literal("")), // Optional field
-  bedCount: z
-    .number()
-    .min(1, "Bed count is required")
-    .optional()
-    .or(z.literal("")), // Optional field
-  additionalComments: z.string().optional(), // Optional field
-});
+// moved to shared schemas.ts
 
 const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom, customRoomCategories }) => {
+  const { roomDraft, setRoomDraft } = useAddHotel();
+  const lastDraftKeyRef = useRef<string>("");
+  const lastResetKeyRef = useRef<string>("");
+
+  const categories = useMemo(
+    () => Array.from(new Set([...(hotelRoomCategories ?? []), ...(customRoomCategories ?? [])])),
+    [customRoomCategories]
+  );
+
+  const toStableKey = (r: Partial<HotelRoomType> | null | undefined) => {
+    const x: any = r ?? {};
+    return JSON.stringify({
+      ...x,
+      count: x.count === undefined || x.count === null || x.count === "" ? "" : String(x.count),
+      floor: x.floor === undefined || x.floor === null || x.floor === "" ? "" : String(x.floor),
+      bedCount: x.bedCount === undefined || x.bedCount === null || x.bedCount === "" ? "" : String(x.bedCount),
+    });
+  };
+
+  const toResetTarget = (r: Partial<HotelRoomType> | null | undefined): any => {
+    const x: any = { ...defaultHotelRoom, ...(r ?? {}) };
+    return {
+      ...x,
+      count: x.count === undefined || x.count === null ? "" : String(x.count),
+      floor: x.floor === undefined || x.floor === null ? "" : String(x.floor),
+      bedCount: x.bedCount === undefined || x.bedCount === null ? "" : String(x.bedCount),
+    };
+  };
+
   const roomsForm = useForm<HotelRoomType>({
     resolver: zodResolver(roomsSchema),
     defaultValues: defaultHotelRoom,
-    // defaultValues: {
-    //   roomType: '',
-    //   typeName: '',
-    //   count: 1,
-    //   amenities: '',
-    //   floor: 1,
-    //   bedCount: 1,
-    //   additionalComments: ""
-    // },
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
   });
 
-  const { reset } = roomsForm;
+  const { reset, watch, getValues } = roomsForm;
 
   const onSubmit: SubmitHandler<HotelRoomType> = (data) => {
     onAddRoom({
@@ -80,14 +78,48 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom, customRo
       floor: Number(data.floor),
       bedCount: Number(data.bedCount),
       id: selectedRoom?.id ?? undefined,
-
     });
     roomsForm.reset();
+    // clear draft after successful add/update
+    setRoomDraft(null);
+    lastDraftKeyRef.current = "";
   };
 
+  // Initialize form from selected row (edit) or from draft if present
   useEffect(() => {
-    reset(selectedRoom);
-  }, [selectedRoom, reset]);
+    const target = selectedRoom && (selectedRoom.id ?? selectedRoom.roomType ?? selectedRoom.amenities ?? selectedRoom.typeName ?? selectedRoom.additionalComments)
+      ? selectedRoom
+      : roomDraft
+      ? (roomDraft as any)
+      : defaultHotelRoom;
+    const current = getValues();
+    const keyTarget = toStableKey(target);
+    const keyCurrent = toStableKey(current);
+    if (keyTarget !== keyCurrent && lastResetKeyRef.current !== keyTarget) {
+      lastResetKeyRef.current = keyTarget;
+      reset(toResetTarget(target));
+    }
+  }, [selectedRoom, roomDraft, reset, getValues]);
+
+  // Live-sync to draft so switching tabs preserves progress
+  useEffect(() => {
+    const sub = watch((value) => {
+      const nextDraft = {
+        ...defaultHotelRoom,
+        ...(value as any),
+        id: selectedRoom?.id ?? (value as any)?.id,
+        count: Number((value as any)?.count ?? 0),
+        floor: Number((value as any)?.floor ?? 0),
+        bedCount: Number((value as any)?.bedCount ?? 0),
+      } as any;
+      const key = JSON.stringify(nextDraft);
+      if (lastDraftKeyRef.current !== key) {
+        lastDraftKeyRef.current = key;
+        setRoomDraft(nextDraft);
+      }
+    });
+    return () => sub.unsubscribe();
+  }, [watch, setRoomDraft, selectedRoom?.id]);
 
   return (
     <Form {...roomsForm}>
@@ -111,21 +143,15 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom, customRo
                 <FormControl>
                   <Select
                     onValueChange={(value) => {
-                      field.onChange(value);
+                      if (value !== field.value) field.onChange(value);
                     }}
-                    value={field.value || ""} // Ensure initial value is set correctly
+                    value={field.value || ""}
                   >
                     <SelectTrigger className="bg-slate-100 shadow-md">
                       <SelectValue placeholder="Select room category" />
                     </SelectTrigger>
                     <SelectContent>
-                      {/* {hotelRoomCategories.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))} */}
-                      {/* add custom room categories to hotelRoomCategories array and map for select item */}
-                      {hotelRoomCategories.concat(customRoomCategories).map((category) => (
+                      {categories.map((category) => (
                         <SelectItem key={category} value={category}>
                           {category}
                         </SelectItem>
@@ -146,7 +172,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom, customRo
                 <FormControl>
                   <Select
                     onValueChange={(value) => {
-                      field.onChange(value);
+                      if (value !== field.value) field.onChange(value);
                     }}
                     value={field.value || ""} // Ensure initial value is set correctly
                   >
@@ -155,7 +181,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom, customRo
                     </SelectTrigger>
                     <SelectContent>
                       {hotelRoomTypes.map((type) => (
-                        <SelectItem key={type} value={type}  disabled>
+                        <SelectItem key={type} value={type} disabled>
                           {type}
                         </SelectItem>
                       ))}
@@ -177,7 +203,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom, customRo
                   <Input
                     type="number"
                     value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    onChange={(e) => field.onChange(e.target.value)}
                     min={0}
                   />
                 </FormControl>
@@ -210,7 +236,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom, customRo
                   <Input
                     type="number"
                     value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    onChange={(e) => field.onChange(e.target.value)}
                     min={0}
                   />
                 </FormControl>
@@ -228,7 +254,7 @@ const RoomsForm: React.FC<RoomsFormProps> = ({ onAddRoom, selectedRoom, customRo
                   <Input
                     type="number"
                     value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    onChange={(e) => field.onChange(e.target.value)}
                     min={0}
                   />
                 </FormControl>

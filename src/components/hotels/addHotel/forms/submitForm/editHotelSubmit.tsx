@@ -1,87 +1,24 @@
 "use client";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useAddHotel } from "~/app/dashboard/hotels/add/context";
 import { Button } from "~/components/ui/button";
-import { useToast } from "~/hooks/use-toast";
-import {
-  CompleteHotel,
-  updateHotelAndRelatedData,
-} from "~/server/db/queries/hotel";
+import { InsertHotel, InsertHotelRoom, InsertHotelStaff } from "~/server/db/schemaTypes";
+import { CompleteHotel } from "~/server/db/queries/hotel";
 
 const EditHotelSubmitView = ({
   originalHotel,
+  general,
+  rooms,
+  staff,
+  onSubmit,
+  loading,
 }: {
   originalHotel: CompleteHotel | null;
+  general: InsertHotel & { city?: string };
+  rooms: InsertHotelRoom[];
+  staff: InsertHotelStaff[];
+  onSubmit: () => void;
+  loading: boolean;
 }) => {
-  const { hotelGeneral, restaurants, hotelRooms, hotelStaff } = useAddHotel();
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
-  const router = useRouter();
-
-  const updateHotel = async () => {
-    const oldRooms = originalHotel?.hotelRooms ?? [];
-    const oldStaffs = originalHotel?.hotelStaffs ?? [];
-  
-    // Combine original and updated hotel details
-    const updatedHotelDetails = {
-      ...originalHotel?.hotel,
-      ...hotelGeneral,
-    };
-  
-    const updatedRooms = [hotelRooms];
-    const updatedStaffs = [hotelStaff];
-  
-    console.log([updatedHotelDetails, hotelRooms, hotelStaff]);
-  
-    try {
-      setLoading(true);
-      
-      if (originalHotel) {
-        const response = await updateHotelAndRelatedData(
-          originalHotel.hotel.id ?? "not found",  // Hotel ID must be valid
-          updatedHotelDetails,
-          hotelRooms,
-          hotelStaff
-        );
-  
-        if (!response) {
-          throw new Error(`Error: Failed to update the hotel`);
-        }
-  
-        console.log("Success:", response);
-  
-        // Handle successful response (e.g., show a success message)
-        toast({
-          title: "Success",
-          description: "Hotel updated successfully",
-        });
-  
-        setLoading(false);
-        // Navigate to the desired route after a successful update
-        router.push("/dashboard/hotels");
-      } else {
-        throw new Error("Original hotel data not found.");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("An unknown error occurred");
-      }
-  
-      toast({
-        title: "Uh Oh!",
-        description: "Error while updating the hotel",
-      });
-      setLoading(false);
-    }
-  };
-  
-
   return (
     <div>
       {/* General Section */}
@@ -93,33 +30,31 @@ const EditHotelSubmitView = ({
           <tbody>
             <tr>
               <td className="w-1/2 border px-4 py-2 font-bold">Name:</td>
-              <td className="w-1/2 border px-4 py-2">{hotelGeneral.name}</td>
+              <td className="w-1/2 border px-4 py-2">{general.name}</td>
             </tr>
             <tr>
               <td className="border px-4 py-2 font-bold">Stars</td>
-              <td className="border px-4 py-2">{hotelGeneral.stars}</td>
+              <td className="border px-4 py-2">{general.stars}</td>
             </tr>
             <tr>
               <td className="border px-4 py-2 font-bold">Email:</td>
-              <td className="border px-4 py-2">{hotelGeneral.primaryEmail}</td>
+              <td className="border px-4 py-2">{general.primaryEmail}</td>
             </tr>
             <tr>
               <td className="border px-4 py-2 font-bold">Contact Number:</td>
-              <td className="border px-4 py-2">
-                {hotelGeneral.primaryContactNumber}
-              </td>
+              <td className="border px-4 py-2">{general.primaryContactNumber}</td>
             </tr>
             <tr>
               <td className="border px-4 py-2 font-bold">Street Name:</td>
-              <td className="border px-4 py-2">{hotelGeneral.streetName}</td>
+              <td className="border px-4 py-2">{general.streetName}</td>
             </tr>
             <tr>
               <td className="border px-4 py-2 font-bold">City:</td>
-              <td className="border px-4 py-2">{hotelGeneral.city}</td>
+              <td className="border px-4 py-2">{general.city}</td>
             </tr>
             <tr>
               <td className="border px-4 py-2 font-bold">Province:</td>
-              <td className="border px-4 py-2">{hotelGeneral.province}</td>
+              <td className="border px-4 py-2">{general.province}</td>
             </tr>
           </tbody>
         </table>
@@ -132,8 +67,8 @@ const EditHotelSubmitView = ({
       <div className="mb-2 rounded-lg border shadow-md">
         <table className="min-w-full text-xs">
           <tbody>
-            {hotelRooms.length > 0 ? (
-              hotelRooms.map((room, index) => (
+            {rooms.length > 0 ? (
+              rooms.map((room, index) => (
                 <div key={index}>
                   <tr>
                     <th
@@ -196,8 +131,8 @@ const EditHotelSubmitView = ({
       <div className="mb-2 rounded-lg border shadow-md">
         <table className="min-w-full text-xs">
           <tbody>
-            {hotelStaff.length > 0 ? (
-              hotelStaff.map((staff, index) => (
+            {staff.length > 0 ? (
+              staff.map((s, index) => (
                 <div key={index}>
                   <tr>
                     <th
@@ -209,21 +144,21 @@ const EditHotelSubmitView = ({
                   </tr>
                   <tr>
                     <td className="w-1/2 border px-4 py-2 font-bold">Name:</td>
-                    <td className="w-1/2 border px-4 py-2">{staff.name}</td>
+                    <td className="w-1/2 border px-4 py-2">{s.name}</td>
                   </tr>
                   <tr>
                     <td className="border px-4 py-2 font-bold">
                       Contact Number:
                     </td>
-                    <td className="border px-4 py-2">{staff.contactNumber}</td>
+                    <td className="border px-4 py-2">{s.contactNumber}</td>
                   </tr>
                   <tr>
                     <td className="border px-4 py-2 font-bold">Email:</td>
-                    <td className="border px-4 py-2">{staff.email}</td>
+                    <td className="border px-4 py-2">{s.email}</td>
                   </tr>
                   <tr>
                     <td className="border px-4 py-2 font-bold">Occupation:</td>
-                    <td className="border px-4 py-2">{staff.occupation}</td>
+                    <td className="border px-4 py-2">{s.occupation}</td>
                   </tr>
                 </div>
               ))
@@ -240,7 +175,7 @@ const EditHotelSubmitView = ({
 
       {/* Submit Button */}
       <div className="flex justify-center">
-        <Button variant={"primaryGreen"} onClick={updateHotel}>
+        <Button variant={"primaryGreen"} onClick={onSubmit} disabled={loading}>
           {loading ? (
             <Loader2 size={20} className="animate-spin" />
           ) : (
