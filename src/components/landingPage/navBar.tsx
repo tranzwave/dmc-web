@@ -1,3 +1,8 @@
+/**
+ * Navigation Bar
+ *
+ * @update 8/10/2025
+ */
 'use client'
 
 import Link from "next/link"
