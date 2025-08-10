@@ -11,6 +11,7 @@ import PricingSection from "./pricingSection"
 import DashboardPreview from "./dashboardPreview"
 import FeaturesSection from "./featuresSection"
 import SupportSection from './supportSection';
+import StatsSection from "./statsSection"
 
 export default function LandingPage() {
   return (
@@ -52,22 +53,7 @@ export default function LandingPage() {
       <SupportSection />
 
       {/* Stats Section */}
-      <section className="py-20 bg-[#287f71] text-white">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            {[
-              { number: "50k+", label: "Active Users" },
-              { number: "100+", label: "Countries" },
-              { number: "20+", label: "Languages" },
-            ].map((stat, i) => (
-              <div key={i}>
-                <div className="text-4xl md:text-5xl font-bold mb-2">{stat.number}</div>
-                <div className="text-teal-200">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <StatsSection />
 
       {/* Footer */}
       <footer className="py-8 bg-gray-900 text-white">
