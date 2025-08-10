@@ -9,6 +9,7 @@ import { packages } from "~/lib/constants"
 import HeroSection from "./heroSection"
 import PricingSection from "./pricingSection"
 import DashboardPreview from "./dashboardPreview"
+import FeaturesSection from "./featuresSection"
 
 export default function LandingPage() {
   return (
@@ -37,44 +38,7 @@ export default function LandingPage() {
       </section> */}
 
       {/* Features Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16" id="features">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              The Platform Your Travel Business Will Love
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Streamline your operations, enhance guest experiences, and grow your business with our comprehensive travel management solution.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Globe,
-                title: "Global Reach",
-                description: "Connect with travelers worldwide and manage bookings across different time zones effortlessly.",
-              },
-              {
-                icon: Users,
-                title: "Guest Management",
-                description: "Keep track of guest preferences, history, and special requests in one centralized platform.",
-              },
-              {
-                icon: Calendar,
-                title: "Smart Scheduling",
-                description: "Automated scheduling and calendar management to optimize your bookings and availability.",
-              },
-            ].map((feature, i) => (
-              <Card key={i} className="p-6">
-                <feature.icon className="w-12 h-12 text-[#287f71] mb-4" />
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+      <FeaturesSection />
 
       {/* Dashboard Preview */}
       <DashboardPreview />
