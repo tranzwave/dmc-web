@@ -21,7 +21,7 @@ export function Navbar() {
       <div className="container mx-auto px-6">
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 group">
+          <Link href={"/"} onClick={() => window.location.reload()} className="flex items-center space-x-2 group">
             <div className="relative overflow-hidden rounded-xl">
               <Image
                 src="/assets/new-logo.png"
