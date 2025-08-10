@@ -21,7 +21,8 @@ export type Package = {
     users: number | string;
     trialPeriod: string;
     features: string[];
-    recuurence: string;
+    recurrence: string;
+    currency: string;
 };
 
 export type BankDetails = {

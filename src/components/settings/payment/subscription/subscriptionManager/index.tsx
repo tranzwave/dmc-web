@@ -284,7 +284,7 @@ function UpgradePlan({ organization }: UpgradePlanProps) {
               <div className="flex flex-col items-end">
                 <span className="text-sm text-muted-foreground">Price</span>
                 <span className="text-sm font-bold">
-                  ${subscription.price}/{subscription.recuurence.toLowerCase().slice(2)}
+                  ${subscription.price}/{subscription.recurrence.toLowerCase().slice(2)}
                 </span>
               </div>
 
