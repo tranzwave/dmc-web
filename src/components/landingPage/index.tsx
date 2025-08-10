@@ -7,6 +7,7 @@ import { ArrowRight, Check, Globe, Users, Calendar } from 'lucide-react'
 import { Navbar } from "./navBar"
 import { packages } from "~/lib/constants"
 import HeroSection from "./heroSection"
+import PricingSection from "./pricingSection"
 
 export default function LandingPage() {
   return (
@@ -90,62 +91,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Choose the perfect plan for your travel business needs
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-full mx-auto" id="pricing">
-            {packages.map((plan, i) => (
-              <Card key={i} className={`cursor-pointer p-6 w-[320px] flex flex-col justify-between ${plan.tabValue === "plus" ? 'ring-2 ring-[#287f71] relative' : ''} hover:shadow-md`}>
-                {plan.tabValue === "plus" && (
-                  <span className="absolute top-0 right-0 bg-[#287f71] text-white px-4 py-1 text-sm rounded-bl-lg rounded-tr-lg">
-                    Popular
-                  </span>
-                )}
-                <div>
-                  <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                  <div className="mb-4">
-                    <span className="text-4xl font-bold">${plan.price}</span>
-                    <span className="text-gray-600">/month</span>
-                  </div>
-                  <p className="text-gray-600 mb-6">{plan.description}</p>
-                  <div className="space-y-2 mb-8">
-                    {plan.features.map((feature, j) => (
-                      <div key={j} className="flex items-center gap-2 text-[14px]">
-                        <Check className="text-[#287f71] min-w-4" size={16} />
-                        <div>{feature}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="mt-auto">
-                  {plan.tabValue === "enterprise" && (
-                    <Link href="/contact-us" target="_blank">
-                      <Button className="w-full bg-[#287f71] hover:bg-[#287f71]/90">
-                        Contact Sales
-                        <ArrowRight className="ml-2 w-4 h-4" />
-                      </Button>
-                    </Link>
-                  )}
-                  {plan.tabValue !== "enterprise" && (
-                    <Link href={`/sign-up`}>
-                      <Button className="w-full bg-[#287f71] hover:bg-[#287f71]/90">
-                        Get Started
-                        <ArrowRight className="ml-2 w-4 h-4" />
-                      </Button>
-                    </Link>
-                  )}
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+      <PricingSection />
 
       {/* Stats Section */}
       <section className="py-20 bg-[#287f71] text-white">
