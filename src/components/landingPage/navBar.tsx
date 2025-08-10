@@ -17,9 +17,27 @@ import {
   NavigationMenuTrigger,
 } from "~/components/ui/navigation-menu"
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet"
-import { Menu, MapPin, Calendar, Users, Settings, Sparkles, ClipboardList } from 'lucide-react'
+import { Menu, MapPin, Calendar, Users, Settings, Sparkles, ClipboardList, HelpCircle } from 'lucide-react'
 
 export function Navbar() {
+  const navItems = [
+    {
+      href: "#pricing",
+      label: "Pricing",
+      Icon: Settings,
+    },
+    {
+      href: "#contact-us",
+      label: "Contact",
+      Icon: Users,
+    },
+    {
+      href: "#faqs",
+      label: "FAQs",
+      Icon: HelpCircle,
+    },
+  ]
+
   return (
     <header className="fixed top-0 left-1/2 -translate-x-1/2 w-full sm:w-[90%] md:w-[80%] lg:w-[75%] z-[50] bg-gradient-to-r from-white/40 to-white/10 backdrop-blur-2xl border-b border-white/30 shadow-lg rounded-b-3xl">
       <div className="container mx-0 px-6">
@@ -93,21 +111,16 @@ export function Navbar() {
                     </div>
                   </div>
 
-                  <Link
-                    href="#pricing"
-                    className="flex items-center gap-3 px-4 py-3 text-lg font-medium text-gray-700 hover:bg-white/50 rounded-xl transition-all duration-200 mx-2"
-                  >
-                    <Settings className="h-5 w-5 text-[#287f71]" />
-                    Pricing
-                  </Link>
-
-                  <Link
-                    href="#contact-us"
-                    className="flex items-center gap-3 px-4 py-3 text-lg font-medium text-gray-700 hover:bg-white/90 rounded-xl transition-all duration-200 mx-2"
-                  >
-                    <Users className="h-5 w-5 text-[#287f71]" />
-                    Contact
-                  </Link>
+                  {navItems.map(({ href, label, Icon }) => (
+                    <Link
+                      key={href}
+                      href={href}
+                      className="flex items-center gap-3 px-4 py-3 text-lg font-medium text-gray-700 hover:bg-white/90 rounded-xl transition-all duration-200 mx-2"
+                    >
+                      <Icon className="h-5 w-5 text-[#287f71]" />
+                      {label}
+                    </Link>
+                  ))}
 
                   <div className="mt-8 px-2">
                     <Link href="/dashboard/overview">
@@ -165,21 +178,15 @@ export function Navbar() {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
 
-                <NavigationMenuItem>
-                  <Link href="/#pricing" legacyBehavior passHref>
-                    <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-full px-6 py-2 text-sm font-medium transition-all duration-200 hover:bg-white/20 hover:shadow-lg focus:bg-white/10 focus:text-gray-900 focus:outline-none border border-transparent hover:border-white/20 text-gray-700">
-                      Pricing
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <Link href="/contact-us" legacyBehavior passHref>
-                    <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-full px-6 py-2 text-sm font-medium transition-all duration-200 hover:bg-white/20 hover:shadow-lg focus:bg-white/10 focus:text-gray-900 focus:outline-none border border-transparent hover:border-white/20 text-gray-700">
-                      Contact
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
+                {navItems.map(({ href, label }) => (
+                  <NavigationMenuItem key={href}>
+                    <Link href={href} legacyBehavior passHref>
+                      <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-full px-6 py-2 text-sm font-medium transition-all duration-200 hover:bg-white/20 hover:shadow-lg focus:bg-white/10 focus:text-gray-900 focus:outline-none border border-transparent hover:border-white/20 text-gray-700">
+                        {label}
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                ))}
               </NavigationMenuList>
             </NavigationMenu>
 
