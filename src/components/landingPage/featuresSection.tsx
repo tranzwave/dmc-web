@@ -55,7 +55,7 @@ export default function FeaturesSection() {
   const controlsArray = features.map(() => useAnimation());
 
   return (
-    <section className="py-20 pt-5 bg-white">
+    <section className="py-20 pt-5 px-2 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16" id="features">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
