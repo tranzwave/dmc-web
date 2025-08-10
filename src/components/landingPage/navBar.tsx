@@ -7,7 +7,6 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { usePathname, useRouter } from "next/navigation"
 import { Button } from "~/components/ui/button"
 import {
   NavigationMenu,
@@ -19,27 +18,22 @@ import {
 } from "~/components/ui/navigation-menu"
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet"
 import { Menu, MapPin, Calendar, Users, Settings, Sparkles, ClipboardList } from 'lucide-react'
-import { cn } from "~/lib/utils"
 
 export function Navbar() {
-  const router = useRouter()
-  const pathname = usePathname()
-
-  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // If we’re already on the homepage, do a soft refresh (Next.js data refresh)
-    if (pathname === "/") {
-      e.preventDefault()
-      router.refresh()
-    }
-    // otherwise, default Link navigation to "/"
-  }
-
   return (
-   <header className="fixed top-0 left-1/2 -translate-x-1/2 w-full sm:w-[90%] md:w-[80%] lg:w-[75%] z-[50] bg-gradient-to-r from-white/40 to-white/10 backdrop-blur-2xl border-b border-white/30 shadow-lg rounded-b-3xl">
-   <div className="container mx-0 px-6">
+    <header className="fixed top-0 left-1/2 -translate-x-1/2 w-full sm:w-[90%] md:w-[80%] lg:w-[75%] z-[50] bg-gradient-to-r from-white/40 to-white/10 backdrop-blur-2xl border-b border-white/30 shadow-lg rounded-b-3xl">
+      <div className="container mx-0 px-6">
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
-          <Link href={"/"} onClick={handleLogoClick} className="flex items-center space-x-2 group">
+          <Link href={"/"}
+            onClick={() => {
+              if (window.location.hash) {
+                history.replaceState(null, '', window.location.pathname + window.location.search);
+              }
+              window.location.reload();
+            }}
+            className="flex items-center space-x-2 group"
+          >
             <div className="relative overflow-hidden rounded-xl">
               <Image
                 src="/assets/new-logo.png"
