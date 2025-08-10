@@ -42,7 +42,6 @@ function ReplayOnScroll({
   const ref = useRef<HTMLDivElement | null>(null)
   const inView = useInView(ref, {
     amount,
-    // Trigger a bit earlier so it feels snappier
     margin: "0px 0px -10% 0px",
   })
   const controls = useAnimation()
@@ -110,24 +109,24 @@ function PopIn({ children, className = "" }: { children: React.ReactNode; classN
 
 export default function FocusOnGuestsSection({ className = "" }: { className?: string }) {
   return (
-    <section className={cn("w-full bg-white px-4 sm:px-6 lg:px-8", className)}>
-      <div className="max-w-7xl mx-auto grid items-center gap-12 lg:grid-cols-2">
+    <section className={cn("w-full bg-white px-4 sm:px-6 lg:px-8 py-12 sm:py-14 lg:py-18", className)}>
+      <div className="max-w-7xl mx-auto grid items-center gap-10 sm:gap-12 lg:gap-16 lg:grid-cols-2">
         {/* Left copy */}
         <StaggerParent className="max-w-2xl">
           <FadeUp>
-            <h2 className="text-4xl sm:text-5xl font-semibold leading-tight tracking-tight text-gray-900">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight tracking-tight text-gray-900">
               Focus on guests, not <span className="block sm:inline">spreadsheets</span>
             </h2>
           </FadeUp>
 
           <FadeUp>
-            <p className="mt-6 text-lg leading-8 text-gray-600">
+            <p className="mt-4 sm:mt-6 text-base sm:text-lg leading-7 sm:leading-8 text-gray-600">
               Pull all bookings into a central system to automatically manage availability, free you from admin and
               prevent double bookings so you can focus on what you do best.
             </p>
           </FadeUp>
 
-          <motion.ul className="mt-8 space-y-6" variants={staggerList}>
+          <motion.ul className="mt-6 sm:mt-8 space-y-5 sm:space-y-6" variants={staggerList}>
             <Feature
               title="Automate confirmations, updates, and cancellations"
               desc="for guests and guides. Email guests easily with Bókun's templates"
@@ -146,8 +145,8 @@ export default function FocusOnGuestsSection({ className = "" }: { className?: s
           </motion.ul>
 
           <FadeUp>
-            <div className="mt-8">
-              <Button className="w-full rounded-xl bg-[#2bc8a6]/90 hover:bg-[#2bc8a6]/100 shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 text-white font-semibold">
+            <div className="mt-6 sm:mt-8">
+              <Button className="w-full sm:w-auto rounded-xl bg-[#2bc8a6]/90 hover:bg-[#2bc8a6]/100 shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 px-6 py-5 text-white font-semibold">
                 Manage and Track
               </Button>
             </div>
@@ -155,17 +154,15 @@ export default function FocusOnGuestsSection({ className = "" }: { className?: s
         </StaggerParent>
 
         {/* Right visuals */}
-        <StaggerParent className="relative -mx-2 lg:mx-0" delay={0.15}>
+        <StaggerParent className="relative -mx-1 xs:-mx-2 lg:mx-0 flex flex-col items-stretch gap-4 sm:gap-6" delay={0.15}>
           {/* Back plate */}
-          <ReplayOnScroll
-            className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-b from-gray-50 to-white"
-            variants={fadeUp}
-            children={undefined}
-          />
+          <ReplayOnScroll variants={fadeUp} className="absolute inset-0 -z-10">
+            <div className="h-full w-full rounded-2xl sm:rounded-3xl bg-gradient-to-b from-gray-50 to-white" />
+          </ReplayOnScroll>
 
           {/* Card: Upcoming departures */}
-          <PopIn className="relative ml-auto w-[86%] max-w-md rounded-2xl border border-gray-200 bg-white shadow-lg shadow-gray-200/40">
-            <div className="p-4">
+          <PopIn className="relative w-full sm:w-[90%] sm:self-end max-w-md rounded-2xl border border-gray-200 bg-white shadow-lg shadow-gray-200/40">
+            <div className="p-4 sm:p-5">
               <div className="text-sm font-medium text-gray-900">Upcoming departures</div>
               <div className="mt-3 space-y-3 text-sm">
                 <Row time="10:00" label="Cooking class" />
@@ -176,9 +173,9 @@ export default function FocusOnGuestsSection({ className = "" }: { className?: s
           </PopIn>
 
           {/* Card: Bookings bar chart */}
-          <PopIn className="relative -mt-8 rounded-2xl border border-gray-200 bg-white shadow-xl shadow-gray-200/50 lg:-mr-6 lg:translate-x-10">
-            <div className="w-[680px] max-w-full p-5">
-              <header className="flex items-center justify-between">
+          <PopIn className="relative -mt-2 sm:-mt-4 rounded-2xl border border-gray-200 bg-white shadow-xl shadow-gray-200/50 sm:self-start sm:translate-x-2 lg:translate-x-10">
+            <div className="w-full sm:w-[620px] lg:w-[680px] max-w-full p-4 sm:p-5">
+              <header className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-semibold text-gray-900">Your bookings</p>
                   <p className="text-xs text-gray-500">Apr 8 – May 12</p>
@@ -186,15 +183,15 @@ export default function FocusOnGuestsSection({ className = "" }: { className?: s
                 <Legend />
               </header>
 
-              <div className="mt-5">
+              <div className="mt-4 sm:mt-5">
                 <BarChart />
               </div>
             </div>
           </PopIn>
 
           {/* Card: KPI strip */}
-          <PopIn className="relative -mt-6 w-[640px] max-w-full rounded-2xl border border-gray-200 bg-white p-4 shadow-lg">
-            <div className="grid grid-cols-3 gap-4">
+          <PopIn className="relative hover:shadow-xl -mt-2 sm:-mt-2 w-full sm:w-[600px] lg:w-[640px] max-w-full rounded-2xl border border-gray-200 bg-white p-3 sm:p-4 shadow-lg">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4">
               <KPI label="Bookings" value="72" />
               <KPI label="Passengers" value="145" />
               <KPI label="Booking Value" value="USD 12.4k" />
@@ -208,11 +205,11 @@ export default function FocusOnGuestsSection({ className = "" }: { className?: s
 
 function Feature({ title, desc, href }: { title: string; desc: string; href: string }) {
   return (
-    <motion.li className="flex items-start gap-4" variants={fadeUp}>
-      <SeedIcon className="mt-1" />
+    <motion.li className="flex items-start gap-3 sm:gap-4" variants={fadeUp}>
+      <SeedIcon className="mt-1 shrink-0" />
       <div>
-        <p className="text-base font-medium text-gray-900">{title}</p>
-        <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-gray-600">
+        <p className="text-base sm:text-lg font-medium text-gray-900">{title}</p>
+        <div className="mt-1 flex flex-wrap items-center gap-2 sm:gap-3 text-sm text-gray-600">
           <span>{desc}</span>
           <a href={href} className="shrink-0 text-emerald-700 hover:underline">
             View more
@@ -241,7 +238,7 @@ function SeedIcon({ className = "" }: { className?: string }) {
 
 function Row({ time, label }: { time: string; label: string }) {
   return (
-    <div className="flex items-center justify-between rounded-lg border border-gray-100 p-2">
+    <div className="flex items-center justify-between rounded-lg border border-gray-100 p-2 sm:p-2.5">
       <div className="text-xs text-gray-500">{time}</div>
       <div className="text-sm font-medium text-sky-700">{label}</div>
     </div>
@@ -250,7 +247,7 @@ function Row({ time, label }: { time: string; label: string }) {
 
 function Legend() {
   return (
-    <div className="flex items-center gap-4 text-xs text-gray-600">
+    <div className="flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs text-gray-600">
       <span className="inline-flex items-center gap-1">
         <span className="inline-block h-2 w-2 rounded-sm bg-gray-800" /> Online Sales
       </span>
@@ -264,24 +261,26 @@ function Legend() {
 function BarChart() {
   const weeks = [
     { online: 65, manual: 110 },
-    { online: 0, manual: 190 },
+    { online: 30, manual: 190 },
     { online: 15, manual: 85 },
-    { online: 8, manual: 60 },
+    { online: 48, manual: 60 },
+    { online: 68, manual: 100 },
+    { online: 25, manual: 140 },
   ]
 
   return (
-    <div className="h-56 w-full border-t border-gray-100 pt-6">
+    <div className="h-40 sm:h-56 w-full border-t border-gray-100 pt-4 sm:pt-6">
       <motion.div className="flex h-full items-end justify-between" variants={staggerList}>
         {weeks.map((w, i) => (
-          <motion.div key={i} className="flex w-[18%] items-end justify-center gap-1" variants={fadeUp}>
+          <motion.div key={i} className="flex w-[20%] sm:w-[18%] items-end justify-center gap-1" variants={fadeUp}>
             <span
-              className="inline-block w-3 rounded-sm bg-gray-800/90"
+              className="inline-block w-2.5 sm:w-3 rounded-sm bg-gray-800/90"
               style={{ height: `${w.online}px` }}
               aria-hidden
               title={`Online sales: ${w.online}`}
             />
             <span
-              className="inline-block w-6 rounded-sm bg-gray-300"
+              className="inline-block w-4.5 sm:w-6 rounded-sm bg-gray-300"
               style={{ height: `${w.manual}px` }}
               aria-hidden
               title={`Manual bookings: ${w.manual}`}
@@ -294,6 +293,8 @@ function BarChart() {
         <span>Week 16</span>
         <span>Week 17</span>
         <span>Week 18</span>
+        <span>Week 19</span>
+        <span>Week 20</span>
       </div>
     </div>
   )
@@ -301,10 +302,10 @@ function BarChart() {
 
 function KPI({ label, value }: { label: string; value: string }) {
   return (
-    <motion.div className="rounded-xl border border-gray-100 p-4" variants={fadeUp}>
-      <div className="text-xs text-gray-500">{label}</div>
-      <div className="mt-2 text-2xl font-semibold text-gray-900">{value}</div>
-      <div className="mt-3 h-6 w-full overflow-hidden">
+    <motion.div className="rounded-xl border hover:shadow-lg border-gray-100 p-3 sm:p-4" variants={fadeUp}>
+      <div className="text-[11px] sm:text-xs text-gray-500">{label}</div>
+      <div className="mt-1 sm:mt-2 text-xl sm:text-2xl font-semibold text-gray-900">{value}</div>
+      <div className="mt-2 sm:mt-3 h-6 w-full overflow-hidden">
         <svg viewBox="0 0 120 24" className="h-6 w-full" aria-hidden="true">
           <path d="M0 18 C 20 4, 40 22, 60 8 S 100 20, 120 10" fill="none" stroke="#D1D5DB" strokeWidth="3" />
         </svg>
