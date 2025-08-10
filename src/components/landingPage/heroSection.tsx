@@ -40,7 +40,7 @@ export default function HeroSection() {
   return (
     <section
       ref={ref}
-      className="relative min-h-[70vh] md:min-h-screen pt-20 mt-4 sm:mt-2 flex flex-col md:flex-row items-center justify-center mb-10 sm:mb-24 px-4 md:px-8 lg:px-16 pb-8 sm:pb-2"
+      className="relative min-h-[70vh] md:min-h-screen pt-20 flex flex-col md:flex-row items-center justify-center mb-10 sm:mb-24 px-4 md:px-8 lg:px-16 pb-8 sm:pb-2"
     >
       {/* Background + Gradient Overlay */}
       <div className="absolute inset-0 z-0">
