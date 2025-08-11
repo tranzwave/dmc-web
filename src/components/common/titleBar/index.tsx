@@ -29,25 +29,25 @@ const TitleBar: FC<TitleBarProps> = ({ title, link }) => {
     transportVoucherCurrency: 'USD',
   };
 
-  useEffect(() => {
-    const fetchTenant = async () => {
-      setLoading(true);
-      try {
-        const tenant = await getTenantById(organization?.id ?? '');
-        if (!tenant) {
-          throw new Error('Tenant not found');
-        }
-        setTenant(tenant);
-        //Set to local storage
-        localStorage.setItem('voucherSettings', JSON.stringify(tenant.voucherSettings ?? previousSettings));
-        setLoading(false);
-      } catch (error) {
-        console.error('Failed to fetch tenant:', error);
-        setError('Failed to load voucher settings.');
-        setLoading(false);
+  const fetchTenant = async () => {
+    setLoading(true);
+    try {
+      const tenant = await getTenantById(organization?.id ?? '');
+      if (!tenant) {
+        throw new Error('Tenant not found');
       }
-    };
+      setTenant(tenant);
+      //Set to local storage
+      localStorage.setItem('voucherSettings', JSON.stringify(tenant.voucherSettings ?? previousSettings));
+      setLoading(false);
+    } catch (error) {
+      console.error('Failed to fetch tenant:', error);
+      setError('Failed to load voucher settings.');
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     if(title.includes('Tasks'))
     {
       fetchTenant();
@@ -69,7 +69,7 @@ const TitleBar: FC<TitleBarProps> = ({ title, link }) => {
           </Button>
         </div> }
         { error && <div className='text-red-500 text-[13px]'>Please Refresh</div> }
-        { title.includes('Tasks') && !loading && !error && tenant && <VoucherSettingsComponent tenant={tenant} currencies={currencies}/> }
+        { title.includes('Tasks') && !loading && !error && tenant && <VoucherSettingsComponent tenant={tenant} currencies={currencies} onSettingsUpdate={fetchTenant}/> }
       </div>
       {/* <Button variant={'outline'}>Read Me</Button> */}
     </div>

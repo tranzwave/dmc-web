@@ -48,6 +48,7 @@ interface ProceedContentProps {
   bookingName: string
   currency: string
   viewCancellationVoucher?: boolean
+  onVoucherUpdate?: (updatedVoucher: HotelVoucherData | RestaurantVoucherData) => void
 }
 
 const ProceedContent: React.FC<ProceedContentProps> = ({
@@ -62,7 +63,8 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   type,
   viewCancellationVoucher,
   currency,
-  bookingName
+  bookingName,
+  onVoucherUpdate
 }) => {
   // pdfMake.vfs = (pdfFonts as any).vfs || pdfFonts.pdfMake?.vfs;
   const router = useRouter();
@@ -110,7 +112,11 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
 
   const handleSubmit = async () => {
     if (!areAllFieldsFilled()) {
-      alert("Please fill all the required fields.");
+      toast({
+        title: "Validation Error",
+        description: "Please fill all the required fields.",
+        variant: "destructive",
+      });
       return;
     }
     try {
@@ -132,19 +138,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         rate: ratesMap.get(voucherLine.id) ?? voucherLine.rate, // Get the latest rate
       }));
 
-      setSelectedVoucher((prev) => (
-        {
-          ...prev,
-          ratesConfirmedBy,
-          ratesConfirmedTo,
-          availabilityConfirmedBy,
-          availabilityConfirmedTo,
-          specialNote,
-          billingInstructions,
-          voucherLines: updatedVoucherLines as any
-        }
-      ));
-      voucher = {
+      const updatedVoucher = {
         ...selectedVoucher,
         ratesConfirmedBy,
         ratesConfirmedTo,
@@ -153,7 +147,15 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         specialNote,
         billingInstructions,
         voucherLines: updatedVoucherLines as any
+      };
+
+      setSelectedVoucher(updatedVoucher);
+      
+      // Notify parent component about the update
+      if (onVoucherUpdate) {
+        onVoucherUpdate(updatedVoucher);
       }
+      
       setIsRateUpdating(false);
 
       toast({
@@ -177,18 +179,12 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         title: "Voucher already sent",
         description: "The voucher has already been sent to the vendor.",
       })
-    } else if(selectedVoucher?.status === "amended") {
-      toast({
-        title: "Voucher already amended",
-        description: "The voucher has been amended.",
-      })
     } else if (selectedVoucher?.status === "cancelled") {
       toast({
         title: "Voucher already cancelled",
         description: "The voucher has been cancelled.",
       })
-    }
-     else if(selectedVoucher?.status === "inprogress"){
+    } else if (selectedVoucher?.status === "inprogress" || selectedVoucher?.status === "amended") {
       try {
         selectedVoucher.status = "sentToVendor";
         setStatusChanged(true);
@@ -205,8 +201,6 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         })
       }
     }
-
-
   };
 
   useEffect(() => {
