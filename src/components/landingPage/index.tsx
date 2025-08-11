@@ -68,8 +68,10 @@ export default function LandingPage() {
       {/* Four Step Process */}
       <FourStepProcess />
 
+      {/* Travel Library Section */}
       <TravelLibrarySection />
 
+      {/* Itinerary Features Section */}
       <ItineraryFeatures />
 
       {/* Support Section */}
