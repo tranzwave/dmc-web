@@ -1,4 +1,4 @@
-import Footer from "~/components/footer/footer";
+import {Footer} from "~/components/footer/footer";
 import { Navbar } from "~/components/navbar/navBar";
 
 export default function RefundPolicy() {
