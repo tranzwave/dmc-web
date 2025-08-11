@@ -59,7 +59,7 @@ export default function FaqsSection() {
   }
 
   return (
-    <div className="min-h-auto bg-gradient-to-br from-[#e6f4f1] via-[#f2f9f8] to-[#ffffff] pt-16 sm:pt-10 pb-32 px-4 sm:px-6 md:px-10">
+    <div className="min-h-auto bg-gradient-to-r from-[#e6f4f1] via-[#f2f9f8] to-[#ffffff] pt-16 sm:pt-10 pb-32 px-4 sm:px-6 md:px-10">
       <motion.div
         ref={headingRef}
         className="max-w-3xl mx-auto mb-12 text-center sm:mb-12"
