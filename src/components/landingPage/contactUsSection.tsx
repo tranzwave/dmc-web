@@ -29,7 +29,7 @@ export default function ContactUsSection() {
     }, [headingInView, headingControls])
 
     return (
-        <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#e6f4f1] via-[#f2f9f8] to-[#ffffff] pb-8">
+        <div className="flex flex-col min-h-screen bg-gradient-to-r from-[#e6f4f1] via-[#f2f9f8] to-[#ffffff] pb-8">
             <div className="flex-1 container mx-auto py-5 px-4 sm:px-6 md:px-10 mt-5">
                 {/* Title with scroll animation (bi-directional) */}
                 <motion.div
