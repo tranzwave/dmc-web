@@ -1,8 +1,14 @@
+/**
+ * Feature Split Section Component
+ * 
+ * @update 8/11/2025
+ */
 "use client";
 
 import Image from "next/image";
 import React from "react";
 import { motion, type Variants, useAnimation, useInView, useReducedMotion } from "framer-motion";
+import { Calendar, Monitor, Save } from "lucide-react";
 
 type Bullet = {
     icon?: React.ReactNode; // pass an SVG/emoji/icon component
@@ -38,7 +44,6 @@ const staggerCol: Variants = {
     visible: { transition: { staggerChildren: 0.12 } },
 };
 
-/** Replay-on-scroll wrapper: toggles hidden/visible on enter/leave */
 function ReplayOnScroll({
     children,
     className,
@@ -71,7 +76,39 @@ function ReplayOnScroll({
     );
 }
 
-export default function FeatureSplit({
+export default function FeatureSplitSection(){
+    return(
+        <FeatureSplit
+        eyebrow=""
+        title="Free Itinerary Builder"
+        intro="our new itinerary builder is an entirely new experience for creating itineraries quickly for your customized / bespoke tours. with features like auto save and reusable days, you can move swiftly across screens and get the work done in no time!"
+        imageSrc="/assets/landing/booking.png" // put your image in /public/images
+        imageAlt="Landing screenshot"
+        bullets={[
+          {
+            icon: <Calendar className="h-7 w-7" />,
+            title: "Reusable Days",
+            description:
+              "Add used days from previous itineraries, including photos, description and activities.",
+          },
+          {
+            icon: <Monitor className="h-7 w-7" />,
+            title: "Itinerary Versioning",
+            description:
+              "Create and manage itinerary versions as your discussion with the customer evolves.",
+          },
+          {
+            icon: <Save className="h-7 w-7" />,
+            title: "Easy to Use",
+            description:
+              "Toursoft is the easiest to use product on the market. Breeze through creating complex itineraries with ease!",
+          },
+        ]}
+      />
+    )
+}
+
+export  function FeatureSplit({
     eyebrow = "",
     title,
     intro,
