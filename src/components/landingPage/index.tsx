@@ -5,7 +5,7 @@
  */
 
 'use client'
-import { Navbar } from "./navBar"
+import { Navbar } from "../navbar/navBar"
 import HeroSection from "./heroSection"
 import PricingSection from "./pricingSection"
 import DashboardPreview from "./dashboardPreview"
@@ -15,11 +15,12 @@ import StatsSection from "./statsSection"
 import FocusOnGuestsSection from "./focusOnGuestsSection"
 import ContactUsSection from "./contactUsSection"
 import FaqsSection from "./faqsSection"
+import {Footer} from "../footer/footer"
+import TermsConditionSection from "./termsConditionSection"
 
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden">
-      <Navbar />
       {/* Hero Section */}
       <HeroSection />
       {/* Screenshot Section */}
@@ -72,17 +73,12 @@ export default function LandingPage() {
         <FaqsSection />
       </div>
 
+      {/* Terms and Conditions Section */}
+      <div id="terms-and-conditions">
+        <TermsConditionSection />
+      </div>
+
       {/* Footer */}
-      <footer className="py-8 bg-gray-900 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <div className="mt-4 flex justify-center space-x-6 text-[13px]">
-            <a href="/terms-and-conditions" className="hover:underline">Terms & Conditions</a>
-            <a href="/privacy-policy" className="hover:underline">Privacy Policy</a>
-            <a href="/refund-policy" className="hover:underline">Refund Policy</a>
-          </div>
-          <p>© 2025 COORD.TRAVEL. All rights reserved.</p>
-        </div>
-      </footer>
     </div>
   )
 }
