@@ -51,7 +51,7 @@ export default function PricingSection() {
           </p>
         </motion.div>
 
-        <div className="grid px-4 md:px-6 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-full mx-auto justify-center">
+        <div className="grid px-4 md:px-6 md:grid-cols-4 gap-8 max-w-full mx-auto justify-center">
           {packages.map((plan, i) => (
             <PricingCard
               key={i}
@@ -87,9 +87,20 @@ function PricingCard({ plan, delay }: { plan: typeof packages[0], delay: number 
       transition={{ delay, duration: 0.6, ease: "easeOut" }}
     >
       <Card
-        className={`cursor-pointer p-6 w-[320px] h-auto flex flex-col justify-between rounded-2xl bg-white/20 backdrop-blur-[24px] border border-white/40 shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out ${plan.tabValue === "plus" ? "ring-2 ring-[#2bc8a6] relative" : ""
-          }`}
-      >
+        className={`
+    cursor-pointer
+    p-6
+    w-full max-w-[320px]
+    h-auto
+    sm:min-h-[340px]
+    flex flex-col justify-between
+    rounded-2xl
+    bg-white/20 backdrop-blur-[24px]
+    border border-white/40
+    shadow-md hover:shadow-lg
+    transition-shadow duration-300 ease-in-out
+    ${plan.tabValue === "plus" ? "ring-2 ring-[#2bc8a6] relative" : ""}
+  `}>
         {plan.tabValue === "plus" && (
           <span className="absolute top-0 right-0 bg-[#2bc8a6] text-white px-4 py-1 text-sm rounded-bl-lg rounded-tr-2xl select-none">
             🌟 Popular
