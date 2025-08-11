@@ -252,10 +252,6 @@ const EditBooking = ({ id }: { id: string }) => {
     }
   }, [tabToEdit, setActiveTab]);
 
-  useEffect(() => {
-    alert(activeTab)
-  }, [activeTab]);
-
   if (loading) {
     return <div> <LoadingLayout /></div>
   }

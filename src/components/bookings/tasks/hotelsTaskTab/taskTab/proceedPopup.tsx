@@ -48,7 +48,7 @@ interface ProceedContentProps {
   bookingName: string
   currency: string
   viewCancellationVoucher?: boolean
-  onVoucherUpdate?: (updatedVoucher: HotelVoucherData | RestaurantVoucherData) => void
+  onVoucherUpdate?: (updatedVoucher: any) => void
 }
 
 const ProceedContent: React.FC<ProceedContentProps> = ({
@@ -131,8 +131,6 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         billingInstructions
       });
 
-
-
       const updatedVoucherLines = selectedVoucher.voucherLines.map((voucherLine) => ({
         ...voucherLine,
         rate: ratesMap.get(voucherLine.id) ?? voucherLine.rate, // Get the latest rate
@@ -149,6 +147,7 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         voucherLines: updatedVoucherLines as any
       };
 
+      // Update local state first
       setSelectedVoucher(updatedVoucher);
       
       // Notify parent component about the update
@@ -162,6 +161,9 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         title: "Voucher rates updated successfully",
         description: "The voucher rates have been updated successfully.",
       })
+
+      // Don't close the popup - let user continue working
+      return false;
 
     } catch (error) {
       console.error("Failed to update voucher line:", error);
@@ -186,9 +188,22 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
       })
     } else if (selectedVoucher?.status === "inprogress" || selectedVoucher?.status === "amended") {
       try {
-        selectedVoucher.status = "sentToVendor";
+        const updatedVoucher = {
+          ...selectedVoucher,
+          status: "sentToVendor" as const
+        };
+        
         setStatusChanged(true);
-        await updateVoucherStatus(selectedVoucher);
+        await updateVoucherStatus(updatedVoucher);
+        
+        // Update local state
+        setSelectedVoucher(updatedVoucher);
+        
+        // Notify parent component about the update
+        if (onVoucherUpdate) {
+          onVoucherUpdate(updatedVoucher);
+        }
+        
         toast({
           title: "Voucher status updated",
           description: "The voucher status has been updated successfully as sentToVendor.",
@@ -253,7 +268,13 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
           </div>
 
           <div className="flex w-full flex-row justify-end gap-2">
-            <Button variant="primaryGreen" onClick={handleSubmit}>Save Voucher Rates</Button>
+            <Button 
+              variant="primaryGreen" 
+              onClick={handleSubmit}
+              disabled={isRateUpdating}
+            >
+              {isRateUpdating ? "Saving..." : "Save Voucher Rates"}
+            </Button>
           </div>
         </>
       )}
