@@ -52,18 +52,20 @@ export function Navbar() {
             className="flex items-center space-x-2 group"
           >
             <div className="relative overflow-hidden rounded-xl">
-              {/* <Image
+              <Image
                 src="/assets/new-logo.png"
                 style={{ width: '130px', height: '60px' }}
                 width={130}
                 height={60}
                 alt="Travel Logo"
                 className="rounded-xl transition-transform duration-300 group-hover:scale-105"
-              /> */}
+              />
             </div>
-            <span className="text-4xl font-extrabold bg-gradient-to-r from-[#287f71] to-[#2dd4bf] bg-clip-text text-transparent">
+            
+            {/* <span className="text-4xl font-extrabold bg-gradient-to-r from-[#064e3b] to-[#22c55e] bg-clip-text text-transparent">
               COORD.TRAVEL
-            </span>
+            </span> */}
+
           </Link>
 
           {/* Mobile Menu */}
