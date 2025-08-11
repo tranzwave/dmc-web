@@ -24,7 +24,6 @@ export default function LandingPage() {
     <div className="flex flex-col min-h-screen overflow-x-hidden">
       {/* Hero Section */}
       <HeroSection />
-      {/* Screenshot Section */}
 
       {/* Logos Section */}
       {/* <section className="py-16 bg-gray-50">
@@ -48,7 +47,7 @@ export default function LandingPage() {
       <FeaturesSection />
 
       {/* Feature Split Section */}
-      <FeatureSplitSection/>
+      <FeatureSplitSection />
 
       {/* Dashboard Preview */}
       <DashboardPreview />
@@ -77,10 +76,12 @@ export default function LandingPage() {
         <ContactUsSection />
       </div>
 
-      <div>
+      {/* Refund Policy */}
+      <div id="refund-policy">
         <RefundPolicy />
       </div>
 
+      {/* FAQs Section */}
       <div id="faqs">
         <FaqsSection />
       </div>
@@ -89,8 +90,6 @@ export default function LandingPage() {
       <div id="terms-and-conditions">
         <TermsConditionSection />
       </div>
-
-      {/* Footer */}
     </div>
   )
 }
