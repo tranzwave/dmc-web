@@ -18,6 +18,7 @@ import TermsConditionSection from "./termsConditionSection"
 import FourStepProcess from "./fourStepProcess"
 import FeatureSplitSection from "./featureSplit"
 import RefundPolicy from "./refundPolicy"
+import PrivacyPolicy from "./privacyPolicy"
 
 export default function LandingPage() {
   return (
@@ -53,7 +54,7 @@ export default function LandingPage() {
       <DashboardPreview />
 
       {/* Focus on Guests Section */}
-      <div className="px-4">
+      <div>
         <FocusOnGuestsSection className="px-4 sm:px-8" />
       </div>
 
@@ -74,6 +75,11 @@ export default function LandingPage() {
       {/* Contact Us Section */}
       <div id="contact-us">
         <ContactUsSection />
+      </div>
+
+      {/* Privacy Policy */}
+      <div id="privacy-policy">
+        <PrivacyPolicy />
       </div>
 
       {/* Refund Policy */}
