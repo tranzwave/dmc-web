@@ -29,7 +29,7 @@ export default function ContactUsSection() {
     }, [headingInView, headingControls])
 
     return (
-        <div className="flex flex-col min-h-screen bg-gradient-to-r from-[#e6f4f1] via-[#f2f9f8] to-[#ffffff] pb-8">
+        <div className="flex flex-col min-h-screen bg-gradient-to-r from-[#e6f4f1] via-[#f2f9f8] to-[#ffffff] p-12 sm:p-14 sm:pb-24">
             <div className="flex-1 container mx-auto py-5 px-4 sm:px-6 md:px-10 mt-5">
                 {/* Title with scroll animation (bi-directional) */}
                 <motion.div
@@ -57,7 +57,7 @@ export default function ContactUsSection() {
 
                 {/* Grid with staggered motion (bi-directional) */}
                 <motion.div
-                    className="grid gap-8 sm:gap-12 lg:grid-cols-2"
+                    className="flex flex-col gap-8 sm:gap-12 px-4 sm:px-20 md:px-28"
                     initial="hidden"
                     whileInView="show"
                     viewport={{ once: false, amount: 0.2 }} // allow re-trigger
