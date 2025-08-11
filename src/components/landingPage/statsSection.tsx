@@ -18,7 +18,7 @@ const stats = [
 export default function StatsSection() {
   const controls = useAnimation()
   const ref = useRef(null)
-  const inView = useInView(ref, { amount: 0.3 }) // trigger when 30% in view
+  const inView = useInView(ref, { amount: 0.3 }) 
 
   useEffect(() => {
     if (inView) {
@@ -27,6 +27,7 @@ export default function StatsSection() {
       controls.start("hidden")
     }
   }, [inView, controls])
+
   return (
     <section className="py-20 bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
