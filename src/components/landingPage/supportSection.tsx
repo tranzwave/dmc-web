@@ -23,7 +23,7 @@ export default function SupportSection() {
         animate={controls}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
-        <h2 className="text-3xl font-semibold mb-6 text-gray-900">
+        <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-gray-900 select-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.1)]">
           Grow with confidence. Support when you need it.
         </h2>
         <p className="text-gray-700 text-lg leading-relaxed max-w-3xl mx-auto">
