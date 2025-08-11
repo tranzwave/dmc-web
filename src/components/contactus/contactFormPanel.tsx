@@ -1,11 +1,3 @@
-/**
- * Contact Form Panel
- *
- * A panel containing the contact form for users to reach out.
- *
- * @created 8/10/2025
- * @updated 8/11/2025
- */
 "use client"
 
 import { useEffect, useState, useRef } from "react"
@@ -71,7 +63,7 @@ export default function ContactFormPanel({
       {
         root: null,
         rootMargin: "0px",
-        threshold: 0.3, // 30% visible triggers enter/leave
+        threshold: 0.3,
       }
     )
 
@@ -193,14 +185,14 @@ export default function ContactFormPanel({
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h3 className="text-2xl font-semibold text-primary-green select-none">Thank You!</h3>
-          <p className="text-gray-600 max-w-xs select-text">
+          <h3 className="text-3xl font-semibold text-primary-green select-none">Thank You!</h3>
+          <p className="text-lg text-gray-600 max-w-xs select-text">
             Your message has been sent successfully. We'll get back to you soon.
           </p>
           <Button
             variant="outline"
             onClick={() => setFormSuccess(false)}
-            className="mt-4 px-8 py-3 rounded-full font-semibold tracking-wide shadow-md hover:shadow-lg transition"
+            className="mt-4 px-10 py-3 rounded-full font-semibold tracking-wide shadow-md hover:shadow-lg transition text-lg"
           >
             Send Another Message
           </Button>
@@ -208,8 +200,8 @@ export default function ContactFormPanel({
       ) : (
         <form className="space-y-8" onSubmit={handleSubmit} noValidate>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="flex flex-col space-y-1">
-              <Label htmlFor="firstName" className="font-semibold text-primary-green">
+            <div className="flex flex-col space-y-2">
+              <Label htmlFor="firstName" className="font-semibold text-primary-green text-lg">
                 First name
               </Label>
               <Input
@@ -218,11 +210,11 @@ export default function ContactFormPanel({
                 onChange={handleChange}
                 placeholder="John"
                 required
-                className="rounded-xl border border-white/50 bg-white/50 backdrop-blur-sm placeholder:text-gray-400 focus:ring-2 focus:ring-primary-green"
+                className="h-12 px-4 text-lg rounded-xl border border-white/50 bg-white/50 backdrop-blur-sm placeholder:text-gray-400 focus:ring-2 focus:ring-primary-green"
               />
             </div>
-            <div className="flex flex-col space-y-1">
-              <Label htmlFor="lastName" className="font-semibold text-primary-green">
+            <div className="flex flex-col space-y-2">
+              <Label htmlFor="lastName" className="font-semibold text-primary-green text-lg">
                 Last name
               </Label>
               <Input
@@ -231,13 +223,13 @@ export default function ContactFormPanel({
                 onChange={handleChange}
                 placeholder="Doe"
                 required
-                className="rounded-xl border border-white/50 bg-white/50 backdrop-blur-sm placeholder:text-gray-400 focus:ring-2 focus:ring-primary-green"
+                className="h-12 px-4 text-lg rounded-xl border border-white/50 bg-white/50 backdrop-blur-sm placeholder:text-gray-400 focus:ring-2 focus:ring-primary-green"
               />
             </div>
           </div>
 
-          <div className="flex flex-col space-y-1">
-            <Label htmlFor="email" className="font-semibold text-primary-green">
+          <div className="flex flex-col space-y-2">
+            <Label htmlFor="email" className="font-semibold text-primary-green text-lg">
               Email
             </Label>
             <Input
@@ -247,12 +239,12 @@ export default function ContactFormPanel({
               onChange={handleChange}
               placeholder="john.doe@example.com"
               required
-              className="rounded-xl border border-white/50 bg-white/50 backdrop-blur-sm placeholder:text-gray-400 focus:ring-2 focus:ring-primary-green"
+              className="h-12 px-4 text-lg rounded-xl border border-white/50 bg-white/50 backdrop-blur-sm placeholder:text-gray-400 focus:ring-2 focus:ring-primary-green"
             />
           </div>
 
-          <div className="flex flex-col space-y-1">
-            <Label htmlFor="phone" className="font-semibold text-primary-green">
+          <div className="flex flex-col space-y-2">
+            <Label htmlFor="phone" className="font-semibold text-primary-green text-lg">
               Phone (optional)
             </Label>
             <Input
@@ -261,12 +253,12 @@ export default function ContactFormPanel({
               value={formData.phone}
               onChange={handleChange}
               placeholder="(123) 456-7890"
-              className="rounded-xl border border-white/50 bg-white/50 backdrop-blur-sm placeholder:text-gray-400 focus:ring-2 focus:ring-primary-green"
+              className="h-12 px-4 text-lg rounded-xl border border-white/50 bg-white/50 backdrop-blur-sm placeholder:text-gray-400 focus:ring-2 focus:ring-primary-green"
             />
           </div>
 
-          <div className="flex flex-col space-y-1">
-            <Label htmlFor="subject" className="font-semibold text-primary-green">
+          <div className="flex flex-col space-y-2">
+            <Label htmlFor="subject" className="font-semibold text-primary-green text-lg">
               Subject
             </Label>
             <Input
@@ -275,12 +267,12 @@ export default function ContactFormPanel({
               onChange={handleChange}
               placeholder="How can we help you?"
               required
-              className="rounded-xl border border-white/50 bg-white/50 backdrop-blur-sm placeholder:text-gray-400 focus:ring-2 focus:ring-primary-green"
+              className="h-12 px-4 text-lg rounded-xl border border-white/50 bg-white/50 backdrop-blur-sm placeholder:text-gray-400 focus:ring-2 focus:ring-primary-green"
             />
           </div>
 
-          <div className="flex flex-col space-y-1">
-            <Label htmlFor="message" className="font-semibold text-primary-green">
+          <div className="flex flex-col space-y-2">
+            <Label htmlFor="message" className="font-semibold text-primary-green text-lg">
               Message
             </Label>
             <Textarea
@@ -288,15 +280,15 @@ export default function ContactFormPanel({
               value={formData.message}
               onChange={handleChange}
               placeholder="Please provide as much detail as possible..."
-              className="min-h-[140px] rounded-xl border border-white/50 bg-white/50 backdrop-blur-sm placeholder:text-gray-400 focus:ring-2 focus:ring-primary-green resize-none"
               required
+              className="h-32 px-4 py-3 text-lg rounded-xl border border-white/50 bg-white/50 backdrop-blur-sm placeholder:text-gray-400 focus:ring-2 focus:ring-primary-green resize-none"
             />
           </div>
 
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full h-11 px-8 bg-[#287f71]/90 backdrop-blur-xl border border-white/40 rounded-full text-white font-semibold shadow-md hover:shadow-lg hover:bg-[#238373] transition-all duration-300 transform hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-12 px-10 bg-[#287f71]/90 backdrop-blur-xl border border-white/40 rounded-full text-white font-semibold shadow-md hover:shadow-lg hover:bg-[#238373] transition-all duration-300 transform hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed text-lg"
           >
             {isSubmitting ? "Sending..." : "Send Message"}
           </Button>
@@ -305,4 +297,3 @@ export default function ContactFormPanel({
     </motion.section>
   )
 }
-
