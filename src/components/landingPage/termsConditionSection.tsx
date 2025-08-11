@@ -110,7 +110,7 @@ export default function TermsConditionSection() {
     };
 
     return (
-        <div className="min-h-auto bg-gradient-to-br from-[#e6f4f1] via-[#f2f9f8] to-[#ffffff] pt-16 sm:pt-10 pb-32 px-4 sm:px-6 md:px-10">
+        <div className="min-h-auto bg-gray-50 pt-16 sm:pt-10 pb-32 px-4 sm:px-6 md:px-10">
             <main className="flex-grow container max-w-3xl mx-auto px-2 sm:px-4 py-8 mt-10">
                 <motion.div
                     ref={headingRef}
