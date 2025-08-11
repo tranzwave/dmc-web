@@ -92,7 +92,7 @@ export default function FeaturesSection() {
   ]
 
   return (
-    <section className="py-20 pt-5 px-2 bg-white">
+    <section className="py-20 pt-5 px-2 bg-gray-50">
       <div className="container mx-auto px-4">
         <ReplayOnScroll className="text-center mb-16" variants={fadeUpSmooth} amount={0.3}>
           <h2 className="text-3xl md:text-4xl font-bold mb-4" id="features">
