@@ -1,4 +1,9 @@
-// components/SupportSection.tsx
+/**
+ * Support Section Component
+ * 
+ * @update 8/11/2025
+ * 
+ */
 import React, { useEffect, useRef } from "react";
 import { motion, useAnimation, useInView } from "framer-motion";
 
