@@ -58,13 +58,17 @@ export function Navbar() {
                 width={130}
                 height={60}
                 alt="Travel Logo"
-                className="rounded-xl transition-transform duration-300 group-hover:scale-105"
+                className="rounded-xl transition-transform duration-300 group-hover:scale-105 mr-0"
               />
             </div>
-            
-            {/* <span className="text-4xl font-extrabold bg-gradient-to-r from-[#064e3b] to-[#22c55e] bg-clip-text text-transparent">
-              COORD.TRAVEL
-            </span> */}
+            <span
+              className="-ml-5 transition-transform duration-300 group-hover:scale-105
+             text-4xl font-extrabold bg-gradient-to-r
+             from-[#287f71] to-[#4ab194be] bg-clip-text text-transparent"
+            >
+              .TRAVEL
+            </span>
+
 
           </Link>
 
