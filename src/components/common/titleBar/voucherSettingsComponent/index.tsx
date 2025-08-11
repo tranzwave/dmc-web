@@ -9,7 +9,11 @@ import { VoucherSettings } from '~/lib/types/booking';
 import { updateTenantVoucherSettings } from '~/server/db/queries/tenants';
 import { SelectTenant } from '~/server/db/schemaTypes';
 
-const VoucherSettingsComponent: React.FC<{ tenant: SelectTenant, currencies:string[] }> = ({ tenant, currencies }) => {
+const VoucherSettingsComponent: React.FC<{ 
+    tenant: SelectTenant, 
+    currencies: string[],
+    onSettingsUpdate?: () => void 
+}> = ({ tenant, currencies, onSettingsUpdate }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -41,8 +45,18 @@ const VoucherSettingsComponent: React.FC<{ tenant: SelectTenant, currencies:stri
                 description: 'Voucher settings have been saved successfully',
             })
             setLoading(false);
-            // setIsModalVisible(false);
-            window.location.reload();
+            setIsModalVisible(false);
+            
+            // Update localStorage immediately with the new settings
+            localStorage.setItem('voucherSettings', JSON.stringify(settings));
+            
+            // Notify parent component about the update
+            if (onSettingsUpdate) {
+                onSettingsUpdate();
+            }
+            
+            // Dispatch custom event to notify other components about the update
+            window.dispatchEvent(new Event('voucherSettingsUpdated'));
         } catch (error) {
             console.error('Failed to save settings:',)
             //Toast error

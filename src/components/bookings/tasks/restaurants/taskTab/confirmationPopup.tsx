@@ -23,7 +23,7 @@ const ConfirmationContent = (
       );
     }
   
-    if (selectedVoucher?.status === "inprogress") {
+    if (selectedVoucher?.status === "inprogress" || selectedVoucher?.status === "amended") {
       return (
         <div>
           <p>Click Proceed and send voucher first</p>

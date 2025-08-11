@@ -48,6 +48,7 @@ interface ProceedContentProps {
   bookingName: string
   currency: string
   viewCancellationVoucher?: boolean
+  onVoucherUpdate?: (updatedVoucher: any) => void
 }
 
 const ProceedContent: React.FC<ProceedContentProps> = ({
@@ -62,7 +63,8 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
   type,
   viewCancellationVoucher,
   currency,
-  bookingName
+  bookingName,
+  onVoucherUpdate
 }) => {
   // pdfMake.vfs = (pdfFonts as any).vfs || pdfFonts.pdfMake?.vfs;
   const router = useRouter();
@@ -110,7 +112,11 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
 
   const handleSubmit = async () => {
     if (!areAllFieldsFilled()) {
-      alert("Please fill all the required fields.");
+      toast({
+        title: "Validation Error",
+        description: "Please fill all the required fields.",
+        variant: "destructive",
+      });
       return;
     }
     try {
@@ -125,26 +131,12 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         billingInstructions
       });
 
-
-
       const updatedVoucherLines = selectedVoucher.voucherLines.map((voucherLine) => ({
         ...voucherLine,
         rate: ratesMap.get(voucherLine.id) ?? voucherLine.rate, // Get the latest rate
       }));
 
-      setSelectedVoucher((prev) => (
-        {
-          ...prev,
-          ratesConfirmedBy,
-          ratesConfirmedTo,
-          availabilityConfirmedBy,
-          availabilityConfirmedTo,
-          specialNote,
-          billingInstructions,
-          voucherLines: updatedVoucherLines as any
-        }
-      ));
-      voucher = {
+      const updatedVoucher = {
         ...selectedVoucher,
         ratesConfirmedBy,
         ratesConfirmedTo,
@@ -153,13 +145,25 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         specialNote,
         billingInstructions,
         voucherLines: updatedVoucherLines as any
+      };
+
+      // Update local state first
+      setSelectedVoucher(updatedVoucher);
+      
+      // Notify parent component about the update
+      if (onVoucherUpdate) {
+        onVoucherUpdate(updatedVoucher);
       }
+      
       setIsRateUpdating(false);
 
       toast({
         title: "Voucher rates updated successfully",
         description: "The voucher rates have been updated successfully.",
       })
+
+      // Don't close the popup - let user continue working
+      return false;
 
     } catch (error) {
       console.error("Failed to update voucher line:", error);
@@ -177,22 +181,29 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         title: "Voucher already sent",
         description: "The voucher has already been sent to the vendor.",
       })
-    } else if(selectedVoucher?.status === "amended") {
-      toast({
-        title: "Voucher already amended",
-        description: "The voucher has been amended.",
-      })
     } else if (selectedVoucher?.status === "cancelled") {
       toast({
         title: "Voucher already cancelled",
         description: "The voucher has been cancelled.",
       })
-    }
-     else if(selectedVoucher?.status === "inprogress"){
+    } else if (selectedVoucher?.status === "inprogress" || selectedVoucher?.status === "amended") {
       try {
-        selectedVoucher.status = "sentToVendor";
+        const updatedVoucher = {
+          ...selectedVoucher,
+          status: "sentToVendor" as const
+        };
+        
         setStatusChanged(true);
-        await updateVoucherStatus(selectedVoucher);
+        await updateVoucherStatus(updatedVoucher);
+        
+        // Update local state
+        setSelectedVoucher(updatedVoucher);
+        
+        // Notify parent component about the update
+        if (onVoucherUpdate) {
+          onVoucherUpdate(updatedVoucher);
+        }
+        
         toast({
           title: "Voucher status updated",
           description: "The voucher status has been updated successfully as sentToVendor.",
@@ -205,8 +216,6 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
         })
       }
     }
-
-
   };
 
   useEffect(() => {
@@ -259,7 +268,13 @@ const ProceedContent: React.FC<ProceedContentProps> = ({
           </div>
 
           <div className="flex w-full flex-row justify-end gap-2">
-            <Button variant="primaryGreen" onClick={handleSubmit}>Save Voucher Rates</Button>
+            <Button 
+              variant="primaryGreen" 
+              onClick={handleSubmit}
+              disabled={isRateUpdating}
+            >
+              {isRateUpdating ? "Saving..." : "Save Voucher Rates"}
+            </Button>
           </div>
         </>
       )}

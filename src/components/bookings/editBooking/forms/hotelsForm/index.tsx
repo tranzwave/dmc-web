@@ -67,6 +67,7 @@ const HotelsTab = () => {
   const [triggerRefetch, setTriggerRefetch] = useState(false);
   const [voucherToEdit, setVoucherToEdit] = useState<HotelVoucher | null>()
   const [triggerEdit, setTriggerEdit] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const {organization, isLoaded: isOrgLoaded} = useOrganization();
 
   const pathname = usePathname();
@@ -76,6 +77,7 @@ const HotelsTab = () => {
     data: InsertHotelVoucherLine,
     isNewVoucher: boolean,
     hotel: HotelWithRooms,
+    selectedVoucherId?: string,
   ) => {
     console.log(data);
     const voucher: InsertHotelVoucher = {
@@ -92,7 +94,7 @@ const HotelsTab = () => {
     if (voucherLineIdToEdit !== "none") {
       // editHotelVoucher(hotelVoucher, voucherLineIdToEdit ?? "none", data.id);
       try {
-        setSaving(true)
+        setIsUpdating(true)
         const updatedResponse = await updateSingleHotelVoucherLineTx(voucherLineIdToEdit, {
           adultsCount: data.adultsCount,
           kidsCount: data.kidsCount,
@@ -109,10 +111,11 @@ const HotelsTab = () => {
         }
         toast({
           title: "Success",
-          description: "Hotel Vouchers Added!",
+          description: "Hotel Voucher Updated Successfully!",
         });
-        setSaving(false)
+        setIsUpdating(false)
         setTriggerEdit(false)
+        setVoucherLineIdToEdit("none");
         updateTriggerRefetch()
       } catch (error) {
         if (error instanceof Error) {
@@ -124,10 +127,10 @@ const HotelsTab = () => {
           title: "Uh Oh!",
           description: "Couldn't update voucher line!",
         });
-        setSaving(false);
+        setIsUpdating(false);
         setTriggerEdit(false)
+        setVoucherLineIdToEdit("none");
       }
-      setVoucherLineIdToEdit("none");
       return;
     }
 
@@ -144,12 +147,18 @@ const HotelsTab = () => {
         );
       } else {
         // newResponse = await addHotelVoucherLinesToBooking()
-        const existingVoucherId = bookingDetails.vouchers.find(v => v.hotel.id === hotel.id && v.voucher.status !== 'cancelled')?.voucher.id
-        existingVoucherId ? newResponse = await addHotelVoucherLineToExistingVoucher(
-          existingVoucherId,
-          data
-        ) : alert("Uh oh! Couldn't find the existing voucher")
-
+        if (selectedVoucherId) {
+          newResponse = await addHotelVoucherLineToExistingVoucher(
+            selectedVoucherId,
+            data
+          );
+        } else {
+          const existingVoucherId = bookingDetails.vouchers.find(v => v.hotel.id === hotel.id && v.voucher.status !== 'cancelled')?.voucher.id
+          existingVoucherId ? newResponse = await addHotelVoucherLineToExistingVoucher(
+            existingVoucherId,
+            data
+          ) : alert("Uh oh! Couldn't find the existing voucher")
+        }
       }
 
       if (!newResponse) {
@@ -222,6 +231,7 @@ const HotelsTab = () => {
 
   const onEdit = (data: any) => {
     setTriggerEdit(true);
+    setIsUpdating(false); // Reset updating state when starting edit
     if (!selectedVoucher) {
 
       toast({
@@ -258,6 +268,7 @@ const HotelsTab = () => {
     }
     setIsUnsavedVoucherDelete(true);
     setIsDeleteOpen(true);
+    setIsUpdating(false); // Reset updating state when deleting
   };
 
   const onDuplicate = async (data: any) => {
@@ -271,6 +282,7 @@ const HotelsTab = () => {
     }
     setDefaultValues({ ...data, hotel: selectedVoucher.hotel, id: data.id, hotelVoucherId: data.hotelVoucherId, roomCategory: data.roomCategory });
     setDefaultHotel(selectedVoucher.hotel);
+    setIsUpdating(false); // Reset updating state when duplicating
   }
 
   const handleVoucherLineDelete = async () => {
@@ -301,6 +313,7 @@ const HotelsTab = () => {
         // deleteVoucherLineFromLocalContext();
         setIsDeleting(false);
         setVoucherLineIdToEdit("none")
+        setIsUpdating(false); // Reset updating state after successful deletion
         updateTriggerRefetch();
       } catch (error) {
         toast({
@@ -309,6 +322,7 @@ const HotelsTab = () => {
         });
         setIsDeleting(false);
         setVoucherLineIdToEdit("none")
+        setIsUpdating(false); // Reset updating state after failed deletion
       }
       return;
     }
@@ -321,6 +335,7 @@ const HotelsTab = () => {
     );
     deleteHotelVoucher(index, selectedVoucher?.voucherLines[0]?.id ?? "");
     setIsDeleting(false);
+    setIsUpdating(false); // Reset updating state after deletion
   };
 
   const renderExpandedRow = (row: HotelVoucher) => {
@@ -380,15 +395,45 @@ const HotelsTab = () => {
         <div className="card w-full space-y-6">
           <div className="flex flex-row justify-between">
             <div className="card-title">Hotel Information</div>
+            {triggerEdit && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setTriggerEdit(false);
+                  setDefaultValues(null);
+                  setDefaultHotel(undefined);
+                  setVoucherLineIdToEdit("none");
+                  setIsUpdating(false); // Reset updating state when cancelling edit
+                }}
+              >
+                Cancel Edit
+              </Button>
+            )}
           </div>
           {hotels && (
-            <HotelsForm
-              onAddHotel={updateHotels}
-              hotels={hotels}
-              defaultValues={defaultValues}
-              isSaving={saving}
-              triggerEdit={triggerEdit}
-            />
+            <>
+              {!triggerEdit && (
+                <HotelsForm
+                  onAddHotel={updateHotels}
+                  hotels={hotels}
+                  defaultValues={null}
+                  amendment={false}
+                  isSaving={saving}
+                  triggerEdit={false}
+                />
+              )}
+              {triggerEdit && (
+                <HotelsForm
+                  onAddHotel={updateHotels}
+                  hotels={hotels}
+                  defaultValues={defaultValues}
+                  amendment={true}
+                  isUpdating={isUpdating}
+                  isSaving={false}
+                  triggerEdit={true}
+                />
+              )}
+            </>
           )}
         </div>
       </div>

@@ -97,7 +97,7 @@ export const defaultGeneral: General = {
   primaryEmail: "",
   directCustomer: true,
   primaryContactNumber:"",
-  adultsCount: 0,
+  adultsCount: 1,
   kidsCount: 0,
   startDate: "",
   numberOfDays: 1,
