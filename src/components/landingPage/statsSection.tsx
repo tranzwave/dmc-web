@@ -29,7 +29,7 @@ export default function StatsSection() {
   }, [inView, controls])
 
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="py-20 bg-gradient-to-r from-[#e6f4f1] via-[#f2f9f8] to-[#ffffff]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           ref={ref}
