@@ -5,7 +5,6 @@
  */
 
 'use client'
-import { Navbar } from "../navbar/navBar"
 import HeroSection from "./heroSection"
 import PricingSection from "./pricingSection"
 import DashboardPreview from "./dashboardPreview"
@@ -15,11 +14,9 @@ import StatsSection from "./statsSection"
 import FocusOnGuestsSection from "./focusOnGuestsSection"
 import ContactUsSection from "./contactUsSection"
 import FaqsSection from "./faqsSection"
-import { Footer } from "../footer/footer"
 import TermsConditionSection from "./termsConditionSection"
-import FeatureSplit from "./featureSplit"
-import { Calendar, Monitor, Save } from "lucide-react"
 import FourStepProcess from "./fourStepProcess"
+import FeatureSplitSection from "./featureSplit"
 
 export default function LandingPage() {
   return (
@@ -49,33 +46,8 @@ export default function LandingPage() {
       {/* Features Section */}
       <FeaturesSection />
 
-      <FeatureSplit
-        eyebrow=""
-        title="Free Itinerary Builder"
-        intro="our new itinerary builder is an entirely new experience for creating itineraries quickly for your customized / bespoke tours. with features like auto save and reusable days, you can move swiftly across screens and get the work done in no time!"
-        imageSrc="/assets/landing/booking.png" // put your image in /public/images
-        imageAlt="Landing screenshot"
-        bullets={[
-          {
-            icon: <Calendar className="h-7 w-7" />,
-            title: "Reusable Days",
-            description:
-              "Add used days from previous itineraries, including photos, description and activities.",
-          },
-          {
-            icon: <Monitor className="h-7 w-7" />,
-            title: "Itinerary Versioning",
-            description:
-              "Create and manage itinerary versions as your discussion with the customer evolves.",
-          },
-          {
-            icon: <Save className="h-7 w-7" />,
-            title: "Easy to Use",
-            description:
-              "Toursoft is the easiest to use product on the market. Breeze through creating complex itineraries with ease!",
-          },
-        ]}
-      />
+      {/* Feature Split Section */}
+      <FeatureSplitSection/>
 
       {/* Dashboard Preview */}
       <DashboardPreview />
