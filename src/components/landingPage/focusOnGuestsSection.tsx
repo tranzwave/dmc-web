@@ -1,7 +1,7 @@
 /**
  * Focus on Guests Section
  *
- * @update 8/10/2025
+ * @update 8/11/2025
  */
 "use client"
 
@@ -109,7 +109,7 @@ function PopIn({ children, className = "" }: { children: React.ReactNode; classN
 
 export default function FocusOnGuestsSection({ className = "" }: { className?: string }) {
   return (
-    <section className={cn("w-full bg-white px-4 sm:px-6 lg:px-8 py-12 sm:py-14 lg:py-18", className)}>
+    <section className={cn("w-full bg-gradient-to-r from-[#e6f4f1] via-[#f2f9f8] to-[#ffffff] px-4 sm:px-6 lg:px-8 py-12 sm:py-14 lg:py-18", className)}>
       <div className="max-w-7xl mx-auto grid items-center gap-10 sm:gap-12 lg:gap-16 lg:grid-cols-2">
         {/* Left copy */}
         <StaggerParent className="max-w-2xl">
