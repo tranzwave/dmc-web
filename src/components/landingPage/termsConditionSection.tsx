@@ -1,3 +1,8 @@
+/**
+ * Terms and Conditions Section Component
+ * 
+ * @update 8/11/2025
+ */
 "use client";
 import { useRef, useState, useEffect } from "react";
 import { easeIn, easeOut, motion, useAnimation, useInView } from "framer-motion";
