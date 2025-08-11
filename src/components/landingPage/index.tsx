@@ -19,6 +19,7 @@ import { Footer } from "../footer/footer"
 import TermsConditionSection from "./termsConditionSection"
 import FeatureSplit from "./featureSplit"
 import { Calendar, Monitor, Save } from "lucide-react"
+import FourStepProcess from "./fourStepProcess"
 
 export default function LandingPage() {
   return (
@@ -88,6 +89,10 @@ export default function LandingPage() {
       <div id="pricing">
         <PricingSection />
       </div>
+
+      {/* Four Step Process */}
+      <FourStepProcess />
+
       {/* Support Section */}
       <SupportSection />
 
