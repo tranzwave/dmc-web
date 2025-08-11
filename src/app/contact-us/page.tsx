@@ -3,7 +3,7 @@
 import { useState } from "react"
 import ContactFormPanel from "~/components/contactus/contactFormPanel"
 import ContactInfoPanel from "~/components/contactus/contactInfoPanel"
-import { Navbar } from "~/components/landingPage/navBar"
+import { Navbar } from "~/components/navbar/navBar"
 
 export default function ContactPage() {
   const [formSuccess, setFormSuccess] = useState(false)
