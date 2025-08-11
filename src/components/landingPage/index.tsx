@@ -17,6 +17,7 @@ import FaqsSection from "./faqsSection"
 import TermsConditionSection from "./termsConditionSection"
 import FourStepProcess from "./fourStepProcess"
 import FeatureSplitSection from "./featureSplit"
+import RefundPolicy from "./refundPolicy"
 
 export default function LandingPage() {
   return (
@@ -74,6 +75,10 @@ export default function LandingPage() {
       {/* Contact Us Section */}
       <div id="contact-us">
         <ContactUsSection />
+      </div>
+
+      <div>
+        <RefundPolicy />
       </div>
 
       <div id="faqs">
