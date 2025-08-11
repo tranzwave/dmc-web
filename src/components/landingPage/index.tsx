@@ -19,6 +19,8 @@ import FourStepProcess from "./fourStepProcess"
 import FeatureSplitSection from "./featureSplit"
 import RefundPolicy from "./refundPolicy"
 import PrivacyPolicy from "./privacyPolicy"
+import TravelLibrarySection from "./travelLibrarySection"
+import ItineraryFeatures from "./ItineraryFeatures"
 
 export default function LandingPage() {
   return (
@@ -65,6 +67,10 @@ export default function LandingPage() {
 
       {/* Four Step Process */}
       <FourStepProcess />
+
+      <TravelLibrarySection />
+
+      <ItineraryFeatures />
 
       {/* Support Section */}
       <SupportSection />
