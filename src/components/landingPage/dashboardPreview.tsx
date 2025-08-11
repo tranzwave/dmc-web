@@ -48,7 +48,7 @@ export default function DashboardPreview() {
 
   return (
     <>
-      <section className="flex flex-col md:flex-row items-center justify-between max-w mx-auto px-6 sm:px-6 lg:px-10 py-12 sm:py-16 gap-10 sm:gap-12 mb-4">
+      <section className="bg-gray-50 flex flex-col md:flex-row items-center justify-between max-w mx-auto px-6 sm:px-6 lg:px-10 py-12 sm:py-16 gap-10 sm:gap-12 mb-4">
         {/* Left Text */}
         <motion.div
           ref={leftRef}
