@@ -52,7 +52,7 @@ export default function FourStepProcess() {
     }, [inView, controls]);
 
     return (
-        <section className="bg-gray-50 py-16" ref={ref}>
+        <section className="bg-gradient-to-r from-[#e6f4f1] via-[#f2f9f8] to-[#ffffff] py-16" ref={ref}>
             <div className="max-w-6xl mx-auto px-4">
                 {/* Title */}
                 <motion.h2
