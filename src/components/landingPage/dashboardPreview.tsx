@@ -47,8 +47,8 @@ export default function DashboardPreview() {
   }, [imageInView, imageControls]);
 
   return (
-    <>
-      <section className="bg-gray-50 flex flex-col md:flex-row items-center justify-between max-w mx-auto px-6 sm:px-6 lg:px-10 py-12 sm:py-16 gap-10 sm:gap-12 mb-4">
+    <div className="bg-gray-50 ">
+      <section className="bg-gray-50 flex flex-col md:flex-row items-center justify-between w-full px-6 sm:px-6 lg:px-10 py-12 sm:py-16 gap-10 sm:gap-12">
         {/* Left Text */}
         <motion.div
           ref={leftRef}
@@ -197,6 +197,6 @@ export default function DashboardPreview() {
           </div>
         </div>
       </motion.section>
-    </>
+    </div>
   );
 }
