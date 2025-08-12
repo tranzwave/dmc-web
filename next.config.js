@@ -14,12 +14,6 @@ const config = {
         port: "",
         pathname: "/**",
       },
-      {
-        protocol: "https",
-        hostname: "images.pexels.com",
-        port: "",
-        pathname: "/**",
-      },
     ],
   },
   experimental: {

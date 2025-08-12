@@ -78,8 +78,8 @@ export default function TravelLibrarySection() {
             alt="Manage travel library"
             className="w-full max-w-md h-auto"
             priority
-            width={70}
-            height={35}
+            width={100}
+            height={80}
           />
         </motion.div>
       </div>
