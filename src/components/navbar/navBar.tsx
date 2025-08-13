@@ -49,26 +49,27 @@ export function Navbar() {
                 history.replaceState(null, '', window.location.pathname + window.location.search);
               }
             }}
-            className="flex items-center space-x-2 group"
+            className="flex items-center group justify-center"
           >
             <div className="relative overflow-hidden rounded-xl">
               <Image
-                src="/assets/new-logo.png"
-                style={{ width: '130px', height: '60px' }}
-                width={130}
+                src="/assets/icon-wrapper.png"
+                style={{ width: '60px', height: '60px' }}
+                width={60}
                 height={60}
                 alt="Travel Logo"
                 className="rounded-xl transition-transform duration-300 group-hover:scale-105 mr-0"
               />
             </div>
-            <span
-              className="-ml-5 transition-transform duration-300 group-hover:scale-105
-             text-4xl font-extrabold bg-gradient-to-r
-             from-[#287f71] to-[#4ab194be] bg-clip-text text-transparent"
-            >
-              .TRAVEL
-            </span>
-
+            <div className="flex items-end h-full">
+              <span
+                className="-ml-3 transition-transform duration-300
+      text-4xl font-extrabold bg-gradient-to-r mt-2
+      from-[#287f71] to-[#4ab194be] bg-clip-text text-transparent"
+              >
+                OORD.TRAVEL
+              </span>
+            </div>
 
           </Link>
 
