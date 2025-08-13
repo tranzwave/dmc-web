@@ -30,6 +30,7 @@ import { VoucherConfirmationDetails } from "~/lib/types/booking";
 import { useOrganization } from "@clerk/nextjs";
 import { set } from "date-fns";
 import { HotelWithRooms } from "~/components/bookings/editBooking/forms/hotelsForm";
+import { RestaurantVoucherData } from "../../restaurants";
 
 
 interface TasksTabProps<T, L> {
@@ -54,6 +55,7 @@ interface TasksTabProps<T, L> {
   contactDetails?: { phone: string; email: string };
   selectedVendor?: any;
   setSelectedVendor?: React.Dispatch<React.SetStateAction<any>>;
+  setLocalVouchers?: React.Dispatch<React.SetStateAction<HotelVoucherData[]>>;
 }
 
 interface WithOptionalVoucherLine<L, T> {
@@ -73,7 +75,8 @@ const HotelVouchersTasksTab = <
   contactDetails,
   selectedVendor,
   setSelectedVendor,
-  currency
+  currency,
+  setLocalVouchers
 }: TasksTabProps<T, L>) => {
   const [selectedVoucher, setSelectedVoucher] = useState<HotelVoucherData>();
   const [selectedVoucherLine, setSelectedVoucherLine] =
@@ -260,8 +263,13 @@ const HotelVouchersTasksTab = <
           throw new Error("Couldn't delete voucher");
         }
 
-        // deleteVoucherLineFromLocalContext();
+        if (setLocalVouchers) {
+          setLocalVouchers(vouchers.filter((voucher) => voucher.id !== selectedVoucher.id));
+        }
         setIsDeleting(false);
+
+        setSelectedVoucher(undefined); // Clear selection
+        setIsInProgressVoucherDelete(false); // Close the delete popup
       } catch (error) {
         toast({
           title: "Uh Oh",
@@ -314,6 +322,21 @@ const HotelVouchersTasksTab = <
       Download Cancellation Voucher
     </Button>
   )
+
+    const handleVoucherUpdate = (updatedVoucher: HotelVoucherData | RestaurantVoucherData) => {
+    // Type guard to ensure we only process hotel vouchers
+    if ('hotelId' in updatedVoucher) {
+      // Update the local vouchers state with the updated voucher
+      if (setLocalVouchers) {
+        setLocalVouchers((prev) =>
+          prev.map((v) => (v.id === updatedVoucher.id ? updatedVoucher : v))
+        );
+      }
+
+      // Update the selected voucher state
+      setSelectedVoucher(updatedVoucher);
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">
@@ -426,6 +449,7 @@ const HotelVouchersTasksTab = <
                         viewCancellationVoucher={true}
                         bookingName={bookingName}
                         currency={currency}
+                        onVoucherUpdate={handleVoucherUpdate}
                       />
                     }
                     size="large"
@@ -535,6 +559,7 @@ const HotelVouchersTasksTab = <
                         type="hotel"
                         bookingName={bookingName}
                         currency={currency}
+                        onVoucherUpdate={handleVoucherUpdate}
                       />
                     }
                     size="large"

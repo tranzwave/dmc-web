@@ -26,6 +26,15 @@ const Page = ({ params }: { params: { id: string } }) => {
   const [voucherSettings, setVoucherSettings] = useState<VoucherSettings | null>(null)
   const permissions = useUserPermissions();
 
+  // Function to refresh voucher settings from localStorage
+  const refreshVoucherSettings = () => {
+    const voucherSettingsLocal = localStorage.getItem("voucherSettings");
+    if (voucherSettingsLocal) {
+      console.log("Refreshing voucher settings: ", JSON.parse(voucherSettingsLocal ?? "{}"));
+      setVoucherSettings(JSON.parse(voucherSettingsLocal ?? "{}"));
+    }
+  };
+
   // Fetch the booking details when the component mounts
   const fetchBooking = async () => {
     setLoading(true);
@@ -38,11 +47,7 @@ const Page = ({ params }: { params: { id: string } }) => {
       setBookingLine(bookingLineData as BookingLineWithAllData);
 
       //Get voucher settings from local storage
-      const voucherSettingsLocal = localStorage.getItem("voucherSettings");
-      if (voucherSettingsLocal) {
-        console.log("Voucher settings already set: ", JSON.parse(voucherSettingsLocal ?? "{}"));
-        setVoucherSettings(JSON.parse(voucherSettingsLocal ?? "{}"));
-      }
+      refreshVoucherSettings();
 
       setLoading(false);
     } catch (error) {
@@ -54,6 +59,29 @@ const Page = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     fetchBooking();
   }, [params.id]);
+
+  // Listen for storage changes to refresh voucher settings
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "voucherSettings") {
+        refreshVoucherSettings();
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    
+    // Also listen for custom event for same-origin updates
+    const handleCustomStorageChange = () => {
+      refreshVoucherSettings();
+    };
+    
+    window.addEventListener("voucherSettingsUpdated", handleCustomStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("voucherSettingsUpdated", handleCustomStorageChange);
+    };
+  }, []);
 
   if (loading) {
     return <div>Loading...</div>;

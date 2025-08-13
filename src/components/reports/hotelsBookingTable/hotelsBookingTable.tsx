@@ -33,7 +33,7 @@ const HotelsBookingTable = () => {
     };
 
     fetchData();
-  }, [organization]);
+  }, []);
 
   return (
     <div>

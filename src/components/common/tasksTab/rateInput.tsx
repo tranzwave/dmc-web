@@ -26,35 +26,48 @@ const RateInput = React.memo(({
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newRate = e.target.value;
 
-        // Check if the value is a valid number
-        if (!isNaN(Number(newRate))) {
-            setRate(newRate); // Update local rate state on change if it's a valid number
-            // handleRateChange(row.original.id, newRate); // Call handleRateChange only with a valid number
+        // Allow empty string, numbers, and decimal points
+        if (newRate === "" || /^\d*\.?\d*$/.test(newRate)) {
+            setRate(newRate); // Update local rate state on change
         } else {
             // Optionally handle invalid input
             console.warn('Invalid rate value');
         }
     };
 
-    // Optionally, handle blur to trigger final save
-    // const handleBlur = useCallback(() => {
-    //     handleRateChange(row.original.id, rate);
-    //     table.options.meta?.updateData(row.index, column.id, rate)
-    //     console.log("Final value saved:", rate); // Log the final saved rate
-    // }, [rate, row.original.id, handleRateChange,column.id, row.index, table.options.meta]);
+    const handleBlur = useCallback(() => {
+        // Convert to a proper number format and remove leading zeros
+        let processedRate = rate;
+        
+        if (rate && rate !== "") {
+            // Remove leading zeros but keep decimal numbers intact
+            // Convert to number and back to string to normalize the format
+            const numValue = parseFloat(rate);
+            if (!isNaN(numValue)) {
+                processedRate = numValue.toString();
+            } else {
+                processedRate = "0";
+            }
+        }
+        
+        // Update the local state with the processed rate
+        setRate(processedRate);
+        
+        // Call the handler with the processed rate
+        handleRateChange(row.original.id, processedRate);
+    }, [rate, row.original.id, handleRateChange]);
 
     return (
         <Input
-            type="number"
+            type="text"
             value={rate} // Controlled value based on state
             onChange={handleInputChange}
-            onBlur={() => handleRateChange(row.original.id, rate)}
+            onBlur={handleBlur}
             className="rounded border border-gray-300 p-1"
             style={{ width: "80px" }}
             placeholder="0.00"
             // onClick={(e) => e.stopPropagation()}
             key={`${row.original.id}`}
-            min={0}
         />
     );
 });

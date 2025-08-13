@@ -100,55 +100,40 @@ const RestaurantsTasksTab = ({
     }
   
     try {
-      const bulkUpdateResponse = bulkUpdateRestaurantVoucherRates(ratesMap,voucherId, {
+      await bulkUpdateRestaurantVoucherRates(ratesMap,voucherId, {
         availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
         availabilityConfirmedTo: confirmationDetails.availabilityConfirmedTo,
         ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
         ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
-        specialNote:confirmationDetails.specialNote,
-        billingInstructions:confirmationDetails.billingInstructions
+        specialNote: confirmationDetails.specialNote,
+        billingInstructions: confirmationDetails.billingInstructions
   
       });
-  
-      if (!bulkUpdateResponse) {
-        throw new Error("Failed");
-      }
+      
+      // Update local vouchers state with the new data
+      setLocalVouchers((prev) =>
+        prev.map((v) =>
+          v.id === voucherId ? {
+            ...v,
+            voucherLines: v.voucherLines.map((vl) =>
+              ratesMap.has(vl.id) ? { ...vl, rate: ratesMap.get(vl.id) ?? null } : vl
+            ),
+            availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
+            availabilityConfirmedTo: confirmationDetails.availabilityConfirmedTo,
+            ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
+            ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
+            specialNote: confirmationDetails.specialNote,
+            billingInstructions: confirmationDetails.billingInstructions
+          } : v
+        )
+      );
+      
       toast({
         title: "Voucher lines updated",
         description: "Voucher lines rates have been updated successfully",
       })
-
-      // setLocalVouchers((prev) =>
-
-      //   prev.map((v) =>
-
-      //     v.id === voucherId ? {
-
-      //       ...v,
-
-      //       voucherLines: v.voucherLines.map((vl) =>
-
-      //         ratesMap.has(vl.id) ? { ...vl, rate: ratesMap.get(vl.id) ?? null } : vl
-
-      //       ),
-
-      //       availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
-      //       availabilityConfirmedTo: confirmationDetails.availabilityConfirmedTo,
-      //       ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
-      //       ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
-      //       specialNote:confirmationDetails.specialNote,
-      //       billingInstructions:confirmationDetails.billingInstructions
-
-
-      //     } : v
-
-      //   )
-
-      // )
-      // window.location.reload();
     } catch (error) {
       console.error("Error updating voucher line:", error);
-      // alert("Failed to update voucher line. Please try again.");
       toast({
         title: "Error",
         description: "Error while updating the voucher line",
@@ -182,13 +167,31 @@ const RestaurantsTasksTab = ({
       return true;
     } catch (error) {
       console.error("Error updating voucher line:", error);
-      // alert("Failed to update voucher line. Please try again.");
       toast({
         title: "Error",
         description: "Error while updating the voucher status",
       })
       return false;
     }
+  };
+
+  // Callback to handle voucher updates from ProceedContent
+  const handleVoucherUpdate = (updatedVoucher: RestaurantVoucherData) => {
+    console.log("Updating voucher in parent component:", updatedVoucher);
+    setLocalVouchers((prev) => {
+      const newVouchers = prev.map((v) =>
+        v.id === updatedVoucher.id ? updatedVoucher : v
+      );
+      console.log("Updated vouchers:", newVouchers);
+      return newVouchers;
+    });
+  };
+
+  // Callback to handle voucher deletion
+  const handleVoucherDelete = (deletedVoucherId: string) => {
+    setLocalVouchers((prev) =>
+      prev.filter((v) => v.id !== deletedVoucherId)
+    );
   };
 
   return (
@@ -201,6 +204,8 @@ const RestaurantsTasksTab = ({
     updateVoucherLine={updateVoucherLinesRates}
     updateVoucherStatus={updateVoucherStatus}
     currency={currency}
+    onVoucherUpdate={handleVoucherUpdate}
+    onVoucherDelete={handleVoucherDelete}
   />
 )};
 

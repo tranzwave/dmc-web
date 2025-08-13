@@ -51,7 +51,7 @@ const TransportHome = () => {
     }
 
     fetchData();
-  }, [organization]);
+  }, []);
 
   useEffect(() => {
     async function fetchGuideData() {
@@ -69,7 +69,7 @@ const TransportHome = () => {
     }
 
     fetchGuideData();
-  }, [organization]);
+  }, []);
 
   //Fetch other transport data
   useEffect(() => {
@@ -88,7 +88,7 @@ const TransportHome = () => {
     }
 
     fetchOtherTransportData();
-  }, [organization]);
+  }, []);
 
   const filteredData = data.filter((driver) => {
     const searchTerm = searchQuery.toLowerCase();

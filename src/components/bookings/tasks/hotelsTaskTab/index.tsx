@@ -113,7 +113,7 @@ const HotelsTasksTab = ({
     }
     // alert("Updating voucher line:");
     try {
-      const bulkUpdateResponse = bulkUpdateHotelVoucherRates(ratesMap,voucherId, {
+      await bulkUpdateHotelVoucherRates(ratesMap,voucherId, {
         availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
         availabilityConfirmedTo: confirmationDetails.availabilityConfirmedTo,
         ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
@@ -121,15 +121,29 @@ const HotelsTasksTab = ({
         specialNote:confirmationDetails.specialNote,
         billingInstructions:confirmationDetails.billingInstructions
       });
-
-      if (!bulkUpdateResponse) {
-        throw new Error("Failed");
-      }
+      
+      // Update local state to reflect the changes
+      setLocalVouchers((prev) =>
+        prev.map((v) =>
+          v.id === voucherId ? {
+            ...v,
+            voucherLines: v.voucherLines.map((vl) =>
+              ratesMap.has(vl.id) ? { ...vl, rate: ratesMap.get(vl.id) ?? null } : vl
+            ),
+            availabilityConfirmedBy: confirmationDetails.availabilityConfirmedBy,
+            availabilityConfirmedTo: confirmationDetails.availabilityConfirmedTo,
+            ratesConfirmedBy: confirmationDetails.ratesConfirmedBy,
+            ratesConfirmedTo: confirmationDetails.ratesConfirmedTo,
+            specialNote: confirmationDetails.specialNote,
+            billingInstructions: confirmationDetails.billingInstructions
+          } : v
+        )
+      );
+      
       toast({
         title: "Success",
         description: "Voucher line updated successfully",
       });
-      // window.location.reload();
     } catch (error) {
       console.error("Error updating voucher line:", error);
       toast({
@@ -190,6 +204,7 @@ const HotelsTasksTab = ({
       setSelectedVendor={setSelectedHotel}
       selectedVendor={selectedHotel}
       currency={currency}
+      setLocalVouchers={setLocalVouchers}
     />
   );
 };

@@ -111,7 +111,8 @@ export const packages: Package[] = [
       "Limited bookings",
       "Basic reporting and analysis"
     ],
-    recuurence: "1 Month"
+    recurrence: "1 Month",
+    currency: "USD",
   },
   {
     id: 1,
@@ -119,6 +120,7 @@ export const packages: Package[] = [
     tabValue: "basic",
     description: "Ideal for small DMCs and startups ready to grow",
     price: 1.0,
+
     icon: Zap,
     users: 5,
     trialPeriod: "1 month",
@@ -129,7 +131,8 @@ export const packages: Package[] = [
       "Unlimited Bookings",
       "Unlimited Hotels"
     ],
-    recuurence: "1 Month"
+    recurrence: "1 Month",
+    currency: "USD"
   },
   {
     id: 2,
@@ -147,7 +150,8 @@ export const packages: Package[] = [
       "Unlimited Hotels",
       "Unlimited Agents",
     ],
-    recuurence: "1 Month"
+    recurrence: "1 Month",
+    currency: "USD"
   },
   {
     id: 3,
@@ -165,7 +169,8 @@ export const packages: Package[] = [
       "Priority support",
       "Dedicated account management",
     ],
-    recuurence: "1 Month"
+    recurrence: "1 Month",
+    currency: "USD"
   },
 ];
 

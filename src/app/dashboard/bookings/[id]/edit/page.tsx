@@ -148,19 +148,6 @@ const EditBooking = ({ id }: { id: string }) => {
         addActivityVouchers(vouchers)
       }
 
-      // if(transportVouchers){
-      //   const vouchers = transportVouchers.map(v => {
-      //     const {driver, ...voucher} = v
-      //     return {
-      //       driver:driver,
-      //       voucher:voucher,
-      //     }            
-      //   })
-
-      //   console.log(vouchers)
-      //   addTransportVouchers(vouchers)
-      // }
-
       if (transportVouchers) {
         const vouchers: TransportVoucher[] = transportVouchers.map((v) => {
           const { driver, guide, otherTransport, otherTransportVoucherLines, guideVoucherLines, ...voucher } = v;
@@ -219,6 +206,12 @@ const EditBooking = ({ id }: { id: string }) => {
     }
   }
 
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    router.replace(`${pathname}?tab=${tab}`);
+  };
+
+
   useEffect(() => {
     const fetchAllUsers = async () => {
       setLoading(true);
@@ -240,17 +233,26 @@ const EditBooking = ({ id }: { id: string }) => {
     }
     console.log("Add Booking Component");
     fetchAllUsers();
-  }, [organization]);
+  }, []);
 
   useEffect(() => {
-    const tab = searchParams.get("tab")
-    console.log("Add Booking Component");
-    fetchBookingLine()
-    // setActiveTab(activeTab ?? "general")
-    setActiveTab(tab ?? "general")
+    fetchBookingLine();
+    const tab = searchParams.get("tab");
+    if (tab) setActiveTab(tab);
   }, [id, triggerRefetch]);
 
-  if (!isLoaded || loading) {
+
+  useEffect(() => {
+    console.log("Tab to edit:", tabToEdit);
+    console.log("Active tab before setting:", activeTab);
+    if (tabToEdit) {
+      setActiveTab(tabToEdit);
+    } else {
+      setActiveTab("general");
+    }
+  }, [tabToEdit, setActiveTab]);
+
+  if (loading) {
     return <div> <LoadingLayout /></div>
   }
 
@@ -291,10 +293,8 @@ const EditBooking = ({ id }: { id: string }) => {
                 <TabsTrigger
                   value="general"
                   onClick={() => {
-                    router.push(`${pathname}?tab=${"general"}`)
-                    setActiveTab("general")
-                  }
-                  }
+                    handleTabChange("general");
+                  }}
                   isCompleted={false}
                   inProgress={activeTab == "general"}
                 >
@@ -303,10 +303,8 @@ const EditBooking = ({ id }: { id: string }) => {
                 <TabsTrigger
                   value="hotels"
                   onClick={() => {
-                    router.push(`${pathname}?tab=${"hotels"}`)
-                    setActiveTab("hotels")
-                  }
-                  }
+                    handleTabChange("hotels");
+                  }}
                   disabled={!bookingDetails.general.includes.hotels}
                   statusLabel={statusLabels.hotels}
                   isCompleted={bookingDetails.vouchers.length > 0}
@@ -317,10 +315,9 @@ const EditBooking = ({ id }: { id: string }) => {
                 <TabsTrigger
                   value="restaurants"
                   onClick={() => {
-                    router.push(`${pathname}?tab=${"restaurants"}`)
-                    setActiveTab("restaurants")
-                  }
-                  }
+                    // router.push(`${pathname}?tab=${"restaurants"}`)
+                    handleTabChange("restaurants");
+                  }}
                   disabled={!bookingDetails.general.includes.hotels}
                   statusLabel={statusLabels.restaurants}
                   isCompleted={bookingDetails.restaurants.length > 0}
@@ -332,8 +329,8 @@ const EditBooking = ({ id }: { id: string }) => {
                   value="transport"
                   onClick={
                     () => {
-                      router.push(`${pathname}?tab=${"transport"}`)
-                      setActiveTab("transport")
+                      // router.push(`${pathname}?tab=${"transport"}`)
+                      handleTabChange("transport");
                     }
                   }
                   disabled={!bookingDetails.general.includes.transport}
@@ -346,10 +343,8 @@ const EditBooking = ({ id }: { id: string }) => {
                 <TabsTrigger
                   value="activities"
                   onClick={() => {
-                    setActiveTab("activities")
-                    router.push(`${pathname}?tab=${"activities"}`)
-                  }
-                  }
+                    handleTabChange("activities");
+                  }}
                   disabled={!bookingDetails.general.includes.activities}
                   statusLabel={statusLabels.activities}
                   isCompleted={bookingDetails.activities.length > 0}
@@ -361,8 +356,7 @@ const EditBooking = ({ id }: { id: string }) => {
                 <TabsTrigger
                   value="shops"
                   onClick={() => {
-                    setActiveTab("shops")
-                    router.push(`${pathname}?tab=${"shops"}`)
+                    handleTabChange("shops");
                   }}
                   disabled={!bookingDetails.general.includes.shops}
                   statusLabel={statusLabels.shops}
@@ -373,7 +367,7 @@ const EditBooking = ({ id }: { id: string }) => {
                 </TabsTrigger>
                 <TabsTrigger
                   value="submit"
-                  onClick={() => setActiveTab("submit")}
+                  onClick={() => handleTabChange("submit")}
                   disabled={!bookingDetails.general.clientName}
                   isCompleted={false}
                   inProgress={activeTab == "submit"}
@@ -381,7 +375,7 @@ const EditBooking = ({ id }: { id: string }) => {
                   Itinerary
                 </TabsTrigger>
               </TabsList>
-              <TabsContent value="general">
+              <TabsContent value="general" forceMount={true} hidden={activeTab !== "general" || loading}>
                 {/* <GeneralTab onSetDetails={setGeneralDetails} /> */}
                 {isGeneralDetailsSet ?
                   permissions.includes("booking_general_info:manage") ?
@@ -391,7 +385,7 @@ const EditBooking = ({ id }: { id: string }) => {
                     } />
                   : <div>Loading General Details...</div>}
               </TabsContent>
-              <TabsContent value="hotels">
+              <TabsContent value="hotels" forceMount={true} hidden={activeTab !== "hotels" || loading}>
                 {/* <HotelsTab onAddHotel={addHotel} /> */}
                 {permissions.includes("booking_hotel:manage") ? <HotelsTab /> :
                   <UnauthorizedCard
@@ -399,31 +393,31 @@ const EditBooking = ({ id }: { id: string }) => {
                     requiredPermissions={["booking_hotel:manage"]}
                   />}
               </TabsContent>
-              <TabsContent value="restaurants">
+              <TabsContent value="restaurants" forceMount={true} hidden={activeTab !== "restaurants" || loading}>
                 {permissions.includes("booking_rest:manage") ? <RestaurantsTab /> : <UnauthorizedCard activity={"manage restaurants"}
                   requiredPermissions={
                     ["booking_rest:manage"]
                   } />}
               </TabsContent>
-              <TabsContent value="activities">
+              <TabsContent value="activities" forceMount={true} hidden={activeTab !== "activities" || loading}>
                 {permissions.includes("booking_activity:manage") ? <ActivitiesTab /> : <UnauthorizedCard activity={"manage activities"}
                   requiredPermissions={
                     ["booking_activity:manage"]
                   } />}
               </TabsContent>
-              <TabsContent value="transport">
+              <TabsContent value="transport" forceMount={true} hidden={activeTab !== "transport" || loading}>
                 {permissions.includes("booking_transport:manage") ? <TransportTab /> : <UnauthorizedCard activity={"manage transport"}
                   requiredPermissions={
                     ["booking_transport:manage"]
                   } />}
               </TabsContent>
-              <TabsContent value="shops">
+              <TabsContent value="shops" forceMount={true} hidden={activeTab !== "shops" || loading}>
                 {permissions.includes("booking_shops:manage") ? <ShopsTab /> : <UnauthorizedCard activity={"manage shops"}
                   requiredPermissions={
                     ["booking_shops:manage"]
                   } />}
               </TabsContent>
-              <TabsContent value="submit">
+              <TabsContent value="submit" forceMount={true} hidden={activeTab !== "submit" || loading}>
                 {permissions.includes("booking:read") ? <AddBookingSubmitTab /> : <UnauthorizedCard activity={"view itinerary"}
                   requiredPermissions={
                     ["booking:read"]

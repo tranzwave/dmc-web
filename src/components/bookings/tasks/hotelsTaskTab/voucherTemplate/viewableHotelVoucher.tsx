@@ -43,7 +43,7 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName, organization, us
       <VoucherHeader organization={organization} />
       <div className="p-4">
         <div className="w-full text-center" style={{ fontWeight: 'bold', fontSize: '20px' }}>
-          {voucher.status === "cancelled" || cancellation ? (<div className="text-red-500">Cancellation Voucher</div>) : `Hotel Reservation Voucher${voucher.status === 'amended' ? ' - Amendment' : ''}`}
+          {voucher.status === "cancelled" || cancellation ? (<div className="text-red-500">Cancellation Voucher</div>) : `Hotel Reservation Voucher${voucher.status === 'amended' ? ' - Amendment' : voucher.reasonToAmend ? ' - Amended' : ''}`}
         </div>
         <div className="flex w-full flex-row justify-between">
           <div className="text-[13px]">
@@ -124,7 +124,7 @@ const HotelVoucherView = ({ voucher, cancellation, bookingName, organization, us
 
 
 
-          {voucher.status === 'amended' && (
+          {(voucher.status === 'amended' || voucher.reasonToAmend) && (
             <div>Reference(s) : {voucher.reasonToAmend}</div>
           )}
           {voucher.status === 'cancelled' && (

@@ -49,7 +49,7 @@ const AddTransport = () => {
     console.log("Add Transport Component");
 
     fetchVehicles();
-  }, [organization]);
+  }, []);
 
   if (!isLoaded) {
     return <LoadingLayout />;

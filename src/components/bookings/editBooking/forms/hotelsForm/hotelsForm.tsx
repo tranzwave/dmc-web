@@ -56,6 +56,7 @@ interface HotelsFormProps {
     data: InsertHotelVoucherLine,
     isNewVoucher: boolean,
     hotel: any,
+    selectedVoucherId?: string,
   ) => void;
   hotels: HotelWithRooms[];
   defaultValues:
@@ -96,6 +97,8 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
 }) => {
   const [selectedHotel, setSelectedHotel] = useState<HotelWithRooms | null>(defaultValues?.hotel ?? null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isNewVoucher, setIsNewVoucher] = useState<boolean>(true);
+  const [selectedVoucherId, setSelectedVoucherId] = useState<string>("");
   const { bookingDetails } = useEditBooking();
   const [voucherLineId, setVoucherLineId] = useState(defaultValues?.id ?? "");
 
@@ -153,7 +156,7 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
       onAddHotel(voucherLine, true, selectedHotel);
       // alert("New voucher")
     } else {
-      onAddHotel(voucherLine, false, selectedHotel);
+      onAddHotel(voucherLine, false, selectedHotel, selectedVoucherId);
       // alert("existing voucher")
     }
 
@@ -185,10 +188,10 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
   }
 
   useEffect(() => {
-    form.reset();
+    // form.reset();
     console.log('defaultValues', defaultValues);
     setSelectedHotel(defaultValues?.hotel ?? null);
-  }, [defaultValues]);
+  }, []);
 
   return (
     <div>
@@ -645,19 +648,56 @@ const HotelsForm: React.FC<HotelsFormProps> = ({
                   Would you like to add this to a new voucher or an existing
                   voucher?
                 </p>
+                <div className="flex gap-2 mb-4">
+                  <Button
+                    variant={isNewVoucher ? "default" : "outline"}
+                    onClick={() => setIsNewVoucher(true)}
+                  >
+                    New Voucher
+                  </Button>
+                  <Button
+                    variant={!isNewVoucher ? "default" : "outline"}
+                    onClick={() => setIsNewVoucher(false)}
+                  >
+                    Existing Voucher
+                  </Button>
+                </div>
+                {!isNewVoucher && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Select Existing Voucher:</label>
+                    <Select
+                      value={selectedVoucherId}
+                      onValueChange={setSelectedVoucherId}
+                    >
+                      <SelectTrigger className="bg-slate-100 shadow-md">
+                        <SelectValue placeholder="Select voucher to merge with" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {bookingDetails.vouchers
+                          .filter(v => v.hotel.id === selectedHotel?.id && v.voucher.status !== 'cancelled')
+                          .map((voucher) => (
+                            <SelectItem key={voucher.voucher.id} value={voucher.voucher.id!}>
+                              Voucher {voucher.voucher.id} - {voucher.voucher.status}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
-              <DialogFooter>
+              <DialogFooter className="mt-2">
                 <Button
                   variant={"primaryGreen"}
-                  onClick={() => handleModalResponse(true)}
+                  onClick={() => handleModalResponse(isNewVoucher)}
+                  disabled={!isNewVoucher && !selectedVoucherId}
                 >
-                  New Voucher
+                  {isNewVoucher ? "Create New Voucher" : "Add to Existing Voucher"}
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => handleModalResponse(false)}
+                  onClick={() => setIsModalOpen(false)}
                 >
-                  Existing Voucher
+                  Cancel
                 </Button>
               </DialogFooter>
             </div>

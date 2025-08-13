@@ -219,7 +219,7 @@ const GeneralForm = ({ allUsers, marketingTeams }:GeneralFormProps) => {
     fetchMembers();
     setSelectedMarketingTeam(bookingDetails.general.marketingTeam);
     setSelectedMarketingTeamManagers(allUsers.filter((user) => (user.publicMetadata as ClerkUserPublicMetadata)?.teams?.some(t => t.teamId === bookingDetails.general.marketingTeam && t.role === "manager")));
-  }, [organization]);
+  }, []);
 
   const onSubmit: SubmitHandler<GeneralFormValues> = async (data) => {
     setSaving(true);

@@ -97,7 +97,7 @@ const AgentHome = () => {
     }
 
     fetchData();
-  }, [organization]);
+  }, []);
 
   const filteredData = data.filter((agent) => {
     const searchTerm = searchQuery.toLowerCase();

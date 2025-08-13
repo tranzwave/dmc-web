@@ -83,7 +83,7 @@ const HotelsHome = () => {
     }
 
     fetchData();
-  }, [organization]);
+  }, []);
 
   const filteredData = data.filter((hotel) => {
     const searchTerm = searchQuery.toLowerCase();

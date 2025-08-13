@@ -60,7 +60,7 @@ const PaymentPage = ({ searchParams }: PaymentPageProps) => {
 
         checkAdminRole();
 
-    }, [organization, user])
+    }, [user])
 
     if(!isSignedIn) {
         router.replace('/sign-in');

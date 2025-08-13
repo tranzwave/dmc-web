@@ -108,7 +108,7 @@ const Overview = () => {
     };
 
     fetchData();
-  }, [organization, searchParams, router]);
+  }, [searchParams, router]);
 
   const calculatePercentage = (value: number) => {
 

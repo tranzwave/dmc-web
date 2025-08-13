@@ -57,6 +57,8 @@ interface TasksTabProps<T, L> {
   contactDetails?: { phone: string; email: string };
   selectedVendor?: any;
   setSelectedVendor?: React.Dispatch<React.SetStateAction<any>>;
+  onVoucherUpdate?: (updatedVoucher: RestaurantVoucherData) => void;
+  onVoucherDelete?: (deletedVoucherId: string) => void;
 }
 
 interface WithOptionalVoucherLine<L, T> {
@@ -76,7 +78,9 @@ const RestaurantVouchersTasksTab = <
   contactDetails,
   selectedVendor,
   setSelectedVendor,
-  currency
+  currency,
+  onVoucherUpdate,
+  onVoucherDelete
 }: TasksTabProps<T, L>) => {
   const [selectedVoucher, setSelectedVoucher] =
     useState<RestaurantVoucherData>();
@@ -210,7 +214,16 @@ const RestaurantVouchersTasksTab = <
   useEffect(() => {
     console.log("Status changed");
     getHotels();
-    setSelectedVoucher(vouchers ? vouchers[0] : undefined)
+    
+    // Update selectedVoucher when vouchers change
+    if (vouchers && vouchers.length > 0) {
+      // If current selectedVoucher is not in the vouchers array, select the first one
+      if (!selectedVoucher || !vouchers.find(v => v.id === selectedVoucher.id)) {
+        setSelectedVoucher(vouchers[0]);
+      }
+    } else {
+      setSelectedVoucher(undefined);
+    }
 
     const fetchBooking = async () => {
       if (vouchers) {
@@ -233,7 +246,7 @@ const RestaurantVouchersTasksTab = <
     return () => {
       console.log("Return");
     };
-  }, [statusChanged, vouchers]);
+  }, [statusChanged, selectedVoucher?.id]);
 
   if (loading || bookingLoading) {
     return <LoadingLayout />;
@@ -272,12 +285,17 @@ const RestaurantVouchersTasksTab = <
         if (!deletedData) {
           throw new Error("Couldn't delete voucher");
         }
+        
+        // Update local vouchers state by removing the deleted voucher
+        if (onVoucherDelete) {
+          onVoucherDelete(selectedVoucher.id);
+        }
+        
         toast({
           title: "Success",
-          description: `Successfully cancelled the voucher! Pleas refresh!`,
+          description: `Successfully cancelled the voucher!`,
         });
 
-        // deleteVoucherLineFromLocalContext();
         setIsDeleting(false);
       } catch (error) {
         toast({
@@ -293,23 +311,29 @@ const RestaurantVouchersTasksTab = <
   const handleProceededVoucherDelete = async () => {
     if (selectedVoucher && selectedVoucher.status) {
       try {
-        // downloadPDF();
-
         setIsDeleting(true);
         const voucher:RestaurantVoucherData = {
           ...selectedVoucher,
           status: "cancelled",
           reasonToCancel: selectedVoucher.reasonToCancel ?? `Cancelled by ${selectedVoucher.restaurant.name}`,
         }
-        await updateVoucherStatus(voucher)
-        setStatusChanged(true)
-
-        toast({
-          title: "Success",
-          description: `Successfully cancelled the voucher! Pleas refresh!`,
-        });
-        selectedVoucher.status = "cancelled";
-        // deleteVoucherLineFromLocalContext();
+        const success = await updateVoucherStatus(voucher);
+        
+        if (success) {
+          // Update local state
+          setSelectedVoucher(voucher);
+          
+          // Notify parent component about the update
+          if (onVoucherUpdate) {
+            onVoucherUpdate(voucher);
+          }
+          
+          toast({
+            title: "Success",
+            description: `Successfully cancelled the voucher!`,
+          });
+        }
+        
         setIsDeleting(false);
       } catch (error) {
         toast({
@@ -529,6 +553,14 @@ const RestaurantVouchersTasksTab = <
                         type="restaurant"
                         bookingName={bookingName}
                         currency={currency}
+                        onVoucherUpdate={(updatedVoucher) => {
+                          // Update local selectedVoucher state
+                          setSelectedVoucher(updatedVoucher);
+                          // Notify parent component
+                          if (onVoucherUpdate) {
+                            onVoucherUpdate(updatedVoucher);
+                          }
+                        }}
                       />
                     }
                     size="large"
