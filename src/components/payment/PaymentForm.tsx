@@ -57,7 +57,7 @@ export default function EnhancedPaymentPackages({ onCloseDialog: onClose }: Enha
           {packages.map((pkg) => (
             <div key={pkg.id}>
               {(pkg.tabValue !== "free") && (
-                <TabsContent value={pkg.tabValue} className="border-none p-4 h-[450px]">
+                <TabsContent value={pkg.tabValue} className="border-none p-4 h-[500px]">
                   <Card className="border-none shadow-none bg-transparent flex flex-col h-full">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-xl font-bold flex items-center">

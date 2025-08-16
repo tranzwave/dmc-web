@@ -133,15 +133,37 @@ const PaymentButton = ({ selectedPackage, closeDialog }: PaymentButtonProps) => 
     }, []);
 
     return (
-        <div className="w-full">
+        <div className="w-full h-full">
             {hash && organization && paymentDetails && !isConverting ? (
             <div>
                 {/* Show converted amount for USD packages */}
                 {convertedAmount && selectedPackage.currency === "USD" && (
-                    <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <p className="text-sm text-blue-800">
-                            <span className="font-medium">Price:</span> {selectedPackage.price} USD = {convertedAmount} LKR
-                        </p>
+                    <div className="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+                        <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                                <h4 className="text-sm font-medium text-slate-700 mb-1">Payment Summary</h4>
+                                <div className="flex items-center space-x-2">
+                                    <span className="text-lg font-semibold text-slate-900">
+                                        {selectedPackage.price} USD
+                                    </span>
+                                    <span className="text-slate-400">→</span>
+                                    <span className="text-lg font-semibold text-[#287f71]">
+                                        {convertedAmount} LKR
+                                    </span>
+                                </div>
+                                <p className="text-xs text-slate-500 mt-1">
+                                    Amount converted using current exchange rate
+                                </p>
+                            </div>
+                            <div className="ml-4 p-2 bg-white rounded-md border border-slate-200">
+                                <div className="text-center">
+                                    <div className="text-xs font-medium text-slate-600">Rate</div>
+                                    <div className="text-sm font-semibold text-slate-800">
+                                        {(parseFloat(convertedAmount) / selectedPackage.price).toFixed(2)} LKR/USD
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )}
 
