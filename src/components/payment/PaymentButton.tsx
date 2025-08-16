@@ -2,6 +2,7 @@
 "use client"
 import React, { useEffect, useState } from "react";
 import { generateHash, getMerchantId } from "~/lib/utils/paymentUtils";
+import { getLKRAmount } from "~/lib/utils/currencyConverter";
 import { Button } from "../ui/button";
 import { ClerkOrganizationPublicMetadata, ClerkUserPublicMetadata, Package } from "~/lib/types/payment";
 import { useOrganization, useUser } from "@clerk/nextjs";
@@ -48,6 +49,8 @@ const PaymentButton = ({ selectedPackage, closeDialog }: PaymentButtonProps) => 
     const { user, user: IsuserLoaded } = useUser()
     const [hash, setHash] = useState<string | null>(null);
     const [paymentDetails, setPaymentDetails] = useState<PayherePaymentDetails | null>(null);
+    const [isConverting, setIsConverting] = useState(false);
+    const [convertedAmount, setConvertedAmount] = useState<string | null>(null);
 
     useEffect(() => {
         const getHash = async() =>{
@@ -56,50 +59,63 @@ const PaymentButton = ({ selectedPackage, closeDialog }: PaymentButtonProps) => 
                 return;
             }
             try {
+                setIsConverting(true);
                 const date = Date.now()
-            const address = organization.publicMetadata as ClerkOrganizationPublicMetadata ? (organization.publicMetadata as ClerkOrganizationPublicMetadata).address : (() => { throw new Error("Address not found") })()
-            const city = organization.publicMetadata as ClerkOrganizationPublicMetadata ? (organization.publicMetadata as ClerkOrganizationPublicMetadata).country : (() => { throw new Error("City not found") })()
-            const country = organization.publicMetadata as ClerkOrganizationPublicMetadata ? (organization.publicMetadata as ClerkOrganizationPublicMetadata).country : (() => { throw new Error("Country not found") })()
-            const order_id = `${organization.name.replaceAll(
-                " ",
-                ""
-            )}${user.username}${date}`
-            const phoneNumber = user.publicMetadata as ClerkUserPublicMetadata ? (user.publicMetadata as ClerkUserPublicMetadata).info.contact.replaceAll("+", "0") : (() => { throw new Error("Contact number not found") })()
-            const merchant_id = await getMerchantId();
-            const hash = await generateHash({
-                merchantId: merchant_id,
-                orderId: order_id,
-                amount: selectedPackage.price.toFixed(2),
-                currency: "USD",
-            })
-            setHash(hash)
-            const notify_url = process.env.NEXT_PUBLIC_PAYHERE_NOTIFY_URL ? process.env.NEXT_PUBLIC_PAYHERE_NOTIFY_URL : (() => { throw new Error("Notify URL not found") })();
-            const return_url = process.env.NEXT_PUBLIC_PAYHERE_RETURN_URL ? process.env.NEXT_PUBLIC_PAYHERE_RETURN_URL : (() => { throw new Error("Return URL not found") })();
-            const cancel_url = process.env.NEXT_PUBLIC_PAYHERE_CANCEL_URL ? process.env.NEXT_PUBLIC_PAYHERE_CANCEL_URL : (() => { throw new Error("Cancel URL not found") })();
+                const address = organization.publicMetadata as ClerkOrganizationPublicMetadata ? (organization.publicMetadata as ClerkOrganizationPublicMetadata).address : (() => { throw new Error("Address not found") })()
+                const city = organization.publicMetadata as ClerkOrganizationPublicMetadata ? (organization.publicMetadata as ClerkOrganizationPublicMetadata).country : (() => { throw new Error("City not found") })()
+                const country = organization.publicMetadata as ClerkOrganizationPublicMetadata ? (organization.publicMetadata as ClerkOrganizationPublicMetadata).country : (() => { throw new Error("Country not found") })()
+                const order_id = `${organization.name.replaceAll(
+                    " ",
+                    ""
+                )}${user.username}${date}`
+                const phoneNumber = user.publicMetadata as ClerkUserPublicMetadata ? (user.publicMetadata as ClerkUserPublicMetadata).info.contact.replaceAll("+", "0") : (() => { throw new Error("Contact number not found") })()
+                const merchant_id = await getMerchantId();
+                
+                // Convert USD to LKR if the package currency is USD
+                let paymentAmount: string;
+                if (selectedPackage.currency === "USD" && selectedPackage.price > 0) {
+                    const lkrAmount = await getLKRAmount(selectedPackage.price);
+                    paymentAmount = lkrAmount.toFixed(2);
+                    setConvertedAmount(paymentAmount);
+                } else {
+                    paymentAmount = selectedPackage.price.toFixed(2);
+                    setConvertedAmount(null);
+                }
+                
+                const hash = await generateHash({
+                    merchantId: merchant_id,
+                    orderId: order_id,
+                    amount: paymentAmount,
+                    currency: "LKR",
+                })
+                setHash(hash)
+                const notify_url = process.env.NEXT_PUBLIC_PAYHERE_NOTIFY_URL ? process.env.NEXT_PUBLIC_PAYHERE_NOTIFY_URL : (() => { throw new Error("Notify URL not found") })();
+                const return_url = process.env.NEXT_PUBLIC_PAYHERE_RETURN_URL ? process.env.NEXT_PUBLIC_PAYHERE_RETURN_URL : (() => { throw new Error("Return URL not found") })();
+                const cancel_url = process.env.NEXT_PUBLIC_PAYHERE_CANCEL_URL ? process.env.NEXT_PUBLIC_PAYHERE_CANCEL_URL : (() => { throw new Error("Cancel URL not found") })();
 
-            setPaymentDetails({
-                sandbox: true,
-                merchant_id: merchant_id,
-                return_url: return_url,
-                cancel_url: cancel_url,
-                notify_url: notify_url,
-                order_id: order_id,
-                amount: selectedPackage.price.toFixed(2),
-                currency: "LKR",
-                first_name: user.firstName ? user.firstName : (() => { throw new Error("First name not found") })(),
-                last_name: user.lastName ? user.lastName : (() => { throw new Error("Last name not found") })(),
-                email: user.primaryEmailAddress ? user.primaryEmailAddress.emailAddress : (() => { throw new Error("Email not found") })(),
-                phone: phoneNumber,
-                address: address,
-                city: country,
-                country: country,
-                items: selectedPackage.name,
-                custom_1: organization.id,
-                custom_2: selectedPackage.name,
-                recurrence: "1 Month",
-                duration: "Forever",
-                hash: hash
-            })
+                setPaymentDetails({
+                    sandbox: true,
+                    merchant_id: merchant_id,
+                    return_url: return_url,
+                    cancel_url: cancel_url,
+                    notify_url: notify_url,
+                    order_id: order_id,
+                    amount: paymentAmount,
+                    currency: "LKR",
+                    first_name: user.firstName ? user.firstName : (() => { throw new Error("First name not found") })(),
+                    last_name: user.lastName ? user.lastName : (() => { throw new Error("Last name not found") })(),
+                    email: user.primaryEmailAddress ? user.primaryEmailAddress.emailAddress : (() => { throw new Error("Email not found") })(),
+                    phone: phoneNumber,
+                    address: address,
+                    city: country,
+                    country: country,
+                    items: selectedPackage.name,
+                    custom_1: organization.id,
+                    custom_2: selectedPackage.name,
+                    recurrence: "1 Month",
+                    duration: "Forever",
+                    hash: hash
+                })
             } catch (error) {
                 console.error("Error generating hash:", error);
                 toast({
@@ -107,20 +123,27 @@ const PaymentButton = ({ selectedPackage, closeDialog }: PaymentButtonProps) => 
                     description: "Something went wrong. Please refresh and try again.",
                 })
                 throw error;
-                
+            } finally {
+                setIsConverting(false);
             }
-            
         }
 
         getHash()
-
 
     }, []);
 
     return (
         <div className="w-full">
-            {hash && organization && paymentDetails ? (
+            {hash && organization && paymentDetails && !isConverting ? (
             <div>
+                {/* Show converted amount for USD packages */}
+                {convertedAmount && selectedPackage.currency === "USD" && (
+                    <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-sm text-blue-800">
+                            <span className="font-medium">Price:</span> {selectedPackage.price} USD = {convertedAmount} LKR
+                        </p>
+                    </div>
+                )}
 
                 <form method="post" action={`${process.env.NEXT_PUBLIC_PAYHERE_ENDPOINT ?? ""}/pay/checkout`}>
                     <input type="hidden" name="merchant_id" value= {paymentDetails.merchant_id} />
@@ -153,7 +176,7 @@ const PaymentButton = ({ selectedPackage, closeDialog }: PaymentButtonProps) => 
             </div>
             ) : (
                 <Button variant="primaryGreen" className="w-full" disabled>
-                    Please Wait
+                    {isConverting ? "Converting Currency..." : "Please Wait"}
                 </Button>
             )}
         </div>
