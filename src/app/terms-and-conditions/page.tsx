@@ -1,11 +1,11 @@
-import Footer from "~/components/landingPage/footer";
-import { Navbar } from "~/components/landingPage/navBar";
+import {Footer} from "~/components/footer/footer";
+import { Navbar } from "~/components/navbar/navBar";
 
 export default function TermsAndConditions() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col h-auto">
       <Navbar />
-      <div className="flex flex-col max-h-[77vh] w-full mt-24 overflow-y-scroll">
+      <div className="flex flex-col w-full mt-24 overflow-y-scroll">
       <main className="flex-grow container mx-auto px-4 py-4">
         <h1 className="text-3xl font-bold mb-6 text-[#287f71]">Terms and Conditions</h1>
         <div className="space-y-6">

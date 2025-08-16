@@ -4,13 +4,17 @@ import SideHero from '~/components/common/sideHero';
 
 export default function Page() {
   return (
-    <div className='w-full h-full flex flex-row'>
-
-      <SideHero/>
+    <div className="flex flex-col md:flex-row h-screen w-full">
+      {/* SideHero with mobile embedded form */}
+      <SideHero>
+        <SignIn forceRedirectUrl={"/dashboard/overview"} />
+      </SideHero>
 
       {/* Sign-In Section */}
-      <div className='w-[60%] h-full flex justify-center items-center'>
-        <SignIn forceRedirectUrl={"/dashboard/overview"} />
+      <div className="hidden md:flex md:w-[60%] items-center justify-center bg-zinc-100 px-8 py-12">
+        <div className="w-full max-w-md">
+          <SignIn forceRedirectUrl={"/dashboard/overview"} />
+        </div>
       </div>
     </div>
   );

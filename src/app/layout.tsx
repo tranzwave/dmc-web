@@ -41,7 +41,7 @@ export default function RootLayout({
         </head>
 
         <body>
-          <div className="h-screen w-screen">{children}</div>
+          <div className="h-screen w-screen overflow-y-visible">{children}</div>
           <Toaster />
         </body>
       </html>
