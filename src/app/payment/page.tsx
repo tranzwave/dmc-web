@@ -3,14 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { OrganizationSwitcher, SignedIn, useOrganization, UserButton, useUser } from '@clerk/nextjs';
-import { Button } from '~/components/ui/button';
-import { generateHash, startPayment } from '~/lib/utils/paymentUtils';
-import { start } from 'repl';
-import PaymentButton from '~/components/payment/PaymentButton';
 import EnhancedPaymentPackages from '~/components/payment/PaymentForm';
-import TopBar from '~/components/common/topBarComponent';
-import { ClerkOrganizationPublicMetadata } from '~/lib/types/payment';
-import { set } from 'date-fns';
 import LoadingLayout from '~/components/common/dashboardLoading';
 
 interface UserData {

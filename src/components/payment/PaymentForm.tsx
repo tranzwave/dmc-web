@@ -33,7 +33,7 @@ export default function EnhancedPaymentPackages({ onCloseDialog: onClose }: Enha
   }
 
   return (
-    <div className="p-8 w-[520px] h-[600px] mx-auto">
+    <div className="p-8 w-[520px] h-[700px] mx-auto">
       <div className="bg-gradient-to-br from-white to-gray-100 rounded-xl shadow-2xl overflow-hidden">
         <Tabs defaultValue={packages[0]?.tabValue} className="w-full" onValueChange={(value) => setSelectedPackage(packages.find(pkg => pkg.tabValue === value)! ?? packages[0])}>
           <TabsList className="grid rounded-md w-full grid-cols-3 bg-gray-100 p-1 gap-1">
@@ -57,7 +57,7 @@ export default function EnhancedPaymentPackages({ onCloseDialog: onClose }: Enha
           {packages.map((pkg) => (
             <div key={pkg.id}>
               {(pkg.tabValue !== "free") && (
-                <TabsContent value={pkg.tabValue} className="border-none p-4 h-[450px]">
+                <TabsContent value={pkg.tabValue} className="border-none p-4 h-[600px]">
                   <Card className="border-none shadow-none bg-transparent flex flex-col h-full">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-xl font-bold flex items-center">
