@@ -48,7 +48,7 @@ const createOrganization = async () => {
 }
 
 
-const updateBankDetails = async (organizationId: string, bankDetails: BankDetails) => {
+const updateBankDetails = async (organizationId: string, bankDetails: BankDetails[]) => {
     try {
         const organization = await clerkClient.organizations.getOrganization({ organizationId: organizationId });
         const response = await clerkClient.organizations.updateOrganization(organizationId, {

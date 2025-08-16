@@ -31,7 +31,7 @@ const TourInvoicePDF = ({ organization, user, bookingData }: TourInvoiceDocument
     address: "",
   };
 
-  const [bankDetails, setBankDetails] = useState<BankDetails | null>(organization.publicMetadata.bankDetails as BankDetails);
+  const [bankDetails, setBankDetails] = useState<BankDetails[]>(organization.publicMetadata.bankDetails as BankDetails[] || []);
 
   useEffect(() => {
     console.log("refetching tour invoice");
@@ -172,11 +172,35 @@ const TourInvoicePDF = ({ organization, user, bookingData }: TourInvoiceDocument
 
         {/* Bank details */}
         <div className="mt-4">
-          <div className="text-[13px]">Account Name: {bankDetails?.accountName}</div>
-          <div className="text-[13px]">Account Number: {bankDetails?.accountNumber}</div>
-          <div className="text-[13px]">Bank Name: {bankDetails?.bankName}</div>
-          <div className="text-[13px]">Branch Address: {bankDetails?.branchAddress}</div>
-          <div className="text-[13px]">Swift Code: {bankDetails?.SWIFTCode}</div>
+          {bookingData.tourInvoice?.invoiceDetails.selectedBankAccount && 
+           bookingData.tourInvoice.invoiceDetails.selectedBankAccount.accountName &&
+           bookingData.tourInvoice.invoiceDetails.selectedBankAccount.accountNumber &&
+           bookingData.tourInvoice.invoiceDetails.selectedBankAccount.bankName ? (
+            <>
+              <div className="font-semibold mb-2">Bank Account Details:</div>
+              <div className="text-[13px]">Account Name: {bookingData.tourInvoice.invoiceDetails.selectedBankAccount.accountName}</div>
+              <div className="text-[13px]">Account Number: {bookingData.tourInvoice.invoiceDetails.selectedBankAccount.accountNumber}</div>
+              <div className="text-[13px]">Bank Name: {bookingData.tourInvoice.invoiceDetails.selectedBankAccount.bankName}</div>
+              <div className="text-[13px]">Branch Address: {bookingData.tourInvoice.invoiceDetails.selectedBankAccount.branchAddress || 'N/A'}</div>
+              <div className="text-[13px]">Swift Code: {bookingData.tourInvoice.invoiceDetails.selectedBankAccount.SWIFTCode || 'N/A'}</div>
+            </>
+          ) : bankDetails && bankDetails.length > 0 ? (
+            <>
+              <div className="font-semibold mb-2">Bank Account Details (Default):</div>
+              <div className="text-[13px]">Account Name: {bankDetails[0]?.accountName}</div>
+              <div className="text-[13px]">Account Number: {bankDetails[0]?.accountNumber}</div>
+              <div className="text-[13px]">Bank Name: {bankDetails[0]?.bankName}</div>
+              <div className="text-[13px]">Branch Address: {bankDetails[0]?.branchAddress}</div>
+              <div className="text-[13px]">Swift Code: {bankDetails[0]?.SWIFTCode}</div>
+              {bankDetails.length > 1 && (
+                <div className="text-[11px] text-gray-500 mt-1">
+                  +{bankDetails.length - 1} more account(s) available
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-[13px] text-gray-500">No bank account details available</div>
+          )}
         </div>
 
         <div className="mt-10 text-[13px]">

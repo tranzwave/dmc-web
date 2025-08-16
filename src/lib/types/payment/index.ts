@@ -43,6 +43,7 @@ export type ClerkOrganizationPublicMetadata =
         address: string,
         fax: string,
         primaryCurrency: string,
+        bankDetails: BankDetails[],
         subscription: {
           plan: string,
           payhereId: string,
