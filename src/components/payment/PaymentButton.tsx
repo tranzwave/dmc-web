@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { generateHash, getMerchantId } from "~/lib/utils/paymentUtils";
 import { getLKRAmount } from "~/lib/utils/currencyConverter";
+import { getLocalCurrencyAmount, detectUserLocation } from "~/lib/utils/locationCurrency";
 import { Button } from "../ui/button";
 import { ClerkOrganizationPublicMetadata, ClerkUserPublicMetadata, Package } from "~/lib/types/payment";
 import { useOrganization, useUser } from "@clerk/nextjs";
@@ -51,6 +52,13 @@ const PaymentButton = ({ selectedPackage, closeDialog }: PaymentButtonProps) => 
     const [paymentDetails, setPaymentDetails] = useState<PayherePaymentDetails | null>(null);
     const [isConverting, setIsConverting] = useState(false);
     const [convertedAmount, setConvertedAmount] = useState<string | null>(null);
+    const [localCurrencyInfo, setLocalCurrencyInfo] = useState<{
+        localAmount: number;
+        localCurrency: string;
+        localSymbol: string;
+        country: string;
+    } | null>(null);
+    const [userLocation, setUserLocation] = useState<string | null>(null);
 
     useEffect(() => {
         const getHash = async() =>{
@@ -60,6 +68,23 @@ const PaymentButton = ({ selectedPackage, closeDialog }: PaymentButtonProps) => 
             }
             try {
                 setIsConverting(true);
+                
+                // Detect user location and get local currency conversion
+                if (selectedPackage.currency === "USD" && selectedPackage.price > 0) {
+                    try {
+                        const location = await detectUserLocation();
+                        const localCurrency = await getLocalCurrencyAmount(selectedPackage.price);
+                        
+                        setLocalCurrencyInfo({
+                            ...localCurrency,
+                            country: location.country
+                        });
+                        setUserLocation(location.country);
+                    } catch (error) {
+                        console.error('Error getting local currency:', error);
+                    }
+                }
+                
                 const date = Date.now()
                 const address = organization.publicMetadata as ClerkOrganizationPublicMetadata ? (organization.publicMetadata as ClerkOrganizationPublicMetadata).address : (() => { throw new Error("Address not found") })()
                 const city = organization.publicMetadata as ClerkOrganizationPublicMetadata ? (organization.publicMetadata as ClerkOrganizationPublicMetadata).country : (() => { throw new Error("City not found") })()
@@ -71,7 +96,7 @@ const PaymentButton = ({ selectedPackage, closeDialog }: PaymentButtonProps) => 
                 const phoneNumber = user.publicMetadata as ClerkUserPublicMetadata ? (user.publicMetadata as ClerkUserPublicMetadata).info.contact.replaceAll("+", "0") : (() => { throw new Error("Contact number not found") })()
                 const merchant_id = await getMerchantId();
                 
-                // Convert USD to LKR if the package currency is USD
+                // Convert USD to LKR if the package currency is USD (for payment processing)
                 let paymentAmount: string;
                 if (selectedPackage.currency === "USD" && selectedPackage.price > 0) {
                     const lkrAmount = await getLKRAmount(selectedPackage.price);
@@ -133,36 +158,78 @@ const PaymentButton = ({ selectedPackage, closeDialog }: PaymentButtonProps) => 
     }, []);
 
     return (
-        <div className="w-full h-full">
+        <div className="w-full">
             {hash && organization && paymentDetails && !isConverting ? (
             <div>
-                {/* Show converted amount for USD packages */}
+                {/* Show converted amounts for USD packages */}
                 {convertedAmount && selectedPackage.currency === "USD" && (
                     <div className="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-lg">
-                        <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                                <h4 className="text-sm font-medium text-slate-700 mb-1">Payment Summary</h4>
-                                <div className="flex items-center space-x-2">
-                                    <span className="text-lg font-semibold text-slate-900">
-                                        {selectedPackage.price} USD
-                                    </span>
-                                    <span className="text-slate-400">→</span>
-                                    <span className="text-lg font-semibold text-[#287f71]">
-                                        {convertedAmount} LKR
-                                    </span>
-                                </div>
-                                <p className="text-xs text-slate-500 mt-1">
-                                    Amount converted using current exchange rate
-                                </p>
+                        <div className="space-y-4">
+                            {/* Header */}
+                            <div className="flex items-center justify-between">
+                                <h4 className="text-sm font-medium text-slate-700">Payment Summary</h4>
+                                {/* {userLocation && (
+                                    <div className="text-xs text-slate-500">
+                                        Location: {userLocation}
+                                    </div>
+                                )} */}
                             </div>
-                            <div className="ml-4 p-2 bg-white rounded-md border border-slate-200">
-                                <div className="text-center">
-                                    <div className="text-xs font-medium text-slate-600">Rate</div>
-                                    <div className="text-sm font-semibold text-slate-800">
-                                        {(parseFloat(convertedAmount) / selectedPackage.price).toFixed(2)} LKR/USD
+                            
+                            {/* Main conversion display */}
+                            <div className="flex items-center justify-between">
+                                <div className="flex-1">
+                                    <div className="flex items-center space-x-2">
+                                        <span className="text-lg font-semibold text-slate-900">
+                                            {selectedPackage.price} USD
+                                        </span>
+                                        <span className="text-slate-400">→</span>
+                                        <span className="text-lg font-semibold text-[#287f71]">
+                                            {convertedAmount} LKR
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-slate-500 mt-1">
+                                        Payment will be processed in LKR
+                                    </p>
+                                </div>
+                                <div className="ml-4 p-2 bg-white rounded-md border border-slate-200">
+                                    <div className="text-center">
+                                        <div className="text-xs font-medium text-slate-600">LKR Rate</div>
+                                        <div className="text-sm font-semibold text-slate-800">
+                                            {(parseFloat(convertedAmount) / selectedPackage.price).toFixed(2)} LKR/USD
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            
+                            {/* Local currency display */}
+                            {localCurrencyInfo && localCurrencyInfo.localCurrency !== 'LKR' && (
+                                <div className="pt-3 border-t border-slate-200">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex-1">
+                                            <div className="flex items-center space-x-2">
+                                                <span className="text-base font-medium text-slate-700">
+                                                    {selectedPackage.price} USD
+                                                </span>
+                                                <span className="text-slate-400">→</span>
+                                                <span className="text-base font-medium text-slate-600">
+                                                    {localCurrencyInfo.localSymbol} {localCurrencyInfo.localAmount.toLocaleString()} {localCurrencyInfo.localCurrency}
+                                                </span>
+                                            </div>
+                                            <p className="text-xs text-slate-500 mt-1">
+                                                Approximate value in your local currency
+                                            </p>
+                                        </div>
+                                        <div className="ml-4 p-2 bg-white rounded-md border border-slate-200">
+                                            <div className="text-center">
+                                                <div className="text-xs font-medium text-slate-600">Local Rate</div>
+                                                <div className="text-sm font-semibold text-slate-800">
+                                                    {(localCurrencyInfo.localAmount / selectedPackage.price).toFixed(2)} {localCurrencyInfo.localCurrency}/USD
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
