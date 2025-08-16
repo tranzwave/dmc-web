@@ -202,7 +202,7 @@ const PaymentButton = ({ selectedPackage, closeDialog }: PaymentButtonProps) => 
                             </div>
                             
                             {/* Local currency display */}
-                            {localCurrencyInfo && localCurrencyInfo.localCurrency !== 'LKR' && (
+                            {localCurrencyInfo && localCurrencyInfo.localCurrency !== 'LKR' && localCurrencyInfo.localCurrency !== 'USD' && (
                                 <div className="pt-3 border-t border-slate-200">
                                     <div className="flex items-center justify-between">
                                         <div className="flex-1">
