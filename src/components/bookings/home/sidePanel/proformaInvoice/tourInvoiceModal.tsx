@@ -10,6 +10,7 @@ import LoadingLayout from '~/components/common/dashboardLoading';
 import VoucherButton from '~/components/bookings/tasks/hotelsTaskTab/taskTab/VoucherButton';
 import TourInvoicePDF from './tourInvoiceDocument';
 import { OrganizationResource, UserResource } from '@clerk/types';
+import { BankDetails } from '~/lib/types/payment';
 
 interface TourInvoiceModalProps {
   bookingData: BookingDTO;
@@ -39,9 +40,24 @@ const TourInvoiceModal: React.FC<TourInvoiceModalProps> = ({ bookingData, organi
     creditPeriod: '',
     issuedFor: '',
     issuedBy: '',
+    selectedBankAccount: undefined,
   });
   const [bookingLineDetails, setBookingLineDetails] = useState<BookingDTO>(bookingData);
   const [refetching, setRefetching] = useState(false);
+  
+  // Get available bank accounts from organization
+  const availableBankAccounts = (organization.publicMetadata.bankDetails as BankDetails[]) || [];
+
+  // Helper function to get display text for selected bank account
+  const getSelectedBankAccountValue = () => {
+    if (!invoiceDetails.selectedBankAccount) return '';
+    return JSON.stringify(invoiceDetails.selectedBankAccount);
+  };
+
+  // Helper function to get display text for bank account options
+  const getBankAccountDisplayText = (account: BankDetails) => {
+    return `${account.bankName} - ${account.accountName} (${account.accountNumber})`;
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -91,8 +107,20 @@ const TourInvoiceModal: React.FC<TourInvoiceModalProps> = ({ bookingData, organi
   const handleSave = async () => {
     setLoading(true);
     try {
+      // Validation: If bank accounts are available, one must be selected
+      if (availableBankAccounts.length > 0 && !invoiceDetails.selectedBankAccount) {
+        toast({
+          title: 'Bank Account Required',
+          description: 'Please select a bank account for this invoice.',
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
+
       // Save logic here
       console.log('Saving invoice entries:', invoiceEntries);
+      console.log('Saving invoice details:', invoiceDetails);
       const result = await updateTourInvoice(bookingData.id, { tourInvoice: { entries: invoiceEntries, invoiceDetails: invoiceDetails } });
       console.log('result', result);
 
@@ -242,7 +270,45 @@ const TourInvoiceModal: React.FC<TourInvoiceModalProps> = ({ bookingData, organi
               placeholder="Issued By"
             />
           </div>
-
+          <div className="flex flex-col gap-1">
+            <label className="mr-2">
+              Bank Account
+              {availableBankAccounts.length > 0 && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            {availableBankAccounts.length > 0 ? (
+              <select
+                name="selectedBankAccount"
+                title='Bank Account'
+                value={getSelectedBankAccountValue()}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    const selectedAccount = JSON.parse(e.target.value);
+                    setInvoiceDetails((prevState) => ({ ...prevState, selectedBankAccount: selectedAccount }));
+                  } else {
+                    setInvoiceDetails((prevState) => ({ ...prevState, selectedBankAccount: undefined }));
+                  }
+                }}
+                className="border border-gray-300 rounded px-2 py-1"
+                required={availableBankAccounts.length > 0}
+              >
+                <option value="">Select Bank Account</option>
+                {availableBankAccounts.map((account, index) => (
+                  <option key={index} value={JSON.stringify(account)}>
+                    {getBankAccountDisplayText(account)}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div className="text-xs text-gray-500 border border-gray-300 rounded px-2 py-1 bg-gray-50">
+                No bank accounts available. Please add bank accounts in Admin settings.
+              </div>
+            )}
+            {invoiceDetails.selectedBankAccount && (
+              <div className="text-xs text-green-600 mt-1">
+                ✓ {getBankAccountDisplayText(invoiceDetails.selectedBankAccount)}
+              </div>
+            )}
+          </div>
         </div>
         <table className="min-w-full border border-collapse">
           <thead className="bg-gray-50">

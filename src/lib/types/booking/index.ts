@@ -99,6 +99,14 @@ export type InvoiceDetails = {
   creditPeriod: string;
   issuedFor: string;
   issuedBy: string;
+  selectedBankAccount?: {
+    accountName: string;
+    accountNumber: string;
+    bankName: string;
+    branchName: string;
+    branchAddress: string;
+    SWIFTCode: string;
+  };
 }
 
 //type for tour invoice entry
