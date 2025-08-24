@@ -8,6 +8,7 @@ import { Button } from "../ui/button";
 import { ClerkOrganizationPublicMetadata, ClerkUserPublicMetadata, Package } from "~/lib/types/payment";
 import { useOrganization, useUser } from "@clerk/nextjs";
 import { toast } from "~/hooks/use-toast";
+import Link from "next/link";
 
 declare global {
     interface Window {
@@ -202,7 +203,7 @@ const PaymentButton = ({ selectedPackage, closeDialog }: PaymentButtonProps) => 
                             </div>
                             
                             {/* Local currency display */}
-                            {localCurrencyInfo && localCurrencyInfo.localCurrency !== 'LKR' && (
+                            {localCurrencyInfo && localCurrencyInfo.localCurrency !== 'LKR' && localCurrencyInfo.localCurrency !== 'USD' && (
                                 <div className="pt-3 border-t border-slate-200">
                                     <div className="flex items-center justify-between">
                                         <div className="flex-1">
@@ -256,9 +257,33 @@ const PaymentButton = ({ selectedPackage, closeDialog }: PaymentButtonProps) => 
                     <input type="hidden" name="custom_2" value={paymentDetails.custom_2} />
                     <input type="hidden" name="hash" value={paymentDetails.hash} />
                     {/* <input type="submit" value="Buy Now" /> */}
-                    <Button type="submit" id="payhere-payment" className="w-full py-4 bg-[#287f71] hover:bg-[#287f71]/90 transition-colors duration-200" disabled={!isLoaded || !organization || !IsuserLoaded}>
+                    {/* <Button type="submit" id="payhere-payment" className="w-full py-4 bg-[#287f71] hover:bg-[#287f71]/90 transition-colors duration-200" disabled={!isLoaded || !organization || !IsuserLoaded}>
                         Continue with {selectedPackage.name} Plan
-                    </Button>
+                    </Button> */}
+                    <div className="mt-3">
+                        <Button 
+                            type="submit" 
+                            className="w-full py-4 bg-[#287f71] hover:bg-[#287f71]/90 transition-colors duration-200"
+                            disabled={!isLoaded || !organization || !IsuserLoaded}
+                        >
+                            Continue with {selectedPackage.name} Plan
+                        </Button>
+                    </div>
+                    
+                    {/* Direct Payhere Sandbox Payment Link */}
+                    <div className="mt-3">
+                        <a 
+                            href="https://sandbox.payhere.lk/pay/o2688bdf8" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="w-full inline-block text-center py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 border border-blue-600 hover:border-blue-700"
+                        >
+                            Pay with Payhere (Sandbox)
+                        </a>
+                        <p className="text-xs text-slate-500 mt-2 text-center">
+                            Opens Payhere payment gateway in new tab
+                        </p>
+                    </div>
                 </form>
 
 
