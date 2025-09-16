@@ -271,7 +271,7 @@ const PaymentButton = ({ selectedPackage, closeDialog }: PaymentButtonProps) => 
                     </div>
                     
                     {/* Direct Payhere Sandbox Payment Link */}
-                    <div className="mt-3">
+                    {/* <div className="mt-3">
                         <a 
                             href="https://sandbox.payhere.lk/pay/o2688bdf8" 
                             target="_blank" 
@@ -283,7 +283,7 @@ const PaymentButton = ({ selectedPackage, closeDialog }: PaymentButtonProps) => 
                         <p className="text-xs text-slate-500 mt-2 text-center">
                             Opens Payhere payment gateway in new tab
                         </p>
-                    </div>
+                    </div> */}
                 </form>
 
 
