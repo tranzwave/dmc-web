@@ -1,5 +1,5 @@
-import Footer from "~/components/landingPage/footer";
-import { Navbar } from "~/components/landingPage/navBar";
+import {Footer} from "~/components/footer/footer";
+import { Navbar } from "~/components/navbar/navBar";
 
 export default function RefundPolicy() {
   return (
