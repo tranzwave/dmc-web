@@ -8,6 +8,7 @@ import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 import {
   ActivityVoucher
 } from "~/app/dashboard/bookings/add/context";
+import { useOrganization } from "@clerk/nextjs";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import {
@@ -28,7 +29,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
-import { getActivitiesByTypeAndCity } from "~/server/db/queries/activities";
+import { getActivitiesByTypeAndCity, getActivitiesWithFlexibleFilter } from "~/server/db/queries/activities";
 import {
   SelectActivity,
   SelectActivityType,
@@ -49,8 +50,8 @@ interface ActivityFormProps {
 }
 
 export const activitySchema = z.object({
-  activityType: z.string().min(1, "Activity type is required"),
-  city: z.string().min(1, "City is required"),
+  activityType: z.string().optional(),
+  city: z.string().optional(),
   vendor: z.string().min(1, "Vendor is required"),
   checkInDate: z.string().min(1, "Check-in date is required"),
   time: z.string().min(1, "Time is required").optional().or(z.literal("12:00")),
@@ -73,6 +74,7 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
   const [activities, setActivities] = useState<ActivityData[]>([]);
   const [error, setError] = useState<string>();
   const { addActivity, bookingDetails } = useEditBooking();
+  const { organization } = useOrganization();
 
   const form = useForm<z.infer<typeof activitySchema>>({
     resolver: zodResolver(activitySchema),
@@ -117,16 +119,24 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
     setSelectedActivity(null);
     setActivities([]);
     setActivityLoading(false);
-    const act = activityTypes.find((act) => act.name === name);
-    setSelectedActivityType(act);
+    if (name === "all") {
+      setSelectedActivityType(undefined);
+    } else {
+      const act = activityTypes.find((act) => act.name === name);
+      setSelectedActivityType(act);
+    }
   };
 
   const getCityId = (name: string) => {
     setSelectedActivity(null);
     setActivities([]);
     setActivityLoading(false);
-    const city = cities.find((city) => city.name === name);
-    setSelectedCity(city);
+    if (name === "all") {
+      setSelectedCity(undefined);
+    } else {
+      const city = cities.find((city) => city.name === name);
+      setSelectedCity(city);
+    }
   };
 
   const getVendorId = (name: string) => {
@@ -137,23 +147,38 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
 
   const fetchActivities = async () => {
     try {
-      if (selectedActivityType && selectedCity) {
-        setActivityLoading(true);
-        const [activitiesResponse] = await Promise.all([
-          getActivitiesByTypeAndCity(
-            selectedActivityType?.id,
-            selectedCity?.id,
-          ),
-        ]);
-
-        if (!activitiesResponse) {
-          throw new Error("Couldn't get any activity");
-        }
-
-        console.log(activitiesResponse);
-        setActivities(activitiesResponse);
-        setActivityLoading(false);
+      // Allow searching with both "All" selections (will fetch all activities)
+      // or with at least one specific filter
+      const hasActivityTypeFilter = selectedActivityType !== undefined;
+      const hasCityFilter = selectedCity !== undefined;
+      
+      // Only prevent search if neither filter is selected at all (not even "All")
+      const activityTypeSelected = form.getValues("activityType");
+      const citySelected = form.getValues("city");
+      
+      if (!activityTypeSelected && !citySelected) {
+        setError("Please select at least one filter to search");
+        return;
       }
+
+      setActivityLoading(true);
+      setError(undefined);
+      
+      const [activitiesResponse] = await Promise.all([
+        getActivitiesWithFlexibleFilter(
+          selectedActivityType?.id,
+          selectedCity?.id,
+          organization?.id,
+        ),
+      ]);
+
+      if (!activitiesResponse) {
+        throw new Error("Couldn't get any activity");
+      }
+
+      console.log(activitiesResponse);
+      setActivities(activitiesResponse);
+      setActivityLoading(false);
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -179,7 +204,7 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
               control={form.control}
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel>Activity Type</FormLabel>
+                  <FormLabel>Activity Type (Optional)</FormLabel>
                   <FormControl>
                     {/* <Input placeholder="Enter activity type" {...field} /> */}
                     <Select
@@ -191,9 +216,12 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
                       value={field.value}
                     >
                       <SelectTrigger className="bg-slate-100 shadow-md">
-                        <SelectValue placeholder="Select activity type" />
+                        <SelectValue placeholder="Filter by activity type (optional)" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="all">
+                          All Activity Types
+                        </SelectItem>
                         {activityTypes.map((activityType) => (
                           <SelectItem
                             key={activityType.id}
@@ -214,7 +242,7 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Location</FormLabel>
+                  <FormLabel>Location (Optional)</FormLabel>
                   <FormControl>
                     {/* <Input placeholder="Enter city" {...field} /> */}
                     <Select
@@ -226,9 +254,12 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
                       value={field.value}
                     >
                       <SelectTrigger className="bg-slate-100 shadow-md">
-                        <SelectValue placeholder="Select city" />
+                        <SelectValue placeholder="Filter by city (optional)" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="all">
+                          All Cities
+                        </SelectItem>
                         {cities.map((city) => (
                           <SelectItem key={city.id} value={city.name}>
                             {city.name}
@@ -243,7 +274,10 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
             />
           </div>
 
-          <div className="w-[10%]">
+          <div className="w-[10%] flex flex-col gap-1">
+            <div className="text-xs text-gray-600 text-center">
+              Select filters or "All"
+            </div>
             <Button
               variant={"primaryGreen"}
               onClick={fetchActivities}
@@ -262,6 +296,14 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
             </Button>
           </div>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="rounded-md bg-red-50 p-3">
+            <div className="text-sm text-red-800">{error}</div>
+          </div>
+        )}
+
         <div className="flex w-full flex-row items-center">
           <FormField
             name="vendor"
@@ -298,7 +340,7 @@ const ActivitiesForm: React.FC<ActivityFormProps> = ({
                     </Select>
                   ) : (
                     <Input
-                      placeholder={`Please click search after selecting a valid activity type and a city`}
+                      placeholder={`Select filters above and click search to find vendors`}
                       {...field}
                       disabled={true}
                     />

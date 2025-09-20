@@ -95,6 +95,42 @@ export const getActivitiesByTypeAndCity = async (
   // return db.query.activity.findMany()
 };
 
+export const getActivitiesWithFlexibleFilter = async (
+  typeId?: number,
+  cityId?: number,
+  tenantId?: string,
+) => {
+  console.log(`Flexible filter - Type id: ${typeId}, City id: ${cityId}, Tenant id: ${tenantId}`);
+  
+  // Build where conditions dynamically
+  const whereConditions = [];
+  if (typeId) {
+    whereConditions.push(eq(activity.activityType, typeId));
+  }
+  if (tenantId) {
+    whereConditions.push(eq(activity.tenantId, tenantId));
+  }
+  
+  const activitiesData = await db.query.activity.findMany({
+    where: whereConditions.length > 0 ? and(...whereConditions) : undefined,
+    with: {
+      activityVendor: {
+        with: {
+          city: true,
+        },
+      },
+    },
+  });
+
+  // Filter by city if provided (since we can't easily join on city in the where clause)
+  let filteredData = activitiesData;
+  if (cityId) {
+    filteredData = activitiesData.filter((act) => act.activityVendor.cityId === cityId);
+  }
+
+  return filteredData;
+};
+
 
 
 export const getAllActivityTypes = () => {

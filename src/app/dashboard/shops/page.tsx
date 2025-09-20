@@ -13,6 +13,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { getAllShops } from "~/server/db/queries/shops";
 import { SelectCity, SelectShop, SelectShopShopType, SelectShopType } from "~/server/db/schemaTypes";
+import { useOrganization } from "@clerk/nextjs";
 
 export type ShopData = SelectShop & {
   city: SelectCity;
@@ -73,12 +74,14 @@ const ShopHome = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const { organization } = useOrganization();
 
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
-        const result = await getAllShops();
+        console.log("fetching shops for organization:", organization?.id);
+        const result = await getAllShops(organization?.id);
         console.log("result shops", result);
         setData(result);
       } catch (error) {
@@ -89,8 +92,10 @@ const ShopHome = () => {
       }
     }
 
-    fetchData();
-  }, []);
+    if (organization?.id) {
+      fetchData();
+    }
+  }, [organization?.id]);
 
   const filteredData = data.filter((shop) => {
     const searchTerm = searchQuery.toLowerCase();

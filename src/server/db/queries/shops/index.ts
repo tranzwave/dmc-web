@@ -3,11 +3,12 @@
 import { and, eq, inArray, sql, SQL } from 'drizzle-orm';
 import { ShopDetails } from '~/app/dashboard/shops/add/context';
 import { db } from "../..";
-import { city, shop, shopShopType, shopType } from "../../schema";
+import { city, shop, shopShopType, shopType, tenant } from "../../schema";
 import { InsertShop, InsertShopType } from '../../schemaTypes';
 
-export const getAllShops = () => {
+export const getAllShops = (tenantId?: string) => {
   return db.query.shop.findMany({
+    where: tenantId ? eq(shop.tenantId, tenantId) : undefined,
     with: {
       city: true,
       shopShopType:{
@@ -42,6 +43,45 @@ export const getShopsByTypeAndCity = async (typeId: number, cityId: number) => {
   return filteredShopsData;
 };
 
+export const getShopsWithFlexibleFilter = async (
+  typeId?: number,
+  cityId?: number,
+  tenantId?: string,
+) => {
+  console.log(`Flexible filter - Type id: ${typeId}, City id: ${cityId}, Tenant id: ${tenantId}`);
+  
+  // Build where conditions dynamically
+  const whereConditions = [];
+  if (cityId) {
+    whereConditions.push(eq(shop.cityId, cityId));
+  }
+  if (tenantId) {
+    whereConditions.push(eq(shop.tenantId, tenantId));
+  }
+  
+  const shopsData = await db.query.shop.findMany({
+    where: whereConditions.length > 0 ? and(...whereConditions) : undefined,
+    with: {
+      shopTypes: {
+        with: {
+          shopType: true,
+        },
+      },
+      city: true,
+    },
+  });
+
+  // Filter by shop type if provided
+  let filteredData = shopsData;
+  if (typeId) {
+    filteredData = shopsData.filter((shop) =>
+      shop.shopTypes.some((type) => type.shopTypeId === typeId)
+    );
+  }
+
+  return filteredData;
+};
+
 
 export const getAllShopTypes = () => {
   return db.query.shopType.findMany()
@@ -69,10 +109,18 @@ export const getAllCities = (countryCode: string) => {
 };
 
 
-export const insertShop = async (shopDetails: ShopDetails[]) => {
+export const insertShop = async (shopDetails: ShopDetails[], tenantId?: string) => {
   try {
     const newShops = await db.transaction(async (tx) => {
-      const foundTenant = await tx.query.tenant.findFirst();
+      let foundTenant;
+      
+      if (tenantId) {
+        foundTenant = await tx.query.tenant.findFirst({
+          where: eq(tenant.id, tenantId)
+        });
+      } else {
+        foundTenant = await tx.query.tenant.findFirst();
+      }
 
       if (!foundTenant) {
         throw new Error("Couldn't find any tenant");

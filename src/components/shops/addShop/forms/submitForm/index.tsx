@@ -6,6 +6,7 @@ import { useAddShop } from "~/app/dashboard/shops/add/context";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
 import { insertShop } from "~/server/db/queries/shops";
+import { useOrganization } from "@clerk/nextjs";
 
 const SubmitForm = () => {
   const { shopDetails } = useAddShop();
@@ -14,10 +15,12 @@ const SubmitForm = () => {
   const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
+  const { organization } = useOrganization();
 
   const handleSubmit = async () => {
     // Handle the submission of activityDetails
     console.log("Submitting shop details:", shopDetails);
+    console.log("Organization ID:", organization?.id);
     setLoading(true);
     try {
       let response;
@@ -27,7 +30,7 @@ const SubmitForm = () => {
         alert("Updated");
         return;
       } else {
-        response = await insertShop([shopDetails]);
+        response = await insertShop([shopDetails], organization?.id);
       }
 
       if (!response) {
