@@ -8,6 +8,7 @@ import { useEditBooking } from "~/app/dashboard/bookings/[id]/edit/context";
 import {
   ShopVoucher,
 } from "~/app/dashboard/bookings/add/context";
+import { useOrganization } from "@clerk/nextjs";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import {
@@ -28,7 +29,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
-import { getShopsByTypeAndCity } from "~/server/db/queries/shops";
+import { getShopsByTypeAndCity, getShopsWithFlexibleFilter } from "~/server/db/queries/shops";
 import {
   SelectCity,
   SelectShop,
@@ -53,8 +54,8 @@ interface ShopsFormProps {
 type ShopWithoutCityAndTypes = Omit<ShopsData, "city" | "shopTypes">;
 
 export const shopsSchema = z.object({
-  shopType: z.string().min(1, "Shop type is required"),
-  city: z.string().min(1, "City is required"),
+  shopType: z.string().optional(),
+  city: z.string().optional(),
   shop: z.string().min(1, "Shop is required"),
   date: z.string().min(1, "Date is required"),
   remarks: z.string().optional(), // Optional field
@@ -73,6 +74,7 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
   const [error, setError] = useState<string>();
   const [selectedShop, setSelectedShop] = useState<ShopsData | null>();
   const { bookingDetails } = useEditBooking();
+  const { organization } = useOrganization();
   const form = useForm<z.infer<typeof shopsSchema>>({
     resolver: zodResolver(shopsSchema),
     defaultValues: {
@@ -103,7 +105,7 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
         adultsCount: bookingDetails.general.adultsCount,
         kidsCount:bookingDetails.general.kidsCount,
         city: selectedShop?.city.name ?? "",
-        shopType: selectedShopType?.name ?? "",
+        shopType: selectedShopType?.name ?? selectedShop?.shopTypes[0]?.shopType.name ?? "",
         remarks:values.remarks
       },
     });
@@ -112,20 +114,34 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
 
   const fetchShops = async () => {
     try {
-      if (selectedShopType && selectedCity) {
-        setShopsLoading(true);
-        const [shopsResponse] = await Promise.all([
-          getShopsByTypeAndCity(selectedShopType?.id, selectedCity?.id),
-        ]);
-
-        if (!shopsResponse) {
-          throw new Error("Couldn't get any activity");
-        }
-
-        console.log(shopsResponse);
-        setShops(shopsResponse);
-        setShopsLoading(false);
+      // Allow searching with both "All" selections or with at least one specific filter
+      const shopTypeSelected = form.getValues("shopType");
+      const citySelected = form.getValues("city");
+      
+      // Only prevent search if neither filter is selected at all (not even "All")
+      if (!shopTypeSelected && !citySelected) {
+        setError("Please select at least one filter to search");
+        return;
       }
+
+      setShopsLoading(true);
+      setError(undefined);
+      
+      const [shopsResponse] = await Promise.all([
+        getShopsWithFlexibleFilter(
+          selectedShopType?.id,
+          selectedCity?.id,
+          organization?.id,
+        ),
+      ]);
+
+      if (!shopsResponse) {
+        throw new Error("Couldn't get any shops");
+      }
+
+      console.log(shopsResponse);
+      setShops(shopsResponse);
+      setShopsLoading(false);
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -138,18 +154,27 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
   };
 
   const getCityId = (name: string) => {
+    setSelectedShop(null);
     setShops([]);
     setShopsLoading(false);
-    const city = cities.find((city) => city.name === name);
-    setSelectedCity(city);
+    if (name === "all") {
+      setSelectedCity(undefined);
+    } else {
+      const city = cities.find((city) => city.name === name);
+      setSelectedCity(city);
+    }
   };
 
   const getShopTypeId = (name: string) => {
     setSelectedShop(null);
     setShops([]);
     setShopsLoading(false);
-    const type = shopTypes.find((type) => type.name === name);
-    setSelectedShopType(type);
+    if (name === "all") {
+      setSelectedShopType(undefined);
+    } else {
+      const type = shopTypes.find((type) => type.name === name);
+      setSelectedShopType(type);
+    }
   };
 
   const getShopId = (name: string) => {
@@ -168,7 +193,7 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Shop Type</FormLabel>
+                  <FormLabel>Shop Type (Optional)</FormLabel>
                   <FormControl>
                     {/* <Input placeholder="Enter shop type" {...field} /> */}
                     <Select
@@ -180,9 +205,12 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
                       value={field.value}
                     >
                       <SelectTrigger className="bg-slate-100 shadow-md">
-                        <SelectValue placeholder="Select shop type" />
+                        <SelectValue placeholder="Filter by shop type (optional)" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="all">
+                          All Shop Types
+                        </SelectItem>
                         {shopTypes.map((shopType) => (
                           <SelectItem key={shopType.id} value={shopType.name}>
                             {shopType.name}
@@ -200,7 +228,7 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>City</FormLabel>
+                  <FormLabel>Location (Optional)</FormLabel>
                   <FormControl>
                     {/* <Input placeholder="Enter city" {...field} /> */}
                     <Select
@@ -212,9 +240,12 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
                       value={field.value}
                     >
                       <SelectTrigger className="bg-slate-100 shadow-md">
-                        <SelectValue placeholder="Select city" />
+                        <SelectValue placeholder="Filter by city (optional)" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="all">
+                          All Cities
+                        </SelectItem>
                         {cities.map((city) => (
                           <SelectItem key={city.id} value={city.name}>
                             {city.name}
@@ -228,7 +259,10 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
               )}
             />
           </div>
-          <div className="w-[10%]">
+          <div className="w-[10%] flex flex-col gap-1">
+            <div className="text-xs text-gray-600 text-center">
+              Select filters or "All"
+            </div>
             <Button
               variant={"primaryGreen"}
               onClick={fetchShops}
@@ -247,6 +281,14 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
             </Button>
           </div>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="rounded-md bg-red-50 p-3">
+            <div className="text-sm text-red-800">{error}</div>
+          </div>
+        )}
+
         <div className="flex w-full flex-row items-center">
           <FormField
             name="shop"
@@ -280,7 +322,7 @@ const ShopsForm: React.FC<ShopsFormProps> = ({
                     </Select>
                   ) : (
                     <Input
-                      placeholder={`Please click search after selecting a valid shop type and a city`}
+                      placeholder={`Select filters above and click search to find shops`}
                       {...field}
                       disabled={true}
                     />

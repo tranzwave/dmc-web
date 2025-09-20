@@ -15,13 +15,16 @@ import { ShopsSearchParams } from "~/lib/api";
 import { getAllCities } from "~/server/db/queries/activities";
 import { addShopVouchersToBooking } from "~/server/db/queries/booking";
 import { getAllShopTypes } from "~/server/db/queries/shops";
+import { deleteShopVoucher as deleteShopVoucherFromDB } from "~/server/db/queries/booking/shopsVouchers";
 import { SelectCity, SelectShopType } from "~/server/db/schemaTypes";
 import { columns, Shop } from "./columns";
 import ShopsForm from "./shopsForm";
 import { useOrganization } from "@clerk/nextjs";
+import DeletePopup from "~/components/common/deletePopup";
+import { DataTableWithActions } from "~/components/common/dataTableWithActions";
 
 const ShopsTab = () => {
-  const { addShop, bookingDetails, setActiveTab } = useEditBooking();
+  const { addShop, bookingDetails, setActiveTab, deleteShopVoucher, updateTriggerRefetch } = useEditBooking();
   const [searchResults, setSearchResults] = useState<Shop[]>([]);
   const [searchDetails, setSearchDetails] = useState<Shop | null>(null);
   const [cities, setCities] = useState<SelectCity[]>([]);
@@ -33,6 +36,10 @@ const ShopsTab = () => {
 
 
   const [saving, setSaving] = useState(false);
+  const [selectedVoucher, setSelectedVoucher] = useState<ShopVoucher | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isUnsavedVoucherDelete, setIsUnsavedVoucherDelete] = useState(false);
+  const [isExistingVoucherDelete, setIsExistingVoucherDelete] = useState(false);
 
   const pathname = usePathname();
   const bookingLineId = pathname.split("/")[3];
@@ -42,6 +49,71 @@ const ShopsTab = () => {
       // setSearchDetails(shop)
       addShop(shop);
     }
+  };
+
+  const onDelete = async (voucher: ShopVoucher) => {
+    setSelectedVoucher(voucher);
+    if (!voucher.voucher?.id) {
+      // This is an unsaved voucher (no ID yet)
+      setIsUnsavedVoucherDelete(true);
+    } else {
+      // This is an existing voucher
+      setIsExistingVoucherDelete(true);
+    }
+  };
+
+  const handleUnsavedVoucherDelete = () => {
+    if (selectedVoucher) {
+      const index = bookingDetails.shops.findIndex(v => v === selectedVoucher);
+      deleteShopVoucher(index, selectedVoucher.voucher?.id ?? "");
+      setIsUnsavedVoucherDelete(false);
+      setSelectedVoucher(null);
+    }
+  };
+
+  const handleExistingVoucherDelete = async () => {
+    if (selectedVoucher && selectedVoucher.voucher?.status) {
+      if (selectedVoucher.voucher.status !== "inprogress") {
+        toast({
+          title: "Uh Oh",
+          description: `You can't delete this voucher. It's already ${selectedVoucher.voucher.status}! Please go to proceed vouchers and send the cancellation voucher first`,
+        });
+        return;
+      }
+      try {
+        setIsDeleting(true);
+        const deletedData = await deleteShopVoucherFromDB(selectedVoucher.voucher.id!);
+        if (!deletedData) {
+          throw new Error("Couldn't delete voucher");
+        }
+
+        deleteVoucherLineFromLocalContext();
+        setIsDeleting(false);
+        updateTriggerRefetch();
+        toast({
+          title: "Success",
+          description: "Shop voucher deleted successfully",
+        });
+      } catch (error) {
+        toast({
+          title: "Uh Oh",
+          description: "Couldn't delete this voucher",
+        });
+        setIsDeleting(false);
+      }
+      setIsExistingVoucherDelete(false);
+      setSelectedVoucher(null);
+      return;
+    }
+  };
+
+  const deleteVoucherLineFromLocalContext = () => {
+    setIsDeleting(true);
+    const index = bookingDetails.shops.findIndex(
+      (v) => v === selectedVoucher,
+    );
+    deleteShopVoucher(index, selectedVoucher?.voucher?.id ?? "");
+    setIsDeleting(false);
   };
 
   const updateShopVouchers = async (shop: ShopVoucher) => {
@@ -229,7 +301,13 @@ const ShopsTab = () => {
         </div>
       </div>
       <div className="w-full">
-        <DataTable columns={columns} data={bookingDetails.shops} />
+        <DataTableWithActions 
+          columns={columns} 
+          data={bookingDetails.shops} 
+          onRowClick={handleRowClick}
+          onDelete={onDelete}
+          isDeleting={isDeleting}
+        />
       </div>
         <div className="flex w-full justify-end gap-2">
           {/* <Button variant={"primaryGreen"} onClick={onSaveClick} disabled={saving}>
@@ -239,6 +317,26 @@ const ShopsTab = () => {
             <Button variant={"primaryGreen"}>Send Vouchers</Button>
           </Link>
         </div>
+
+      <DeletePopup
+        itemName={`Voucher for ${selectedVoucher?.shop.name}`}
+        onDelete={handleUnsavedVoucherDelete}
+        isOpen={isUnsavedVoucherDelete}
+        setIsOpen={setIsUnsavedVoucherDelete}
+        isDeleting={isDeleting}
+      />
+
+      <DeletePopup
+        itemName={`Voucher for ${selectedVoucher?.shop.name}`}
+        onDelete={handleExistingVoucherDelete}
+        isOpen={isExistingVoucherDelete}
+        setIsOpen={setIsExistingVoucherDelete}
+        isDeleting={isDeleting}
+        description={selectedVoucher?.voucher?.status !== "inprogress" 
+          ? `You can't delete this voucher. It's already ${selectedVoucher?.voucher?.status}! Please go to proceed vouchers and send the cancellation voucher first.`
+          : "Are you sure you want to delete this shop voucher? This action cannot be undone."
+        }
+      />
     </div>
   );
 };
