@@ -96,13 +96,13 @@ const ActivitiesTab = () => {
     }
   };
 
-  // useEffect(() => {
-  //   if(!bookingDetails.general.includes.activities){
-  //     setActiveTab("transport")
-  //     return ()=>{console.log("Return")};
-  //   }
-  //   fetchData();
-  // }, []);
+  useEffect(() => {
+    // if(!bookingDetails.general.includes.activities){
+    //   setActiveTab("transport")
+    //   return ()=>{console.log("Return")};
+    // }
+    fetchData();
+  }, []);
 
   if (loading || !isLoaded) {
     return <div>Loading...</div>;
