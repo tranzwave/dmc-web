@@ -1,4 +1,9 @@
-// components/SupportSection.tsx
+/**
+ * Support Section Component
+ * 
+ * @update 8/11/2025
+ * 
+ */
 import React, { useEffect, useRef } from "react";
 import { motion, useAnimation, useInView } from "framer-motion";
 
@@ -16,18 +21,18 @@ export default function SupportSection() {
   }, [isInView, controls]);
 
   return (
-    <section className="w-full bg-white py-12 pb-16" ref={ref}>
+    <section className="w-full bg-gray-50 py-16 pb-16 sm:py-24" ref={ref}>
       <motion.div
         className="max-w-5xl mx-auto px-6 text-center"
         initial={{ opacity: 0, y: 20 }}
         animate={controls}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
-        <h2 className="text-3xl font-semibold mb-6 text-gray-900">
+        <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-gray-900 select-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.1)]">
           Grow with confidence. Support when you need it.
         </h2>
         <p className="text-gray-700 text-lg leading-relaxed max-w-3xl mx-auto">
-          The <span className="font-semibold text-primary-600">COORD.TRAVEL Team</span> is here to support you every step of the way on your travel business journey. Connect with our dedicated customer support team via live chat, or explore our Help Center full of helpful resources, step-by-step guides, and troubleshooting tips.
+          The <span className="font-semibold text-[#287f71]">COORD.TRAVEL Team</span> is here to support you every step of the way on your travel business journey. Connect with our dedicated customer support team via live chat, or explore our Help Center full of helpful resources, step-by-step guides, and troubleshooting tips.
         </p>
       </motion.div>
     </section>

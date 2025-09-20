@@ -1,11 +1,10 @@
 /**
  * Landing Page
  *
- * @update 8/10/2025
+ * @update 8/11/2025
  */
 
 'use client'
-import { Navbar } from "./navBar"
 import HeroSection from "./heroSection"
 import PricingSection from "./pricingSection"
 import DashboardPreview from "./dashboardPreview"
@@ -13,14 +12,21 @@ import FeaturesSection from "./featuresSection"
 import SupportSection from './supportSection';
 import StatsSection from "./statsSection"
 import FocusOnGuestsSection from "./focusOnGuestsSection"
+import ContactUsSection from "./contactUsSection"
+import FaqsSection from "./faqsSection"
+import TermsConditionSection from "./termsConditionSection"
+import FourStepProcess from "./fourStepProcess"
+import FeatureSplitSection from "./featureSplit"
+import RefundPolicy from "./refundPolicy"
+import PrivacyPolicy from "./privacyPolicy"
+import TravelLibrarySection from "./travelLibrarySection"
+import ItineraryFeatures from "./ItineraryFeatures"
 
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden">
-      <Navbar />
       {/* Hero Section */}
       <HeroSection />
-      {/* Screenshot Section */}
 
       {/* Logos Section */}
       {/* <section className="py-16 bg-gray-50">
@@ -43,35 +49,61 @@ export default function LandingPage() {
       {/* Features Section */}
       <FeaturesSection />
 
+      {/* Feature Split Section */}
+      <FeatureSplitSection />
+
       {/* Dashboard Preview */}
       <DashboardPreview />
 
       {/* Focus on Guests Section */}
-      <div className="px-4">
-        <FocusOnGuestsSection className="px-4 sm:px-8"/>
+      <div>
+        <FocusOnGuestsSection className="px-4 sm:px-8" />
       </div>
 
       {/* Pricing Section */}
       <div id="pricing">
         <PricingSection />
       </div>
+
+      {/* Four Step Process */}
+      <FourStepProcess />
+
+      {/* Travel Library Section */}
+      <TravelLibrarySection />
+
+      {/* Itinerary Features Section */}
+      <ItineraryFeatures />
+
       {/* Support Section */}
       <SupportSection />
 
       {/* Stats Section */}
       <StatsSection />
 
-      {/* Footer */}
-      <footer className="py-8 bg-gray-900 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <div className="mt-4 flex justify-center space-x-6 text-[13px]">
-            <a href="/terms-and-conditions" className="hover:underline">Terms & Conditions</a>
-            <a href="/privacy-policy" className="hover:underline">Privacy Policy</a>
-            <a href="/refund-policy" className="hover:underline">Refund Policy</a>
-          </div>
-          <p>© 2025 COORD.TRAVEL. All rights reserved.</p>
-        </div>
-      </footer>
+      {/* Contact Us Section */}
+      <div id="contact-us">
+        <ContactUsSection />
+      </div>
+
+      {/* Privacy Policy */}
+      <div id="privacy-policy">
+        <PrivacyPolicy />
+      </div>
+
+      {/* Refund Policy */}
+      <div id="refund-policy">
+        <RefundPolicy />
+      </div>
+
+      {/* FAQs Section */}
+      <div id="faqs">
+        <FaqsSection />
+      </div>
+
+      {/* Terms and Conditions Section */}
+      <div id="terms-and-conditions">
+        <TermsConditionSection />
+      </div>
     </div>
   )
 }
