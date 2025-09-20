@@ -128,22 +128,12 @@ export default function TermsConditionSection() {
                 </motion.div>
                 <div className="space-y-4">
                     {terms.map(({ title, content }, i) => {
-                        const controls = useAnimation();
-                        const ref = useRef<HTMLDivElement | null>(null);
-                        const inView = useInView(ref);
-
-                        useEffect(() => {
-                            if (inView) controls.start("visible");
-                            else controls.start("hidden");
-                        }, [controls, inView]);
-
                         return (
                             <motion.div
                                 key={i}
-                                ref={ref}
                                 className="border rounded shadow-sm"
                                 initial="hidden"
-                                animate={controls}
+                                animate="visible"
                                 variants={variants}
                             >
                                 <button

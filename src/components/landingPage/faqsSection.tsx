@@ -77,15 +77,11 @@ export default function FaqsSection() {
 
       <div className="max-w-3xl mx-auto space-y-4 py-2 sm:pb-8 mb-2">
         {faqs.map(({ question, answer }, index) => {
-          const ref = useRef(null)
-          const isInView = useInView(ref, { once: false, amount: 0.2 })
-
           return (
             <motion.div
               key={index}
-              ref={ref}
               initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease: "easeOut", delay: index * 0.1 }}
               className={`bg-white/60 backdrop-blur-[20px] border border-white/30 rounded-2xl shadow-md cursor-pointer select-none
                 ${openIndex === index ? "shadow-lg scale-[1.02]" : "shadow-md scale-100"}
