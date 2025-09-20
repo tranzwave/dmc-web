@@ -44,13 +44,13 @@ export default function HeroSection() {
     >
       {/* Background + Gradient Overlay */}
       <div className="absolute inset-0 z-0">
-        <Image
+        {/* <Image
           src="/placeholder.svg?height=1080&width=1920"
           alt="Background"
           fill
           className="object-cover"
           priority
-        />
+        /> */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#287f71]/80 via-[#1f6c63]/60 to-[#287f71]/30 backdrop-blur-sm" />
       </div>
 
