@@ -80,7 +80,27 @@ const AddBookingSubmitTab = () => {
     }
   }
     , []);
+  // Helper to detect cancelled items in various voucher shapes
+  const isCancelled = (item: any) => {
+    if (!item) return false;
+    const candidates: any[] = [];
+    if (item.voucher) candidates.push(item.voucher.status, item.voucher.voucherStatus);
+    if (item.voucherLines && item.voucherLines.length > 0) candidates.push(item.voucherLines[0].status, item.voucherLines[0].voucherStatus);
+    if (item.status) candidates.push(item.status, item.voucherStatus);
+    return candidates.some((c) => typeof c === "string" && /cancel/i.test(c));
+  };
 
+  // Produce a summary with cancelled vouchers removed for both preview and dialogs
+  const filteredSummary: BookingSummary[] = summary.map((s) => {
+    return {
+      ...(s as any),
+      hotel: s.hotel && !isCancelled(s.hotel) ? s.hotel : null,
+      restaurants: Array.isArray(s.restaurants) ? s.restaurants.filter((r: any) => !isCancelled(r)) : [],
+      activities: Array.isArray(s.activities) ? s.activities.filter((a: any) => !isCancelled(a)) : [],
+      transport: Array.isArray(s.transport) ? s.transport.filter((t: any) => !isCancelled(t)) : [],
+      shops: Array.isArray(s.shops) ? s.shops.filter((sh: any) => !isCancelled(sh)) : [],
+    } as BookingSummary;
+  });
   return (
     <div className="mt-4 flex h-full flex-col gap-3">
       <div className="flex flex-row gap-2">
@@ -111,7 +131,7 @@ const AddBookingSubmitTab = () => {
             </div>
           </div>
           <div ref={summaryRef} className="pdf-summary">
-            {summary.map((sum, index) => {
+            {filteredSummary.map((sum, index) => {
               return <SummaryCard summary={sum} key={index} />;
             })}
           </div>
@@ -132,7 +152,7 @@ const AddBookingSubmitTab = () => {
               {message}
             </DialogDescription>
           </DialogHeader>
-          <ProceedContent summary={summary} bookingLineId={id} bookingLine={bookingDetails} agentAndManager={
+          <ProceedContent summary={filteredSummary} bookingLineId={id} bookingLine={bookingDetails} agentAndManager={
             {
               agent: agent?.name ?? '',
               manager: coordinatorAndManager[1] ?? ''
@@ -149,7 +169,7 @@ const AddBookingSubmitTab = () => {
               {message}
             </DialogDescription>
           </DialogHeader>
-          <ProceedContent summary={summary} bookingLineId={id} bookingLine={bookingDetails} agentAndManager={
+          <ProceedContent summary={filteredSummary} bookingLineId={id} bookingLine={bookingDetails} agentAndManager={
             {
               agent: agent?.name ?? '',
               manager: coordinatorAndManager[1] ?? ''

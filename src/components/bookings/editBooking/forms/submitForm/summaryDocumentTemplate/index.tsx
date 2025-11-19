@@ -22,13 +22,23 @@ type SummaryDocumentProps = {
 const SummaryDocument = ({ summary, booking, bookingLineId, organization, user, agentAndManager }: SummaryDocumentProps) => {
 
   // Sort the booking vouchers based on the earliest voucherLine inside that voucher
-  const sortedVouchers = booking.vouchers.sort((a, b) => {
-    const aEarliestDate = Math.min(
-      ...a.voucherLines.map((line) => new Date(line.checkInDate).getTime())
-    );
-    const bEarliestDate = Math.min(
-      ...b.voucherLines.map((line) => new Date(line.checkInDate).getTime())
-    );
+  // helper to detect cancelled vouchers in different shapes
+  const isCancelled = (item: any) => {
+    if (!item) return false;
+    const candidates: any[] = [];
+    if (item.voucher) candidates.push(item.voucher.status, item.voucher.voucherStatus);
+    if (item.voucherLines && item.voucherLines.length > 0) candidates.push(item.voucherLines[0].status, item.voucherLines[0].voucherStatus);
+    if (item.status) candidates.push(item.status, item.voucherStatus);
+    return candidates.some((c) => typeof c === "string" && /cancel/i.test(c));
+  };
+
+  // Filter out cancelled hotel vouchers and transport entries before generating the PDF
+  const filteredHotelVouchers = Array.isArray(booking.vouchers) ? booking.vouchers.filter((v) => !isCancelled(v)) : [];
+  const filteredTransport = Array.isArray(booking.transport) ? booking.transport.filter((t) => !isCancelled(t)) : [];
+
+  const sortedVouchers = filteredHotelVouchers.sort((a, b) => {
+    const aEarliestDate = Math.min(...a.voucherLines.map((line) => new Date(line.checkInDate).getTime()));
+    const bEarliestDate = Math.min(...b.voucherLines.map((line) => new Date(line.checkInDate).getTime()));
     return aEarliestDate - bEarliestDate;
   });
 
