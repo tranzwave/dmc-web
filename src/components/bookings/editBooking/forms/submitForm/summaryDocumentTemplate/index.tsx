@@ -65,9 +65,9 @@ const SummaryDocument = ({ summary, booking, bookingLineId, organization, user, 
             <div>Nationality : {Country.getCountryByCode(bookingLineId.split("-")[1]?.split("-")[0] ?? "")?.name}</div>
             <div>Handled By : {agentAndManager.manager}</div>
             {/* find a guide from transport vouchers and show his name */}
-            <div>Guide : {booking.transport?.find(t => t.guide)?.guide?.name ?? "Not Assigned"}</div>
+            <div>Guide : {filteredTransport.find(t => t.guide)?.guide?.name ?? "Not Assigned"}</div>
             {/* find a driver from vouchers and show his name */}
-            <div>Driver : {booking.transport?.find(t => t.driver)?.driver?.name ?? "Not Assigned"}</div>
+            <div>Driver : {filteredTransport.find(t => t.driver)?.driver?.name ?? "Not Assigned"}</div>
           </div>
         </div>
         <div className="mt-4 text-[13px] mx-auto">
@@ -141,7 +141,7 @@ const SummaryDocument = ({ summary, booking, bookingLineId, organization, user, 
           </div>
           <div className="mt-4 text-[13px] grid grid-cols-1 gap-4">
             {/* Driver Details Table */}
-            {booking.transport?.length > 0 && booking.transport.some(t => t.driver) && (
+            {filteredTransport.length > 0 && filteredTransport.some(t => t.driver) && (
               <table className="w-full border bg-white text-center">
                 <thead>
                   <tr>
@@ -155,7 +155,7 @@ const SummaryDocument = ({ summary, booking, bookingLineId, organization, user, 
                   </tr>
                 </thead>
                 <tbody>
-                  {booking.transport?.map((transport) => {
+                  {filteredTransport.map((transport) => {
                     if (transport.driver) {
                       return (
                         <tr key={transport.voucher.id}>
@@ -174,7 +174,7 @@ const SummaryDocument = ({ summary, booking, bookingLineId, organization, user, 
             )}
 
             {/* Guide Details Table */}
-            {booking.transport?.length > 0 && booking.transport.some(t => t.guide) && (
+            {filteredTransport.length > 0 && filteredTransport.some(t => t.guide) && (
               <table className="w-full border bg-white text-center">
                 <thead>
                   <tr>
@@ -188,7 +188,7 @@ const SummaryDocument = ({ summary, booking, bookingLineId, organization, user, 
                   </tr>
                 </thead>
                 <tbody>
-                  {booking.transport?.map((transport) => {
+                  {filteredTransport.map((transport) => {
                     if (transport.guide) {
                       return (
                         <tr key={transport.voucher.id}>
@@ -206,7 +206,7 @@ const SummaryDocument = ({ summary, booking, bookingLineId, organization, user, 
             )}
 
             {/* Other Transport Details Table */}
-            {booking.transport?.length > 0 && booking.transport.some(t => t.otherTransport) && (
+            {filteredTransport.length > 0 && filteredTransport.some(t => t.otherTransport) && (
               <table className="w-full border bg-white text-center">
                 <thead>
                   <tr>
@@ -220,7 +220,7 @@ const SummaryDocument = ({ summary, booking, bookingLineId, organization, user, 
                   </tr>
                 </thead>
                 <tbody>
-                  {booking.transport?.map((transport) => {
+                  {filteredTransport.map((transport) => {
                     if (transport.otherTransport) {
                       return (
                         <tr key={transport.voucher.id}>
