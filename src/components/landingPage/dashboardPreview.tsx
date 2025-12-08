@@ -62,7 +62,7 @@ export default function DashboardPreview() {
           </h2>
           <p className="text-gray-700 text-base sm:text-lg">
             Already have travel products? Seamlessly import and manage your offerings with Coord Travel’s
-            easy-to-use platform. Start selling your tours and experiences worldwide within minutes.
+            easy-to-use platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-8 sm:gap-10 mt-6 sm:mt-8">
             <motion.div
