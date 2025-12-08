@@ -128,16 +128,6 @@ export default function FocusOnGuestsSection({ className = "" }: { className?: s
 
           <motion.ul className="mt-6 sm:mt-8 space-y-5 sm:space-y-6" variants={staggerList}>
             <Feature
-              title="Automate confirmations, updates, and cancellations"
-              desc="for guests and guides. Email guests easily with Bókun's templates"
-              href="#"
-            />
-            <Feature
-              title="Enable sales channels easily and use our pricing tools"
-              desc="to set bespoke rates for each sales channel"
-              href="#"
-            />
-            <Feature
               title="Avoid double bookings with one booking calendar"
               desc="a sales feed and mass closeouts."
               href="#"
