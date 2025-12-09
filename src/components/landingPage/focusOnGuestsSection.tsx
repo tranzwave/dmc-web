@@ -128,16 +128,6 @@ export default function FocusOnGuestsSection({ className = "" }: { className?: s
 
           <motion.ul className="mt-6 sm:mt-8 space-y-5 sm:space-y-6" variants={staggerList}>
             <Feature
-              title="Automate confirmations, updates, and cancellations"
-              desc="for guests and guides. Email guests easily with Bókun's templates"
-              href="#"
-            />
-            <Feature
-              title="Enable sales channels easily and use our pricing tools"
-              desc="to set bespoke rates for each sales channel"
-              href="#"
-            />
-            <Feature
               title="Avoid double bookings with one booking calendar"
               desc="a sales feed and mass closeouts."
               href="#"
@@ -159,18 +149,6 @@ export default function FocusOnGuestsSection({ className = "" }: { className?: s
           <ReplayOnScroll variants={fadeUp} className="absolute inset-0 -z-10">
             <div className="h-full w-full rounded-2xl sm:rounded-3xl bg-gradient-to-b from-gray-50 to-white" />
           </ReplayOnScroll>
-
-          {/* Card: Upcoming departures */}
-          <PopIn className="relative w-full sm:w-[90%] sm:self-end max-w-md rounded-2xl border border-gray-200 bg-white shadow-lg shadow-gray-200/40">
-            <div className="p-4 sm:p-5">
-              <div className="text-sm font-medium text-gray-900">Upcoming departures</div>
-              <div className="mt-3 space-y-3 text-sm">
-                <Row time="10:00" label="Cooking class" />
-                <Row time="12:00" label="Transport from Heathrow" />
-              </div>
-              <div className="mt-3 text-xs text-emerald-600 font-medium">Booking Calendar</div>
-            </div>
-          </PopIn>
 
           {/* Card: Bookings bar chart */}
           <PopIn className="relative -mt-2 sm:-mt-4 rounded-2xl border border-gray-200 bg-white shadow-xl shadow-gray-200/50 sm:self-start sm:translate-x-2 lg:translate-x-10">

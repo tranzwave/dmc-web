@@ -89,7 +89,7 @@ export default function FeatureSplitSection(){
             icon: <Calendar className="h-7 w-7" />,
             title: "Reusable Days",
             description:
-              "Add used days from previous itineraries, including photos, description and activities.",
+              "Add used days from previous itineraries, description and activities.",
           },
           {
             icon: <Monitor className="h-7 w-7" />,

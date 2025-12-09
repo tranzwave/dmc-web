@@ -7,12 +7,12 @@
 
 import React, { useEffect, useRef, useState } from "react"
 import { motion, useAnimation, useInView, easeOut } from "framer-motion"
-import { Users, Globe, Languages } from "lucide-react"
+import { Users, Globe, Star } from "lucide-react"
 
 const stats = [
   { number: "50K+", label: "Active Users", icon: Users },
   { number: "100+", label: "Countries", icon: Globe },
-  { number: "20+", label: "Languages", icon: Languages },
+  { number: "10K+", label: "Reviews", icon: Star },
 ]
 
 export default function StatsSection() {
