@@ -132,6 +132,41 @@ export default function FocusOnGuestsSection({ className = "" }: { className?: s
               desc="a sales feed and mass closeouts."
               href="#"
             />
+            <Feature
+              title="Voucher Management"
+              desc="Issue, track, and organize tour vouchers in one place."
+              href="#"
+            />
+            <Feature
+              title="Tour Summary & Packet Checklist"
+              desc="Auto-generate complete tour overviews with required document checklists."
+              href="#"
+            />
+            <Feature
+              title="Billing & Tour Invoices"
+              desc="Create and manage invoices instantly for any booking."
+              href="#"
+            />
+            <Feature
+              title="Reporting Dashboard"
+              desc="View real-time performance insights and key business metrics."
+              href="#"
+            />
+            <Feature
+              title="Agent Management"
+              desc="Add, monitor, and manage agents with role-based access."
+              href="#"
+            />
+            <Feature
+              title="Notifications & Alerts"
+              desc="Get instant alerts for updates, approvals, and important changes."
+              href="#"
+            />
+            <Feature
+              title="Security & User Control"
+              desc="Protect your system with permissions, roles, and secure user access."
+              href="#"
+            />
           </motion.ul>
 
           <FadeUp>
