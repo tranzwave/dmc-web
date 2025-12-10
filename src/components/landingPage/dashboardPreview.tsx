@@ -62,9 +62,9 @@ export default function DashboardPreview() {
           </h2>
           <p className="text-gray-700 text-base sm:text-lg">
             Already have travel products? Seamlessly import and manage your offerings with Coord Travel’s
-            easy-to-use platform. Start selling your tours and experiences worldwide within minutes.
+            easy-to-use platform.
           </p>
-          <div className="flex flex-col sm:flex-row gap-8 sm:gap-10 mt-6 sm:mt-8">
+          <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 mt-2 sm:mt-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={leftControls}
@@ -89,6 +89,62 @@ export default function DashboardPreview() {
               </h3>
               <p className="text-gray-700 mt-1 text-sm sm:text-base">
                 Coord Travel offers a commission-free platform to maximize your earnings.
+              </p>
+            </motion.div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 mt-2 sm:mt-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={leftControls}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              className="max-w-full sm:max-w-xs"
+            >
+              <h3 className="text-lg sm:text-xl font-bold">
+                Real-Time Availability
+              </h3>
+              <p className="text-gray-700 mt-1 text-sm sm:text-base">
+                Keep your schedules always up to date with automatic availability syncing across all bookings.
+              </p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={leftControls}
+              transition={{ delay: 0.6, duration: 0.6 }}
+              className="max-w-full sm:max-w-xs"
+            >
+              <h3 className="text-lg sm:text-xl font-bold">
+                Vendor Confirmation Workflow
+              </h3>
+              <p className="text-gray-700 mt-1 text-sm sm:text-base">
+                Streamline operations with a built-in workflow that notifies vendors instantly and tracks their confirmations.
+              </p>
+            </motion.div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 mt-2 sm:mt-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={leftControls}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              className="max-w-full sm:max-w-xs"
+            >
+              <h3 className="text-lg sm:text-xl font-bold">
+                Instant PDF Generation
+              </h3>
+              <p className="text-gray-700 mt-1 text-sm sm:text-base">
+                Generate polished itineraries, invoices, and vouchers in seconds—ready to download or share.
+              </p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={leftControls}
+              transition={{ delay: 0.6, duration: 0.6 }}
+              className="max-w-full sm:max-w-xs"
+            >
+              <h3 className="text-lg sm:text-xl font-bold">
+                Multi-User Team Collaboration
+              </h3>
+              <p className="text-gray-700 mt-1 text-sm sm:text-base">
+                Empower your team with shared access, role-based permissions, and real-time project collaboration.
               </p>
             </motion.div>
           </div>

@@ -54,7 +54,7 @@ export default function TravelLibrarySection() {
 
           <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-1 text-gray-700">
             <ul className="list-disc list-inside space-y-1">
-              <li>Quotations</li>
+              <li>Hotels</li>
               <li>Accommodations</li>
               <li>Activities</li>
             </ul>

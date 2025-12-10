@@ -13,9 +13,9 @@ const features = [
   },
   {
     icon: <MapPin className="w-10 h-10 text-[#287f71]" />,
-    title: "Visualize with Maps",
+    title: "Curate Personalized Experiences",
     description:
-      "Use maps to locate nearby locations, identify distances and better plot the itinerary.",
+      "Craft bespoke Worldwide itineraries with exclusive hotel offers, transfers, activities, guides and more.",
   },
   {
     icon: <Share2 className="w-10 h-10 text-[#287f71]" />,
