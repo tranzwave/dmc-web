@@ -70,9 +70,16 @@ const RestaurantVoucherView = ({ voucher, cancellation, bookingName, organizatio
           </table>
         </div>
 
-        <div className="flex w-full flex-row justify-end p-4 text-[13px] font-semibold">
-          {`Total(${currency}) - ${voucher.voucherLines[0]?.rate ?? 0}`}
-        </div>
+            <div className="flex w-full flex-row justify-end p-4 text-[13px] font-semibold">
+              {(() => {
+                const total = voucher.voucherLines?.reduce((acc, line) => {
+                  const adults = Number(line.adultsCount ?? 0);
+                  const rate = Number(line.rate ?? 0);
+                  return acc + adults * rate;
+                }, 0) ?? 0;
+                return `Total(${currency}) - ${total.toFixed(2)}`;
+              })()}
+            </div>
 
         <div className="text-[13px] font-normal">
 
