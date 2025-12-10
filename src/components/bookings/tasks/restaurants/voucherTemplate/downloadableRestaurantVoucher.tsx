@@ -125,9 +125,14 @@ const RestaurantVoucherDownloadablePDF = ({ voucher, organization, user }:Restau
         <View style={[styles.section, styles.textRight]}>
           <Text>
             Total (USD):{" "}
-            {voucher.voucherLines[0]?.rate
-              ? Number(voucher.voucherLines[0]?.rate ?? 0).toFixed(2)
-              : "0.00"}
+            {(() => {
+              const total = voucher.voucherLines?.reduce((acc, line) => {
+                const adults = Number(line.adultsCount ?? 0);
+                const rate = Number(line.rate ?? 0);
+                return acc + adults * rate;
+              }, 0) ?? 0;
+              return total.toFixed(2);
+            })()}
           </Text>
         </View>
 
