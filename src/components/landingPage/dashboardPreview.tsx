@@ -72,34 +72,6 @@ export default function DashboardPreview() {
               className="max-w-full sm:max-w-xs"
             >
               <h3 className="text-lg sm:text-xl font-bold">
-                Get Booked in Days
-              </h3>
-              <p className="text-gray-700 mt-1 text-sm sm:text-base">
-                Most Coord Travel partners receive their first bookings within days of joining.
-              </p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={leftControls}
-              transition={{ delay: 0.6, duration: 0.6 }}
-              className="max-w-full sm:max-w-xs"
-            >
-              <h3 className="text-lg sm:text-xl font-bold">
-                Zero Commission Fees
-              </h3>
-              <p className="text-gray-700 mt-1 text-sm sm:text-base">
-                Coord Travel offers a commission-free platform to maximize your earnings.
-              </p>
-            </motion.div>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 mt-2 sm:mt-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={leftControls}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="max-w-full sm:max-w-xs"
-            >
-              <h3 className="text-lg sm:text-xl font-bold">
                 Real-Time Availability
               </h3>
               <p className="text-gray-700 mt-1 text-sm sm:text-base">

@@ -1,5 +1,5 @@
 /**
- * Feature Split Section Component
+ * How It Works Section Component
  * 
  * @update 8/11/2025
  */
@@ -8,7 +8,7 @@
 import Image from "next/image";
 import React from "react";
 import { motion, type Variants, useAnimation, useInView, useReducedMotion } from "framer-motion";
-import { Calendar, Monitor, Save } from "lucide-react";
+import { UserPlus, Database, Zap, Users } from "lucide-react"
 
 type Bullet = {
     icon?: React.ReactNode; // pass an SVG/emoji/icon component
@@ -76,34 +76,41 @@ function ReplayOnScroll({
     );
 }
 
-export default function FeatureSplitSection(){
+export default function HowItsWorkSection(){
     return(
         <FeatureSplit
-        eyebrow=""
-        title="Free Itinerary Builder"
-        intro="our new itinerary builder is an entirely new experience for creating itineraries quickly for your customized / bespoke tours. with features like auto save and reusable days, you can move swiftly across screens and get the work done in no time!"
+        eyebrow="Simple, Step by Step Process"
+        title="How It Works"
+        intro=""
         imageSrc="/assets/landing/booking.png" // put your image in /public/images
         imageAlt="Landing screenshot"
-        bullets={[
-          {
-            icon: <Calendar className="h-7 w-7" />,
-            title: "Reusable Days",
+       bullets={[
+        {
+            icon: <UserPlus className="h-7 w-7" />,
+            title: "Sign Up & Set Up",
             description:
-              "Add used days from previous itineraries, description and activities.",
-          },
-          {
-            icon: <Monitor className="h-7 w-7" />,
-            title: "Itinerary Versioning",
+            "Create your account in minutes and gain instant access to core features.",
+        },
+        {
+            icon: <Database className="h-7 w-7" />,
+            title: "Add Your Inventory",
             description:
-              "Create and manage itinerary versions as your discussion with the customer evolves.",
-          },
-          {
-            icon: <Save className="h-7 w-7" />,
-            title: "Easy to Use",
+            "Upload hotels, vehicles, guides, restaurants, and suppliers into your system.",
+        },
+        {
+            icon: <Zap className="h-7 w-7" />,
+            title: "Automate Workflows",
             description:
-              "Toursoft is the easiest to use product on the market. Breeze through creating complex itineraries with ease!",
-          },
-        ]}
+            "Create bookings and let Coord.travel generate vouchers and invoices automatically.",
+        },
+        {
+            icon: <Users className="h-7 w-7" />,
+            title: "Collaborate Across Teams",
+            description:
+            "Share schedules, updates, and changes with staff and partners in real time.",
+        },
+       ]}
+
       />
     )
 }

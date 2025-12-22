@@ -89,6 +89,44 @@ export default function FeaturesSection() {
       title: "24/7 Support",
       description: "Reliable customer support to assist you and your guests anytime, anywhere.",
     },
+
+    // Newly added core features
+    {
+      icon: Calendar,
+      title: "Centralized Booking & Resource Management",
+      description:
+        "Manage hotels, transport, guides, and restaurants from one dashboard with real-time availability.",
+    },
+    {
+      icon: CreditCard,
+      title: "Automated Voucher & Invoice Generation",
+      description:
+        "Automatically generate professional digital vouchers and invoices for every booking.",
+    },
+    {
+      icon: Box,
+      title: "Transportation Coordination",
+      description:
+        "Track vehicle availability, assign transport logistics, and reduce communication gaps.",
+    },
+    {
+      icon: Users,
+      title: "Tour Guides & Activities Management",
+      description:
+        "Assign and schedule guides, tours, and excursions with full visibility and control.",
+    },
+    {
+      icon: Globe,
+      title: "Reporting & Analytics",
+      description:
+        "Analyze bookings, revenue, and customer trends to make data-driven business decisions.",
+    },
+    {
+      icon: Clock,
+      title: "Secure, Cloud-Based Access",
+      description:
+        "Access the platform anytime, anywhere with encrypted and role-based team access.",
+    },
   ]
 
   return (
