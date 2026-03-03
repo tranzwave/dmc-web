@@ -530,6 +530,26 @@ export const createBookingLineTx = async (
   return newBookingLine[0];
 };
 
+export const getNextHotelVoucherIndex = async (bookingLineId: string): Promise<number> => {
+  // Get all hotel vouchers for this booking line (including cancelled ones)
+  const existingVouchers = await db.query.hotelVoucher.findMany({
+    where: eq(hotelVoucher.bookingLineId, bookingLineId),
+  });
+
+  if (existingVouchers.length === 0) {
+    return 1;
+  }
+
+  // Extract the index from each voucher ID (format: BOOKING-ID-HTL/INDEX)
+  const indices = existingVouchers.map(v => {
+    const match = v.id.match(/HTL\/(\d+)$/);
+    return match && match[1] ? parseInt(match[1], 10) : 0;
+  });
+
+  // Return the maximum index + 1
+  return Math.max(...indices) + 1;
+};
+
 export const addHotelVoucherLinesToBooking = async (
   vouchers: HotelVoucher[],
   newBookingLineId: string,

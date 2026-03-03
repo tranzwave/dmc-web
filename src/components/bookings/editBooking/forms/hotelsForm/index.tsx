@@ -15,6 +15,7 @@ import {
   addHotelVoucherLinesToBooking,
   addHotelVoucherLineToExistingVoucher,
   deleteHotelVoucherLine,
+  getNextHotelVoucherIndex,
   updateSingleHotelVoucherLineTx,
 } from "~/server/db/queries/booking";
 import { getAllHotelsV2 } from "~/server/db/queries/hotel";
@@ -139,11 +140,13 @@ const HotelsTab = () => {
       setSaving(true);
       let newResponse = null;
       if (isNewVoucher) {
+        // Get the next available voucher index from the database (including cancelled vouchers)
+        const nextIndex = await getNextHotelVoucherIndex(bookingLineId ?? "");
         newResponse = await addHotelVoucherLinesToBooking(
           [hotelVoucher],
           bookingLineId ?? "",
           bookingDetails.general.marketingManager,
-          bookingDetails.vouchers.length + 1
+          nextIndex
         );
       } else {
         // newResponse = await addHotelVoucherLinesToBooking()
